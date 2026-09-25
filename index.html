@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>仓木 悠 · 个人主页</title>
+<script>document.documentElement.classList.add('js');</script>
 <style>
 /* ==================== 设计变量 ==================== */
 :root{
@@ -169,24 +170,39 @@ body::after{
   padding:24px 20px 72px;
 }
 
-/* 入场动画 */
-@keyframes riseIn{
-  from{opacity:0;transform:translateY(14px);}
-  to{opacity:1;transform:translateY(0);}
+/* ==================== 滚动入场动画 ==================== */
+/* 默认（无 JS）保持可见；仅在 <html class="js"> 时隐藏，等待进入视口 */
+.js .reveal{
+  opacity:0;
+  /* 用独立的 translate 属性做位移，避免与组件自身的 transform 冲突
+     （例如 .card:active 的缩放、.btn 的 skewX） */
+  translate:0 22px;
+  transition:
+    opacity .62s cubic-bezier(.22,.61,.36,1),
+    translate .62s cubic-bezier(.22,.61,.36,1);
+  transition-delay:var(--reveal-delay,0ms);
+  will-change:opacity, translate;
 }
-.page > *{
-  animation:riseIn .55s cubic-bezier(.22,.61,.36,1) both;
+.js .reveal.is-visible{
+  opacity:1;
+  translate:0 0;
+  will-change:auto;
 }
-.page > *:nth-child(1){animation-delay:.02s;}
-.page > *:nth-child(2){animation-delay:.08s;}
-.page > *:nth-child(3){animation-delay:.14s;}
-.page > *:nth-child(4){animation-delay:.20s;}
-.page > *:nth-child(5){animation-delay:.26s;}
-.page > *:nth-child(6){animation-delay:.32s;}
-.page > *:nth-child(7){animation-delay:.38s;}
-.page > *:nth-child(8){animation-delay:.44s;}
-.page > *:nth-child(9){animation-delay:.50s;}
-.page > *:nth-child(10){animation-delay:.56s;}
+
+/* 同组元素依次入场（错开节奏） */
+.masthead > :nth-child(2){--reveal-delay:70ms;}
+.masthead > :nth-child(3){--reveal-delay:140ms;}
+.masthead > :nth-child(4){--reveal-delay:210ms;}
+
+.stats > :nth-child(2),
+.works > :nth-child(2),
+.cols  > :nth-child(2){--reveal-delay:80ms;}
+
+.stats > :nth-child(3),
+.works > :nth-child(3){--reveal-delay:160ms;}
+
+.stats > :nth-child(4),
+.works > :nth-child(4){--reveal-delay:240ms;}
 
 /* ==================== 巨型标题区（Masthead） ==================== */
 .masthead{
@@ -781,6 +797,12 @@ body::after{
     animation-iteration-count:1 !important;
     transition-duration:.01ms !important;
   }
+  /* 直接显示，不做位移 */
+  .js .reveal{
+    opacity:1 !important;
+    translate:none !important;
+    transition:none !important;
+  }
 }
 </style>
 </head>
@@ -846,19 +868,19 @@ body::after{
 
   <!-- ---------- 巨型标题区 ---------- -->
   <section class="masthead" aria-label="站点标题">
-    <p class="masthead__eyebrow">Yuu Portfolio · 2026</p>
+    <p class="masthead__eyebrow reveal">Yuu Portfolio · 2026</p>
 
-    <h1 class="masthead__title">
+    <h1 class="masthead__title reveal">
       仓木 悠
       <em>Front-end Engineer</em>
     </h1>
 
-    <p class="masthead__subtitle">
+    <p class="masthead__subtitle reveal">
       用代码与像素构建清新的数字体验。专注前端工程化、界面设计与动效表达，
       在性能与美感之间寻找那条刚刚好的线。
     </p>
 
-    <div class="masthead__meta">
+    <div class="masthead__meta reveal">
       <span>杭州 · 中国</span>
       <span>TypeScript / Vue / Canvas</span>
       <span>可接洽合作</span>
@@ -866,7 +888,7 @@ body::after{
   </section>
 
   <!-- ---------- 主视觉 ---------- -->
-  <section class="card hero" aria-label="角色信息">
+  <section class="card hero reveal" aria-label="角色信息">
     <div class="hero__top">
       <div class="avatar">
         <div class="avatar__img">悠</div>
@@ -900,7 +922,7 @@ body::after{
 
   <!-- ---------- 作战数据 ---------- -->
   <section class="stats" aria-label="数据统计">
-    <div class="card stat">
+    <div class="card stat reveal">
       <div class="stat__icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -911,7 +933,7 @@ body::after{
       <span class="stat__label">项目经验</span>
     </div>
 
-    <div class="card stat">
+    <div class="card stat reveal">
       <div class="stat__icon stat__icon--purple">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -923,7 +945,7 @@ body::after{
       <span class="stat__label">代码提交</span>
     </div>
 
-    <div class="card stat">
+    <div class="card stat reveal">
       <div class="stat__icon stat__icon--pink">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -937,7 +959,7 @@ body::after{
       <span class="stat__label">设计稿</span>
     </div>
 
-    <div class="card stat">
+    <div class="card stat reveal">
       <div class="stat__icon stat__icon--orange">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -952,10 +974,10 @@ body::after{
   </section>
 
   <!-- ---------- 技能 & 档案 ---------- -->
-  <h2 class="section-title">能力参数<span class="section-title__sub">SKILL PARAMETERS</span></h2>
+  <h2 class="section-title reveal">能力参数<span class="section-title__sub">SKILL PARAMETERS</span></h2>
 
   <section class="cols">
-    <div class="card panel card--static">
+    <div class="card panel card--static reveal">
       <div class="panel__head">
         <span class="panel__title">技能等级</span>
         <span class="panel__hint">最近更新 · 2026.09</span>
@@ -994,7 +1016,7 @@ body::after{
       </div>
     </div>
 
-    <div class="card panel card--static">
+    <div class="card panel card--static reveal">
       <div class="panel__head">
         <span class="panel__title">档案信息</span>
         <span class="panel__hint">PROFILE</span>
@@ -1026,10 +1048,10 @@ body::after{
   </section>
 
   <!-- ---------- 作品集 ---------- -->
-  <h2 class="section-title">作品记录<span class="section-title__sub">SELECTED WORKS</span></h2>
+  <h2 class="section-title reveal">作品记录<span class="section-title__sub">SELECTED WORKS</span></h2>
 
   <section class="works">
-    <article class="card work">
+    <article class="card work reveal">
       <div class="work__thumb" style="--c1:#128AFA;--c2:#ABD7FF;">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1047,7 +1069,7 @@ body::after{
       </div>
     </article>
 
-    <article class="card work">
+    <article class="card work reveal">
       <div class="work__thumb" style="--c1:#4454F8;--c2:#BEC0EC;">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1067,7 +1089,7 @@ body::after{
       </div>
     </article>
 
-    <article class="card work">
+    <article class="card work reveal">
       <div class="work__thumb" style="--c1:#169B5B;--c2:#89EFD4;">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1085,7 +1107,7 @@ body::after{
       </div>
     </article>
 
-    <article class="card work">
+    <article class="card work reveal">
       <div class="work__thumb" style="--c1:#FB7B44;--c2:#FFD84D;">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1104,9 +1126,9 @@ body::after{
   </section>
 
   <!-- ---------- 联系 ---------- -->
-  <h2 class="section-title">建立连接<span class="section-title__sub">CONTACT</span></h2>
+  <h2 class="section-title reveal">建立连接<span class="section-title__sub">CONTACT</span></h2>
 
-  <section class="card panel card--static" style="padding:26px 24px;">
+  <section class="card panel card--static reveal" style="padding:26px 24px;">
     <div class="actions">
       <a class="btn btn--primary" href="mailto:yuu@example.com">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1123,12 +1145,46 @@ body::after{
   </section>
 
   <!-- ---------- 页脚 ---------- -->
-  <footer class="footer">
+  <footer class="footer reveal">
     <span class="footer__mark">Yuu — Front-end Engineer</span>
     <span>© 2026 仓木 悠 · 清新 / 极简 / 高效</span>
   </footer>
 
 </main>
+
+<script>
+(function () {
+  var items = document.querySelectorAll('.reveal');
+  if (!items.length) return;
+
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 不支持 IntersectionObserver 或用户偏好减少动效：直接全部显示
+  if (!('IntersectionObserver' in window) || reduceMotion) {
+    Array.prototype.forEach.call(items, function (el) {
+      el.classList.add('is-visible');
+    });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target); // 只播放一次
+    });
+  }, {
+    // 元素进入视口约 12% 且距底部留出余量时才触发
+    threshold: 0.12,
+    rootMargin: '0px 0px -8% 0px'
+  });
+
+  Array.prototype.forEach.call(items, function (el) {
+    observer.observe(el);
+  });
+})();
+</script>
 
 </body>
 </html>
