@@ -1323,6 +1323,9 @@ body::after{
 </head>
 <body>
 
+<!-- 背景音乐 -->
+<audio id="bgm" src="src/ShootingStars.mp3" loop preload="auto" autoplay playsinline></audio>
+
 <!-- ==================== 顶部栏 ==================== -->
 <header class="topbar">
   <!-- 返回按钮（深蓝色圆形） -->
@@ -1377,13 +1380,19 @@ body::after{
     </button>
   </div>
 
-  <!-- 设置按钮 -->
-  <button class="icon-btn icon-btn--action" id="btn-settings"
-        aria-label="隐藏页面导航" aria-pressed="false">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
+  <!-- 音乐播放 / 暂停按钮（原设置按钮） -->
+  <button class="icon-btn icon-btn--action" id="btn-music"
+        aria-label="播放音乐" aria-pressed="false">
+    <!-- 播放图标 -->
+    <svg id="icon-music-play" width="22" height="22" viewBox="0 0 24 24"
+         fill="currentColor" aria-hidden="true">
+      <path d="M8 5.2v13.6L19 12 8 5.2z"/>
+    </svg>
+    <!-- 暂停图标 -->
+    <svg id="icon-music-pause" width="22" height="22" viewBox="0 0 24 24"
+         fill="currentColor" aria-hidden="true" style="display:none">
+      <rect x="6" y="5" width="4" height="14" rx="1.2"/>
+      <rect x="14" y="5" width="4" height="14" rx="1.2"/>
     </svg>
   </button>
 
@@ -2091,16 +2100,66 @@ body::after{
     });
   }
 
-  /* ---------- 设置按钮：显示 / 隐藏右侧分页导航 ---------- */
-  var btnSettings = document.getElementById('btn-settings');
-  var nav = document.getElementById('pager-nav');
-  if (btnSettings && nav) {
-    btnSettings.addEventListener('click', function () {
-      var hidden = nav.classList.toggle('is-hidden');
-      btnSettings.setAttribute('aria-pressed', hidden ? 'true' : 'false');
-      btnSettings.setAttribute('aria-label', hidden ? '显示页面导航' : '隐藏页面导航');
-    });
+  /* ---------- 背景音乐：进入自动播放 + 按钮切换 ---------- */
+  var bgm        = document.getElementById('bgm');
+  var btnMusic   = document.getElementById('btn-music');
+  var iconPlay   = document.getElementById('icon-music-play');
+  var iconPause  = document.getElementById('icon-music-pause');
+
+  function setMusicUI(playing) {
+    if (iconPlay)  iconPlay.style.display  = playing ? 'none' : '';
+    if (iconPause) iconPause.style.display = playing ? '' : 'none';
+    if (btnMusic) {
+      btnMusic.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      btnMusic.setAttribute('aria-label', playing ? '暂停音乐' : '播放音乐');
+    }
   }
+
+  function tryPlayBgm() {
+    if (!bgm) return;
+    var p = bgm.play();
+    if (p && p.then) {
+      p.then(function () { setMusicUI(true); })
+       .catch(function () { setMusicUI(false); });  // 被浏览器拦截
+    }
+  }
+
+  if (bgm && btnMusic) {
+    bgm.volume = 0.6;          // 音量 0~1，按需调整
+
+    // 1) 进入网站尝试自动播放
+    tryPlayBgm();
+
+    // 2) 若被自动播放策略拦截，首次交互时补播
+    var unlocked = false;
+    function unlockMusic(e) {
+      var onMusicBtn = e && e.target && e.target.closest &&
+                       e.target.closest('#btn-music');
+      if (!onMusicBtn && !unlocked) {
+        unlocked = true;
+        if (bgm.paused) tryPlayBgm();
+      }
+      document.removeEventListener('pointerdown', unlockMusic);
+      document.removeEventListener('keydown', unlockMusic);
+    }
+    document.addEventListener('pointerdown', unlockMusic);
+    document.addEventListener('keydown', unlockMusic);
+
+    // 3) 按钮点击：播放 / 暂停
+    btnMusic.addEventListener('click', function () {
+      if (bgm.paused) {
+        tryPlayBgm();
+      } else {
+        bgm.pause();
+        setMusicUI(false);
+      }
+    });
+
+    // 4) 同步状态（循环播放结束等）
+    bgm.addEventListener('play',  function () { setMusicUI(true);  });
+    bgm.addEventListener('pause', function () { setMusicUI(false); });
+  }
+
 
   /* ---------- 窗口尺寸变化 ---------- */
   var resizeTimer = null;
