@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ttwe 77 · 个人主页</title>
 <script>document.documentElement.classList.add('js');</script>
+<script type="module">
+import { BAClickFX } from 'https://cdn.jsdelivr.net/npm/ba-click-fx@1.3.3/dist/ba-click-fx.js';
+const fx = new BAClickFX();
+fx.updateConfig({trailAlways: true});
+fx.setCompositingReference({hostCompositing: 'screen'});
+</script>
 <style>
 /* ==================== 设计变量 ==================== */
 :root{
@@ -937,6 +943,382 @@ body::after{
     transition:none !important;
   }
 }
+
+/* ==================== 购买行动点弹窗 ==================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-box {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  animation: modalIn 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  padding: 20px 24px 10px;
+  text-align: center;
+  position: relative;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a1a;
+  display: inline-block;
+  padding-bottom: 8px;
+  border-bottom: 3px solid #FFD84D; /* 黄色下划线 */
+}
+
+.modal-close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  padding: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.modal-close:hover { opacity: 1; }
+
+.modal-body {
+  padding: 0 24px 20px;
+  text-align: center;
+}
+
+.modal-question {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.modal-subtext {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+/* 数值增减器 */
+.modal-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #F5F5F5;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid #E0E0E0;
+  margin-bottom: 20px;
+}
+
+.step-btn {
+  background: #fff;
+  border: 1px solid #D4D4D4;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #666;
+  cursor: pointer;
+  transform: skewX(var(--btn-skew));
+  transform-origin: center;
+  transition: all 0.15s;
+}
+.step-btn:active { background: #eee; transform: skewX(var(--btn-skew)) scale(0.95); }
+.step-icon { font-size: 18px; padding: 6px 14px; color: #3f568c; }
+
+.step-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #3B4D63; /* 深蓝色背景 */
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  padding: 8px 12px;
+  border-radius: 8px;
+  min-width: 140px;
+  transform: skewX(var(--btn-skew));
+  transform-origin: center;
+}
+.step-icon-lightning { font-size: 18px; }
+.step-arrow { color: #FFD84D; font-size: 16px; }
+
+/* 价格信息 */
+.modal-pricing {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.price-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F9F9F9;
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.price-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.price-value-box {
+  flex: 0;
+  min-width: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #3B4D63; /* 深蓝色条 */
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 120px;
+  justify-content: flex-end;
+  transform: skewX(var(--btn-skew));
+  transform-origin: center;
+}
+
+/* 总价条特殊颜色（深棕色/橙色） */
+.price-value-box.total-price {
+  background: #6B4B3A;
+}
+
+.price-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* 底部按钮 */
+.modal-footer {
+  display: flex;
+  gap: 16px;
+  padding: 0 24px 24px;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 56px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.12s, filter 0.2s;
+  cursor: pointer;
+  transform: skewX(var(--btn-skew));
+  transform-origin: center;
+}
+.modal-btn:active { transform: skewX(var(--btn-skew)) scale(0.97); }
+
+.btn-cancel {
+  background: #E1F0FA; /* 浅蓝色 */
+  color: #333;
+}
+.btn-cancel:hover { filter: brightness(0.95); }
+
+.btn-confirm {
+  background: #FFD84D; /* 黄色 */
+  color: #333;
+}
+.btn-confirm:hover { filter: brightness(1.05); }
+
+.key-hint {
+  font-size: 10px;
+  background: #3B4D63;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   竖屏 / 移动端适配
+   ============================================================ */
+
+/* ---------- 1. 弹窗：整体高度可控，中间内容可滚 ---------- */
+.modal-overlay{
+  padding: 12px;
+  align-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.modal-box{
+  max-height: calc(100vh  - 24px);   /* 老浏览器回退 */
+  max-height: calc(100dvh - 24px);   /* 跟随移动端地址栏 */
+  display: flex;
+  flex-direction: column;
+  margin: auto;                      /* 溢出时不会被裁掉顶部 */
+}
+
+.modal-header,
+.modal-footer{ flex: 0 0 auto; }
+
+.modal-body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* 关闭按钮触摸区放大到 44×44 */
+.modal-close{
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  right: 6px;
+  top: 6px;
+}
+
+/* ---------- 2. 手机竖屏：弹窗内部重排 ---------- */
+@media (max-width: 480px){
+  :root{ --btn-skew: -6deg; }        /* 倾斜角减小，防止窄屏溢出 */
+
+  /* 标题 */
+  .modal-header{ padding: 16px 16px 8px; }
+  .modal-title{ font-size: 17px; padding-bottom: 6px; border-bottom-width: 2px; }
+
+  .modal-body{ padding: 0 16px 16px; }
+  .modal-question{ font-size: 16px; }
+  .modal-subtext{ font-size: 12px; margin-bottom: 16px; }
+
+  /* —— 步进器：压缩每段，禁止换行 —— */
+  .modal-stepper{
+    gap: 5px;
+    padding: 6px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .step-btn{
+    flex: 0 0 auto;                  /* 关键：不被压缩 */
+    padding: 8px 5px;
+    font-size: 11px;
+    line-height: 1.15;
+    white-space: nowrap;             /* 关键：不再竖排 */
+  }
+  .step-btn.step-icon{ padding: 6px 9px; font-size: 15px; }
+
+  .step-display{
+    flex: 1 1 auto;                  /* 让中间块优先被压缩 */
+    min-width: 0;                    /* 覆盖原来的 140px */
+    gap: 6px;
+    padding: 8px;
+    font-size: 16px;
+  }
+  .step-display .resource__icon{ width: 17px; height: 17px; }
+
+  /* —— 价格区改纵向，彻底解决重叠 —— */
+  .modal-pricing{ flex-direction: column; gap: 8px; }
+  .price-row{ padding: 8px 12px; }
+  .price-label{ flex: 0 0 auto; font-size: 14px; white-space: nowrap; }
+  .price-value-box{
+    flex: 0 0 auto;
+    min-width: 0;                    /* 覆盖 120px */
+    padding: 5px 12px;
+    gap: 6px;
+    font-size: 15px;
+  }
+  .price-icon{ width: 17px; height: 17px; }
+
+  /* —— 底部按钮 —— */
+  .modal-footer{
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+  .modal-btn{ height: 50px; font-size: 16px; border-radius: 10px; }
+  .key-hint{ display: none; }        /* 手机没有键盘提示 */
+}
+
+/* ---------- 3. 超窄屏（≤360px）再瘦一圈 ---------- */
+@media (max-width: 360px){
+  .modal-stepper{ gap: 4px; padding: 5px; }
+  .step-btn{ padding: 7px 4px; font-size: 10px; }
+  .step-btn.step-icon{ padding: 5px 7px; font-size: 14px; }
+  .step-display{ font-size: 15px; gap: 4px; padding: 7px 6px; }
+  .step-display .resource__icon{ width: 15px; height: 15px; }
+}
+
+/* ---------- 4.顶栏：窄屏只保留体力 ---------- */
+@media (max-width: 640px){
+  /* 顶栏整体：缩小间距，防止右侧按钮被挤掉 */
+  .topbar{ padding: 0 8px; gap: 8px; }
+  .topbar__title{ font-size: 15px; margin-left: 0; white-space: nowrap; }
+  .icon-btn--back{ width: 36px; height: 36px; }
+  
+  /* 右侧按钮：禁止被压缩，确保永远显示 */
+  .topbar > .icon-btn{ flex-shrink: 0; }
+
+  /* 资源栏：只保留体力 */
+  .topbar .resources{
+    display: flex;
+    gap: 6px;
+    margin-right: 0;
+    flex-shrink: 0; /* 防止资源栏自己缩没 */
+  }
+
+  /* 隐藏除体力以外的所有资源（金币、青辉石） */
+  .resources > .resource:not(:first-child){ display: none; }
+
+  /* 隐藏所有加号按钮（包括体力的 + 号） */
+  .resources .resource-add{ display: none; }
+
+  /* 隐藏分隔符 */
+  .resources .resource-sep{ display: none; }
+
+  /* 体力文字稍微变小、紧凑一点 */
+  .resource{ font-size: 13px; gap: 4px; }
+  .resource__icon{ width: 18px; height: 18px; }
+}
+
+/* ---------- 5. 竖屏平板 ---------- */
+@media (orientation: portrait) and (max-width: 1024px){
+  .cols{ grid-template-columns: 1fr; }
+  .works{ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
+
+/* ---------- 6. 触摸设备禁用 hover 副作用 ---------- */
+@media (hover: none){
+  .icon-btn:hover{ background: transparent; }
+  .resource-add:hover{ background: transparent; }
+  .btn:hover{ transform: skewX(var(--btn-skew)); }
+}
 </style>
 </head>
 <body>
@@ -961,9 +1343,9 @@ body::after{
     <!-- 体力/AP -->
     <div class="resource">
       <img src="src/ap.png" alt="AP" class="resource__icon">
-      <span>17/210</span>
+      <span id="ap-value">0/240</span>
     </div>
-    <button class="resource-add" aria-label="增加">
+    <button class="resource-add" id="btn-ap-refill" type="button" aria-label="使用青辉石恢复体力">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 5v14M5 12h14"/>
@@ -976,7 +1358,7 @@ body::after{
     <!-- 金币 -->
     <div class="resource">
       <img src="src/gold.png" alt="Gold" class="resource__icon">
-      <span>134,698,466</span>
+      <span>114,514</span>
     </div>
 
     <!-- 分隔符 -->
@@ -985,7 +1367,7 @@ body::after{
     <!-- 青辉石 -->
     <div class="resource">
       <img src="src/pyroxene.png" alt="Pyroxene" class="resource__icon">
-      <span>73,197</span>
+      <span id="pyroxene-value">30</span>
     </div>
     <button class="resource-add" aria-label="增加">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1342,6 +1724,189 @@ body::after{
   </div>
 </div>
 
+<!-- 购买行动点弹窗 -->
+<div id="refill-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-box">
+    <!-- 头部 -->
+    <div class="modal-header">
+      <h3 class="modal-title">购买行动点</h3>
+      <button class="modal-close" id="modal-close-btn" aria-label="关闭">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="modal-body">
+      <p class="modal-question">是否购买120点行动点？</p>
+      <p class="modal-subtext">可购买<span id="modal-buy-limit">20</span>/20次</p>
+
+      <!-- 数值增减器 -->
+      <div class="modal-stepper">
+        <button class="step-btn" id="modal-min-btn">最小值</button>
+        <button class="step-btn step-icon" id="modal-minus-btn">－</button>
+        <div class="step-display">
+          <!--<span class="step-icon-lightning">⚡</span>-->
+          <img src="src/ap.png" alt="AP" class="resource__icon">
+          <span id="modal-ap-current">25</span>
+          <span class="step-arrow">➔</span>
+          <span id="modal-ap-new">145</span>
+        </div>
+        <button class="step-btn step-icon" id="modal-plus-btn">＋</button>
+        <button class="step-btn" id="modal-max-btn">最大值</button>
+      </div>
+
+      <!-- 价格信息 -->
+      <div class="modal-pricing">
+        <div class="price-row">
+          <span class="price-label">单价</span>
+          <div class="price-value-box">
+            <img src="src/pyroxene.png" alt="Pyroxene" class="price-icon">
+            <span>30</span>
+          </div>
+        </div>
+        <div class="price-row">
+          <span class="price-label">总价</span>
+          <div class="price-value-box total-price">
+            <img src="src/pyroxene.png" alt="Pyroxene" class="price-icon">
+            <span id="modal-total-price">30</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="modal-footer">
+      <button class="modal-btn btn-cancel" id="modal-cancel-btn">
+        取消
+      </button>
+      <button class="modal-btn btn-confirm" id="modal-confirm-btn">
+        确认
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   资源系统（体力 / 青辉石）
+   - 体力每 10 秒自动恢复 1 点，上限 240
+   - 消耗 30 青辉石可恢复 120 体力（弹窗确认）
+   - 不做任何持久化：刷新页面即重置为初始值
+   ============================================================ */
+(function () {
+  /* ---------- 配置 ---------- */
+  var AP_MAX              = 240;    // 体力上限
+  var AP_INIT             = 0;      // 初始体力（刷新后回到此值）
+  var AP_RECOVER_INTERVAL = 10000;  // 每 10 秒恢复一次
+  var AP_RECOVER_AMOUNT   = 1;      // 每次恢复 1 点
+
+  var PYROXENE_INIT       = 30;     // 初始青辉石
+  var REFILL_COST         = 30;     // 恢复一次消耗的青辉石
+  var REFILL_AMOUNT       = 120;    // 恢复一次获得的体力
+
+  /* ---------- 状态（只存在内存里，刷新即重置） ---------- */
+  var ap       = AP_INIT;
+  var pyroxene = PYROXENE_INIT;
+
+  /* ---------- DOM ---------- */
+  var apEl       = document.getElementById('ap-value');
+  var pyroxeneEl = document.getElementById('pyroxene-value');
+  var btnRefill  = document.getElementById('btn-ap-refill');
+
+  /* ---------- 渲染 ---------- */
+  function render() {
+    if (apEl)       apEl.textContent = ap + '/' + AP_MAX;
+    if (pyroxeneEl) pyroxeneEl.textContent = pyroxene.toLocaleString();
+  }
+
+  /* ---------- 每 10 秒恢复 1 点体力 ---------- */
+  setInterval(function () {
+    if (ap >= AP_MAX) return;
+    ap = Math.min(AP_MAX, ap + AP_RECOVER_AMOUNT);
+    render();
+  }, AP_RECOVER_INTERVAL);
+
+  /* ---------- 使用青辉石恢复体力（弹窗逻辑） ---------- */
+  var modal = document.getElementById('refill-modal');
+  var modalCloseBtn = document.getElementById('modal-close-btn');
+  var modalCancelBtn = document.getElementById('modal-cancel-btn');
+  var modalConfirmBtn = document.getElementById('modal-confirm-btn');
+  var modalApCurrent = document.getElementById('modal-ap-current');
+  var modalApNew = document.getElementById('modal-ap-new');
+  var modalBuyLimit = document.getElementById('modal-buy-limit');
+  var modalTotalPrice = document.getElementById('modal-total-price');
+
+  function openRefillModal() {
+    if (ap >= AP_MAX) {
+      window.alert('体力已满，无需恢复。');
+      return;
+    }
+    if (pyroxene < REFILL_COST) {
+      window.alert('青辉石不足，需要 ' + REFILL_COST + ' 个。');
+      return;
+    }
+
+    // 计算可购买次数
+    var maxBuy = Math.min(20, Math.floor(pyroxene / REFILL_COST));
+    var newAp = Math.min(AP_MAX, ap + REFILL_AMOUNT);
+
+    // 填充弹窗数据
+    modalApCurrent.textContent = ap;
+    modalApNew.textContent = newAp;
+    modalBuyLimit.textContent = maxBuy;
+    modalTotalPrice.textContent = REFILL_COST;
+
+    // 显示弹窗
+    modal.style.display = 'flex';
+  }
+
+  function closeRefillModal() {
+    modal.style.display = 'none';
+  }
+
+  function confirmRefill() {
+    pyroxene -= REFILL_COST;
+    ap = Math.min(AP_MAX, ap + REFILL_AMOUNT);
+    render();
+    closeRefillModal();
+  }
+
+  if (btnRefill) {
+    btnRefill.addEventListener('click', openRefillModal);
+  }
+
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeRefillModal);
+  if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeRefillModal);
+  if (modalConfirmBtn) modalConfirmBtn.addEventListener('click', confirmRefill);
+
+  // 点击遮罩层关闭
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeRefillModal();
+  });
+
+  // 键盘快捷键支持 (ESC 关闭 / Enter 确认)
+  window.addEventListener('keydown', function(e) {
+    if (modal.style.display === 'flex') {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeRefillModal();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmRefill();
+      }
+      // 阻止事件冒泡，防止触发整页翻页
+      e.stopPropagation();
+    }
+  }, true); // 使用捕获阶段，优先拦截
+
+
+  /* ---------- 初始化 ---------- */
+  render();
+})();
+</script>
+
 <script>
 /* ============================================================
    整页上下分页控制器
@@ -1556,6 +2121,5 @@ body::after{
   });
 })();
 </script>
-
 </body>
 </html>
