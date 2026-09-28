@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ttwe 77 · 个人主页</title>
+  <meta name="description" content="ttwe77的个人主页，技术宅一枚，沉迷计算机与网络，爱折腾软硬件，日常打二游，偶尔写点教程，欢迎同好交流。" />
   <script>document.documentElement.classList.add('js');</script>
   <script type="module">
     import { BAClickFX } from './libs/ba-click-fx.js';
@@ -1330,7 +1331,7 @@
 
     .modal-subtext {
       font-size: 13px;
-      color: #888;
+      color: #666;
       margin-bottom: 20px;
     }
 
@@ -2519,7 +2520,12 @@
 <body>
 
   <!-- 背景音乐 -->
-  <audio id="bgm" src="src/ShootingStars.m4a" loop preload="auto" playsinline></audio>
+  <!-- 背景音乐（按顺序回退：opus → m4a → mp3） -->
+  <audio id="bgm" loop preload="none" playsinline>
+    <source src="src/ShootingStars.opus" type="audio/ogg; codecs=opus">
+    <source src="src/ShootingStars.m4a" type="audio/mp4">
+    <source src="src/ShootingStars.mp3" type="audio/mpeg">
+  </audio>
 
   <!-- ==================== 顶部栏 ==================== -->
   <header class="topbar">
@@ -2540,7 +2546,11 @@
     <div class="resources">
       <!-- 体力/AP -->
       <div class="resource">
-        <img src="src/ap.png" alt="AP" class="resource__icon">
+        <img src="src/ap.avif" alt="AP" class="resource__icon" onerror="
+  if (this.dataset.fb === '1') { this.src = 'src/ap.webp'; this.dataset.fb = '2'; }
+  else if (this.dataset.fb === '2') { this.src = 'src/ap.png'; this.dataset.fb = '3'; }
+  else { this.onerror = null; }
+" data-fb="1">
         <span id="ap-value">0/240</span>
       </div>
       <button class="resource-add" id="btn-ap-refill" type="button" aria-label="使用青辉石恢复体力">
@@ -2555,7 +2565,11 @@
 
       <!-- 金币 -->
       <div class="resource">
-        <img src="src/gold.png" alt="Gold" class="resource__icon">
+        <img src="src/gold.avif" alt="Gold" class="resource__icon" onerror="
+  if (this.dataset.fb === '1') { this.src = 'src/gold.webp'; this.dataset.fb = '2'; }
+  else if (this.dataset.fb === '2') { this.src = 'src/gold.png'; this.dataset.fb = '3'; }
+  else { this.onerror = null; }
+" data-fb="1">
         <span>114,514</span>
       </div>
 
@@ -2564,7 +2578,11 @@
 
       <!-- 青辉石 -->
       <div class="resource">
-        <img src="src/pyroxene.png" alt="Pyroxene" class="resource__icon">
+        <img src="src/pyroxene.avif" alt="Pyroxene" class="resource__icon" onerror="
+  if (this.dataset.fb === '1') { this.src = 'src/pyroxene.webp'; this.dataset.fb = '2'; }
+  else if (this.dataset.fb === '2') { this.src = 'src/pyroxene.png'; this.dataset.fb = '3'; }
+  else { this.onerror = null; }
+" data-fb="1">
         <span id="pyroxene-value">30</span>
       </div>
       <button class="resource-add" aria-label="增加">
@@ -2648,7 +2666,11 @@
             <!-- ---------- 左：立绘 + 名牌 ---------- -->
             <div class="profile__visual reveal">
               <div class="profile__art">
-                <img class="profile__art-img" src="src/kei.png" alt="我推立绘">
+                <img class="profile__art-img" src="src/kei.avif" alt="我推立绘" loading="lazy" onerror="
+    if (this.dataset.fb === '1') { this.src = 'src/kei.webp'; this.dataset.fb = '2'; }
+    else if (this.dataset.fb === '2') { this.src = 'src/kei.png'; this.dataset.fb = '3'; }
+    else { this.onerror = null; }
+  " data-fb="1">
               </div>
 
               <div class="profile__namecard">
@@ -2739,10 +2761,12 @@
         </div>-->
 
               <!-- 底部按钮 -->
-        <div class="profile__links reveal">
-          <a class="btn profile__link" href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
-          <a class="btn profile__link" href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
+              <div class="profile__links reveal">
+                <a class="btn profile__link" href="https://gitee.com/ttwe77" target="_blank"
+                  rel="noopener noreferrer">Gitee</a>
+                <a class="btn profile__link" href="https://github.com/ttwe77" target="_blank"
+                  rel="noopener noreferrer">GitHub</a>
+              </div>
             </div>
           </section>
         </div>
@@ -2983,7 +3007,11 @@
           <button class="step-btn step-icon" id="modal-minus-btn">－</button>
           <div class="step-display">
             <!--<span class="step-icon-lightning">⚡</span>-->
-            <img src="src/ap.png" alt="AP" class="resource__icon">
+            <img class="resource__icon" src="src/ap.avif" alt="AP" loading="lazy" onerror="
+    if (this.dataset.fb === '1') { this.src = 'src/ap.webp'; this.dataset.fb = '2'; }
+    else if (this.dataset.fb === '2') { this.src = 'src/ap.png'; this.dataset.fb = '3'; }
+    else { this.onerror = null; }
+  " data-fb="1">
             <span id="modal-ap-current">25</span>
             <span class="step-arrow">➔</span>
             <span id="modal-ap-new">145</span>
@@ -2997,14 +3025,22 @@
           <div class="price-row">
             <span class="price-label">单价</span>
             <div class="price-value-box">
-              <img src="src/pyroxene.png" alt="Pyroxene" class="price-icon">
+              <img class="price-icon" src="src/pyroxene.avif" alt="Pyroxene" loading="lazy" onerror="
+    if (this.dataset.fb === '1') { this.src = 'src/pyroxene.webp'; this.dataset.fb = '2'; }
+    else if (this.dataset.fb === '2') { this.src = 'src/pyroxene.png'; this.dataset.fb = '3'; }
+    else { this.onerror = null; }
+  " data-fb="1">
               <span>30</span>
             </div>
           </div>
           <div class="price-row">
             <span class="price-label">总价</span>
             <div class="price-value-box total-price">
-              <img src="src/pyroxene.png" alt="Pyroxene" class="price-icon">
+              <img class="price-icon" src="src/pyroxene.avif" alt="Pyroxene" loading="lazy" onerror="
+    if (this.dataset.fb === '1') { this.src = 'src/pyroxene.webp'; this.dataset.fb = '2'; }
+    else if (this.dataset.fb === '2') { this.src = 'src/pyroxene.png'; this.dataset.fb = '3'; }
+    else { this.onerror = null; }
+  " data-fb="1">
               <span id="modal-total-price">30</span>
             </div>
           </div>
@@ -3023,7 +3059,7 @@
     </div>
   </div>
 
-    <!-- 进入网站：询问是否播放背景音乐 -->
+  <!-- 进入网站：询问是否播放背景音乐 -->
   <div id="music-modal" class="modal-overlay" style="display: none;">
     <div class="modal-box">
       <!-- 头部 -->
