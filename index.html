@@ -1111,17 +1111,19 @@
       background: var(--color-primary);
       transform: rotate(45deg);
     }
-    .footer__license{
-  flex:1 1 100%;
-  font-size:11px;
-  color:var(--color-text-disabled);
-  line-height:1.6;
-}
-.footer__license a{
-  color:var(--color-primary);
-  text-decoration:underline;
-  text-underline-offset:2px;
-}
+
+    .footer__license {
+      flex: 1 1 100%;
+      font-size: 11px;
+      color: var(--color-text-disabled);
+      line-height: 1.6;
+    }
+
+    .footer__license a {
+      color: var(--color-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
 
     /* ==================== 响应式 ==================== */
     @media (max-width:860px) {
@@ -1793,662 +1795,731 @@
     }
   </style>
   <style>
-  /* ==================== 第 2 页 · 个人资料 ==================== */
-  .profile {
-    display: grid;
-    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
-    gap: 14px;
-    align-items: stretch;
-  }
-
-  /* ---------- 左：立绘 + 名牌 ---------- */
-  .profile__visual {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    min-height: 470px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: linear-gradient(158deg, #7FC4EA 0%, #A9DCF5 42%, #E8F5FD 100%);
-    border: 1px solid rgba(255, 255, 255, .6);
-    box-shadow: var(--shadow-card);
-  }
-
-  .profile__art {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  /* 斜向条纹装饰 */
-  .profile__art::before {
-    content: "";
-    position: absolute;
-    inset: -20% -10%;
-    background: repeating-linear-gradient(118deg,
-        rgba(255, 255, 255, .38) 0 2px,
-        transparent 2px 16px);
-    opacity: .55;
-    pointer-events: none;
-  }
-
-  /* 中央柔光 */
-  .profile__art::after {
-    content: "";
-    position: absolute;
-    width: 78%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 70%);
-    pointer-events: none;
-  }
-
-  /* 角色立绘：顶部对齐 → 只展示上半身；放大后向右挪 */
-  .profile__art-img {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 0;          /* 垂直：从顶部开始裁，保留上半身 */
-    transform-origin: top center;
-    /* 先放大 1.22 倍（左右各多出约 11%），再向右平移 */
-    transform: scale(1) translateX(17%);
-    display: block;
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-
-  .profile__art-inner {
-    position: relative;
-    z-index: 1;
-    width: 176px;
-    height: 176px;
-    display: grid;
-    place-items: center;
-    border-radius: var(--radius-full);
-    border: 6px solid rgba(255, 255, 255, .9);
-    background: linear-gradient(145deg, #5FB0FF 0%, var(--color-primary) 55%, var(--color-orchid) 130%);
-    color: #fff;
-    font-size: 62px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    box-shadow: 0 18px 40px rgba(18, 138, 250, .32);
-    user-select: none;
-  }
-
-  /* 名牌 */
-  .profile__namecard {
-    position: relative;
-    z-index: 2;
-    width: calc(100% - 24px);
-    margin: 0 12px 12px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    border-radius: var(--radius-md);
-    background: rgba(21, 40, 68, .82);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    box-shadow: 0 6px 18px rgba(10, 30, 60, .22);
-    /* 倾斜 */
-    transform: skewX(var(--btn-skew));
-  transform-origin: center;
-  transition: transform .18s ease;
-  }
-  .profile__namecard:hover {
-  transform: skewX(var(--btn-skew)) translateY(-2px);
-}
-
-  .profile__lv {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1;
-    padding-right: 14px;
-    border-right: 1px solid rgba(255, 255, 255, .18);
-  }
-
-  .profile__lv-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    opacity: .8;
-    color: var(--color-warning);
-  }
-
-  .profile__lv-num {
-    margin-top: 2px;
-    font-size: 23px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .profile__id {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .profile__id-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-
-  .profile__id-name {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: .02em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .profile__id-tag {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: .12em;
-    color: var(--color-warning);
-  }
-
-  .profile__expbar {
-    margin-top: 7px;
-    height: 6px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, .18);
-    overflow: hidden;
-  }
-
-  .profile__expbar>i {
-    display: block;
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #FFD84D, #FFE98A);
-  }
-
-  /* ---------- 右：面板列 ---------- */
-  .profile__panel {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 0;
-  }
-
-  /* 自我介绍 */
-  .profile__intro {
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .profile__intro-title {
-    margin: 0;
-    padding: 12px 18px;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: .06em;
-    text-align: center;
-    color: #fff;
-    background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
-  }
-
-  .profile__intro-body {
-    padding: 16px 18px 18px;
-    font-size: 13.5px;
-    line-height: 1.85;
-    color: var(--color-text-body);
-  }
-
-  .profile__intro-lead {
-    margin-top: 10px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-  }
-
-  .profile__list {
-    margin: 6px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .profile__list li {
-    position: relative;
-    padding-left: 16px;
-  }
-
-  .profile__list li::before {
-    content: "";
-    position: absolute;
-    left: 2px;
-    top: .72em;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--color-primary);
-  }
-
-  /* GitHub 统计卡（深色） */
-  .profile__github {
-    padding: 0;
-    overflow: hidden;
-    background: #22344C;
-    border-color: rgba(255, 255, 255, .08);
-    color: #DCE9F5;
-  }
-
-  .gh__head {
-    padding: 14px 18px 10px;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: .03em;
-    color: #7EE7B0;
-  }
-
-  .gh__body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 16px;
-    align-items: center;
-    padding: 0 18px 12px;
-  }
-
-  .gh__list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 12.5px;
-  }
-
-  .gh__list li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .gh__ico {
-    flex: 0 0 auto;
-    width: 14px;
-    text-align: center;
-    font-size: 12px;
-    color: #7EE7B0;
-  }
-
-  .gh__k {
-    flex: 1 1 auto;
-    min-width: 0;
-    color: #B9CBDD;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .gh__v {
-    flex: 0 0 auto;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #FFFFFF;
-  }
-
-  /* 评分环 */
-  .gh__grade {
-    position: relative;
-    flex: 0 0 auto;
-    width: 84px;
-    height: 84px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: conic-gradient(#4ED08A 0 74%, rgba(255, 255, 255, .12) 74% 100%);
-  }
-
-  .gh__grade::before {
-    content: "";
-    position: absolute;
-    inset: 7px;
-    border-radius: 50%;
-    background: #22344C;
-  }
-
-  .gh__grade>span {
-    position: relative;
-    z-index: 1;
-    font-size: 22px;
-    font-weight: 800;
-    color: #EAF7F0;
-  }
-
-  /* 语言占比条 */
-  .gh__langs {
-    display: flex;
-    height: 6px;
-  }
-
-  .gh__langs>i {
-    display: block;
-    height: 100%;
-  }
-
-  /* 底部两个按钮 */
-  .profile__links {
-    display: flex;
-    gap: 12px;
-    margin-top: auto;
-  }
-
-  .profile__link {
-    flex: 1 1 0;
-    height: 52px;
-    font-size: 15px;
-    font-weight: 700;
-    color: #0F3A58;
-    background: linear-gradient(180deg, #B4E6FC 0%, #7FCEF3 100%);
-    box-shadow: 0 4px 12px rgba(18, 138, 250, .2);
-  }
-
-  .profile__link:hover {
-    background: linear-gradient(180deg, #C6EEFD 0%, #96DAF8 100%);
-  }
-
-  /* ---------- 响应式 ---------- */
-  @media (max-width: 860px) {
+    /* ==================== 第 2 页 · 个人资料 ==================== */
     .profile {
-      grid-template-columns: 1fr;
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 14px;
+      align-items: stretch;
     }
 
+    /* ---------- 左：立绘 + 名牌 ---------- */
     .profile__visual {
-      min-height: 240px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      min-height: 470px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: linear-gradient(158deg, #7FC4EA 0%, #A9DCF5 42%, #E8F5FD 100%);
+      border: 1px solid rgba(255, 255, 255, .6);
+      box-shadow: var(--shadow-card);
     }
-  }
 
-  @media (max-width: 480px) {
-    .profile__visual {
-      min-height: 280px;
+    .profile__art {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    /* 斜向条纹装饰 */
+    .profile__art::before {
+      content: "";
+      position: absolute;
+      inset: -20% -10%;
+      background: repeating-linear-gradient(118deg,
+          rgba(255, 255, 255, .38) 0 2px,
+          transparent 2px 16px);
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    /* 中央柔光 */
+    .profile__art::after {
+      content: "";
+      position: absolute;
+      width: 78%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+    }
+
+    /* 角色立绘：顶部对齐 → 只展示上半身；放大后向右挪 */
+    .profile__art-img {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 0;
+      /* 垂直：从顶部开始裁，保留上半身 */
+      transform-origin: top center;
+      /* 先放大 1.22 倍（左右各多出约 11%），再向右平移 */
+      transform: scale(1) translateX(17%);
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
     }
 
     .profile__art-inner {
-      width: 128px;
-      height: 128px;
-      font-size: 46px;
-      border-width: 5px;
+      position: relative;
+      z-index: 1;
+      width: 176px;
+      height: 176px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-full);
+      border: 6px solid rgba(255, 255, 255, .9);
+      background: linear-gradient(145deg, #5FB0FF 0%, var(--color-primary) 55%, var(--color-orchid) 130%);
+      color: #fff;
+      font-size: 62px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      box-shadow: 0 18px 40px rgba(18, 138, 250, .32);
+      user-select: none;
+    }
+
+    /* 名牌 */
+    .profile__namecard {
+      position: relative;
+      z-index: 2;
+      width: calc(100% - 24px);
+      margin: 0 12px 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(21, 40, 68, .82);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(10, 30, 60, .22);
+      /* 倾斜 */
+      transform: skewX(var(--btn-skew));
+      transform-origin: center;
+      transition: transform .18s ease;
+    }
+
+    .profile__namecard:hover {
+      transform: skewX(var(--btn-skew)) translateY(-2px);
+    }
+
+    .profile__lv {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      padding-right: 14px;
+      border-right: 1px solid rgba(255, 255, 255, .18);
+    }
+
+    .profile__lv-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      opacity: .8;
+      color: var(--color-warning);
+    }
+
+    .profile__lv-num {
+      margin-top: 2px;
+      font-size: 23px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .profile__id {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .profile__id-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .profile__id-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile__id-tag {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--color-warning);
+    }
+
+    .profile__expbar {
+      margin-top: 7px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, .18);
+      overflow: hidden;
+    }
+
+    .profile__expbar>i {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #FFD84D, #FFE98A);
+    }
+
+    /* ---------- 右：面板列 ---------- */
+    .profile__panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    /* 自我介绍 */
+    .profile__intro {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .profile__intro-title {
+      margin: 0;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+    }
+
+    .profile__intro-body {
+      padding: 16px 18px 18px;
+      font-size: 13.5px;
+      line-height: 1.85;
+      color: var(--color-text-body);
+    }
+
+    .profile__intro-lead {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .profile__list {
+      margin: 6px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .profile__list li {
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .profile__list li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .72em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--color-primary);
+    }
+
+    /* GitHub 统计卡（深色） */
+    .profile__github {
+      padding: 0;
+      overflow: hidden;
+      background: #22344C;
+      border-color: rgba(255, 255, 255, .08);
+      color: #DCE9F5;
+    }
+
+    .gh__head {
+      padding: 14px 18px 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      color: #7EE7B0;
     }
 
     .gh__body {
-      grid-template-columns: 1fr;
-      justify-items: center;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 0 18px 12px;
     }
 
     .gh__list {
-      width: 100%;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12.5px;
     }
 
+    .gh__list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .gh__ico {
+      flex: 0 0 auto;
+      width: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #7EE7B0;
+    }
+
+    .gh__k {
+      flex: 1 1 auto;
+      min-width: 0;
+      color: #B9CBDD;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gh__v {
+      flex: 0 0 auto;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #FFFFFF;
+    }
+
+    /* 评分环 */
+    .gh__grade {
+      position: relative;
+      flex: 0 0 auto;
+      width: 84px;
+      height: 84px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(#4ED08A 0 74%, rgba(255, 255, 255, .12) 74% 100%);
+    }
+
+    .gh__grade::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      background: #22344C;
+    }
+
+    .gh__grade>span {
+      position: relative;
+      z-index: 1;
+      font-size: 22px;
+      font-weight: 800;
+      color: #EAF7F0;
+    }
+
+    /* 语言占比条 */
+    .gh__langs {
+      display: flex;
+      height: 6px;
+    }
+
+    .gh__langs>i {
+      display: block;
+      height: 100%;
+    }
+
+    /* 底部两个按钮 */
     .profile__links {
-      flex-direction: column;
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
     }
 
     .profile__link {
-      flex: 0 0 auto;
-      width: 100%;
+      flex: 1 1 0;
+      height: 52px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0F3A58;
+      background: linear-gradient(180deg, #B4E6FC 0%, #7FCEF3 100%);
+      box-shadow: 0 4px 12px rgba(18, 138, 250, .2);
     }
-  }
-  /* ============================================================
+
+    .profile__link:hover {
+      background: linear-gradient(180deg, #C6EEFD 0%, #96DAF8 100%);
+    }
+
+    /* ---------- 响应式 ---------- */
+    @media (max-width: 860px) {
+      .profile {
+        grid-template-columns: 1fr;
+      }
+
+      .profile__visual {
+        min-height: 240px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .profile__visual {
+        min-height: 280px;
+      }
+
+      .profile__art-inner {
+        width: 128px;
+        height: 128px;
+        font-size: 46px;
+        border-width: 5px;
+      }
+
+      .gh__body {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 12px;
+      }
+
+      .gh__list {
+        width: 100%;
+      }
+
+      .profile__links {
+        flex-direction: column;
+      }
+
+      .profile__link {
+        flex: 0 0 auto;
+        width: 100%;
+      }
+    }
+
+    /* ============================================================
    手机横屏适配（宽 ≥ 高，且高度有限）
    —— 放在所有断点之后，覆盖 860px 的单列规则
    ============================================================ */
-@media (orientation: landscape) and (max-height: 560px) {
+    @media (orientation: landscape) and (max-height: 560px) {
 
-  /* 页面整体内边距收紧 */
-  .page {
-    padding: calc(var(--topbar-h) + 8px) 12px 12px;
-  }
+      /* 页面整体内边距收紧 */
+      .page {
+        padding: calc(var(--topbar-h) + 8px) 12px 12px;
+      }
 
-  .section-title {
-    font-size: 15px;
-    margin-bottom: 8px;
-  }
+      .section-title {
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
 
-  /* 关键：改回两列，左侧立绘固定比例 */
-  .profile {
-    grid-template-columns: minmax(210px, 32%) minmax(0, 1fr);
-    gap: 10px;
-  }
+      /* 关键：改回两列，左侧立绘固定比例 */
+      .profile {
+        grid-template-columns: minmax(210px, 32%) minmax(0, 1fr);
+        gap: 10px;
+      }
 
-  /* 覆盖掉单列断点里的 min-height:340px */
-  .profile__visual {
-    min-height: 0;
-    height: 100%;
-  }
+      /* 覆盖掉单列断点里的 min-height:340px */
+      .profile__visual {
+        min-height: 0;
+        height: 100%;
+      }
 
-  /* 立绘：横屏容器变窄，缩放/位移都要收敛 */
-  .profile__art-img {
-    object-position: 50% 8%;
-    transform: scale(1.08) translateX(4%);
-  }
+      /* 立绘：横屏容器变窄，缩放/位移都要收敛 */
+      .profile__art-img {
+        object-position: 50% 8%;
+        transform: scale(1.08) translateX(4%);
+      }
 
-  /* 名牌紧凑化 */
-  .profile__namecard {
-    width: calc(100% - 16px);
-    margin: 0 8px 8px;
-    padding: 6px 10px;
-    gap: 10px;
-  }
+      /* 名牌紧凑化 */
+      .profile__namecard {
+        width: calc(100% - 16px);
+        margin: 0 8px 8px;
+        padding: 6px 10px;
+        gap: 10px;
+      }
 
-  .profile__lv { padding-right: 10px; }
-  .profile__lv-label { font-size: 9px; }
-  .profile__lv-num  { font-size: 20px; }
-  .profile__id-name { font-size: 13px; }
-  .profile__id-tag  { font-size: 9px; }
-  .profile__expbar  { height: 5px; margin-top: 5px; }
+      .profile__lv {
+        padding-right: 10px;
+      }
 
-  /* 右侧面板：整体瘦身 */
-  .profile__panel { gap: 8px; }
+      .profile__lv-label {
+        font-size: 9px;
+      }
 
-  .profile__intro-title {
-    padding: 8px 14px;
-    font-size: 13px;
-  }
+      .profile__lv-num {
+        font-size: 20px;
+      }
 
-  .profile__intro-body {
-    padding: 10px 14px 12px;
-    font-size: 12px;
-    line-height: 1.7;
-  }
+      .profile__id-name {
+        font-size: 13px;
+      }
 
-  .profile__intro-lead { margin-top: 6px; }
-  .profile__list { margin-top: 4px; }
+      .profile__id-tag {
+        font-size: 9px;
+      }
 
-  /* GitHub 卡片 */
-  .gh__head {
-    padding: 8px 14px 6px;
-    font-size: 13px;
-  }
+      .profile__expbar {
+        height: 5px;
+        margin-top: 5px;
+      }
 
-  .gh__body {
-    padding: 0 14px 8px;
-    gap: 10px;
-  }
+      /* 右侧面板：整体瘦身 */
+      .profile__panel {
+        gap: 8px;
+      }
 
-  .gh__list {
-    gap: 3px;
-    font-size: 11px;
-  }
+      .profile__intro-title {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
 
-  .gh__grade {
-    width: 60px;
-    height: 60px;
-  }
+      .profile__intro-body {
+        padding: 10px 14px 12px;
+        font-size: 12px;
+        line-height: 1.7;
+      }
 
-  .gh__grade::before { inset: 5px; }
-  .gh__grade > span  { font-size: 17px; }
+      .profile__intro-lead {
+        margin-top: 6px;
+      }
 
-  /* 底部两个按钮 */
-  .profile__links { gap: 8px; }
+      .profile__list {
+        margin-top: 4px;
+      }
 
-  .profile__link {
-    height: 40px;
-    font-size: 13px;
-  }
-}
+      /* GitHub 卡片 */
+      .gh__head {
+        padding: 8px 14px 6px;
+        font-size: 13px;
+      }
 
-/* 极矮横屏（例如 320–380px 高的老机型）再压一层 */
-@media (orientation: landscape) and (max-height: 400px) {
-  .profile {
-    grid-template-columns: minmax(180px, 30%) minmax(0, 1fr);
-  }
+      .gh__body {
+        padding: 0 14px 8px;
+        gap: 10px;
+      }
 
-  .profile__art-img {
-    object-position: 50% 4%;
-    transform: scale(1.04) translateX(3%);
-  }
+      .gh__list {
+        gap: 3px;
+        font-size: 11px;
+      }
 
-  .profile__intro-body { font-size: 11.5px; line-height: 1.65; }
-  .gh__list { font-size: 10.5px; }
-  .profile__link { height: 36px; font-size: 12px; }
-}
-/* ============================================================
+      .gh__grade {
+        width: 60px;
+        height: 60px;
+      }
+
+      .gh__grade::before {
+        inset: 5px;
+      }
+
+      .gh__grade>span {
+        font-size: 17px;
+      }
+
+      /* 底部两个按钮 */
+      .profile__links {
+        gap: 8px;
+      }
+
+      .profile__link {
+        height: 40px;
+        font-size: 13px;
+      }
+    }
+
+    /* 极矮横屏（例如 320–380px 高的老机型）再压一层 */
+    @media (orientation: landscape) and (max-height: 400px) {
+      .profile {
+        grid-template-columns: minmax(180px, 30%) minmax(0, 1fr);
+      }
+
+      .profile__art-img {
+        object-position: 50% 4%;
+        transform: scale(1.04) translateX(3%);
+      }
+
+      .profile__intro-body {
+        font-size: 11.5px;
+        line-height: 1.65;
+      }
+
+      .gh__list {
+        font-size: 10.5px;
+      }
+
+      .profile__link {
+        height: 36px;
+        font-size: 12px;
+      }
+    }
+
+    /* ============================================================
    平板适配
    —— 放在所有断点之后，覆盖 860px 单列规则
    ============================================================ */
 
-/* ---------- ① 平板竖屏：单列，立绘按宽度反推高度 ---------- */
-@media (min-width: 641px) and (max-width: 900px) and (orientation: portrait) {
+    /* ---------- ① 平板竖屏：单列，立绘按宽度反推高度 ---------- */
+    @media (min-width: 641px) and (max-width: 900px) and (orientation: portrait) {
 
-  .profile {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
+      .profile {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
 
-  /* 关键：把 min-height 交给 aspect-ratio，避免被压扁 */
-  .profile__visual {
-    min-height: 0;              /* 覆盖 340px */
-    aspect-ratio: 3 / 2;        /* 宽 820 → 高约 547 */
-    max-height: 56vh;           /* 矮平板兜底 */
-  }
+      /* 关键：把 min-height 交给 aspect-ratio，避免被压扁 */
+      .profile__visual {
+        min-height: 0;
+        /* 覆盖 340px */
+        aspect-ratio: 3 / 2;
+        /* 宽 820 → 高约 547 */
+        max-height: 56vh;
+        /* 矮平板兜底 */
+      }
 
-  /* 立绘取景：配合更宽更方的容器 */
-  .profile__art-img {
-    object-position: 50% 2%;
-    transform: scale(1.12) translateX(6%);
-  }
+      /* 立绘取景：配合更宽更方的容器 */
+      .profile__art-img {
+        object-position: 50% 2%;
+        transform: scale(1.12) translateX(6%);
+      }
 
-  /* 名牌放大一档，和宽立绘区比例协调 */
-  .profile__namecard {
-    width: calc(100% - 24px);
-    margin: 0 12px 14px;
-    padding: 10px 16px;
-    gap: 16px;
-  }
+      /* 名牌放大一档，和宽立绘区比例协调 */
+      .profile__namecard {
+        width: calc(100% - 24px);
+        margin: 0 12px 14px;
+        padding: 10px 16px;
+        gap: 16px;
+      }
 
-  .profile__lv       { padding-right: 16px; }
-  .profile__lv-label { font-size: 11px; }
-  .profile__lv-num   { font-size: 26px; }
-  .profile__id-name  { font-size: 15px; }
-  .profile__id-tag   { font-size: 10px; }
-  .profile__expbar   { height: 6px; margin-top: 8px; }
+      .profile__lv {
+        padding-right: 16px;
+      }
 
-  /* 右列限宽居中，避免文字行长过长 */
-  .profile__panel {
-    width: 100%;
-    max-width: 760px;
-    margin: 0 auto;
-  }
-}
+      .profile__lv-label {
+        font-size: 11px;
+      }
 
-/* ---------- ② 平板横屏：保持两列，收窄左列 ---------- */
-@media (min-width: 900px) and (max-width: 1366px) and (orientation: landscape) {
+      .profile__lv-num {
+        font-size: 26px;
+      }
 
-  .profile {
-    grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
-    gap: 14px;
-  }
+      .profile__id-name {
+        font-size: 15px;
+      }
 
-  .profile__visual {
-    min-height: 420px;          /* 横屏高度有限时的兜底 */
-  }
+      .profile__id-tag {
+        font-size: 10px;
+      }
 
-  .profile__art-img {
-    object-position: 50% 6%;
-    transform: scale(1.1) translateX(4%);
-  }
-}
-/* ==================== 自我介绍里的引用 ==================== */
-.intro-quote {
-  position: relative;
-  margin: 14px 0;
-  padding: 10px 16px 10px 20px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg,
-      rgba(33, 165, 227, .10) 0%,
-      rgba(33, 165, 227, .02) 100%);
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--color-text-secondary);
-  overflow: hidden;
-}
+      .profile__expbar {
+        height: 6px;
+        margin-top: 8px;
+      }
 
-/* 左侧渐变竖条 */
-.intro-quote::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
-}
+      /* 右列限宽居中，避免文字行长过长 */
+      .profile__panel {
+        width: 100%;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+    }
 
-/* 右上角大引号装饰 */
-.intro-quote::after {
-  content: "\201C";
-  position: absolute;
-  right: 10px;
-  top: -8px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 46px;
-  font-weight: 800;
-  line-height: 1;
-  color: rgba(33, 165, 227, .14);
-  pointer-events: none;
-  user-select: none;
-}
+    /* ---------- ② 平板横屏：保持两列，收窄左列 ---------- */
+    @media (min-width: 900px) and (max-width: 1366px) and (orientation: landscape) {
 
-.intro-quote__author {
-  display: inline-block;
-  margin-left: 6px;
-  font-weight: 700;
-  color: var(--color-primary);
-  white-space: nowrap;
-}
+      .profile {
+        grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
+        gap: 14px;
+      }
 
-.intro-quote__author a {
-  color: inherit;
-  border-bottom: 1px dashed currentColor;
-  transition: color .18s ease, border-color .18s ease;
-}
+      .profile__visual {
+        min-height: 420px;
+        /* 横屏高度有限时的兜底 */
+      }
 
-.intro-quote__author a:hover {
-  color: var(--color-primary-hover);
-  border-bottom-style: solid;
-  border-bottom-color: var(--color-primary-hover);
-}
-</style>
+      .profile__art-img {
+        object-position: 50% 6%;
+        transform: scale(1.1) translateX(4%);
+      }
+    }
+
+    /* ==================== 自我介绍里的引用 ==================== */
+    .intro-quote {
+      position: relative;
+      margin: 14px 0;
+      padding: 10px 16px 10px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg,
+          rgba(33, 165, 227, .10) 0%,
+          rgba(33, 165, 227, .02) 100%);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--color-text-secondary);
+      overflow: hidden;
+    }
+
+    /* 左侧渐变竖条 */
+    .intro-quote::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+    }
+
+    /* 右上角大引号装饰 */
+    .intro-quote::after {
+      content: "\201C";
+      position: absolute;
+      right: 10px;
+      top: -8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1;
+      color: rgba(33, 165, 227, .14);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .intro-quote__author {
+      display: inline-block;
+      margin-left: 6px;
+      font-weight: 700;
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+
+    .intro-quote__author a {
+      color: inherit;
+      border-bottom: 1px dashed currentColor;
+      transition: color .18s ease, border-color .18s ease;
+    }
+
+    .intro-quote__author a:hover {
+      color: var(--color-primary-hover);
+      border-bottom-style: solid;
+      border-bottom-color: var(--color-primary-hover);
+    }
+  </style>
 </head>
 
 <body>
 
   <!-- 背景音乐 -->
-  <audio id="bgm" src="src/ShootingStars.mp3" loop preload="auto" playsinline></audio>
+  <audio id="bgm" src="src/ShootingStars.m4a" loop preload="auto" playsinline></audio>
 
   <!-- ==================== 顶部栏 ==================== -->
   <header class="topbar">
@@ -2569,59 +2640,61 @@
       </section>
 
       <!-- ==================== 第 2 页 · 个人简介 ==================== -->
-<section class="page" aria-label="个人资料">
-  <div class="page__inner">
-    <h2 class="section-title reveal">个人资料<span class="section-title__sub">PROFILE</span></h2>
+      <section class="page" aria-label="个人资料">
+        <div class="page__inner">
+          <h2 class="section-title reveal">个人资料<span class="section-title__sub">PROFILE</span></h2>
 
-    <section class="profile">
-      <!-- ---------- 左：立绘 + 名牌 ---------- -->
-      <div class="profile__visual reveal">
-        <div class="profile__art">
-  <img class="profile__art-img" src="src/kei.png" alt="我推立绘">
-</div>
+          <section class="profile">
+            <!-- ---------- 左：立绘 + 名牌 ---------- -->
+            <div class="profile__visual reveal">
+              <div class="profile__art">
+                <img class="profile__art-img" src="src/kei.png" alt="我推立绘">
+              </div>
 
-        <div class="profile__namecard">
-          <div class="profile__lv">
-            <span class="profile__lv-label">Lv.</span>
-            <span class="profile__lv-num">90</span>
-          </div>
+              <div class="profile__namecard">
+                <div class="profile__lv">
+                  <span class="profile__lv-label">Lv.</span>
+                  <span class="profile__lv-num">90</span>
+                </div>
 
-          <div class="profile__id">
-            <div class="profile__id-row">
-              <span class="profile__id-name">ttwe 77</span>
-              <span class="profile__id-tag">MAX</span>
+                <div class="profile__id">
+                  <div class="profile__id-row">
+                    <span class="profile__id-name">ttwe 77</span>
+                    <span class="profile__id-tag">MAX</span>
+                  </div>
+                  <div class="profile__expbar">
+                    <i style="width:100%"></i>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="profile__expbar">
-              <i style="width:100%"></i>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ---------- 右：自我介绍 / GitHub / 链接 ---------- -->
-      <div class="profile__panel">
-        <!-- 自我介绍 -->
-        <div class="card card--static profile__intro reveal">
-          <h3 class="profile__intro-title">自我介绍</h3>
-          <div class="profile__intro-body">
-            <p>你好啊，我是ttwe77 &gt;_&lt;！</p>
-            <p>很高兴见到你，我是一个大一学生，很喜欢计算机与网络。平时最享受的就是不断"折腾",把日常的东西赋予更多有意思的可能性。</p>
-            <p class="intro-quote">
-  <span class="intro-quote__text">科技倡导个性化</span>
-  <span class="intro-quote__author">—— <a href="https://space.bilibili.com/12590" target="_blank" rel="noopener noreferrer">Epcdiy</a></span>
-</p>
-            <p class="profile__intro-lead">目前为止：</p>
-            <!--<ul class="profile__list">
-              <li>稍微擅长一点 Python、前端三件套、Node.js、Vue3、React 的使用</li>
-              <li>正在学习 Rust 来推进 Tauri 的学习</li>
-              <li>正在学习 CTF 相关知识</li>
-              <li>现在是个 Sensei、托雷纳、厨圣、刀客塔、管理员</li>
-            </ul>-->
-          </div>
-        </div>
+            <!-- ---------- 右：自我介绍 / GitHub / 链接 ---------- -->
+            <div class="profile__panel">
+              <!-- 自我介绍 -->
+              <div class="card card--static profile__intro reveal">
+                <h3 class="profile__intro-title">自我介绍</h3>
+                <div class="profile__intro-body">
+                  <p>你好啊，我是77 &gt;_&lt;！</p>
+                  <p>很高兴见到你，我是一个大一学生，很喜欢计算机与网络。平时最享受的就是不断"折腾",把日常的东西赋予更多有意思的可能性。</p>
+                  <p class="intro-quote">
+                    <span class="intro-quote__text">科技倡导个性化</span>
+                    <span class="intro-quote__author">—— <a href="https://space.bilibili.com/12590" target="_blank"
+                        rel="noopener noreferrer">Epcdiy</a></span>
+                  </p>
+                  <p class="profile__intro-lead">折腾特点：</p>
+                  <ul class="profile__list">
+                    <li>简单高效 程序启动要快，不浪费资源</li>
+                    <li>赛博整活 用搞笑无用的风格写程序，追求戏剧化仪式感</li>
+                    <li>隐私安全 RSA 加密、后量子加密、追踪阻断这些安全与隐私工具</li>
+                    <li>游戏生态 做游戏相关二次创作，或按游戏风格来设计程序</li>
+                  </ul>
+                  <p>现在是个 Sensei、旅行者、开拓者、舰长、绳匠</p>
+                </div>
+              </div>
 
-        <!-- GitHub 统计 -->
-        <!--<div class="card card--static profile__github reveal">
+              <!-- GitHub 统计 -->
+              <!--<div class="card card--static profile__github reveal">
           <div class="gh__head">ttwe 77's GitHub Stats</div>
 
           <div class="gh__body">
@@ -2656,8 +2729,8 @@
             <div class="gh__grade"><span>B+</span></div>
           </div>-->
 
-          <!-- 语言占比条 -->
-          <!--<div class="gh__langs" aria-hidden="true">
+              <!-- 语言占比条 -->
+              <!--<div class="gh__langs" aria-hidden="true">
             <i style="width:46%;background:#7C9CFF"></i>
             <i style="width:26%;background:#FFD84D"></i>
             <i style="width:18%;background:#4ED08A"></i>
@@ -2665,15 +2738,15 @@
           </div>
         </div>-->
 
-        <!-- 底部按钮 -->
-        <!--<div class="profile__links reveal">
-          <a class="btn profile__link" href="#">原神</a>
-          <a class="btn profile__link" href="#">蔚蓝档案</a>
-        </div>-->
-      </div>
-    </section>
-  </div>
-</section>
+              <!-- 底部按钮 -->
+        <div class="profile__links reveal">
+          <a class="btn profile__link" href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
+          <a class="btn profile__link" href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+            </div>
+          </section>
+        </div>
+      </section>
 
       <!-- ---------- 第 3 页 · 能力参数 ---------- -->
       <section class="page" aria-label="能力参数">
@@ -2871,10 +2944,12 @@
               本站点击特效使用
               <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
                 rel="noopener noreferrer">ba-click-fx</a>
-              （<a href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>，Copyright © CialloKing）。
+              （<a href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
+                rel="noopener noreferrer">MIT License</a>，Copyright © CialloKing）。
             </span>
             <span class="footer__license">
-              角色立绘来自<a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo Wiki</a>
+              角色立绘来自<a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo
+                Wiki</a>
             </span>
           </footer>
         </div>
@@ -2943,6 +3018,38 @@
         </button>
         <button class="modal-btn btn-confirm" id="modal-confirm-btn">
           确认
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <!-- 进入网站：询问是否播放背景音乐 -->
+  <div id="music-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <!-- 头部 -->
+      <div class="modal-header">
+        <h3 class="modal-title">背景音乐</h3>
+        <button class="modal-close" id="music-modal-close-btn" aria-label="关闭">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="modal-body">
+        <p class="modal-question">是否播放背景音乐？</p>
+        <p class="modal-subtext">Shooting Stars · 右上角可随时开关</p>
+      </div>
+
+      <!-- 底部按钮 -->
+      <div class="modal-footer">
+        <button class="modal-btn btn-cancel" id="music-modal-cancel-btn">
+          取消
+        </button>
+        <button class="modal-btn btn-confirm" id="music-modal-confirm-btn">
+          播放
         </button>
       </div>
     </div>
@@ -3251,7 +3358,7 @@
         });
       }
 
-      /* ---------- 背景音乐：默认不播放，按钮切换 ---------- */
+      /* ---------- 背景音乐：默认不播放，进入时弹窗询问 ---------- */
       var bgm = document.getElementById('bgm');
       var btnMusic = document.getElementById('btn-music');
 
@@ -3259,6 +3366,14 @@
         if (!btnMusic) return;
         btnMusic.setAttribute('aria-pressed', playing ? 'true' : 'false');
         btnMusic.setAttribute('aria-label', playing ? '暂停音乐' : '播放音乐');
+      }
+
+      function playMusic() {
+        if (!bgm) return;
+        var p = bgm.play();
+        if (p && p.then) {
+          p.catch(function () { setMusicUI(false); });  // 播放失败回退
+        }
       }
 
       if (bgm && btnMusic) {
@@ -3269,10 +3384,7 @@
         // 按钮点击：播放 / 暂停
         btnMusic.addEventListener('click', function () {
           if (bgm.paused) {
-            var p = bgm.play();
-            if (p && p.then) {
-              p.catch(function () { setMusicUI(false); });  // 播放失败回退
-            }
+            playMusic();
           } else {
             bgm.pause();
           }
@@ -3281,6 +3393,49 @@
         // 同步状态
         bgm.addEventListener('play', function () { setMusicUI(true); });
         bgm.addEventListener('pause', function () { setMusicUI(false); });
+
+        /* ----- 进入网站：询问是否播放音乐 ----- */
+        var musicModal = document.getElementById('music-modal');
+        var musicModalConfirm = document.getElementById('music-modal-confirm-btn');
+        var musicModalCancel = document.getElementById('music-modal-cancel-btn');
+        var musicModalClose = document.getElementById('music-modal-close-btn');
+
+        function closeMusicModal() {
+          if (musicModal) musicModal.style.display = 'none';
+        }
+
+        function confirmMusicModal() {
+          playMusic();
+          closeMusicModal();
+        }
+
+        if (musicModal) {
+          // 稍微延迟，等首屏入场动画起步后再弹出
+          setTimeout(function () {
+            musicModal.style.display = 'flex';
+          }, 500);
+
+          if (musicModalConfirm) musicModalConfirm.addEventListener('click', confirmMusicModal);
+          if (musicModalCancel) musicModalCancel.addEventListener('click', closeMusicModal);
+          if (musicModalClose) musicModalClose.addEventListener('click', closeMusicModal);
+
+          // 点击遮罩关闭（视作不播放）
+          musicModal.addEventListener('click', function (e) {
+            if (e.target === musicModal) closeMusicModal();
+          });
+
+          // 键盘：ESC 关闭 / Enter 确认
+          window.addEventListener('keydown', function (e) {
+            if (musicModal.style.display !== 'flex') return;
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              closeMusicModal();
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              confirmMusicModal();
+            }
+          }, true);   // 捕获阶段，优先拦截
+        }
       }
 
 
@@ -3304,48 +3459,48 @@
     })();
   </script>
   <script>
-  /* ============================================================
-     点击立绘 → 随机弹出一句台词
-     ============================================================ */
-  (function () {
-    /* 想改内容只改这个数组：加/减/换文案都行 */
-    var QUOTES = [
-      '可愛いって言うのやめてください！\n请别说我可爱啦！',
-      '食事はちゃんと取っていますか？適度な運動も必要です。\n你有好好吃饭吗？适当的运动也是必要的。',
-      '仕事はほどほどに。とはいえ怠けるのもほどほどに。\n工作要适度，不过偷懒也得适可而止。',
-      '……本当にもう、手が焼けるんですから。\n……真是的，你实在太让人操心啦。',
-      '何ですか？用がないなら呼ばないでください。\n什么事？如果没事的话请不要叫我。',
-      'こんにちは、先生。\n你好，老师。'
-    ];
+    /* ============================================================
+       点击立绘 → 随机弹出一句台词
+       ============================================================ */
+    (function () {
+      /* 想改内容只改这个数组：加/减/换文案都行 */
+      var QUOTES = [
+        '可愛いって言うのやめてください！\n请别说我可爱啦！',
+        '食事はちゃんと取っていますか？適度な運動も必要です。\n你有好好吃饭吗？适当的运动也是必要的。',
+        '仕事はほどほどに。とはいえ怠けるのもほどほどに。\n工作要适度，不过偷懒也得适可而止。',
+        '……本当にもう、手が焼けるんですから。\n……真是的，你实在太让人操心啦。',
+        '何ですか？用がないなら呼ばないでください。\n什么事？如果没事的话请不要叫我。',
+        'こんにちは、先生。\n你好，老师。'
+      ];
 
-    /* 对外暴露的 alarm()，随机抽一条并弹出 */
-    window.alarm = function () {
-      if (!QUOTES.length) return;
-      var i = Math.floor(Math.random() * QUOTES.length);
-      var text = QUOTES[i];
-      window.alert(text);              // 想换成自定义弹窗，改这一行即可
-      return text;                     // 顺手返回，方便别处复用
-    };
+      /* 对外暴露的 alarm()，随机抽一条并弹出 */
+      window.alarm = function () {
+        if (!QUOTES.length) return;
+        var i = Math.floor(Math.random() * QUOTES.length);
+        var text = QUOTES[i];
+        window.alert(text);              // 想换成自定义弹窗，改这一行即可
+        return text;                     // 顺手返回，方便别处复用
+      };
 
-    var artEl = document.querySelector('.profile__art');
-    if (artEl) {
-      artEl.addEventListener('click', function (e) {
-        e.preventDefault();
-        window.alarm();
-      });
-
-      /* 无障碍：支持键盘 Enter / 空格触发 */
-      artEl.setAttribute('role', 'button');
-      artEl.setAttribute('tabindex', '0');
-      artEl.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      var artEl = document.querySelector('.profile__art');
+      if (artEl) {
+        artEl.addEventListener('click', function (e) {
           e.preventDefault();
           window.alarm();
-        }
-      });
-    }
-  })();
-</script>
+        });
+
+        /* 无障碍：支持键盘 Enter / 空格触发 */
+        artEl.setAttribute('role', 'button');
+        artEl.setAttribute('tabindex', '0');
+        artEl.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            window.alarm();
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 
 </html>
