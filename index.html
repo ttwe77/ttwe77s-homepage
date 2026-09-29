@@ -959,6 +959,8 @@
     .work__thumb svg {
       position: relative;
       z-index: 1;
+      width: 48px;        /* 图标宽度，可按需调整 */
+      height: 48px;       /* 图标高度，可按需调整 */
     }
 
     .work__body {
@@ -3162,371 +3164,422 @@
       text-decoration-thickness: 3px;
     }
 
-/* ==================== 悬停提示框 ==================== */
-.hover-hint {
-  position: relative;
-  cursor: help;
-  border-bottom: 1px dashed currentColor;
-  transition: border-color .2s ease;
-  white-space: nowrap;
-}
+    /* ==================== 悬停提示框 ==================== */
+    .hover-hint {
+      position: relative;
+      cursor: help;
+      border-bottom: 1px dashed currentColor;
+      transition: border-color .2s ease;
+      white-space: nowrap;
+    }
 
-.hover-hint:hover {
-  border-bottom-style: solid;
-}
+    .hover-hint:hover {
+      border-bottom-style: solid;
+    }
 
-/* tooltip 由 JS 传送到 <body> 下，用 fixed 定位，彻底避开祖先 overflow 裁剪 */
-.hover-hint__tooltip {
-  position: fixed;
-  left: -9999px;         /* 由 JS 覆盖 */
-  top: -9999px;          /* 由 JS 覆盖 */
-  min-width: 200px;
-  max-width: 300px;
-  width: max-content;
-  padding: 12px 16px;
-  background: #ffffff;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
-  border: 1px solid var(--color-border);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.65;
-  color: var(--color-text-body);
-  text-align: left;
-  white-space: normal;
-  word-break: break-word;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(6px);
-  transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
-              transform .25s cubic-bezier(.22, .61, .36, 1),
-              visibility .25s ease;
-  z-index: 999999;
-}
+    /* tooltip 由 JS 传送到 <body> 下，用 fixed 定位，彻底避开祖先 overflow 裁剪 */
+    .hover-hint__tooltip {
+      position: fixed;
+      left: -9999px;
+      /* 由 JS 覆盖 */
+      top: -9999px;
+      /* 由 JS 覆盖 */
+      min-width: 200px;
+      max-width: 300px;
+      width: max-content;
+      padding: 12px 16px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+      border: 1px solid var(--color-border);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--color-text-body);
+      text-align: left;
+      white-space: normal;
+      word-break: break-word;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+        transform .25s cubic-bezier(.22, .61, .36, 1),
+        visibility .25s ease;
+      z-index: 999999;
+    }
 
-.hover-hint__tooltip.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
+    .hover-hint__tooltip.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
 
-/* 当上方空间不足，tooltip 翻到元素下方时用 */
-.hover-hint__tooltip.is-below {
-  transform: translateY(-6px);
-}
-.hover-hint__tooltip.is-below.is-visible {
-  transform: translateY(0);
-}
+    /* 当上方空间不足，tooltip 翻到元素下方时用 */
+    .hover-hint__tooltip.is-below {
+      transform: translateY(-6px);
+    }
 
-/* 小三角箭头（默认指向下方 —— tooltip 在上方） */
-.hover-hint__tooltip::after,
-.hover-hint__tooltip::before {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: solid transparent;
-  pointer-events: none;
-}
+    .hover-hint__tooltip.is-below.is-visible {
+      transform: translateY(0);
+    }
 
-.hover-hint__tooltip::before {
-  border-width: 8px;
-  border-top-color: var(--color-border);
-  margin-top: 1px;
-}
+    /* 小三角箭头（默认指向下方 —— tooltip 在上方） */
+    .hover-hint__tooltip::after,
+    .hover-hint__tooltip::before {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: solid transparent;
+      pointer-events: none;
+    }
 
-.hover-hint__tooltip::after {
-  border-width: 7px;
-  border-top-color: #ffffff;
-  margin-top: 0;
-}
+    .hover-hint__tooltip::before {
+      border-width: 8px;
+      border-top-color: var(--color-border);
+      margin-top: 1px;
+    }
 
-/* 翻转到下方时，箭头朝上 */
-.hover-hint__tooltip.is-below::before,
-.hover-hint__tooltip.is-below::after {
-  top: auto;
-  bottom: 100%;
-  margin-top: 0;
-}
-.hover-hint__tooltip.is-below::before {
-  border-top-color: transparent;
-  border-bottom-color: var(--color-border);
-  margin-bottom: 1px;
-}
-.hover-hint__tooltip.is-below::after {
-  border-top-color: transparent;
-  border-bottom-color: #ffffff;
-}
+    .hover-hint__tooltip::after {
+      border-width: 7px;
+      border-top-color: #ffffff;
+      margin-top: 0;
+    }
 
-/* 提示框内标题（可选） */
-.hover-hint__tooltip .hint-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 6px;
-  letter-spacing: .2px;
-}
+    /* 翻转到下方时，箭头朝上 */
+    .hover-hint__tooltip.is-below::before,
+    .hover-hint__tooltip.is-below::after {
+      top: auto;
+      bottom: 100%;
+      margin-top: 0;
+    }
 
-.hover-hint__tooltip .hint-title::before {
-  content: "";
-  width: 3px;
-  height: 14px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
-  flex: 0 0 auto;
-}
+    .hover-hint__tooltip.is-below::before {
+      border-top-color: transparent;
+      border-bottom-color: var(--color-border);
+      margin-bottom: 1px;
+    }
 
-/* 手机端微调 */
-@media (max-width: 640px) {
-  .hover-hint__tooltip {
-    min-width: 170px;
-    max-width: 240px;
-    padding: 10px 12px;
-    font-size: 12px;
-  }
-}
-/* ==================== 立项至今 · 实时计时 ==================== */
-.footer__uptime {
-  flex: 1 1 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg,
-      rgba(33, 165, 227, .09) 0%,
-      rgba(33, 165, 227, .03) 60%,
-      rgba(33, 165, 227, 0) 100%);
-  border: 1px solid rgba(33, 165, 227, .16);
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
+    .hover-hint__tooltip.is-below::after {
+      border-top-color: transparent;
+      border-bottom-color: #ffffff;
+    }
 
-.footer__uptime-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex: 0 0 auto;
-  font-weight: 700;
-  letter-spacing: .04em;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
+    /* 提示框内标题（可选） */
+    .hover-hint__tooltip .hint-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 6px;
+      letter-spacing: .2px;
+    }
 
-/* 呼吸小圆点 */
-.footer__uptime-label::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-success);
-  box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
-  animation: uptime-pulse 2s ease-in-out infinite;
-}
+    .hover-hint__tooltip .hint-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+      flex: 0 0 auto;
+    }
 
-@keyframes uptime-pulse {
+    /* 手机端微调 */
+    @media (max-width: 640px) {
+      .hover-hint__tooltip {
+        min-width: 170px;
+        max-width: 240px;
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+    }
 
-  0%,
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
-  }
+    /* ==================== 立项至今 · 实时计时 ==================== */
+    .footer__uptime {
+      flex: 1 1 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg,
+          rgba(33, 165, 227, .09) 0%,
+          rgba(33, 165, 227, .03) 60%,
+          rgba(33, 165, 227, 0) 100%);
+      border: 1px solid rgba(33, 165, 227, .16);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
 
-  50% {
-    opacity: .55;
-    box-shadow: 0 0 0 6px rgba(22, 155, 91, .06);
-  }
-}
+    .footer__uptime-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+    }
 
-.footer__uptime-value {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
-  font-variant-numeric: tabular-nums;
-}
+    /* 呼吸小圆点 */
+    .footer__uptime-label::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-success);
+      box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+      animation: uptime-pulse 2s ease-in-out infinite;
+    }
 
-.uptime-unit {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 2px;
-  white-space: nowrap;
-}
+    @keyframes uptime-pulse {
 
-.uptime-unit b {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--color-primary);
-  font-variant-numeric: tabular-nums;
-}
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+      }
 
-.uptime-unit i {
-  font-style: normal;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
+      50% {
+        opacity: .55;
+        box-shadow: 0 0 0 6px rgba(22, 155, 91, .06);
+      }
+    }
 
-/* 窄屏微调 */
-@media (max-width: 640px) {
-  .footer__uptime {
-    gap: 8px;
-    padding: 9px 12px;
-  }
+    .footer__uptime-value {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-variant-numeric: tabular-nums;
+    }
 
-  .footer__uptime-value {
-    gap: 6px;
-  }
+    .uptime-unit {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 2px;
+      white-space: nowrap;
+    }
 
-  .uptime-unit b {
-    font-size: 12px;
-  }
+    .uptime-unit b {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--color-primary);
+      font-variant-numeric: tabular-nums;
+    }
 
-  .uptime-unit i {
-    font-size: 10px;
-  }
-}
+    .uptime-unit i {
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    /* 窄屏微调 */
+    @media (max-width: 640px) {
+      .footer__uptime {
+        gap: 8px;
+        padding: 9px 12px;
+      }
+
+      .footer__uptime-value {
+        gap: 6px;
+      }
+
+      .uptime-unit b {
+        font-size: 12px;
+      }
+
+      .uptime-unit i {
+        font-size: 10px;
+      }
+    }
 
 
-/* ============================================================
+    /* ============================================================
    详情正文内嵌富文本（第 6 章「技能介绍」）
    —— 复用全局标题语言、渐变条、菱形列表、内联 chip
    ============================================================ */
 
-/* 块级容器化后的首尾外边距收口 */
-.ability__desc > :first-child { margin-top: 0; }
-.ability__desc > :last-child  { margin-bottom: 0; }
+    /* 块级容器化后的首尾外边距收口 */
+    .ability__desc> :first-child {
+      margin-top: 0;
+    }
 
-/* ---------- H1 · 总标题条（深蓝渐变，右下斜切） ---------- */
-.ability__desc h1 {
-  margin: 0 0 16px;
-  padding: 11px 16px;
-  font-size: clamp(15px, 2.4vw, 17px);
-  font-weight: 800;
-  line-height: 1.3;
-  letter-spacing: .1em;
-  text-align: center;
-  color: #fff;
-  background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
-  border-radius: 10px 10px 24px 10px;
-  box-shadow: 0 6px 18px rgba(20, 40, 60, .2);
-}
+    .ability__desc> :last-child {
+      margin-bottom: 0;
+    }
 
-/* H1 紧接 H2 时收紧一次间距 */
-.ability__desc h1 + h2 { margin-top: 12px; }
+    /* ---------- H1 · 总标题条（深蓝渐变，右下斜切） ---------- */
+    .ability__desc h1 {
+      margin: 0 0 16px;
+      padding: 11px 16px;
+      font-size: clamp(15px, 2.4vw, 17px);
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: .1em;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+      border-radius: 10px 10px 24px 10px;
+      box-shadow: 0 6px 18px rgba(20, 40, 60, .2);
+    }
 
-/* ---------- H2 · 板块标题（左侧渐变竖条 + 右侧渐隐延长线） ---------- */
-.ability__desc h2 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 18px 0 8px;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: .04em;
-  color: var(--color-text-primary);
-}
+    /* H1 紧接 H2 时收紧一次间距 */
+    .ability__desc h1+h2 {
+      margin-top: 12px;
+    }
 
-.ability__desc h2::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 4px;
-  height: 15px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
-}
+    /* ---------- H2 · 板块标题（左侧渐变竖条 + 右侧渐隐延长线） ---------- */
+    .ability__desc h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0 8px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: var(--color-text-primary);
+    }
 
-.ability__desc h2::after {
-  content: "";
-  flex: 1 1 auto;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(33, 165, 227, .3), rgba(33, 165, 227, 0));
-}
+    .ability__desc h2::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 4px;
+      height: 15px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+    }
 
-/* ---------- H3 · 小标题（菱形记号 + 主色文字） ---------- */
-.ability__desc h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 12px 0 4px;
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: .02em;
-  color: var(--color-primary);
-}
+    .ability__desc h2::after {
+      content: "";
+      flex: 1 1 auto;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(33, 165, 227, .3), rgba(33, 165, 227, 0));
+    }
 
-.ability__desc h3::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 5px;
-  height: 5px;
-  border-radius: 1px;
-  background: var(--color-primary);
-  transform: rotate(45deg);
-}
+    /* ---------- H3 · 小标题（菱形记号 + 主色文字） ---------- */
+    .ability__desc h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 4px;
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--color-primary);
+    }
 
-/* ---------- 列表 ---------- */
-.ability__desc ul {
-  margin: 0 0 2px;
-  padding: 0;
-  list-style: none;
-}
+    .ability__desc h3::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 5px;
+      height: 5px;
+      border-radius: 1px;
+      background: var(--color-primary);
+      transform: rotate(45deg);
+    }
 
-.ability__desc li {
-  position: relative;
-  padding-left: 16px;
-  font-size: 13px;
-  line-height: 1.85;
-  color: var(--color-text-secondary);
-}
+    /* ---------- 列表 ---------- */
+    .ability__desc ul {
+      margin: 0 0 2px;
+      padding: 0;
+      list-style: none;
+    }
 
-.ability__desc li + li { margin-top: 1px; }
+    .ability__desc li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--color-text-secondary);
+    }
 
-.ability__desc li::before {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: .75em;
-  width: 5px;
-  height: 5px;
-  border-radius: 1px;
-  background: var(--color-blue-light);
-  transform: rotate(45deg);
-}
+    .ability__desc li+li {
+      margin-top: 1px;
+    }
 
-/* ---------- strong · 关键词（主色 + 极浅底，内联 chip 感） ---------- */
-.ability__desc strong {
-  padding: 0 4px;
-  border-radius: 3px;
-  font-weight: 700;
-  color: var(--color-primary);
-  background: rgba(18, 138, 250, .08);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
+    .ability__desc li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .75em;
+      width: 5px;
+      height: 5px;
+      border-radius: 1px;
+      background: var(--color-blue-light);
+      transform: rotate(45deg);
+    }
 
-/* ---------- 响应式微调 ---------- */
-@media (max-width: 480px) and (orientation: portrait) {
-  .ability__desc h1 { padding: 10px 14px; letter-spacing: .06em; }
-  .ability__desc h2 { margin: 15px 0 6px; font-size: 14px; }
-  .ability__desc h3 { font-size: 13px; }
-  .ability__desc li { font-size: 12.5px; line-height: 1.8; }
-}
+    /* ---------- strong · 关键词（主色 + 极浅底，内联 chip 感） ---------- */
+    .ability__desc strong {
+      padding: 0 4px;
+      border-radius: 3px;
+      font-weight: 700;
+      color: var(--color-primary);
+      background: rgba(18, 138, 250, .08);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
 
-@media (orientation: landscape) and (max-height: 560px) {
-  .ability__desc h1 { margin-bottom: 10px; padding: 8px 12px; font-size: 14px; }
-  .ability__desc h1 + h2 { margin-top: 9px; }
-  .ability__desc h2 { margin: 12px 0 5px; font-size: 13px; }
-  .ability__desc h2::before { height: 13px; }
-  .ability__desc h3 { margin: 9px 0 3px; font-size: 12px; }
-  .ability__desc li { font-size: 11.5px; line-height: 1.65; }
-}
+    /* ---------- 响应式微调 ---------- */
+    @media (max-width: 480px) and (orientation: portrait) {
+      .ability__desc h1 {
+        padding: 10px 14px;
+        letter-spacing: .06em;
+      }
+
+      .ability__desc h2 {
+        margin: 15px 0 6px;
+        font-size: 14px;
+      }
+
+      .ability__desc h3 {
+        font-size: 13px;
+      }
+
+      .ability__desc li {
+        font-size: 12.5px;
+        line-height: 1.8;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 560px) {
+      .ability__desc h1 {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      .ability__desc h1+h2 {
+        margin-top: 9px;
+      }
+
+      .ability__desc h2 {
+        margin: 12px 0 5px;
+        font-size: 13px;
+      }
+
+      .ability__desc h2::before {
+        height: 13px;
+      }
+
+      .ability__desc h3 {
+        margin: 9px 0 3px;
+        font-size: 12px;
+      }
+
+      .ability__desc li {
+        font-size: 11.5px;
+        line-height: 1.65;
+      }
+    }
   </style>
 </head>
 
@@ -3808,77 +3861,100 @@
 
           <section class="works">
             <article class="card work reveal">
-              <div class="work__thumb" style="--c1:#128AFA;--c2:#ABD7FF;">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2.5" y="4" width="19" height="14" rx="2.5" />
-                  <path d="M8 21h8M12 18v3" />
+              <div class="work__thumb" style="--c1:#8AB4F8; --c2:#5E8BFF;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 7h16v13H4z" />
+                  <path d="M9 7V4h6v3" />
+                </svg>
                 </svg>
               </div>
               <div class="work__body">
-                <h3 class="work__title">星野的早晨</h3>
-                <p class="work__desc">基于 Canvas 的粒子动画首页，支持鼠标交互与自适应布局。</p>
+                <h3 class="work__title">快 Run 工具箱</h3>
+                <p class="work__desc">设计于Windows PATH中的实用工具，可使用Win+R快速启动。</p>
                 <div class="work__tags">
-                  <span class="chip">Canvas</span>
-                  <span class="chip">动效</span>
+                  <span class="chip">C++</span>
+                  <span class="chip">Python</span>
+                  <span class="chip">Windows</span>
+                  <span class="chip">工具箱</span>
+                  <span class="chip">快速启动</span>
                 </div>
               </div>
             </article>
 
             <article class="card work reveal">
-              <div class="work__thumb" style="--c1:#4454F8;--c2:#BEC0EC;">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="3" width="7.5" height="7.5" rx="2" />
-                  <rect x="13.5" y="3" width="7.5" height="7.5" rx="2" />
-                  <rect x="3" y="13.5" width="7.5" height="7.5" rx="2" />
-                  <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" />
+              <div class="work__thumb" style="--c1:#5FB0FF;--c2:#21a5e3;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
                 </svg>
               </div>
               <div class="work__body">
-                <h3 class="work__title">Blue Archive UI Kit</h3>
-                <p class="work__desc">一套复刻风格的组件库，覆盖按钮、卡片、标签与进度条。</p>
+                <h3 class="work__title">ttwe77s-homepage 个人主页</h3>
+                <p class="work__desc">纯原生 HTML/CSS/JS 打造的个人主页，采用多页分页导航与错峰入场动画。</p>
                 <div class="work__tags">
-                  <span class="chip">设计系统</span>
-                  <span class="chip">组件库</span>
+                  <span class="chip">HTML</span>
+                  <span class="chip">CSS</span>
+                  <span class="chip">JavaScript</span>
+                  <span class="chip">个人主页</span>
                 </div>
               </div>
             </article>
 
             <article class="card work reveal">
-              <div class="work__thumb" style="--c1:#169B5B;--c2:#89EFD4;">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 17l5-6 4 4 5-7 4 5" />
-                  <path d="M3 21h18" />
+              <div class="work__thumb" style="--c1:#7BE0B8; --c2:#34C79F;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </svg>
                 </svg>
               </div>
               <div class="work__body">
-                <h3 class="work__title">数据看板 Aurora</h3>
-                <p class="work__desc">实时可视化后台，图表渲染性能优化 40%，支持多主题切换。</p>
+                <h3 class="work__title">Save-your-Peepers 护眼计时器</h3>
+                <p class="work__desc">基于 20-20-20 护眼规则的 Windows 桌面计时器，通过全屏覆盖层与抢焦点机制强制休息，保护眼睛健康。</p>
                 <div class="work__tags">
-                  <span class="chip">可视化</span>
-                  <span class="chip">性能</span>
+                  <span class="chip">Python</span>
+                  <span class="chip">C++</span>
+                  <span class="chip">守护双眼</span>
+                  <span class="chip">20-20-20</span>
                 </div>
               </div>
             </article>
 
             <article class="card work reveal">
-              <div class="work__thumb" style="--c1:#FB7B44;--c2:#FFD84D;">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 3l2.6 5.6 6.4.8-4.7 4.4 1.3 6.2L12 17l-5.6 3 1.3-6.2L3 9.4l6.4-.8L12 3z" />
+              <div class="work__thumb" style="--c1:#E39BEA; --c2:#A97CE6;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 3-3 3-3-3zM5 9l3 3-3 3-3-3zM19 9l3 3-3 3-3-3zM12 16l3 3-3 3-3-3z"/></svg>
                 </svg>
               </div>
               <div class="work__body">
-                <h3 class="work__title">轻量动画引擎</h3>
-                <p class="work__desc">3KB 的微型补间动画库，支持时间轴编排与硬件加速。</p>
+                <h3 class="work__title">Redshitone-Technology4Windows</h3>
+                <p class="work__desc">赤石科技整活工具集，用最正经的代码实现完全无用的程序，涵盖 Win32 C++、Python、Web 三种技术栈。</p>
                 <div class="work__tags">
-                  <span class="chip">开源</span>
-                  <span class="chip">TypeScript</span>
+                  <span class="chip">C++</span>
+                  <span class="chip">Python</span>
+                  <span class="chip">HTML/CSS/JavaScript</span>
+                  <span class="chip">整活</span>
                 </div>
               </div>
             </article>
+
+              <article class="card work reveal">
+              <div class="work__thumb" style="--c1:#9BA4B5; --c2:#6C7A9F;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+                </svg>
+              </div>
+              <div class="work__body">
+                <h3 class="work__title">三重双拼汉字加密密钥生成器</h3>
+                <p class="work__desc">基于三重双拼映射的对称密钥生成工具，适用于无电子设备的互相加密交流。将汉字加密为高分辨率 QWERTY 键盘 PNG 视觉密钥，支持 UUID 复现与多语言转换。</p>
+                <div class="work__tags">
+                  <span class="chip">Java</span>
+                  <span class="chip">密码学</span>
+                  <span class="chip">双拼</span>
+                  <span class="chip">PNG</span>
+                </div>
+              </div>
+            </article>
+
           </section>
         </div>
       </section>
@@ -3908,9 +3984,9 @@
             <span class="footer__mark">ttwe 77 — Front-end Engineer</span>
             <span>© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
             <span class="footer__uptime">
-  <span class="footer__uptime-label">立项至今</span>
-  <span class="footer__uptime-value" id="uptime-value">—</span>
-</span>
+              <span class="footer__uptime-label">立项至今</span>
+              <span class="footer__uptime-value" id="uptime-value">—</span>
+            </span>
             <span class="footer__license">
               本站点击特效使用
               <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
@@ -4534,11 +4610,11 @@
           lv: 70,
           tagline: '第 5 章 | 从 Vibe Coding 到 Python',
           desc: '记得那是我在坐公交车的时候，我想尝试一下电脑编程。在<a href="https://www.deepseek.com/" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">DeepSeek</a>的指导下，我最先尝试了<a href="https://github.com/royqh1979/RedPanda-CPP" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">小熊猫C++</a>这个IDE。<br>最先我是没啥自学编程的动力的，我就叫DeepSeek来<a href="https://www.runoob.com/ai-agent/vibe-coding-start.html" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Vibe Coding</a> C++(<a href="https://www.mingw-w64.org/" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">MinGW64</a>)，做出了第二个<a href="https://gitee.com/ttwe77/DiyWindow" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">简单的项目</a><br>之后我继续Vibe Coding，做了完全无用的搞笑项目——<a href="https://gitee.com/ttwe77/Redshitone-Technology4Windows" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">赤石科技</a><br>在开发期间我深刻意识到C++过于复杂，于是后续开发转向Python（有时候还是会用C++的，因为小而美）',
-          points: [    '在公交车上萌生学习编程的念头，借助 DeepSeek 入门',
-    '使用小熊猫 C++ IDE + MinGW64 环境起步',
-    '通过 Vibe Coding 完成第一个简单项目：DiyWindow',
-    '开发搞笑项目「赤石科技」，积累实战经验',
-    '因 C++ 过于复杂，主力语言转向 Python，C++ 仅用于小而美的场景'],
+          points: ['在公交车上萌生学习编程的念头，借助 DeepSeek 入门',
+            '使用小熊猫 C++ IDE + MinGW64 环境起步',
+            '通过 Vibe Coding 完成第一个简单项目：DiyWindow',
+            '开发搞笑项目「赤石科技」，积累实战经验',
+            '因 C++ 过于复杂，主力语言转向 Python，C++ 仅用于小而美的场景'],
           chips: ['C++', 'Python', 'Vibe Coding', '小熊猫C++', 'DeepSeek', 'MinGW64']
         },
         {
@@ -4548,7 +4624,7 @@
           tagline: '第 6 章 | 目前会的东西',
           desc: '<h2>软件层面</h2><h3>编程语言</h3><ul><li>平时主要用<strong>C++</strong>和<strong>Python</strong>。</li><li>通常都是<strong>Vibe Coding</strong>，<del>Ai真是太好用了</del>。</li></ul><h3>网站&amp;App</h3><ul><li>会搭网站，一般用<strong>HTML/CSS/JS</strong>，<del>其它一概不会</del>。能把项目跑起来。</li><li>以前用<strong>iApp</strong>和<strong>Android Studio</strong>做过一些小工具、小App。</li></ul><h3>系统&amp;运维</h3><ul><li>熟悉<strong>Linux</strong>和<strong>Windows</strong>的基本命令。</li><li>会在终端里操作文件、检查网络、做版本控制这些。最常用的命令是<strong>FFmpeg</strong>。</li><li>会用<strong>Nginx</strong>把项目简单上线。</li></ul><h3>自动化</h3><ul><li>喜欢用<strong>Python</strong>处理简单、重复性的任务，能自动就自动。</li></ul><h2>AI相关</h2><ul><li>会用<strong>llama.cpp</strong>在本地部署AI大模型。</li><li>平时习惯用AI工具写代码、改bug、写文档、查资料、做表。</li><li>写代码这块也比较依赖AI辅助，效率会高不少。</li></ul><h2>硬件层面</h2><ul><li>自己动手组装过<strong>2台台式电脑</strong>。</li><li>硬件这块愿意折腾，装机、换件这些不怵。</li></ul>',
           points: [],
-          chips: ['C++','Python','Vibe Coding','Linux','Windows','Nginx','Python 自动化','llama.cpp','AI 辅助开发','Android Studio','iApp','DIY 装机']
+          chips: ['C++', 'Python', 'Vibe Coding', 'Linux', 'Windows', 'Nginx', 'Python 自动化', 'llama.cpp', 'AI 辅助开发', 'Android Studio', 'iApp', 'DIY 装机']
         }
       ];
 
@@ -4600,7 +4676,7 @@
           + '</div>';
 
         html += '<p class="ability__tagline">' + d.tagline + '</p>';
-                html += '<div class="ability__desc">' + d.desc + '</div>';
+        html += '<div class="ability__desc">' + d.desc + '</div>';
 
         if (d.points && d.points.length) {
           html += '<ul class="ability__points">';
@@ -4707,274 +4783,325 @@
       select(0);
     })();
   </script>
-  <script>
-    function closeTab() {
-      // 尝试关闭当前标签页
-      window.close();
-
-      // 若浏览器拒绝关闭（非脚本打开的页面），给一个回退
-      setTimeout(function () {
-        // 回退方案 1：返回上一页
-        if (history.length > 1) {
-          history.back();
-        } else {
-          // 回退方案 2：跳转到空白页
-          window.location.href = 'about:blank';
-        }
-      }, 100);
-    }
-  </script>
- <script>
-  /* ============================================================
-     悬停提示框（事件委托版）
-     支持动态插入的 .hover-hint，例如第3页能力参数里的 i5-3570
-     ============================================================ */
-  (function () {
-    var active = null;      // 当前显示的 tooltip 元素
-    var activeHint = null;  // 当前对应的 .hover-hint 元素
-
-    // 获取 tooltip，并把它移动到 body 下，避免被 overflow 裁剪
-    function getTooltip(hint) {
-      if (!hint) return null;
-
-      var tooltip = hint.__tooltip;
-      if (tooltip && tooltip.parentNode) return tooltip;
-
-      tooltip = hint.querySelector('.hover-hint__tooltip');
-      if (!tooltip) return null;
-
-      hint.__tooltip = tooltip;
-      tooltip.__hint = hint;
-      document.body.appendChild(tooltip);
-      return tooltip;
-    }
-
-    // 定位
-    function place(hint, tooltip) {
-      var pad = 8;   // 距视口边缘的最小间距
-      var gap = 10;  // tooltip 与元素的间距
-
-      tooltip.style.left = '-9999px';
-      tooltip.style.top  = '-9999px';
-
-      var r  = hint.getBoundingClientRect();
-      var tw = tooltip.offsetWidth;
-      var th = tooltip.offsetHeight;
-
-      // 水平：以元素中心对齐，超出视口则贴边
-      var cx   = r.left + r.width / 2;
-      var left = cx - tw / 2;
-      if (left < pad) left = pad;
-      var maxLeft = window.innerWidth - tw - pad;
-      if (left > maxLeft) left = Math.max(pad, maxLeft);
-
-      // 垂直：默认在上方；上方放不下则翻到下方
-      var top = r.top - gap - th;
-      var below = false;
-      if (top < pad) {
-        top = r.bottom + gap;
-        below = true;
-      }
-
-      tooltip.style.left = left + 'px';
-      tooltip.style.top  = top  + 'px';
-      tooltip.classList.toggle('is-below', below);
-    }
-
-    // 显示
-    function show(hint) {
-      var tooltip = getTooltip(hint);
-      if (!tooltip) return;
-      if (active === tooltip) return;
-
-      if (active) active.classList.remove('is-visible');
-
-      active = tooltip;
-      activeHint = hint;
-
-      place(hint, tooltip);
-      requestAnimationFrame(function () {
-        tooltip.classList.add('is-visible');
-      });
-    }
-
-    // 隐藏
-    function hide(hint) {
-      var tooltip = hint
-        ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
-        : active;
-
-      if (!tooltip) return;
-      tooltip.classList.remove('is-visible');
-
-      if (active === tooltip) {
-        active = null;
-        activeHint = null;
-      }
-    }
-
-    // 鼠标进入
-    document.addEventListener('mouseover', function (e) {
-      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-      if (!hint) return;
-      show(hint);
-    });
-
-    // 鼠标离开
-    document.addEventListener('mouseout', function (e) {
-      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-      if (!hint) return;
-
-      // 如果只是移动到该 hint 的子元素，不隐藏
-      var related = e.relatedTarget;
-      if (related && hint.contains(related)) return;
-
-      hide(hint);
-    });
-
-    // 键盘聚焦
-    document.addEventListener('focusin', function (e) {
-      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-      if (!hint) return;
-      show(hint);
-    });
-
-    document.addEventListener('focusout', function (e) {
-      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-      if (!hint) return;
-      hide(hint);
-    });
-
-    // 滚动 / 缩放 / 触屏时隐藏
-    window.addEventListener('scroll', function () {
-      if (active && activeHint) hide(activeHint);
-    }, true);
-
-    window.addEventListener('resize', function () {
-      if (active && activeHint) hide(activeHint);
-    });
-
-    document.addEventListener('touchstart', function () {
-      if (active && activeHint) hide(activeHint);
-    }, { passive: true });
-  })();
-</script>
 <script>
-/* ============================================================
-   立项至今 · 实时计时
-   - 起点：1790333910（2026-09-25 18:58:30，东八区）
-   - 全程按 UTC+8 计算，不受访客本地时区影响
-   - 每秒对齐整秒刷新一次
-   ============================================================ */
-(function () {
-  var START_TS = 1790333910;              // 立项 Unix 时间戳（秒）
-  var START_MS = START_TS * 1000;
-  var TZ_OFFSET = 8 * 60 * 60 * 1000;     // 东八区固定偏移
+  function closeTab() {
+    // 1) 脚本打开的窗口才允许关闭
+    try {
+      if (window.opener && window.opener !== window) {
+        window.close();
+        setTimeout(function () {
+          if (!document.hidden) showToast('浏览器阻止了关闭');
+        }, 300);
+        return;
+      }
+    } catch (e) { }
 
-  var valueEl = document.getElementById('uptime-value');
-  if (!valueEl) return;
+    // 2) 不在第 1 页 → 先回首页
+    var track = document.getElementById('pager-track');
+    var t = (track && track.style.transform) || '';
+    var onFirst = !t || /translate3d\(\s*0/.test(t);
 
-  var timer = null;
-
-  /* 把真实时间戳映射成“UTC 字段即东八区挂钟”的 Date */
-  function toCST(ms) {
-    return new Date(ms + TZ_OFFSET);
-  }
-
-  /* 在 CST 语义下平移月份（自动夹紧到目标月的最后一天） */
-  function addMonthsCST(d, months) {
-    var y = d.getUTCFullYear();
-    var m = d.getUTCMonth() + months;
-    var day = d.getUTCDate();
-    var hh = d.getUTCHours();
-    var mm = d.getUTCMinutes();
-    var ss = d.getUTCSeconds();
-    var ms = d.getUTCMilliseconds();
-
-    var ty = y + Math.floor(m / 12);
-    var tm = ((m % 12) + 12) % 12;
-    var lastDay = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
-
-    return new Date(Date.UTC(ty, tm, Math.min(day, lastDay), hh, mm, ss, ms));
-  }
-
-  /* 计算两时刻之间的“年月日时分秒” */
-  function diffCST(startMs, endMs) {
-    if (endMs <= startMs) {
-      return { y: 0, mo: 0, d: 0, h: 0, mi: 0, s: 0 };
+    if (!onFirst) {
+      var home = document.getElementById('btn-home');
+      if (home) { home.click(); return; }
     }
 
-    var s = toCST(startMs);
-    var e = toCST(endMs);
-
-    // 完整年
-    var y = e.getUTCFullYear() - s.getUTCFullYear();
-    var anchor = addMonthsCST(s, y * 12);
-    if (anchor > e) {
-      y -= 1;
-      anchor = addMonthsCST(s, y * 12);
+    // 3) 在第 1 页但向下滚过 → 先回顶
+    var firstPage = document.querySelector('.page');
+    if (firstPage && firstPage.scrollTop > 1) {
+      firstPage.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
-    // 完整月
-    var mo = (e.getUTCFullYear() - anchor.getUTCFullYear()) * 12
-      + (e.getUTCMonth() - anchor.getUTCMonth());
-    var base = addMonthsCST(anchor, mo);
-    if (base > e) {
-      mo -= 1;
-      base = addMonthsCST(anchor, mo);
+    // 4) 第 1 页顶部 → 返回浏览器上一页（即 a.html）
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
     }
 
-    // 余下的天 / 时 / 分 / 秒
-    var rest = e - base;
-    var d = Math.floor(rest / 86400000); rest -= d * 86400000;
-    var h = Math.floor(rest / 3600000); rest -= h * 3600000;
-    var mi = Math.floor(rest / 60000); rest -= mi * 60000;
-    var sec = Math.floor(rest / 1000);
-
-    return { y: y, mo: mo, d: d, h: h, mi: mi, s: sec };
+    // 5) 真的无处可去 → 提示
+    showToast('已经在首页顶部');
   }
 
-  function pad(n) {
-    n = Number(n) || 0;
-    if (n < 0) n = 0;
-    return n < 10 ? '0' + n : String(n);
+  function showToast(msg) {
+    var old = document.getElementById('__close_toast__');
+    if (old) old.remove();
+
+    var el = document.createElement('div');
+    el.id = '__close_toast__';
+    el.textContent = msg;
+    el.style.cssText =
+      'position:fixed;left:50%;top:80px;transform:translate(-50%,-10px);' +
+      'background:rgba(31,31,31,.92);color:#fff;padding:10px 20px;' +
+      'border-radius:24px;font-size:14px;z-index:99999;pointer-events:none;' +
+      'opacity:0;transition:opacity .25s,transform .25s;' +
+      'font-family:inherit;letter-spacing:.5px;box-shadow:0 6px 20px rgba(0,0,0,.25);';
+    document.body.appendChild(el);
+
+    requestAnimationFrame(function () {
+      el.style.opacity = '1';
+      el.style.transform = 'translate(-50%,0)';
+    });
+    setTimeout(function () {
+      el.style.opacity = '0';
+      el.style.transform = 'translate(-50%,-10px)';
+      setTimeout(function () { el.remove(); }, 300);
+    }, 1800);
   }
 
-  var UNITS = [
-    { k: 'y', label: '年' },
-    { k: 'mo', label: '月' },
-    { k: 'd', label: '天' },
-    { k: 'h', label: '时' },
-    { k: 'mi', label: '分' },
-    { k: 's', label: '秒' }
-  ];
-
-  function render(parts) {
-    var html = '';
-    for (var i = 0; i < UNITS.length; i++) {
-      html += '<span class="uptime-unit">'
-        + '<b>' + pad(parts[UNITS[i].k]) + '</b>'
-        + '<i>' + UNITS[i].label + '</i>'
-        + '</span>';
-    }
-    valueEl.innerHTML = html;
-  }
-
-  function tick() {
-    render(diffCST(START_MS, Date.now()));
-    // 对齐到下一个整秒，避免长时间运行后的漂移
-    timer = setTimeout(tick, 1000 - (Date.now() % 1000));
-  }
-
-  // 标签页重新可见时立刻校准一次
-  document.addEventListener('visibilitychange', function () {
-    clearTimeout(timer);
-    if (!document.hidden) tick();
-  });
-
-  tick();
-})();
+  window.closeTab = closeTab;
 </script>
+  <script>
+    /* ============================================================
+       悬停提示框（事件委托版）
+       支持动态插入的 .hover-hint，例如第3页能力参数里的 i5-3570
+       ============================================================ */
+    (function () {
+      var active = null;      // 当前显示的 tooltip 元素
+      var activeHint = null;  // 当前对应的 .hover-hint 元素
+
+      // 获取 tooltip，并把它移动到 body 下，避免被 overflow 裁剪
+      function getTooltip(hint) {
+        if (!hint) return null;
+
+        var tooltip = hint.__tooltip;
+        if (tooltip && tooltip.parentNode) return tooltip;
+
+        tooltip = hint.querySelector('.hover-hint__tooltip');
+        if (!tooltip) return null;
+
+        hint.__tooltip = tooltip;
+        tooltip.__hint = hint;
+        document.body.appendChild(tooltip);
+        return tooltip;
+      }
+
+      // 定位
+      function place(hint, tooltip) {
+        var pad = 8;   // 距视口边缘的最小间距
+        var gap = 10;  // tooltip 与元素的间距
+
+        tooltip.style.left = '-9999px';
+        tooltip.style.top = '-9999px';
+
+        var r = hint.getBoundingClientRect();
+        var tw = tooltip.offsetWidth;
+        var th = tooltip.offsetHeight;
+
+        // 水平：以元素中心对齐，超出视口则贴边
+        var cx = r.left + r.width / 2;
+        var left = cx - tw / 2;
+        if (left < pad) left = pad;
+        var maxLeft = window.innerWidth - tw - pad;
+        if (left > maxLeft) left = Math.max(pad, maxLeft);
+
+        // 垂直：默认在上方；上方放不下则翻到下方
+        var top = r.top - gap - th;
+        var below = false;
+        if (top < pad) {
+          top = r.bottom + gap;
+          below = true;
+        }
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+        tooltip.classList.toggle('is-below', below);
+      }
+
+      // 显示
+      function show(hint) {
+        var tooltip = getTooltip(hint);
+        if (!tooltip) return;
+        if (active === tooltip) return;
+
+        if (active) active.classList.remove('is-visible');
+
+        active = tooltip;
+        activeHint = hint;
+
+        place(hint, tooltip);
+        requestAnimationFrame(function () {
+          tooltip.classList.add('is-visible');
+        });
+      }
+
+      // 隐藏
+      function hide(hint) {
+        var tooltip = hint
+          ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
+          : active;
+
+        if (!tooltip) return;
+        tooltip.classList.remove('is-visible');
+
+        if (active === tooltip) {
+          active = null;
+          activeHint = null;
+        }
+      }
+
+      // 鼠标进入
+      document.addEventListener('mouseover', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+        show(hint);
+      });
+
+      // 鼠标离开
+      document.addEventListener('mouseout', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+
+        // 如果只是移动到该 hint 的子元素，不隐藏
+        var related = e.relatedTarget;
+        if (related && hint.contains(related)) return;
+
+        hide(hint);
+      });
+
+      // 键盘聚焦
+      document.addEventListener('focusin', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+        show(hint);
+      });
+
+      document.addEventListener('focusout', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+        hide(hint);
+      });
+
+      // 滚动 / 缩放 / 触屏时隐藏
+      window.addEventListener('scroll', function () {
+        if (active && activeHint) hide(activeHint);
+      }, true);
+
+      window.addEventListener('resize', function () {
+        if (active && activeHint) hide(activeHint);
+      });
+
+      document.addEventListener('touchstart', function () {
+        if (active && activeHint) hide(activeHint);
+      }, { passive: true });
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       立项至今 · 实时计时
+       - 起点：1790333910（2026-09-25 18:58:30，东八区）
+       - 全程按 UTC+8 计算，不受访客本地时区影响
+       - 每秒对齐整秒刷新一次
+       ============================================================ */
+    (function () {
+      var START_TS = 1790333910;              // 立项 Unix 时间戳（秒）
+      var START_MS = START_TS * 1000;
+      var TZ_OFFSET = 8 * 60 * 60 * 1000;     // 东八区固定偏移
+
+      var valueEl = document.getElementById('uptime-value');
+      if (!valueEl) return;
+
+      var timer = null;
+
+      /* 把真实时间戳映射成“UTC 字段即东八区挂钟”的 Date */
+      function toCST(ms) {
+        return new Date(ms + TZ_OFFSET);
+      }
+
+      /* 在 CST 语义下平移月份（自动夹紧到目标月的最后一天） */
+      function addMonthsCST(d, months) {
+        var y = d.getUTCFullYear();
+        var m = d.getUTCMonth() + months;
+        var day = d.getUTCDate();
+        var hh = d.getUTCHours();
+        var mm = d.getUTCMinutes();
+        var ss = d.getUTCSeconds();
+        var ms = d.getUTCMilliseconds();
+
+        var ty = y + Math.floor(m / 12);
+        var tm = ((m % 12) + 12) % 12;
+        var lastDay = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+
+        return new Date(Date.UTC(ty, tm, Math.min(day, lastDay), hh, mm, ss, ms));
+      }
+
+      /* 计算两时刻之间的“年月日时分秒” */
+      function diffCST(startMs, endMs) {
+        if (endMs <= startMs) {
+          return { y: 0, mo: 0, d: 0, h: 0, mi: 0, s: 0 };
+        }
+
+        var s = toCST(startMs);
+        var e = toCST(endMs);
+
+        // 完整年
+        var y = e.getUTCFullYear() - s.getUTCFullYear();
+        var anchor = addMonthsCST(s, y * 12);
+        if (anchor > e) {
+          y -= 1;
+          anchor = addMonthsCST(s, y * 12);
+        }
+
+        // 完整月
+        var mo = (e.getUTCFullYear() - anchor.getUTCFullYear()) * 12
+          + (e.getUTCMonth() - anchor.getUTCMonth());
+        var base = addMonthsCST(anchor, mo);
+        if (base > e) {
+          mo -= 1;
+          base = addMonthsCST(anchor, mo);
+        }
+
+        // 余下的天 / 时 / 分 / 秒
+        var rest = e - base;
+        var d = Math.floor(rest / 86400000); rest -= d * 86400000;
+        var h = Math.floor(rest / 3600000); rest -= h * 3600000;
+        var mi = Math.floor(rest / 60000); rest -= mi * 60000;
+        var sec = Math.floor(rest / 1000);
+
+        return { y: y, mo: mo, d: d, h: h, mi: mi, s: sec };
+      }
+
+      function pad(n) {
+        n = Number(n) || 0;
+        if (n < 0) n = 0;
+        return n < 10 ? '0' + n : String(n);
+      }
+
+      var UNITS = [
+        { k: 'y', label: '年' },
+        { k: 'mo', label: '月' },
+        { k: 'd', label: '天' },
+        { k: 'h', label: '时' },
+        { k: 'mi', label: '分' },
+        { k: 's', label: '秒' }
+      ];
+
+      function render(parts) {
+        var html = '';
+        for (var i = 0; i < UNITS.length; i++) {
+          html += '<span class="uptime-unit">'
+            + '<b>' + pad(parts[UNITS[i].k]) + '</b>'
+            + '<i>' + UNITS[i].label + '</i>'
+            + '</span>';
+        }
+        valueEl.innerHTML = html;
+      }
+
+      function tick() {
+        render(diffCST(START_MS, Date.now()));
+        // 对齐到下一个整秒，避免长时间运行后的漂移
+        timer = setTimeout(tick, 1000 - (Date.now() % 1000));
+      }
+
+      // 标签页重新可见时立刻校准一次
+      document.addEventListener('visibilitychange', function () {
+        clearTimeout(timer);
+        if (!document.hidden) tick();
+      });
+
+      tick();
+    })();
+  </script>
 </body>
 
 </html>
