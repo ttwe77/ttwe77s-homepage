@@ -3092,7 +3092,134 @@
       text-decoration-thickness: 3px;
     }
 
+/* ==================== 悬停提示框 ==================== */
+.hover-hint {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed currentColor;
+  transition: border-color .2s ease;
+  white-space: nowrap;
+}
 
+.hover-hint:hover {
+  border-bottom-style: solid;
+}
+
+/* tooltip 由 JS 传送到 <body> 下，用 fixed 定位，彻底避开祖先 overflow 裁剪 */
+.hover-hint__tooltip {
+  position: fixed;
+  left: -9999px;         /* 由 JS 覆盖 */
+  top: -9999px;          /* 由 JS 覆盖 */
+  min-width: 200px;
+  max-width: 300px;
+  width: max-content;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+  border: 1px solid var(--color-border);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--color-text-body);
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+              transform .25s cubic-bezier(.22, .61, .36, 1),
+              visibility .25s ease;
+  z-index: 999999;
+}
+
+.hover-hint__tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* 当上方空间不足，tooltip 翻到元素下方时用 */
+.hover-hint__tooltip.is-below {
+  transform: translateY(-6px);
+}
+.hover-hint__tooltip.is-below.is-visible {
+  transform: translateY(0);
+}
+
+/* 小三角箭头（默认指向下方 —— tooltip 在上方） */
+.hover-hint__tooltip::after,
+.hover-hint__tooltip::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: solid transparent;
+  pointer-events: none;
+}
+
+.hover-hint__tooltip::before {
+  border-width: 8px;
+  border-top-color: var(--color-border);
+  margin-top: 1px;
+}
+
+.hover-hint__tooltip::after {
+  border-width: 7px;
+  border-top-color: #ffffff;
+  margin-top: 0;
+}
+
+/* 翻转到下方时，箭头朝上 */
+.hover-hint__tooltip.is-below::before,
+.hover-hint__tooltip.is-below::after {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+}
+.hover-hint__tooltip.is-below::before {
+  border-top-color: transparent;
+  border-bottom-color: var(--color-border);
+  margin-bottom: 1px;
+}
+.hover-hint__tooltip.is-below::after {
+  border-top-color: transparent;
+  border-bottom-color: #ffffff;
+}
+
+/* 提示框内标题（可选） */
+.hover-hint__tooltip .hint-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+  letter-spacing: .2px;
+}
+
+.hover-hint__tooltip .hint-title::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+  flex: 0 0 auto;
+}
+
+/* 手机端微调 */
+@media (max-width: 640px) {
+  .hover-hint__tooltip {
+    min-width: 170px;
+    max-width: 240px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
   </style>
 </head>
 
@@ -4286,6 +4413,141 @@
       }, 100);
     }
   </script>
+ <script>
+  /* ============================================================
+     悬停提示框（事件委托版）
+     支持动态插入的 .hover-hint，例如第3页能力参数里的 i5-3570
+     ============================================================ */
+  (function () {
+    var active = null;      // 当前显示的 tooltip 元素
+    var activeHint = null;  // 当前对应的 .hover-hint 元素
+
+    // 获取 tooltip，并把它移动到 body 下，避免被 overflow 裁剪
+    function getTooltip(hint) {
+      if (!hint) return null;
+
+      var tooltip = hint.__tooltip;
+      if (tooltip && tooltip.parentNode) return tooltip;
+
+      tooltip = hint.querySelector('.hover-hint__tooltip');
+      if (!tooltip) return null;
+
+      hint.__tooltip = tooltip;
+      tooltip.__hint = hint;
+      document.body.appendChild(tooltip);
+      return tooltip;
+    }
+
+    // 定位
+    function place(hint, tooltip) {
+      var pad = 8;   // 距视口边缘的最小间距
+      var gap = 10;  // tooltip 与元素的间距
+
+      tooltip.style.left = '-9999px';
+      tooltip.style.top  = '-9999px';
+
+      var r  = hint.getBoundingClientRect();
+      var tw = tooltip.offsetWidth;
+      var th = tooltip.offsetHeight;
+
+      // 水平：以元素中心对齐，超出视口则贴边
+      var cx   = r.left + r.width / 2;
+      var left = cx - tw / 2;
+      if (left < pad) left = pad;
+      var maxLeft = window.innerWidth - tw - pad;
+      if (left > maxLeft) left = Math.max(pad, maxLeft);
+
+      // 垂直：默认在上方；上方放不下则翻到下方
+      var top = r.top - gap - th;
+      var below = false;
+      if (top < pad) {
+        top = r.bottom + gap;
+        below = true;
+      }
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top  = top  + 'px';
+      tooltip.classList.toggle('is-below', below);
+    }
+
+    // 显示
+    function show(hint) {
+      var tooltip = getTooltip(hint);
+      if (!tooltip) return;
+      if (active === tooltip) return;
+
+      if (active) active.classList.remove('is-visible');
+
+      active = tooltip;
+      activeHint = hint;
+
+      place(hint, tooltip);
+      requestAnimationFrame(function () {
+        tooltip.classList.add('is-visible');
+      });
+    }
+
+    // 隐藏
+    function hide(hint) {
+      var tooltip = hint
+        ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
+        : active;
+
+      if (!tooltip) return;
+      tooltip.classList.remove('is-visible');
+
+      if (active === tooltip) {
+        active = null;
+        activeHint = null;
+      }
+    }
+
+    // 鼠标进入
+    document.addEventListener('mouseover', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+      show(hint);
+    });
+
+    // 鼠标离开
+    document.addEventListener('mouseout', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+
+      // 如果只是移动到该 hint 的子元素，不隐藏
+      var related = e.relatedTarget;
+      if (related && hint.contains(related)) return;
+
+      hide(hint);
+    });
+
+    // 键盘聚焦
+    document.addEventListener('focusin', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+      show(hint);
+    });
+
+    document.addEventListener('focusout', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+      hide(hint);
+    });
+
+    // 滚动 / 缩放 / 触屏时隐藏
+    window.addEventListener('scroll', function () {
+      if (active && activeHint) hide(activeHint);
+    }, true);
+
+    window.addEventListener('resize', function () {
+      if (active && activeHint) hide(activeHint);
+    });
+
+    document.addEventListener('touchstart', function () {
+      if (active && activeHint) hide(activeHint);
+    }, { passive: true });
+  })();
+</script>
 </body>
 
 </html>
