@@ -4,13 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ttwe 77 · 个人主页</title>
+  <title>ttwe77·个人主页</title>
+  <link rel="icon" href="src/favicon.ico" sizes="any">
+  <link rel="icon" href="src/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="src/apple-touch-icon.png">
+  <meta name="theme-color" content="#21a5e3">
   <meta name="description" content="ttwe77的个人主页，技术宅一枚，沉迷计算机与网络，爱折腾软硬件，日常打二游，偶尔写点教程，欢迎同好交流。" />
   <script>document.documentElement.classList.add('js');</script>
   <script type="module">
     import { BAClickFX } from './libs/ba-click-fx.js';
     const fx = new BAClickFX();
-    fx.updateConfig({ trailAlways: true });
+    //fx.updateConfig({ trailAlways: true });
     fx.setCompositingReference({ hostCompositing: 'screen' });
   </script>
   <style>
@@ -977,6 +981,49 @@
       color: var(--color-text-secondary);
       line-height: 1.6;
       flex: 1 1 auto;
+    }
+
+    /* ==================== 项目链接 ==================== */
+    .work__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 12.5px;
+      line-height: 1.4;
+      background: rgba(18, 138, 250, .07);
+      border: 1px solid rgba(18, 138, 250, .25);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      padding: 2px 9px;
+      transition: color .18s ease, background .18s ease, border-color .18s ease, transform .15s ease;
+    }
+
+    .work__link::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      bottom: 0;
+      height: 1.5px;
+      background: var(--color-primary);
+      border-radius: 2px;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform .25s cubic-bezier(.65, .05, .36, 1);
+    }
+
+    .work__link:hover {
+      color: var(--color-primary-hover);
+      background: rgba(18, 138, 250, .14);
+      border-color: var(--color-blue-light);
+      transform: translateY(-1px);
+    }
+
+    .work__link:hover::after {
+      transform: scaleX(1);
     }
 
     .work__tags {
@@ -2514,6 +2561,538 @@
       border-bottom-style: solid;
       border-bottom-color: var(--color-primary-hover);
     }
+
+    /* ============================================================
+   第 3 页 · 能力参数（Master-Detail）
+   ============================================================ */
+
+    /* ---------- 基础：桌面两栏 ---------- */
+    .ability {
+      display: grid;
+      grid-template-columns: minmax(0, 1.16fr) minmax(0, .84fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* ---------- 左栏：详情 ---------- */
+    .ability__detail {
+      min-width: 0;
+    }
+
+    .ability__card {
+      position: relative;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(150deg, rgba(255, 255, 255, .97) 0%, rgba(238, 247, 255, .94) 100%);
+      border: 1px solid rgba(255, 255, 255, .9);
+      box-shadow: 0 12px 34px rgba(18, 138, 250, .14);
+      overflow: hidden;
+    }
+
+    /* 右上斜纹装饰 */
+    .ability__card::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 260px;
+      height: 260px;
+      background: repeating-linear-gradient(118deg, rgba(33, 165, 227, .10) 0 2px, transparent 2px 14px);
+      transform: rotate(6deg);
+      pointer-events: none;
+    }
+
+    /* 底部主色条 */
+    .ability__card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light) 72%, transparent);
+      pointer-events: none;
+    }
+
+    /* 玻璃标题框 */
+    .ability__frame {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px 16px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(214, 238, 255, .88));
+      border: 1px solid rgba(255, 255, 255, .95);
+      /* 右下斜切的非对称圆角，BA 味来源 */
+      border-radius: 10px 10px 24px 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 8px 22px rgba(18, 138, 250, .14);
+    }
+
+    .ability__no {
+      flex: 0 0 auto;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: var(--color-primary);
+    }
+
+    .ability__title {
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: .02em;
+      color: #14283C;
+    }
+
+    .ability__lv {
+      flex: 0 0 auto;
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+
+    .ability__lv i {
+      font-style: normal;
+      font-size: .52em;
+      font-weight: 700;
+      letter-spacing: .06em;
+      margin-right: 1px;
+    }
+
+    /* 章节式 tagline */
+    .ability__tagline {
+      position: relative;
+      z-index: 1;
+      margin: 16px 0 0;
+      padding-left: 10px;
+      border-left: 3px solid var(--color-primary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--color-text-primary);
+    }
+
+    /* 正文 */
+    .ability__desc {
+      position: relative;
+      z-index: 1;
+      margin: 12px 0 0;
+      font-size: 13.5px;
+      line-height: 1.85;
+      color: var(--color-text-body);
+    }
+
+    /* 要点 */
+    .ability__points {
+      position: relative;
+      z-index: 1;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ability__points li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--color-text-secondary);
+    }
+
+    .ability__points li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .78em;
+      width: 5px;
+      height: 5px;
+      border-radius: 1px;
+      background: var(--color-primary);
+      transform: rotate(45deg);
+    }
+
+    /* 底部 chip 排 */
+    .ability__chips {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--color-border);
+    }
+
+    /* ---------- 右栏：列表 ---------- */
+    .ability__list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .ability__item {
+      --i: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: var(--radius-md);
+      background: #fff;
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card);
+      text-align: left;
+      transition: box-shadow .2s ease,
+        border-color .2s ease, background .2s ease;
+    }
+
+    .ability__item:hover {
+      box-shadow: var(--shadow-card-hover);
+      border-color: rgba(33, 165, 227, .42);
+    }
+
+    .ability__item.is-active {
+      border-color: rgba(33, 165, 227, .55);
+      box-shadow: 0 6px 18px rgba(18, 138, 250, .18);
+    }
+
+    /* 斜切编号片 */
+    .ability__item-no {
+      flex: 0 0 auto;
+      width: 36px;
+      padding: 3px 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+      background: #A9CBE8;
+      border-radius: 3px;
+      transform: skewX(var(--btn-skew));
+      transition: background .2s ease, box-shadow .2s ease;
+    }
+
+    .ability__item.is-active .ability__item-no {
+      background: var(--color-primary);
+      box-shadow: 0 3px 10px rgba(18, 138, 250, .35);
+    }
+
+    .ability__item-title {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ability__item-arrow {
+      flex: 0 0 auto;
+      font-size: 13px;
+      color: var(--color-text-disabled);
+      transition: color .2s ease, transform .2s ease;
+    }
+
+    .ability__item.is-active .ability__item-arrow {
+      color: var(--color-primary);
+      transform: translateX(2px);
+    }
+
+    /* 手机端返回按钮（默认隐藏） */
+    .ability__back {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-primary);
+      background: rgba(18, 138, 250, .08);
+    }
+
+    .ability__back:active {
+      background: rgba(18, 138, 250, .16);
+    }
+
+    /* ============================================================
+   断点 ①：平板竖屏 641~900 —— 两栏但压缩
+   ============================================================ */
+    @media (min-width: 641px) and (max-width: 900px) {
+      .ability {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .ability__card {
+        padding: 16px;
+      }
+
+      .ability__frame {
+        padding: 11px 14px 13px;
+      }
+
+      .ability__title {
+        font-size: 22px;
+      }
+
+      .ability__lv {
+        font-size: 18px;
+      }
+
+      .ability__tagline {
+        margin-top: 12px;
+        font-size: 12.5px;
+      }
+
+      .ability__desc {
+        font-size: 12.5px;
+        line-height: 1.75;
+      }
+
+      .ability__points {
+        margin-top: 10px;
+      }
+
+      .ability__points li {
+        font-size: 12.5px;
+        line-height: 1.75;
+      }
+
+      .ability__chips {
+        margin-top: 12px;
+        padding-top: 10px;
+      }
+
+      .ability__item {
+        padding: 11px 12px;
+        gap: 10px;
+      }
+
+      .ability__item-arrow {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+   断点 ②：481~640 —— 上下结构，列表变底部横滑条
+   ============================================================ */
+    @media (min-width: 481px) and (max-width: 640px) {
+      .ability {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .ability__list {
+        flex-direction: row;
+        gap: 8px;
+        padding: 2px 2px 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+      }
+
+      .ability__list::-webkit-scrollbar {
+        display: none;
+      }
+
+      .ability__item {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 138px;
+        transform: none;
+        scroll-snap-align: start;
+      }
+
+      .ability__item.is-active {
+        transform: translateY(-2px);
+      }
+
+      .ability__item-arrow {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+   断点 ③：手机竖屏 ≤480 —— 推入式（列表屏 / 详情屏）
+   ============================================================ */
+    @media (max-width: 480px) and (orientation: portrait) {
+      .ability {
+        display: block;
+      }
+
+      .ability__list {
+        gap: 8px;
+      }
+
+      .ability__item {
+        padding: 14px 14px;
+        transform: none;
+        /* 手机不做堆叠错位，省空间 */
+      }
+
+      .ability__item.is-active {
+        transform: translateX(-4px);
+      }
+
+      /* 默认只显示列表 */
+      .ability__detail {
+        display: none;
+      }
+
+      .ability[data-view="detail"] .ability__list {
+        display: none;
+      }
+
+      .ability[data-view="detail"] .ability__detail {
+        display: block;
+        animation: abilitySlideIn .3s cubic-bezier(.22, .61, .36, 1) both;
+      }
+
+      .ability__back {
+        display: inline-flex;
+      }
+
+      .ability__card {
+        padding: 16px;
+      }
+
+      .ability__title {
+        font-size: 24px;
+      }
+
+      .ability__lv {
+        font-size: 18px;
+      }
+
+      .ability__tagline {
+        font-size: 12.5px;
+      }
+
+      .ability__desc {
+        font-size: 13px;
+        line-height: 1.8;
+      }
+
+      .ability__points li {
+        font-size: 12.5px;
+      }
+
+      .ability__chips .chip {
+        font-size: 10px;
+      }
+    }
+
+    @keyframes abilitySlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ============================================================
+   断点 ④：矮横屏（含手机横放）—— 回到两栏紧凑版
+   ============================================================ */
+    @media (orientation: landscape) and (max-height: 560px) {
+      .ability {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+        gap: 14px;
+      }
+
+      /* 覆盖手机档留下的隐藏状态 */
+      .ability__detail {
+        display: block;
+      }
+
+      .ability__list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ability__back {
+        display: none;
+      }
+
+      .ability__card {
+        padding: 14px;
+      }
+
+      .ability__frame {
+        padding: 10px 14px 12px;
+      }
+
+      .ability__title {
+        font-size: 20px;
+      }
+
+      .ability__lv {
+        font-size: 16px;
+      }
+
+      .ability__tagline {
+        margin-top: 10px;
+        font-size: 12px;
+      }
+
+      .ability__desc {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .ability__points {
+        margin-top: 8px;
+      }
+
+      .ability__points li {
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .ability__chips {
+        margin-top: 10px;
+        padding-top: 10px;
+      }
+
+      .ability__item {
+        padding: 9px 12px;
+        transform: none;
+      }
+
+      .ability__item.is-active {
+        transform: translateX(-4px);
+      }
+
+      .ability__item-arrow {
+        display: none;
+      }
+    }
+
+    del {
+      text-decoration: line-through;
+      text-decoration-thickness: 3px;
+    }
+
+
   </style>
 </head>
 
@@ -2530,7 +3109,7 @@
   <!-- ==================== 顶部栏 ==================== -->
   <header class="topbar">
     <!-- 返回按钮（深蓝色圆形） -->
-    <button class="icon-btn icon-btn--back" aria-label="返回">
+    <button class="icon-btn icon-btn--back" aria-label="返回" onclick="closeTab()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -2775,85 +3354,15 @@
       <!-- ---------- 第 3 页 · 能力参数 ---------- -->
       <section class="page" aria-label="能力参数">
         <div class="page__inner">
-          <h2 class="section-title reveal">能力参数<span class="section-title__sub">SKILL PARAMETERS</span></h2>
+          <h2 class="section-title reveal">小故事/碎碎念<span class="section-title__sub">STORY/THOUGHTS</span></h2>
 
-          <section class="cols">
-            <div class="card panel card--static reveal">
-              <div class="panel__head">
-                <span class="panel__title">技能等级</span>
-                <span class="panel__hint">最近更新 · 2026.09</span>
-              </div>
+          <!-- data-view：手机端状态机，"list" | "detail" -->
+          <section class="ability reveal" id="ability" data-view="list">
+            <!-- 左栏：当前选中项的详情（JS 填充） -->
+            <div class="ability__detail" id="ability-detail"></div>
 
-              <div class="skill">
-                <div class="skill__head">
-                  <span class="skill__name">前端开发</span>
-                  <span class="skill__val">92</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-bar__fill" style="width:92%"></div>
-                </div>
-              </div>
-
-              <div class="skill">
-                <div class="skill__head">
-                  <span class="skill__name">UI / 视觉设计</span>
-                  <span class="skill__val">78</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-bar__fill" style="width:78%"></div>
-                </div>
-              </div>
-
-              <div class="skill">
-                <div class="skill__head">
-                  <span class="skill__name">动效与图形渲染</span>
-                  <span class="skill__val">65</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-bar__fill" style="width:65%"></div>
-                </div>
-              </div>
-
-              <div class="skill">
-                <div class="skill__head">
-                  <span class="skill__name">团队协作</span>
-                  <span class="skill__val">88</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-bar__fill" style="width:88%"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card panel card--static reveal">
-              <div class="panel__head">
-                <span class="panel__title">档案信息</span>
-                <span class="panel__hint">PROFILE</span>
-              </div>
-
-              <div class="info-list">
-                <div class="info-row">
-                  <span class="info-row__k">所在地</span>
-                  <span class="info-row__v">杭州 · 中国</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-row__k">当前状态</span>
-                  <span class="info-row__v"><i class="status-dot"></i>可接洽合作</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-row__k">常用技术</span>
-                  <span class="info-row__v">TypeScript / Vue / Canvas</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-row__k">语言</span>
-                  <span class="info-row__v">中文 / English / 日本語</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-row__k">邮箱</span>
-                  <span class="info-row__v">yuu@example.com</span>
-                </div>
-              </div>
-            </div>
+            <!-- 右栏：可选项列表（JS 填充） -->
+            <div class="ability__list" id="ability-list" role="tablist" aria-label="能力分类"></div>
           </section>
         </div>
       </section>
@@ -3536,6 +4045,246 @@
         });
       }
     })();
+  </script>
+  <script>
+    /* ============================================================
+       第 3 页 · 能力参数 Master-Detail
+       - 一份数据 + 一个 selectedIndex，三档布局共用
+       - 手机端切换 data-view="list" / "detail"
+       ============================================================ */
+    (function () {
+      var ABILITIES = [
+        {
+          no: '01',
+          title: '最初的起点',
+          lv: 0,
+          tagline: '第 1 章 | 从裕语言起步，构建安卓软件',
+          desc: '从我初中开始，就喜欢用裕语言写安卓软件。因为裕语言简单易学，我在很短的时间内上手。并且以此做了不少小项目，让我对Android和Linux系统有了更深的理解。<br><br>因为我意识到学裕语言没有前途，所以我之后转向了其他编程语言，比如Java、Python等。',
+          points: [],
+          chips: ['裕语言', 'Android', 'Linux']
+        },
+        {
+          no: '02',
+          title: '从 PPT 到系统折腾',
+          lv: 10,
+          tagline: '第 2 章 | 一台新电脑',
+          desc: '我在我高一的时候，用自己的理解购买并组装了我人生中的第一台电脑（感谢Very的硬件赞助和帮忙）。我最初是用它来做一些PPT等简单的生产 <del>和玩游戏</del>。<br>之后我开始研究了下Windows系统的个性化，之后就一发不可收拾地开始研究系统了 <del>好在那时我没把我的系统干掉</del>。<br>因为当时我用的是超级低配的电脑（<span class="hover-hint">i5-3570<span class="hover-hint__tooltip"><span class="hint-title">i5-3570大致参数</span>于 2012 年第二季度发布，4 核心 / 4 线程（不支持超线程技术），基础频率 3.40 GHz，最大睿频频率 3.80 GHz</span></span>+RX580）很快我就对组策略、注册表、系统文件和系统优化都有了更深的理解。',
+          points: [],
+          chips: ['装机', 'Windows']
+        },
+        {
+          no: '03',
+          title: '数据要留在自己手里',
+          lv: 25,
+          tagline: '第 3 章 | 数据安全与加密通信',
+          desc: '我高中的时候还挺喜欢密码学的。有一天我在跟同学传纸条的时候，注意到我传的纸条有被偷看的风险，所以我开始研究加密通信，找出一些安全的通信方式。<br>之后我跟我的舍友<del>争论</del>协商出了一个最优解：汉字拆开它的声母、韵母和音标来分别加密。<br>之后我为了更方便地生成密钥，我用Java写了一个密钥生成器，程序生成后只需要打印出来就不用手写了。(๑•̀ㅂ•́)و✧ <a class="work__link" target="_blank" rel="noopener noreferrer" href="https://gitee.com/ttwe77/TripleDoublePinyinKeygen">项目地址</a>。<br>之后我发现我还挺有天赋的，在我一不小心安装上OpenSSL之后就越来越一发不可收拾了。RSA啊，AES啊，证书啊啥的都了解了。<br>之后呢就变得和外国人一样，注重个人隐私了。',
+          points: ['DoH、ECH', '对称与非对称加密', '数据安全'],
+          chips: ['加密通信', '数据安全', '密钥生成']
+        },
+        {
+          no: '04',
+          title: '无聊时翻开的世界',
+          lv: 40,
+          tagline: '第 4 章 | 从课本到当下',
+          desc: '我在高中的时候，买了些大学的计算机相关的课本来应对无聊。我买过挺多书的，其中我最喜欢看的是<a href="https://baike.baidu.com/item/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89/22206553" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">《计算机网络》</a>。<br>我基本上是无聊的时候随手翻翻看，<a href="https://www.tup.tsinghua.edu.cn/booksCenter/book_08131901.html"  target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">《计算机导论》</a>枯燥乏味，有些知识我已经了解了，有些感觉根本用不上 (￣▽￣)。而计算机网络则改变了我对当下网络的看法，从“能上网”到“知道为什么能上网”，看问题的视角变了。我现在很羡慕我自己能用之前学到的知识解决当下的问题。',
+          points: ['在无聊的高中时代，一本《计算机网络》提前连接了未来的兴趣', '开始理解网络不是魔法，而是协议、分层、寻址和一次次转发', '过去觉得抽象的概念，后来变成排障时的直觉', '很羡慕当时的自己：无聊翻书，也能翻到改变认知的那一本'],
+          chips: ['计算机网络', '自学启蒙', '协议分层', '知识迁移', '高中']
+        },
+        {
+          no: '05',
+          title: '我的编程启蒙之路',
+          lv: 70,
+          tagline: '第 5 章 | 从 Vibe Coding 到 Python',
+          desc: '记得那是我在坐公交车的时候，我想尝试一下电脑编程。在<a href="https://www.deepseek.com/" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">DeepSeek</a>的指导下，我最先尝试了<a href="https://github.com/royqh1979/RedPanda-CPP" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">小熊猫C++</a>这个IDE。<br>最先我是没啥自学编程的动力的，我就叫DeepSeek来<a href="https://www.runoob.com/ai-agent/vibe-coding-start.html" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">Vibe Coding</a> C++(<a href="https://www.mingw-w64.org/" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">MinGW64</a>)，做出了第二个<a href="https://gitee.com/ttwe77/DiyWindow" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">简单的项目</a><br>之后我继续Vibe Coding，做了完全无用的搞笑项目——<a href="https://gitee.com/ttwe77/Redshitone-Technology4Windows" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">赤石科技</a><br>在开发期间我深刻意识到C++过于复杂，于是后续开发转向Python（有时候还是会用C++的，因为小而美）',
+          points: [    '在公交车上萌生学习编程的念头，借助 DeepSeek 入门',
+    '使用小熊猫 C++ IDE + MinGW64 环境起步',
+    '通过 Vibe Coding 完成第一个简单项目：DiyWindow',
+    '开发搞笑项目「赤石科技」，积累实战经验',
+    '因 C++ 过于复杂，主力语言转向 Python，C++ 仅用于小而美的场景'],
+          chips: ['C++', 'Python', 'Vibe Coding', '小熊猫C++', 'DeepSeek', 'MinGW64']
+        },
+        {
+          no: '06',
+          title: '游戏二创',
+          lv: 70,
+          tagline: '第 6 章 | 按游戏风格做点东西',
+          desc: '喜欢把游戏的视觉语言搬到网页与工具里，做一些风格化的界面、小工具和二次创作内容。',
+          points: ['游戏风格 UI 复刻', '二次创作小工具', '素材整理与再设计'],
+          chips: ['Blue Archive', 'UI 复刻', '二创']
+        }
+      ];
+
+      var root = document.getElementById('ability');
+      if (!root) return;
+
+      var listEl = root.querySelector('.ability__list');
+      var detailEl = root.querySelector('.ability__detail');
+      if (!listEl || !detailEl) return;
+
+      var current = 0;
+      var mqMobile = window.matchMedia('(max-width: 480px) and (orientation: portrait)');
+
+      /* ---------- 渲染右栏列表 ---------- */
+      function buildList() {
+        var html = '';
+        for (var i = 0; i < ABILITIES.length; i++) {
+          var d = ABILITIES[i];
+          html += '<button class="ability__item" type="button" role="tab"'
+            + ' data-index="' + i + '"'
+            + ' aria-selected="false"'
+            + ' style="--i:' + i + '">'
+            + '<span class="ability__item-no">' + d.no + '</span>'
+            + '<span class="ability__item-title">' + d.title + '</span>'
+            + '<span class="ability__item-arrow" aria-hidden="true">▸</span>'
+            + '</button>';
+        }
+        listEl.innerHTML = html;
+      }
+
+      /* ---------- 渲染左栏详情 ---------- */
+      function renderDetail(i) {
+        var d = ABILITIES[i];
+        var html = '';
+
+        html += '<button class="ability__back" type="button" data-back>'
+          + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"'
+          + ' stroke="currentColor" stroke-width="3" stroke-linecap="round"'
+          + ' stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>'
+          + '返回列表'
+          + '</button>';
+
+        html += '<article class="ability__card">';
+
+        html += '<div class="ability__frame">'
+          + '<span class="ability__no">' + d.no + '</span>'
+          + '<h3 class="ability__title">' + d.title + '</h3>'
+          + '<span class="ability__lv"><i>Lv.</i>' + d.lv + '</span>'
+          + '</div>';
+
+        html += '<p class="ability__tagline">' + d.tagline + '</p>';
+        html += '<p class="ability__desc">' + d.desc + '</p>';
+
+        if (d.points && d.points.length) {
+          html += '<ul class="ability__points">';
+          for (var k = 0; k < d.points.length; k++) {
+            html += '<li>' + d.points[k] + '</li>';
+          }
+          html += '</ul>';
+        }
+        if (d.chips && d.chips.length) {
+          html += '<div class="ability__chips">';
+          for (var m = 0; m < d.chips.length; m++) {
+            html += '<span class="chip">' + d.chips[m] + '</span>';
+          }
+          html += '</div>';
+        }
+
+        html += '</article>';
+
+        detailEl.innerHTML = html;
+      }
+
+      /* ---------- 选中某一项 ---------- */
+      function select(index, opts) {
+        current = Math.max(0, Math.min(ABILITIES.length - 1, index));
+
+        var btns = listEl.children;
+        for (var i = 0; i < btns.length; i++) {
+          var on = (i === current);
+          btns[i].classList.toggle('is-active', on);
+          btns[i].setAttribute('aria-selected', on ? 'true' : 'false');
+          btns[i].setAttribute('tabindex', on ? '0' : '-1');
+        }
+
+        renderDetail(current);
+
+        /* 手机竖屏：点列表 → 推入详情屏 */
+        if (opts && opts.openDetail && mqMobile.matches) {
+          root.setAttribute('data-view', 'detail');
+        }
+      }
+
+      /* ---------- 返回列表屏 ---------- */
+      function backToList() {
+        root.setAttribute('data-view', 'list');
+
+        /* 把当前项滚回可视区域（尤其是 481~640 的横滑条） */
+        var btn = listEl.children[current];
+        if (btn && btn.scrollIntoView) {
+          try {
+            btn.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+          } catch (e) {
+            btn.scrollIntoView(false);
+          }
+        }
+      }
+
+      /* ---------- 事件 ---------- */
+      listEl.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('.ability__item') : null;
+        if (!btn || !listEl.contains(btn)) return;
+        select(parseInt(btn.getAttribute('data-index'), 10) || 0, { openDetail: true });
+      });
+
+      detailEl.addEventListener('click', function (e) {
+        var back = e.target.closest ? e.target.closest('[data-back]') : null;
+        if (back) backToList();
+      });
+
+      /* 列表内的方向键切换，并阻止冒泡到整站分页 */
+      listEl.addEventListener('keydown', function (e) {
+        var key = e.key;
+        if (key !== 'ArrowDown' && key !== 'ArrowUp'
+          && key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+
+        var dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var next = (current + dir + ABILITIES.length) % ABILITIES.length;
+        select(next);
+        if (listEl.children[next]) listEl.children[next].focus();
+      });
+
+      /* ---------- 顶栏返回键：手机详情屏时接管 ---------- */
+      var topBack = document.querySelector('.icon-btn--back');
+      if (topBack) {
+        topBack.addEventListener('click', function () {
+          if (mqMobile.matches && root.getAttribute('data-view') === 'detail') {
+            backToList();
+          }
+        });
+      }
+
+      /* ---------- 断点切换：离开手机竖屏时强制回到 list 状态 ---------- */
+      function onMqChange() {
+        if (!mqMobile.matches) root.setAttribute('data-view', 'list');
+      }
+
+      if (mqMobile.addEventListener) mqMobile.addEventListener('change', onMqChange);
+      else if (mqMobile.addListener) mqMobile.addListener(onMqChange);
+
+      /* ---------- 初始化 ---------- */
+      buildList();
+      select(0);
+    })();
+  </script>
+  <script>
+    function closeTab() {
+      // 尝试关闭当前标签页
+      window.close();
+
+      // 若浏览器拒绝关闭（非脚本打开的页面），给一个回退
+      setTimeout(function () {
+        // 回退方案 1：返回上一页
+        if (history.length > 1) {
+          history.back();
+        } else {
+          // 回退方案 2：跳转到空白页
+          window.location.href = 'about:blank';
+        }
+      }, 100);
+    }
   </script>
 </body>
 
