@@ -922,6 +922,18 @@
     }
 
     /* ==================== 作品网格 ==================== */
+    /* 可点击的作品卡片 */
+    .work[data-href] {
+      cursor: pointer;
+    }
+
+    /* 触摸设备：别残留 hover 阴影 */
+    @media (hover: none) {
+      .work[data-href]:hover {
+        box-shadow: var(--shadow-card);
+      }
+    }
+
     .works {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -1830,19 +1842,30 @@
     }
 
     /* ---------- 6. 触摸设备禁用 hover 副作用 ---------- */
-    @media (hover: none) {
-      .icon-btn:hover {
-        background: transparent;
-      }
+@media (hover: none) {
 
-      .resource-add:hover {
-        background: transparent;
-      }
+  /* 返回按钮：触摸端点击后 :hover 会残留，
+     必须锁死深蓝底，否则白图标会消失在白色顶栏上 */
+  .icon-btn--back,
+  .icon-btn--back:hover,
+  .icon-btn--back:active {
+    background: #3f568c;
+    color: #ffffff;
+  }
 
-      .btn:hover {
-        transform: skewX(var(--btn-skew));
-      }
-    }
+  /* 其它图标按钮才清掉 hover 底色 */
+  .icon-btn:not(.icon-btn--back):hover {
+    background: transparent;
+  }
+
+  .resource-add:hover {
+    background: transparent;
+  }
+
+  .btn:hover {
+    transform: skewX(var(--btn-skew));
+  }
+}
   </style>
   <style>
     /* ==================== 第 2 页 · 个人资料 ==================== */
@@ -3580,6 +3603,54 @@
         line-height: 1.65;
       }
     }
+    /* ==================== 轻提示（Toast） ==================== */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--topbar-h) + 16px);
+  z-index: 99999;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(86vw, 360px);
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, .92);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card-hover);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 1.5;
+  text-align: center;
+  word-break: break-word;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -10px);
+  transition:
+    opacity .25s cubic-bezier(.22, .61, .36, 1),
+    transform .25s cubic-bezier(.22, .61, .36, 1);
+}
+
+/* 左侧主色小圆点（和顶栏状态点同语言） */
+.toast::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
   </style>
 </head>
 
@@ -3860,7 +3931,7 @@
           <h2 class="section-title reveal">作品记录<span class="section-title__sub">SELECTED WORKS</span></h2>
 
           <section class="works">
-            <article class="card work reveal">
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/Quickly-Run-Kit">
               <div class="work__thumb" style="--c1:#8AB4F8; --c2:#5E8BFF;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M4 7h16v13H4z" />
@@ -3881,7 +3952,7 @@
               </div>
             </article>
 
-            <article class="card work reveal">
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/ttwe77s-homepage">
               <div class="work__thumb" style="--c1:#5FB0FF;--c2:#21a5e3;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="8" r="4" />
@@ -3901,7 +3972,7 @@
               </div>
             </article>
 
-            <article class="card work reveal">
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/Save-your-Peepers-20-20-20-Timer">
               <div class="work__thumb" style="--c1:#7BE0B8; --c2:#34C79F;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
@@ -3921,7 +3992,7 @@
               </div>
             </article>
 
-            <article class="card work reveal">
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/Redshitone-Technology4Windows">
               <div class="work__thumb" style="--c1:#E39BEA; --c2:#A97CE6;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 3-3 3-3-3zM5 9l3 3-3 3-3-3zM19 9l3 3-3 3-3-3zM12 16l3 3-3 3-3-3z"/></svg>
                 </svg>
@@ -3938,7 +4009,7 @@
               </div>
             </article>
 
-              <article class="card work reveal">
+              <article class="card work reveal" data-href="https://gitee.com/ttwe77/TripleDoublePinyinKeygen">
               <div class="work__thumb" style="--c1:#9BA4B5; --c2:#6C7A9F;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
                 </svg>
@@ -3966,7 +4037,7 @@
 
           <section class="card panel card--static reveal" style="padding:26px 24px;">
             <div class="actions">
-              <a class="btn btn--primary" href="mailto:yuu@example.com">
+              <a class="btn btn--primary" href="mailto:ttwe77@yeah.net" onclick="showToast('邮箱地址：ttwe77@yeah.net');">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
                   <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -3974,14 +4045,14 @@
                 </svg>
                 发送邮件
               </a>
-              <a class="btn btn--secondary" href="#">GitHub</a>
-              <a class="btn btn--secondary" href="#">掘金</a>
-              <a class="btn btn--ghost" href="#">下载简历 (PDF)</a>
+              <a class="btn btn--secondary" href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a class="btn btn--secondary" href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
+              <!--<a class="btn btn--ghost" href="#">下载简历 (PDF)</a>-->
             </div>
           </section>
 
           <footer class="footer reveal">
-            <span class="footer__mark">ttwe 77 — Front-end Engineer</span>
+            <span class="footer__mark">由ttwe77熬了3天夜肝出来的一个个人主页</span>
             <span>© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
             <span class="footer__uptime">
               <span class="footer__uptime-label">立项至今</span>
@@ -4824,30 +4895,27 @@
   }
 
   function showToast(msg) {
-    var old = document.getElementById('__close_toast__');
-    if (old) old.remove();
+  var old = document.getElementById('__close_toast__');
+  if (old) old.remove();
 
-    var el = document.createElement('div');
-    el.id = '__close_toast__';
-    el.textContent = msg;
-    el.style.cssText =
-      'position:fixed;left:50%;top:80px;transform:translate(-50%,-10px);' +
-      'background:rgba(31,31,31,.92);color:#fff;padding:10px 20px;' +
-      'border-radius:24px;font-size:14px;z-index:99999;pointer-events:none;' +
-      'opacity:0;transition:opacity .25s,transform .25s;' +
-      'font-family:inherit;letter-spacing:.5px;box-shadow:0 6px 20px rgba(0,0,0,.25);';
-    document.body.appendChild(el);
+  var el = document.createElement('div');
+  el.id = '__close_toast__';
+  el.className = 'toast';
+  el.textContent = msg;
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+  document.body.appendChild(el);
 
-    requestAnimationFrame(function () {
-      el.style.opacity = '1';
-      el.style.transform = 'translate(-50%,0)';
-    });
-    setTimeout(function () {
-      el.style.opacity = '0';
-      el.style.transform = 'translate(-50%,-10px)';
-      setTimeout(function () { el.remove(); }, 300);
-    }, 1800);
-  }
+  // 下一帧再加 is-visible，保证过渡生效
+  requestAnimationFrame(function () {
+    el.classList.add('is-visible');
+  });
+
+  setTimeout(function () {
+    el.classList.remove('is-visible');
+    setTimeout(function () { el.remove(); }, 300);
+  }, 1800);
+}
 
   window.closeTab = closeTab;
 </script>
@@ -5100,6 +5168,31 @@
       });
 
       tick();
+    })();
+  </script>
+
+  <script>
+    /* ============================================================
+        作品卡片：鼠标点击 / 触摸点击 → 新标签页打开 data-href
+        ============================================================ */
+    (function () {
+      var SEL = '.work[data-href]';
+
+      function openCard(card) {
+        var url = card.getAttribute('data-href');
+        if (!url) return;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      document.addEventListener('click', function (e) {
+        // 卡片内部若有真实 <a> / <button>，交给它们自己处理
+        if (e.target.closest && e.target.closest('a, button')) return;
+
+        var card = e.target.closest ? e.target.closest(SEL) : null;
+        if (!card) return;
+
+        openCard(card);
+      });
     })();
   </script>
 </body>
