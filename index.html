@@ -3220,6 +3220,243 @@
     font-size: 12px;
   }
 }
+/* ==================== 立项至今 · 实时计时 ==================== */
+.footer__uptime {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg,
+      rgba(33, 165, 227, .09) 0%,
+      rgba(33, 165, 227, .03) 60%,
+      rgba(33, 165, 227, 0) 100%);
+  border: 1px solid rgba(33, 165, 227, .16);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.footer__uptime-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* 呼吸小圆点 */
+.footer__uptime-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+  animation: uptime-pulse 2s ease-in-out infinite;
+}
+
+@keyframes uptime-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+  }
+
+  50% {
+    opacity: .55;
+    box-shadow: 0 0 0 6px rgba(22, 155, 91, .06);
+  }
+}
+
+.footer__uptime-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.uptime-unit {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.uptime-unit b {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.uptime-unit i {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* 窄屏微调 */
+@media (max-width: 640px) {
+  .footer__uptime {
+    gap: 8px;
+    padding: 9px 12px;
+  }
+
+  .footer__uptime-value {
+    gap: 6px;
+  }
+
+  .uptime-unit b {
+    font-size: 12px;
+  }
+
+  .uptime-unit i {
+    font-size: 10px;
+  }
+}
+
+
+/* ============================================================
+   详情正文内嵌富文本（第 6 章「技能介绍」）
+   —— 复用全局标题语言、渐变条、菱形列表、内联 chip
+   ============================================================ */
+
+/* 块级容器化后的首尾外边距收口 */
+.ability__desc > :first-child { margin-top: 0; }
+.ability__desc > :last-child  { margin-bottom: 0; }
+
+/* ---------- H1 · 总标题条（深蓝渐变，右下斜切） ---------- */
+.ability__desc h1 {
+  margin: 0 0 16px;
+  padding: 11px 16px;
+  font-size: clamp(15px, 2.4vw, 17px);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: .1em;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+  border-radius: 10px 10px 24px 10px;
+  box-shadow: 0 6px 18px rgba(20, 40, 60, .2);
+}
+
+/* H1 紧接 H2 时收紧一次间距 */
+.ability__desc h1 + h2 { margin-top: 12px; }
+
+/* ---------- H2 · 板块标题（左侧渐变竖条 + 右侧渐隐延长线） ---------- */
+.ability__desc h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 8px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: var(--color-text-primary);
+}
+
+.ability__desc h2::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 4px;
+  height: 15px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+}
+
+.ability__desc h2::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(33, 165, 227, .3), rgba(33, 165, 227, 0));
+}
+
+/* ---------- H3 · 小标题（菱形记号 + 主色文字） ---------- */
+.ability__desc h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--color-primary);
+}
+
+.ability__desc h3::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--color-primary);
+  transform: rotate(45deg);
+}
+
+/* ---------- 列表 ---------- */
+.ability__desc ul {
+  margin: 0 0 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.ability__desc li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--color-text-secondary);
+}
+
+.ability__desc li + li { margin-top: 1px; }
+
+.ability__desc li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: .75em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--color-blue-light);
+  transform: rotate(45deg);
+}
+
+/* ---------- strong · 关键词（主色 + 极浅底，内联 chip 感） ---------- */
+.ability__desc strong {
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: rgba(18, 138, 250, .08);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---------- 响应式微调 ---------- */
+@media (max-width: 480px) and (orientation: portrait) {
+  .ability__desc h1 { padding: 10px 14px; letter-spacing: .06em; }
+  .ability__desc h2 { margin: 15px 0 6px; font-size: 14px; }
+  .ability__desc h3 { font-size: 13px; }
+  .ability__desc li { font-size: 12.5px; line-height: 1.8; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .ability__desc h1 { margin-bottom: 10px; padding: 8px 12px; font-size: 14px; }
+  .ability__desc h1 + h2 { margin-top: 9px; }
+  .ability__desc h2 { margin: 12px 0 5px; font-size: 13px; }
+  .ability__desc h2::before { height: 13px; }
+  .ability__desc h3 { margin: 9px 0 3px; font-size: 12px; }
+  .ability__desc li { font-size: 11.5px; line-height: 1.65; }
+}
   </style>
 </head>
 
@@ -3600,6 +3837,10 @@
           <footer class="footer reveal">
             <span class="footer__mark">ttwe 77 — Front-end Engineer</span>
             <span>© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
+            <span class="footer__uptime">
+  <span class="footer__uptime-label">立项至今</span>
+  <span class="footer__uptime-value" id="uptime-value">—</span>
+</span>
             <span class="footer__license">
               本站点击特效使用
               <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
@@ -4195,7 +4436,7 @@
           title: '从 PPT 到系统折腾',
           lv: 10,
           tagline: '第 2 章 | 一台新电脑',
-          desc: '我在我高一的时候，用自己的理解购买并组装了我人生中的第一台电脑（感谢Very的硬件赞助和帮忙）。我最初是用它来做一些PPT等简单的生产 <del>和玩游戏</del>。<br>之后我开始研究了下Windows系统的个性化，之后就一发不可收拾地开始研究系统了 <del>好在那时我没把我的系统干掉</del>。<br>因为当时我用的是超级低配的电脑（<span class="hover-hint">i5-3570<span class="hover-hint__tooltip"><span class="hint-title">i5-3570大致参数</span>于 2012 年第二季度发布，4 核心 / 4 线程（不支持超线程技术），基础频率 3.40 GHz，最大睿频频率 3.80 GHz</span></span>+RX580）很快我就对组策略、注册表、系统文件和系统优化都有了更深的理解。',
+          desc: '我在我高一的时候，用自己的理解购买并组装了我人生中的第一台电脑（感谢Very的硬件赞助和帮忙）。我最初是用它来做一些PPT等简单的生产 <del>和玩游戏</del>。<br>之后我开始研究了下Windows系统的个性化，之后就一发不可收拾地开始研究系统了 <del>好在那时我没把我的系统干掉</del>。<br>因为当时我用的是超级低配的电脑（<span class="hover-hint">i5-3570<span class="hover-hint__tooltip"><span class="hint-title">i5-3570大致参数</span>于 2012 年第二季度发布，4 核心 / 4 线程（不支持超线程技术），基础频率 3.40 GHz，最大睿频频率 3.80 GHz</span></span>+RX580+<span class="hover-hint">HDD<span class="hover-hint__tooltip"><span class="hint-title">HDD</span>希捷的2TB机械硬盘，每分钟转5400圈。用作系统盘</span></span>），为了改善我的体验，我开始学习优化系统的方法。<br>很快我就对组策略、注册表、系统文件和系统优化都有了更深的理解。',
           points: [],
           chips: ['装机', 'Windows']
         },
@@ -4232,12 +4473,12 @@
         },
         {
           no: '06',
-          title: '游戏二创',
+          title: '目前会的东西',
           lv: 70,
           tagline: '第 6 章 | 按游戏风格做点东西',
-          desc: '喜欢把游戏的视觉语言搬到网页与工具里，做一些风格化的界面、小工具和二次创作内容。',
-          points: ['游戏风格 UI 复刻', '二次创作小工具', '素材整理与再设计'],
-          chips: ['Blue Archive', 'UI 复刻', '二创']
+          desc: '<h2>软件层面</h2><h3>编程语言</h3><ul><li>平时主要用<strong>C++</strong>和<strong>Python</strong>。</li><li>Python这边比较习惯<strong>Vibe Coding</strong>，就是边跟AI聊边写，写得比较快。</li></ul><h3>网站&amp;App</h3><ul><li>会搭网站，能把项目跑起来。</li><li>以前用<strong>iApp</strong>和<strong>Android Studio</strong>做过一些小工具、小App。</li></ul><h3>系统&amp;运维</h3><ul><li>熟悉<strong>Linux</strong>和<strong>Windows</strong>的基本命令。</li><li>会在终端里操作文件、检查网络、做版本控制这些。</li><li>会用<strong>Nginx</strong>把项目简单上线。</li></ul><h3>自动化</h3><ul><li>喜欢用<strong>Python</strong>处理简单、重复性的任务，能自动就自动。</li></ul><h2>AI相关</h2><ul><li>会用<strong>llama.cpp</strong>在本地部署AI大模型。</li><li>平时习惯用AI工具写代码、改bug、写文档、查资料、做表。</li><li>写代码这块也比较依赖AI辅助，效率会高不少。</li></ul><h2>硬件层面</h2><ul><li>自己动手组装过<strong>2台台式电脑</strong>。</li><li>硬件这块愿意折腾，装机、换件这些不怵。</li></ul>',
+          points: [],
+          chips: []
         }
       ];
 
@@ -4289,7 +4530,7 @@
           + '</div>';
 
         html += '<p class="ability__tagline">' + d.tagline + '</p>';
-        html += '<p class="ability__desc">' + d.desc + '</p>';
+                html += '<div class="ability__desc">' + d.desc + '</div>';
 
         if (d.points && d.points.length) {
           html += '<ul class="ability__points">';
@@ -4547,6 +4788,122 @@
       if (active && activeHint) hide(activeHint);
     }, { passive: true });
   })();
+</script>
+<script>
+/* ============================================================
+   立项至今 · 实时计时
+   - 起点：1790333910（2026-09-25 18:58:30，东八区）
+   - 全程按 UTC+8 计算，不受访客本地时区影响
+   - 每秒对齐整秒刷新一次
+   ============================================================ */
+(function () {
+  var START_TS = 1790333910;              // 立项 Unix 时间戳（秒）
+  var START_MS = START_TS * 1000;
+  var TZ_OFFSET = 8 * 60 * 60 * 1000;     // 东八区固定偏移
+
+  var valueEl = document.getElementById('uptime-value');
+  if (!valueEl) return;
+
+  var timer = null;
+
+  /* 把真实时间戳映射成“UTC 字段即东八区挂钟”的 Date */
+  function toCST(ms) {
+    return new Date(ms + TZ_OFFSET);
+  }
+
+  /* 在 CST 语义下平移月份（自动夹紧到目标月的最后一天） */
+  function addMonthsCST(d, months) {
+    var y = d.getUTCFullYear();
+    var m = d.getUTCMonth() + months;
+    var day = d.getUTCDate();
+    var hh = d.getUTCHours();
+    var mm = d.getUTCMinutes();
+    var ss = d.getUTCSeconds();
+    var ms = d.getUTCMilliseconds();
+
+    var ty = y + Math.floor(m / 12);
+    var tm = ((m % 12) + 12) % 12;
+    var lastDay = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+
+    return new Date(Date.UTC(ty, tm, Math.min(day, lastDay), hh, mm, ss, ms));
+  }
+
+  /* 计算两时刻之间的“年月日时分秒” */
+  function diffCST(startMs, endMs) {
+    if (endMs <= startMs) {
+      return { y: 0, mo: 0, d: 0, h: 0, mi: 0, s: 0 };
+    }
+
+    var s = toCST(startMs);
+    var e = toCST(endMs);
+
+    // 完整年
+    var y = e.getUTCFullYear() - s.getUTCFullYear();
+    var anchor = addMonthsCST(s, y * 12);
+    if (anchor > e) {
+      y -= 1;
+      anchor = addMonthsCST(s, y * 12);
+    }
+
+    // 完整月
+    var mo = (e.getUTCFullYear() - anchor.getUTCFullYear()) * 12
+      + (e.getUTCMonth() - anchor.getUTCMonth());
+    var base = addMonthsCST(anchor, mo);
+    if (base > e) {
+      mo -= 1;
+      base = addMonthsCST(anchor, mo);
+    }
+
+    // 余下的天 / 时 / 分 / 秒
+    var rest = e - base;
+    var d = Math.floor(rest / 86400000); rest -= d * 86400000;
+    var h = Math.floor(rest / 3600000); rest -= h * 3600000;
+    var mi = Math.floor(rest / 60000); rest -= mi * 60000;
+    var sec = Math.floor(rest / 1000);
+
+    return { y: y, mo: mo, d: d, h: h, mi: mi, s: sec };
+  }
+
+  function pad(n) {
+    n = Number(n) || 0;
+    if (n < 0) n = 0;
+    return n < 10 ? '0' + n : String(n);
+  }
+
+  var UNITS = [
+    { k: 'y', label: '年' },
+    { k: 'mo', label: '月' },
+    { k: 'd', label: '天' },
+    { k: 'h', label: '时' },
+    { k: 'mi', label: '分' },
+    { k: 's', label: '秒' }
+  ];
+
+  function render(parts) {
+    var html = '';
+    for (var i = 0; i < UNITS.length; i++) {
+      html += '<span class="uptime-unit">'
+        + '<b>' + pad(parts[UNITS[i].k]) + '</b>'
+        + '<i>' + UNITS[i].label + '</i>'
+        + '</span>';
+    }
+    valueEl.innerHTML = html;
+  }
+
+  function tick() {
+    render(diffCST(START_MS, Date.now()));
+    // 对齐到下一个整秒，避免长时间运行后的漂移
+    timer = setTimeout(tick, 1000 - (Date.now() % 1000));
+  }
+
+  // 标签页重新可见时立刻校准一次
+  document.addEventListener('visibilitychange', function () {
+    clearTimeout(timer);
+    if (!document.hidden) tick();
+  });
+
+  tick();
+})();
 </script>
 </body>
 
