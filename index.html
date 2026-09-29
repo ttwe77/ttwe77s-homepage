@@ -3009,6 +3009,76 @@
     }
 
     /* ============================================================
+       点击右侧列表 → 左栏详情入场动画
+       ============================================================ */
+
+    /* 卡片整体：淡入 + 上移 + 轻微缩放 */
+    @keyframes abilityDetailIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 返回按钮：左侧滑入 */
+    @keyframes abilityBackIn {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* 卡片内部子块：淡入上移（用于错峰） */
+    @keyframes abilityInnerIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 卡片整体 */
+    .ability__card.is-enter {
+      animation: abilityDetailIn .42s cubic-bezier(.22, .61, .36, 1) both;
+    }
+
+    /* 返回按钮 */
+    .ability__back.is-enter {
+      animation: abilityBackIn .3s cubic-bezier(.22, .61, .36, 1) both;
+    }
+
+    /* 内部错峰（标题框已在卡片内，不用重复） */
+    .ability__card.is-enter .ability__tagline {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .06s both;
+    }
+
+    .ability__card.is-enter .ability__desc {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .12s both;
+    }
+
+    .ability__card.is-enter .ability__points {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .18s both;
+    }
+
+    .ability__card.is-enter .ability__chips {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .24s both;
+    }
+
+    /* ============================================================
    断点 ④：矮横屏（含手机横放）—— 回到两栏紧凑版
    ============================================================ */
     @media (orientation: landscape) and (max-height: 560px) {
@@ -4514,14 +4584,14 @@
         var d = ABILITIES[i];
         var html = '';
 
-        html += '<button class="ability__back" type="button" data-back>'
+        html += '<button class="ability__back is-enter" type="button" data-back>'
           + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"'
           + ' stroke="currentColor" stroke-width="3" stroke-linecap="round"'
           + ' stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>'
           + '返回列表'
           + '</button>';
 
-        html += '<article class="ability__card">';
+        html += '<article class="ability__card is-enter">';
 
         html += '<div class="ability__frame">'
           + '<span class="ability__no">' + d.no + '</span>'
