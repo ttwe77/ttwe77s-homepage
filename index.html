@@ -14,7 +14,7 @@
   <script type="module">
     import { BAClickFX } from './libs/ba-click-fx.js';
     const fx = new BAClickFX();
-    //fx.updateConfig({ trailAlways: true });
+    fx.updateConfig({ trailAlways: true });
     fx.setCompositingReference({ hostCompositing: 'screen' });
   </script>
   <style>
@@ -57,8 +57,8 @@
       --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
 
       /* 字体 */
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-        "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
+  "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 
       /* 布局 */
       --topbar-h: 56px;
@@ -1143,49 +1143,122 @@
       background: rgba(18, 138, 250, .14);
     }
 
-    /* ==================== 页脚 ==================== */
-    .footer {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid var(--color-border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      color: var(--color-text-secondary);
-    }
+/* ==================== 页脚重构版 ==================== */
+.footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
 
-    .footer__mark {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-    }
+/* --- 第一层：主体信息与计时器 --- */
+.footer__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 
-    .footer__mark::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      background: var(--color-primary);
-      transform: rotate(45deg);
-    }
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-    .footer__license {
-      flex: 1 1 100%;
-      font-size: 11px;
-      color: var(--color-text-disabled);
-      line-height: 1.6;
-    }
+.footer__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
 
-    .footer__license a {
-      color: var(--color-primary);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
+.footer__mark::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-primary);
+  transform: rotate(45deg);
+}
+
+.footer__copyright {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+/* 计时器调整 */
+.footer__uptime {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, rgba(33, 165, 227, .09) 0%, rgba(33, 165, 227, .03) 60%, rgba(33, 165, 227, 0) 100%);
+  border: 1px solid rgba(33, 165, 227, .16);
+}
+
+/* --- 第二层：开源协议 --- */
+.footer__license {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.footer__license a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --- 第三层：致谢声明（沉底小字，分隔线区分） --- */
+.footer__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border); /* 虚线轻微区分 */
+  font-size: 10.5px;
+  color: var(--color-text-disabled);
+  line-height: 1.6;
+}
+
+.footer__meta a {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.footer__meta a:hover {
+  color: var(--color-primary);
+}
+
+/* ==================== 响应式适配 ==================== */
+@media (max-width: 640px) {
+  .footer__main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .footer__uptime {
+    width: 100%;
+    justify-content: center;
+    min-width: 0;
+    padding: 10px;
+  }
+  
+  .footer__meta {
+    gap: 6px;
+  }
+}
 
     /* ==================== 响应式 ==================== */
     @media (max-width:860px) {
@@ -3651,6 +3724,45 @@
   opacity: 1;
   transform: translate(-50%, 0);
 }
+    /* ==================== 自定义鼠标指针 ==================== */
+    /* 目录：src/cursors/  —— normal.cur / link.cur / help.cur */
+
+    /* 1) 全局默认指针 */
+    html,
+    body {
+      cursor: url('src/cursors/normal.cur'), auto;
+    }
+
+    /* 2) 可点击元素 → link.cur（含 a / button / 各类“按钮感”容器） */
+    a,
+    button,
+    .btn,
+    .icon-btn,
+    .pager-nav__dot,
+    .resource-add,
+    .step-btn,
+    .modal-btn,
+    .modal-close,
+    .work[data-href],
+    .ability__item,
+    .ability__back,
+    .profile__art,
+    .profile__namecard,
+    [role="button"] {
+      cursor: url('src/cursors/link.cur'), pointer;
+    }
+
+    /* 3) 悬停提示 → help.cur（覆盖原本的 cursor: help） */
+    .hover-hint {
+      cursor: url('src/cursors/help.cur'), help;
+    }
+
+    /* 4) 文本输入区保持默认文本指针（避免输入时看不到光标） */
+    input,
+    textarea,
+    [contenteditable="true"] {
+      cursor: auto;
+    }
   </style>
 </head>
 
@@ -4051,25 +4163,34 @@
             </div>
           </section>
 
-          <footer class="footer reveal">
-            <span class="footer__mark">由ttwe77熬了3天夜肝出来的一个个人主页</span>
-            <span>© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
-            <span class="footer__uptime">
-              <span class="footer__uptime-label">立项至今</span>
-              <span class="footer__uptime-value" id="uptime-value">—</span>
-            </span>
-            <span class="footer__license">
-              本站点击特效使用
-              <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
-                rel="noopener noreferrer">ba-click-fx</a>
-              （<a href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
-                rel="noopener noreferrer">MIT License</a>，Copyright © CialloKing）。
-            </span>
-            <span class="footer__license">
-              角色立绘来自<a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo
-                Wiki</a>
-            </span>
-          </footer>
+         <footer class="footer reveal">
+  <!-- 第一层：主体信息 & 计时器 -->
+  <div class="footer__main">
+    <div class="footer__brand">
+      <span class="footer__mark">由ttwe77熬了4天夜肝出来的一个个人主页</span>
+      <span class="footer__copyright">© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
+    </div>
+    
+    <!-- 计时器高亮展示 -->
+    <div class="footer__uptime">
+      <span class="footer__uptime-label">立项至今</span>
+      <span class="footer__uptime-value" id="uptime-value">—</span>
+    </div>
+  </div>
+
+  <!-- 第二层：开源协议说明 -->
+  <div class="footer__license">
+    <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee 仓库</a> 查阅。</span>
+  </div>
+
+  <!-- 第三层：致谢与次要声明（小字沉底） -->
+  <div class="footer__meta">
+    <p>网站标识码：bm12345678　　备案号：<a style="color:#666" target="_blank" rel="noopener" href="http://beian.miit.gov.cn/">XICP备12345678号-9</a><a style="color:#666;margin-left: 20px;" target="_blank" rel="noopener" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123">        X公网安备 01234567890123号</a>    </p>
+    <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank" rel="noopener noreferrer">ba-click-fx</a>（<a href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a href="https://github.com/makipom/BlueArchive-Cursors" target="_blank" rel="noopener noreferrer">BlueArchive-Cursors</a>(<a href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>)。</span>
+    <span>角色立绘来自 <a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo Wiki</a>。建站使用到的工具：<a href="https://imagemagick.org/" target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/" target="_blank" rel="noopener noreferrer">Git</a>。</span>
+    <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a href="hhttps://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank" rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
+  </div>
+</footer>
         </div>
       </section>
 
