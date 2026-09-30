@@ -58,7 +58,7 @@
 
       /* 字体 */
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
-  "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 
       /* 布局 */
       --topbar-h: 56px;
@@ -971,8 +971,10 @@
     .work__thumb svg {
       position: relative;
       z-index: 1;
-      width: 48px;        /* 图标宽度，可按需调整 */
-      height: 48px;       /* 图标高度，可按需调整 */
+      width: 48px;
+      /* 图标宽度，可按需调整 */
+      height: 48px;
+      /* 图标高度，可按需调整 */
     }
 
     .work__body {
@@ -1143,122 +1145,123 @@
       background: rgba(18, 138, 250, .14);
     }
 
-/* ==================== 页脚重构版 ==================== */
-.footer {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
+    /* ==================== 页脚重构版 ==================== */
+    .footer {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
 
-/* --- 第一层：主体信息与计时器 --- */
-.footer__main {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
+    /* --- 第一层：主体信息与计时器 --- */
+    .footer__main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-.footer__brand {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+    .footer__brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-.footer__mark {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
+    .footer__mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
 
-.footer__mark::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--color-primary);
-  transform: rotate(45deg);
-}
+    .footer__mark::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--color-primary);
+      transform: rotate(45deg);
+    }
 
-.footer__copyright {
-  font-size: 11px;
-  color: var(--color-text-secondary);
-}
+    .footer__copyright {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
 
-/* 计时器调整 */
-.footer__uptime {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, rgba(33, 165, 227, .09) 0%, rgba(33, 165, 227, .03) 60%, rgba(33, 165, 227, 0) 100%);
-  border: 1px solid rgba(33, 165, 227, .16);
-}
+    /* 计时器调整 */
+    .footer__uptime {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(33, 165, 227, .09) 0%, rgba(33, 165, 227, .03) 60%, rgba(33, 165, 227, 0) 100%);
+      border: 1px solid rgba(33, 165, 227, .16);
+    }
 
-/* --- 第二层：开源协议 --- */
-.footer__license {
-  font-size: 11px;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-}
+    /* --- 第二层：开源协议 --- */
+    .footer__license {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
 
-.footer__license a {
-  color: var(--color-primary);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
+    .footer__license a {
+      color: var(--color-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
 
-/* --- 第三层：致谢声明（沉底小字，分隔线区分） --- */
-.footer__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--color-border); /* 虚线轻微区分 */
-  font-size: 10.5px;
-  color: var(--color-text-disabled);
-  line-height: 1.6;
-}
+    /* --- 第三层：致谢声明（沉底小字，分隔线区分） --- */
+    .footer__meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--color-border);
+      /* 虚线轻微区分 */
+      font-size: 10.5px;
+      color: var(--color-text-disabled);
+      line-height: 1.6;
+    }
 
-.footer__meta a {
-  color: var(--color-text-secondary);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.2s;
-}
+    .footer__meta a {
+      color: var(--color-text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
 
-.footer__meta a:hover {
-  color: var(--color-primary);
-}
+    .footer__meta a:hover {
+      color: var(--color-primary);
+    }
 
-/* ==================== 响应式适配 ==================== */
-@media (max-width: 640px) {
-  .footer__main {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .footer__uptime {
-    width: 100%;
-    justify-content: center;
-    min-width: 0;
-    padding: 10px;
-  }
-  
-  .footer__meta {
-    gap: 6px;
-  }
-}
+    /* ==================== 响应式适配 ==================== */
+    @media (max-width: 640px) {
+      .footer__main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .footer__uptime {
+        width: 100%;
+        justify-content: center;
+        min-width: 0;
+        padding: 10px;
+      }
+
+      .footer__meta {
+        gap: 6px;
+      }
+    }
 
     /* ==================== 响应式 ==================== */
     @media (max-width:860px) {
@@ -1915,30 +1918,30 @@
     }
 
     /* ---------- 6. 触摸设备禁用 hover 副作用 ---------- */
-@media (hover: none) {
+    @media (hover: none) {
 
-  /* 返回按钮：触摸端点击后 :hover 会残留，
+      /* 返回按钮：触摸端点击后 :hover 会残留，
      必须锁死深蓝底，否则白图标会消失在白色顶栏上 */
-  .icon-btn--back,
-  .icon-btn--back:hover,
-  .icon-btn--back:active {
-    background: #3f568c;
-    color: #ffffff;
-  }
+      .icon-btn--back,
+      .icon-btn--back:hover,
+      .icon-btn--back:active {
+        background: #3f568c;
+        color: #ffffff;
+      }
 
-  /* 其它图标按钮才清掉 hover 底色 */
-  .icon-btn:not(.icon-btn--back):hover {
-    background: transparent;
-  }
+      /* 其它图标按钮才清掉 hover 底色 */
+      .icon-btn:not(.icon-btn--back):hover {
+        background: transparent;
+      }
 
-  .resource-add:hover {
-    background: transparent;
-  }
+      .resource-add:hover {
+        background: transparent;
+      }
 
-  .btn:hover {
-    transform: skewX(var(--btn-skew));
-  }
-}
+      .btn:hover {
+        transform: skewX(var(--btn-skew));
+      }
+    }
   </style>
   <style>
     /* ==================== 第 2 页 · 个人资料 ==================== */
@@ -3675,54 +3678,56 @@
         line-height: 1.65;
       }
     }
+
     /* ==================== 轻提示（Toast） ==================== */
-.toast {
-  position: fixed;
-  left: 50%;
-  top: calc(var(--topbar-h) + 16px);
-  z-index: 99999;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  max-width: min(86vw, 360px);
-  padding: 10px 20px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, .92);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card-hover);
-  color: var(--color-text-primary);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: .02em;
-  line-height: 1.5;
-  text-align: center;
-  word-break: break-word;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate(-50%, -10px);
-  transition:
-    opacity .25s cubic-bezier(.22, .61, .36, 1),
-    transform .25s cubic-bezier(.22, .61, .36, 1);
-}
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: calc(var(--topbar-h) + 16px);
+      z-index: 99999;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      max-width: min(86vw, 360px);
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, .92);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card-hover);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1.5;
+      text-align: center;
+      word-break: break-word;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -10px);
+      transition:
+        opacity .25s cubic-bezier(.22, .61, .36, 1),
+        transform .25s cubic-bezier(.22, .61, .36, 1);
+    }
 
-/* 左侧主色小圆点（和顶栏状态点同语言） */
-.toast::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
-}
+    /* 左侧主色小圆点（和顶栏状态点同语言） */
+    .toast::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
+    }
 
-.toast.is-visible {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
     /* ==================== 自定义鼠标指针 ==================== */
     /* 目录：src/cursors/  —— normal.cur / link.cur / help.cur */
 
@@ -3914,9 +3919,9 @@
             <!-- ---------- 左：立绘 + 名牌 ---------- -->
             <div class="profile__visual reveal">
               <div class="profile__art">
-                <img class="profile__art-img" src="src/kei.avif" alt="我推立绘" loading="lazy" onerror="
-    if (this.dataset.fb === '1') { this.src = 'src/kei.webp'; this.dataset.fb = '2'; }
-    else if (this.dataset.fb === '2') { this.src = 'src/kei.png'; this.dataset.fb = '3'; }
+                <img class="profile__art-img" src="src/kei/kei.avif" alt="我推立绘" loading="lazy" onerror="
+    if (this.dataset.fb === '1') { this.src = 'src/kei/kei.webp'; this.dataset.fb = '2'; }
+    else if (this.dataset.fb === '2') { this.src = 'src/kei/kei.png'; this.dataset.fb = '3'; }
     else { this.onerror = null; }
   " data-fb="1">
               </div>
@@ -4105,7 +4110,9 @@
 
             <article class="card work reveal" data-href="https://gitee.com/ttwe77/Redshitone-Technology4Windows">
               <div class="work__thumb" style="--c1:#E39BEA; --c2:#A97CE6;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 3-3 3-3-3zM5 9l3 3-3 3-3-3zM19 9l3 3-3 3-3-3zM12 16l3 3-3 3-3-3z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l3 3-3 3-3-3zM5 9l3 3-3 3-3-3zM19 9l3 3-3 3-3-3zM12 16l3 3-3 3-3-3z" />
+                </svg>
                 </svg>
               </div>
               <div class="work__body">
@@ -4120,14 +4127,18 @@
               </div>
             </article>
 
-              <article class="card work reveal" data-href="https://gitee.com/ttwe77/TripleDoublePinyinKeygen">
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/TripleDoublePinyinKeygen">
               <div class="work__thumb" style="--c1:#9BA4B5; --c2:#6C7A9F;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="6" width="20" height="12" rx="2" />
+                  <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" />
+                </svg>
                 </svg>
               </div>
               <div class="work__body">
                 <h3 class="work__title">三重双拼汉字加密密钥生成器</h3>
-                <p class="work__desc">基于三重双拼映射的对称密钥生成工具，适用于无电子设备的互相加密交流。将汉字加密为高分辨率 QWERTY 键盘 PNG 视觉密钥，支持 UUID 复现与多语言转换。</p>
+                <p class="work__desc">基于三重双拼映射的对称密钥生成工具，适用于无电子设备的互相加密交流。将汉字加密为高分辨率 QWERTY 键盘 PNG 视觉密钥，支持 UUID 复现与多语言转换。
+                </p>
                 <div class="work__tags">
                   <span class="chip">Java</span>
                   <span class="chip">密码学</span>
@@ -4156,40 +4167,61 @@
                 </svg>
                 发送邮件
               </a>
-              <a class="btn btn--secondary" href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a class="btn btn--secondary" href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
+              <a class="btn btn--secondary" href="https://github.com/ttwe77" target="_blank"
+                rel="noopener noreferrer">GitHub</a>
+              <a class="btn btn--secondary" href="https://gitee.com/ttwe77" target="_blank"
+                rel="noopener noreferrer">Gitee</a>
               <!--<a class="btn btn--ghost" href="#">下载简历 (PDF)</a>-->
             </div>
           </section>
 
-         <footer class="footer reveal">
-  <!-- 第一层：主体信息 & 计时器 -->
-  <div class="footer__main">
-    <div class="footer__brand">
-      <span class="footer__mark">由ttwe77熬了4天夜肝出来的一个个人主页</span>
-      <span class="footer__copyright">© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
-    </div>
-    
-    <!-- 计时器高亮展示 -->
-    <div class="footer__uptime">
-      <span class="footer__uptime-label">立项至今</span>
-      <span class="footer__uptime-value" id="uptime-value">—</span>
-    </div>
-  </div>
+          <footer class="footer reveal">
+            <!-- 第一层：主体信息 & 计时器 -->
+            <div class="footer__main">
+              <div class="footer__brand">
+                <span class="footer__mark">由ttwe77熬了5天夜肝出来的一个个人主页</span>
+                <span class="footer__copyright">© 2026 ttwe 77 · 清新 / 极简 / 高效</span>
+              </div>
 
-  <!-- 第二层：开源协议说明 -->
-  <div class="footer__license">
-    <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee 仓库</a> 查阅。</span>
-  </div>
+              <!-- 计时器高亮展示 -->
+              <div class="footer__uptime">
+                <span class="footer__uptime-label">立项至今</span>
+                <span class="footer__uptime-value" id="uptime-value">—</span>
+              </div>
+            </div>
 
-  <!-- 第三层：致谢与次要声明（小字沉底） -->
-  <div class="footer__meta">
-    <p>网站标识码：bm12345678　　备案号：<a style="color:#666" target="_blank" rel="noopener" href="http://beian.miit.gov.cn/">XICP备12345678号-9</a><a style="color:#666;margin-left: 20px;" target="_blank" rel="noopener" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123">        X公网安备 01234567890123号</a>    </p>
-    <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank" rel="noopener noreferrer">ba-click-fx</a>（<a href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a href="https://github.com/makipom/BlueArchive-Cursors" target="_blank" rel="noopener noreferrer">BlueArchive-Cursors</a>(<a href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>)。</span>
-    <span>角色立绘来自 <a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo Wiki</a>。建站使用到的工具：<a href="https://imagemagick.org/" target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/" target="_blank" rel="noopener noreferrer">Git</a>。</span>
-    <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a href="hhttps://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank" rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
-  </div>
-</footer>
+            <!-- 第二层：开源协议说明 -->
+            <div class="footer__license">
+              <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
+                  href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
+                  仓库</a> 查阅。</span>
+            </div>
+
+            <!-- 第三层：致谢与次要声明（小字沉底） -->
+            <div class="footer__meta">
+              <p>网站标识码：bm12345678　　备案号：<a style="color:#666" target="_blank" rel="noopener"
+                  href="http://beian.miit.gov.cn/">XICP备12345678号-9</a><a style="color:#666;margin-left: 20px;"
+                  target="_blank" rel="noopener"
+                  href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123"> X公网安备
+                  01234567890123号</a> </p>
+              <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
+                  rel="noopener noreferrer">ba-click-fx</a>（<a
+                  href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
+                  href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
+                  rel="noopener noreferrer">BlueArchive-Cursors</a>(<a
+                  href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a>)。</span>
+              <span>角色立绘来自 <a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo
+                  Wiki</a>。建站使用到的工具：<a href="https://imagemagick.org/" target="_blank"
+                  rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/" target="_blank"
+                  rel="noopener noreferrer">Git</a>。</span>
+              <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
+                  href="hhttps://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
+                  rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
+            </div>
+          </footer>
         </div>
       </section>
 
@@ -4974,71 +5006,71 @@
       select(0);
     })();
   </script>
-<script>
-  function closeTab() {
-    // 1) 脚本打开的窗口才允许关闭
-    try {
-      if (window.opener && window.opener !== window) {
-        window.close();
-        setTimeout(function () {
-          if (!document.hidden) showToast('浏览器阻止了关闭');
-        }, 300);
+  <script>
+    function closeTab() {
+      // 1) 脚本打开的窗口才允许关闭
+      try {
+        if (window.opener && window.opener !== window) {
+          window.close();
+          setTimeout(function () {
+            if (!document.hidden) showToast('浏览器阻止了关闭');
+          }, 300);
+          return;
+        }
+      } catch (e) { }
+
+      // 2) 不在第 1 页 → 先回首页
+      var track = document.getElementById('pager-track');
+      var t = (track && track.style.transform) || '';
+      var onFirst = !t || /translate3d\(\s*0/.test(t);
+
+      if (!onFirst) {
+        var home = document.getElementById('btn-home');
+        if (home) { home.click(); return; }
+      }
+
+      // 3) 在第 1 页但向下滚过 → 先回顶
+      var firstPage = document.querySelector('.page');
+      if (firstPage && firstPage.scrollTop > 1) {
+        firstPage.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
-    } catch (e) { }
 
-    // 2) 不在第 1 页 → 先回首页
-    var track = document.getElementById('pager-track');
-    var t = (track && track.style.transform) || '';
-    var onFirst = !t || /translate3d\(\s*0/.test(t);
+      // 4) 第 1 页顶部 → 返回浏览器上一页（即 a.html）
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
 
-    if (!onFirst) {
-      var home = document.getElementById('btn-home');
-      if (home) { home.click(); return; }
+      // 5) 真的无处可去 → 提示
+      showToast('已经在首页顶部');
     }
 
-    // 3) 在第 1 页但向下滚过 → 先回顶
-    var firstPage = document.querySelector('.page');
-    if (firstPage && firstPage.scrollTop > 1) {
-      firstPage.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+    function showToast(msg) {
+      var old = document.getElementById('__close_toast__');
+      if (old) old.remove();
+
+      var el = document.createElement('div');
+      el.id = '__close_toast__';
+      el.className = 'toast';
+      el.textContent = msg;
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+
+      // 下一帧再加 is-visible，保证过渡生效
+      requestAnimationFrame(function () {
+        el.classList.add('is-visible');
+      });
+
+      setTimeout(function () {
+        el.classList.remove('is-visible');
+        setTimeout(function () { el.remove(); }, 300);
+      }, 1800);
     }
 
-    // 4) 第 1 页顶部 → 返回浏览器上一页（即 a.html）
-    if (window.history.length > 1) {
-      window.history.back();
-      return;
-    }
-
-    // 5) 真的无处可去 → 提示
-    showToast('已经在首页顶部');
-  }
-
-  function showToast(msg) {
-  var old = document.getElementById('__close_toast__');
-  if (old) old.remove();
-
-  var el = document.createElement('div');
-  el.id = '__close_toast__';
-  el.className = 'toast';
-  el.textContent = msg;
-  el.setAttribute('role', 'status');
-  el.setAttribute('aria-live', 'polite');
-  document.body.appendChild(el);
-
-  // 下一帧再加 is-visible，保证过渡生效
-  requestAnimationFrame(function () {
-    el.classList.add('is-visible');
-  });
-
-  setTimeout(function () {
-    el.classList.remove('is-visible');
-    setTimeout(function () { el.remove(); }, 300);
-  }, 1800);
-}
-
-  window.closeTab = closeTab;
-</script>
+    window.closeTab = closeTab;
+  </script>
   <script>
     /* ============================================================
        悬停提示框（事件委托版）
@@ -5315,6 +5347,131 @@
       });
     })();
   </script>
-</body>
+  <script>
+/* ============================================================
+   角色立绘 · 自动眨眼 / 表情切换
+   - 睁眼图：src/kei/kei.(avif|webp|png)
+   - 闭眼图：src/kei/kei_close.(avif|webp|png)
+   - 自动挑首个可用格式，随机眨眼，偶尔连眨两下
+   - 全局暴露 window.blinkArt() 供手动触发
+   ============================================================ */
+(function () {
+  'use strict';
 
+  var img = document.querySelector('.profile__art-img');
+  if (!img) return;
+
+  // 尊重「减少动态效果」偏好
+  if (window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  /* ---------- 定时器池：统一管理，便于暂停时清理 ---------- */
+  var timers = new Set();
+  function later(fn, ms) {
+    var id = setTimeout(function () { timers.delete(id); fn(); }, ms);
+    timers.add(id);
+    return id;
+  }
+  function clearAllTimers() {
+    timers.forEach(clearTimeout);
+    timers.clear();
+  }
+
+  /* ---------- 按顺序探测首个可加载的地址 ---------- */
+  function firstAvailable(urls, done) {
+    var i = 0;
+    (function next() {
+      if (i >= urls.length) { done(null); return; }
+      var url = urls[i++];
+      var probe = new Image();
+      probe.onload  = function () { done(url); };
+      probe.onerror = next;
+      probe.src = url;
+    })();
+  }
+
+  /* ---------- 从原始 src 推导目录与文件名 ---------- */
+  var raw  = img.getAttribute('src') || 'src/kei/kei.avif';
+  var base = raw.replace(/kei_close/i, 'kei').replace(/\.(avif|webp|png)$/i, '');
+  var dir  = base.replace(/[^/]*$/, '');   // "src/kei/"
+  var name = base.replace(/^.*\//, '');    // "kei"
+  var EXTS = ['avif', 'webp', 'png'];
+
+  var OPEN  = EXTS.map(function (e) { return dir + name + '.' + e; });
+  var CLOSE = EXTS.map(function (e) { return dir + name + '_close.' + e; });
+
+  var openUrl  = null;
+  var closeUrl = null;
+
+  /* ---------- 对外暴露：手动眨一次眼 ---------- */
+  window.blinkArt = function (duration) {
+    if (!openUrl || !closeUrl) return;
+    img.src = closeUrl;
+    later(function () { img.src = openUrl; }, duration || 130);
+  };
+
+  /* ---------- 眨眼循环 ---------- */
+  function startBlink() {
+    var paused = false;
+
+    function blinkOnce() {
+      if (paused) return;
+
+      img.src = closeUrl;                       // 闭眼
+
+      later(function () {
+        img.src = openUrl;                      // 睁眼
+
+        // 约 18% 概率连眨第二下
+        if (Math.random() < 0.18) {
+          later(blinkOnce, 150 + Math.random() * 110);
+        }
+      }, 100 + Math.random() * 90);             // 闭眼时长 100~190ms
+    }
+
+    function schedule() {
+      if (paused) return;
+      later(function () {
+        blinkOnce();
+        schedule();
+      }, 6000 + Math.random() * 6000);          // 间隔 6~12s
+    }
+
+    // 首屏稍作延迟，等入场动画走完
+    later(function () {
+      blinkOnce();
+      schedule();
+    }, 1800 + Math.random() * 1600);
+
+    // 标签页隐藏时暂停并复位为睁眼，可见时恢复
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        paused = true;
+        clearAllTimers();
+        img.src = openUrl;
+      } else if (paused) {
+        paused = false;
+        schedule();
+      }
+    });
+  }
+
+  /* ---------- 初始化 ---------- */
+  firstAvailable(OPEN, function (o) {
+    if (!o) return;
+    openUrl = o;
+
+    firstAvailable(CLOSE, function (c) {
+      if (!c) return;
+      closeUrl = c;
+
+      // 若原图当前并非最优格式，顺手纠正一次
+      if (img.getAttribute('src') !== openUrl) img.src = openUrl;
+
+      startBlink();
+    });
+  });
+})();
+</script>
+</body>
 </html>
