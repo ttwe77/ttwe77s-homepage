@@ -2005,8 +2005,7 @@
       object-position: 50% 0;
       /* 垂直：从顶部开始裁，保留上半身 */
       transform-origin: top center;
-      /* 先放大 1.22 倍（左右各多出约 11%），再向右平移 */
-      transform: scale(1) translateX(17%);
+      transform: scale(0.9) translateX(17%) translateY(-30px);
       display: block;
       pointer-events: none;
       user-select: none;
@@ -2316,7 +2315,7 @@
       }
 
       .profile__visual {
-        min-height: 240px;
+        min-height: 400px;
       }
     }
 
@@ -2382,8 +2381,8 @@
 
       /* 立绘：横屏容器变窄，缩放/位移都要收敛 */
       .profile__art-img {
-        object-position: 50% 8%;
-        transform: scale(1.08) translateX(4%);
+        object-position: 0% 0%;
+        transform: scale(1.2) translateX(15%);
       }
 
       /* 名牌紧凑化 */
@@ -2490,8 +2489,8 @@
       }
 
       .profile__art-img {
-        object-position: 50% 4%;
-        transform: scale(1.04) translateX(3%);
+        object-position: 0% 0%;
+        transform: scale(1.4) translateX(30px);
       }
 
       .profile__intro-body {
@@ -2528,14 +2527,14 @@
         /* 覆盖 340px */
         aspect-ratio: 3 / 2;
         /* 宽 820 → 高约 547 */
-        max-height: 56vh;
+        /* max-height: 56vh; */
         /* 矮平板兜底 */
       }
 
       /* 立绘取景：配合更宽更方的容器 */
       .profile__art-img {
         object-position: 50% 2%;
-        transform: scale(1.12) translateX(6%);
+        transform: translateX(19%);
       }
 
       /* 名牌放大一档，和宽立绘区比例协调 */
@@ -2594,7 +2593,7 @@
 
       .profile__art-img {
         object-position: 50% 6%;
-        transform: scale(1.1) translateX(4%);
+        transform: scale(1.1) translateX(19%);
       }
     }
 
