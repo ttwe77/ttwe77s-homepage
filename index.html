@@ -3122,7 +3122,7 @@
 
       .ability[data-view="detail"] .ability__detail {
         display: block;
-        animation: abilitySlideIn .3s cubic-bezier(.22, .61, .36, 1) both;
+        animation: abilitySlideIn .3s cubic-bezier(.22, .61, .36, 1) backwards;
       }
 
       .ability__back {
@@ -3216,29 +3216,29 @@
 
     /* 卡片整体 */
     .ability__card.is-enter {
-      animation: abilityDetailIn .42s cubic-bezier(.22, .61, .36, 1) both;
+      animation: abilityDetailIn .42s cubic-bezier(.22, .61, .36, 1) backwards;
     }
 
     /* 返回按钮 */
     .ability__back.is-enter {
-      animation: abilityBackIn .3s cubic-bezier(.22, .61, .36, 1) both;
+      animation: abilityBackIn .3s cubic-bezier(.22, .61, .36, 1) backwards;
     }
 
     /* 内部错峰（标题框已在卡片内，不用重复） */
     .ability__card.is-enter .ability__tagline {
-      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .06s both;
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .06s backwards;
     }
 
     .ability__card.is-enter .ability__desc {
-      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .12s both;
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .12s backwards;
     }
 
     .ability__card.is-enter .ability__points {
-      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .18s both;
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .18s backwards;
     }
 
     .ability__card.is-enter .ability__chips {
-      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .24s both;
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .24s backwards;
     }
 
     /* ============================================================
@@ -3259,7 +3259,7 @@
     }
 
     .ability__item.is-enter {
-      animation: abilityItemIn .42s cubic-bezier(.22, .61, .36, 1) both;
+      animation: abilityItemIn .42s cubic-bezier(.22, .61, .36, 1) backwards;
       animation-delay: calc(var(--i, 0) * 55ms);
     }
 
@@ -5577,7 +5577,7 @@
           title: '最初的起点',
           lv: 0,
           tagline: '第 1 章 | 从裕语言起步，构建安卓软件',
-          desc: '从我初中开始，就喜欢用裕语言写安卓软件。因为裕语言简单易学，我在很短的时间内上手。并且以此做了不少小项目，让我对Android和Linux系统有了更深的理解。<br><br>因为我意识到学裕语言没有前途，所以我之后转向了其他编程语言，比如Java、Python等。',
+          desc: '从我初中开始，就喜欢用<span class="hover-hint">裕语言<span class="hover-hint__tooltip"><span class="hint-title">裕语言</span>裕语言是指 iApp 平台专用的脚本语言，是一种基于 Java 的扩展性脚本语言。它以简易的上手门槛，让开发者能在手机上快速开发安卓应用。</span></span>写安卓软件。因为裕语言简单易学，我在很短的时间内上手。并且以此做了不少小项目，让我对Android和Linux系统有了更深的理解。<br><br>因为我意识到学裕语言没有前途，所以我之后转向了其他编程语言，比如Java、Python等。',
           points: [],
           chips: ['裕语言', 'Android', 'Linux']
         },
