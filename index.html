@@ -4,12 +4,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ttwe77·个人主页</title>
-  <link rel="icon" href="src/favicon.ico" sizes="any">
+  <!--<title>ttwe77·个人主页</title>-->
+  <title>七七的折腾笔记 | 技术·游戏·日常</title>
+  <!--<link rel="icon" href="src/favicon.ico" sizes="any">-->
   <link rel="icon" href="src/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="src/apple-touch-icon.png">
   <meta name="theme-color" content="#21a5e3">
-  <meta name="description" content="ttwe77的个人主页，技术宅一枚，沉迷计算机与网络，爱折腾软硬件，日常打二游，偶尔写点教程，欢迎同好交流。" />
+  <meta name="description" content="七七的个人笔记，记录计算机、网络、软硬件折腾、二游与偶尔写的教程。" />
+
+  <!-- ==================== Open Graph / 社交分享 ==================== -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="七七的折腾笔记">
+  <meta property="og:title" content="七七的折腾笔记 | 技术·游戏·日常">
+  <meta property="og:description" content="七七的个人笔记，记录计算机、网络、软硬件折腾、二游与偶尔写的教程。">
+  <meta property="og:url" content="https://100.99.88.77/">
+  <meta property="og:image" content="https://100.99.88.77/src/og-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="七七的折腾笔记主页预览图">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter / X 卡片 -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="七七的折腾笔记 | 技术·游戏·日常">
+  <meta name="twitter:description" content="七七的个人笔记，记录计算机、网络、软硬件折腾、二游与偶尔写的教程。">
+  <meta name="twitter:image" content="https://100.99.88.77/src/og-cover.jpg">
+  <meta name="twitter:image:alt" content="七七的折腾笔记主页预览图">
+
+  <!-- 规范链接，建议和 og:url 一致 -->
+  <link rel="canonical" href="https://100.99.88.77/">
+
   <script>document.documentElement.classList.add('js');</script>
   <script type="module">
     import { BAClickFX } from './libs/ba-click-fx.js';
@@ -261,6 +285,13 @@
 
     #btn-music[aria-pressed="true"],
     #btn-music[aria-pressed="true"]:hover {
+      color: #3f568c;
+      background: transparent;
+    }
+
+    /* 音乐正在播放：按钮保持深蓝色（不播放时自动回落到上面的灰色） */
+    #btn-music.is-playing,
+    #btn-music.is-playing:hover {
       color: #3f568c;
       background: transparent;
     }
@@ -1911,7 +1942,7 @@
         /* 防止资源栏自己缩没 */
       }
 
-      /* 隐藏除体力以外的所有资源（金币、青辉石） */
+      /* 隐藏除体力以外的所有资源（金币、青曜石） */
       .resources>.resource:not(:first-child) {
         display: none;
       }
@@ -2035,12 +2066,11 @@
       inset: 0;
       z-index: 2;
       width: 100%;
-      height: 100%;
       object-fit: cover;
       object-position: 50% 0;
       /* 垂直：从顶部开始裁，保留上半身 */
       transform-origin: top center;
-      transform: scale(0.9) translateX(17%) translateY(-30px);
+      transform: scale(0.7) translateX(8%) translateY(-15px);
       display: block;
       pointer-events: none;
       user-select: none;
@@ -2417,7 +2447,7 @@
       /* 立绘：横屏容器变窄，缩放/位移都要收敛 */
       .profile__art-img {
         object-position: 0% 0%;
-        transform: scale(1.2) translateX(15%);
+        transform: scale(1.2) translateX(9%);
       }
 
       /* 名牌紧凑化 */
@@ -2525,7 +2555,7 @@
 
       .profile__art-img {
         object-position: 0% 0%;
-        transform: scale(1.4) translateX(30px);
+        transform: scale(1) translateX(17px);
       }
 
       .profile__intro-body {
@@ -2568,8 +2598,8 @@
 
       /* 立绘取景：配合更宽更方的容器 */
       .profile__art-img {
-        object-position: 50% 2%;
-        transform: translateX(19%);
+        object-position: 50% 5%;
+        transform: translateX(5%) scale(0.6);
       }
 
       /* 名牌放大一档，和宽立绘区比例协调 */
@@ -2627,8 +2657,8 @@
       }*/
 
       .profile__art-img {
-        object-position: 50% 6%;
-        transform: scale(1.1) translateX(19%);
+        object-position: 50% 0%;
+        transform: scale(0.9) translateX(10%);
       }
     }
 
@@ -3891,51 +3921,355 @@
     }
 
     /* 网易云音乐悬浮窗（挂在顶部栏下方） */
-.music-float {
-  position: fixed;
-  /* 关键：从顶部栏底部再往下 12px 开始 */
-  top: calc(var(--topbar-h) + 12px);
-  right: 20px;
-  z-index: 9999;
-  width: 330px;
-  max-width: calc(100vw - 24px);
-  padding: 8px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
+    .music-float {
+      position: fixed;
+      /* 关键：从顶部栏底部再往下 12px 开始 */
+      top: calc(var(--topbar-h) + 20px);
+      right: 20px;
+      z-index: 9999;
+      width: 330px;
+      max-width: calc(100vw - 24px);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
 
-  /* ===== 显示/隐藏动画：用 opacity + transform + visibility，不用 display ===== */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-14px) scale(.96);
-  transform-origin: top right;   /* 从右上角（音乐按钮方向）展开 */
-  pointer-events: none;
-  transition:
-    opacity .3s cubic-bezier(.22, .61, .36, 1),
-    transform .3s cubic-bezier(.22, .61, .36, 1),
-    visibility .3s ease;
-}
+      /* ===== 显示/隐藏动画：从屏幕最右侧划入 / 划出右侧 ===== */
+      opacity: 0;
+      visibility: hidden;
+      /* 100% 自身宽度 + right 偏移，确保整体完全移出屏幕右侧 */
+      transform: translateX(calc(100% + 24px));
+      pointer-events: none;
+      transition:
+        opacity .28s cubic-bezier(.22, .61, .36, 1),
+        transform .38s cubic-bezier(.22, .61, .36, 1),
+        visibility .38s ease;
+    }
 
-/* 显示态 */
-.music-float.is-visible {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
+    /* 显示态 */
+    .music-float.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
 
-.music-float iframe {
-  display: block;
-  width: 100%;
-  max-width: 330px;
-  height: 86px;
-  border: 0;
-}
+    .music-float iframe {
+      display: block;
+      width: 100%;
+      max-width: 330px;
+      height: 86px;
+      border: 0;
+    }
 
-@media (max-width: 400px) {
-  .music-float {
-    right: 12px;
-    padding: 6px;
-  }
-}
+    @media (max-width: 400px) {
+      .music-float {
+        right: 12px;
+        padding: 6px;
+      }
+    }
+
+    /* ==================== 网易云音乐播放器（自建） ==================== */
+    .music-float {
+      padding: 0;
+      /* 让 .mp 自己控制内边距 */
+      overflow: hidden;
+      /* 保证圆角裁剪 */
+    }
+
+    .mp {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--color-text-body);
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- 头部 ---------- */
+    .mp__head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: linear-gradient(180deg, #f8fbff, #fff);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .mp__cover {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #7FC4EA, #21a5e3);
+      display: grid;
+      place-items: center;
+      color: #fff;
+    }
+
+    .mp__cover svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .mp__meta {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .mp__title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mp__artist {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    .mp__icon-btn {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--color-text-secondary);
+      transition: background .18s, color .18s, transform .12s;
+    }
+
+    .mp__icon-btn:hover {
+      background: rgba(33, 165, 227, .08);
+      color: var(--color-primary);
+    }
+
+    .mp__icon-btn:active {
+      transform: scale(.94);
+    }
+
+    /* ---------- 播放列表 ---------- */
+    .mp__playlist {
+      border-bottom: 1px solid var(--color-border);
+      background: #fafcff;
+    }
+
+    .mp__playlist[hidden] {
+      display: none;
+    }
+
+    .mp__playlist-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      background: #f1f7fe;
+    }
+
+    .mp__playlist-count {
+      font-weight: 500;
+      color: var(--color-text-disabled);
+    }
+
+    .mp__playlist-body {
+      margin: 0;
+      padding: 4px 0;
+      list-style: none;
+      max-height: 160px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .mp__playlist-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .mp__playlist-body::-webkit-scrollbar-thumb {
+      background: rgba(33, 165, 227, .25);
+      border-radius: 2px;
+    }
+
+    .mp__playlist-body li {
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mp__playlist-body li:hover {
+      background: rgba(33, 165, 227, .08);
+    }
+
+    .mp__playlist-body li.is-active {
+      color: var(--color-primary);
+      font-weight: 700;
+      background: rgba(33, 165, 227, .1);
+    }
+
+    .mp__pl-index {
+      flex: 0 0 16px;
+      font-size: 10px;
+      color: var(--color-text-disabled);
+      text-align: right;
+    }
+
+    .mp__playlist-body li.is-active .mp__pl-index {
+      color: var(--color-primary);
+    }
+
+    /* ---------- 进度条 ---------- */
+    .mp__progress {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px 4px;
+    }
+
+    .mp__time {
+      flex: 0 0 auto;
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-disabled);
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .mp__range {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1 1 auto;
+      height: 4px;
+      border-radius: 2px;
+      background: #e8eef5;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .mp__range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(33, 165, 227, .4);
+      transition: transform .15s;
+    }
+
+    .mp__range::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .mp__range::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(33, 165, 227, .4);
+    }
+
+    /* ---------- 控制按钮 ---------- */
+    .mp__controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 12px 12px;
+      position: relative;
+    }
+
+    .mp__play {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 12px rgba(33, 165, 227, .35);
+      transition: background .18s, transform .12s;
+    }
+
+    .mp__play:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .mp__play:active {
+      transform: scale(.94);
+    }
+
+    .mp__icon-play,
+    .mp__icon-pause {
+      display: block;
+    }
+
+    .mp__icon-pause {
+      display: none;
+    }
+
+    .mp__play.is-playing .mp__icon-play {
+      display: none;
+    }
+
+    .mp__play.is-playing .mp__icon-pause {
+      display: block;
+    }
+
+    /* 播放模式图标切换 */
+    .mp__mode-icon {
+      display: none;
+    }
+
+    #mp-mode[data-mode="list"] .mp__mode-icon--list {
+      display: block;
+    }
+
+    #mp-mode[data-mode="single"] .mp__mode-icon--single {
+      display: block;
+    }
+
+    #mp-mode[data-mode="random"] .mp__mode-icon--random {
+      display: block;
+    }
+
+    /* ---------- 音量浮层 ---------- */
+    .mp__volume-pop {
+      position: absolute;
+      bottom: 56px;
+      right: 16px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 8px 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+      border: 1px solid var(--color-border);
+      z-index: 10;
+    }
+
+    .mp__volume-pop[hidden] {
+      display: none;
+    }
+
+    .mp__volume {
+      width: 80px;
+      height: 4px;
+    }
   </style>
 </head>
 
@@ -3952,7 +4286,7 @@
     </button>
 
     <!-- 标题 -->
-    <div class="topbar__title">个人主页</div>
+    <div class="topbar__title">七七的折腾笔记</div>
 
     <div class="topbar__spacer"></div>
 
@@ -3960,14 +4294,15 @@
     <div class="resources">
       <!-- 体力/AP -->
       <div class="resource">
-        <img src="src/ap.avif" alt="AP" class="resource__icon" onerror="
+        <!--<img src="src/ap.avif" alt="AP" class="resource__icon" onerror="
   if (this.dataset.fb === '1') { this.src = 'src/ap.webp'; this.dataset.fb = '2'; }
   else if (this.dataset.fb === '2') { this.src = 'src/ap.png'; this.dataset.fb = '3'; }
   else { this.onerror = null; }
-" data-fb="1">
+" data-fb="1">-->
+        <img src="src/ap.svg" alt="AP" class="resource__icon">
         <span id="ap-value">0/240</span>
       </div>
-      <button class="resource-add" id="btn-ap-refill" type="button" aria-label="使用青辉石恢复体力">
+      <button class="resource-add" id="btn-ap-refill" type="button" aria-label="使用青曜石恢复体力">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14M5 12h14" />
@@ -3979,24 +4314,26 @@
 
       <!-- 金币 -->
       <div class="resource">
-        <img src="src/gold.avif" alt="Gold" class="resource__icon" onerror="
+        <!--<img src="src/gold.avif" alt="Gold" class="resource__icon" onerror="
   if (this.dataset.fb === '1') { this.src = 'src/gold.webp'; this.dataset.fb = '2'; }
   else if (this.dataset.fb === '2') { this.src = 'src/gold.png'; this.dataset.fb = '3'; }
   else { this.onerror = null; }
-" data-fb="1">
+" data-fb="1">-->
+        <img src="src/gold.svg" alt="Gold" class="resource__icon">
         <span>114,514</span>
       </div>
 
       <!-- 分隔符 -->
       <span class="resource-sep" aria-hidden="true">/</span>
 
-      <!-- 青辉石 -->
+      <!-- 青曜石 -->
       <div class="resource">
-        <img src="src/pyroxene.avif" alt="Pyroxene" class="resource__icon" onerror="
+        <!--<img src="src/pyroxene.avif" alt="Pyroxene" class="resource__icon" onerror="
   if (this.dataset.fb === '1') { this.src = 'src/pyroxene.webp'; this.dataset.fb = '2'; }
   else if (this.dataset.fb === '2') { this.src = 'src/pyroxene.png'; this.dataset.fb = '3'; }
   else { this.onerror = null; }
-" data-fb="1">
+" data-fb="1">-->
+        <img src="src/pyroxene.svg" alt="Pyroxene" class="resource__icon">
         <span id="pyroxene-value">30</span>
       </div>
       <button class="resource-add" aria-label="增加" onclick="showToast('这个按钮是充值按钮，但我只提供免费服务哦~')">
@@ -4059,14 +4396,6 @@
             <span>TypeScript / Vue / Canvas</span>
             <span>可接洽合作</span>
           </div>-->
-
-            <div class="scroll-hint reveal">
-              向下滚动
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 5v14M6 13l6 6 6-6" />
-              </svg>
-            </div>
           </div>
         </div>
       </section>
@@ -4379,13 +4708,17 @@
                   href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
                   rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
                   href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
-                  rel="noopener noreferrer">BlueArchive-Cursors</a>(<a
+                  rel="noopener noreferrer">BlueArchive-Cursors</a>（<a
                   href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
-                  rel="noopener noreferrer">MIT License</a>)。</span>
-              <span>角色立绘来自 <a href="https://kivo.wiki/data/character/518" target="_blank" rel="noopener noreferrer">Kivo
-                  Wiki</a>。建站使用到的工具：<a href="https://imagemagick.org/" target="_blank"
-                  rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/" target="_blank"
-                  rel="noopener noreferrer">Git</a>。</span>
+                  rel="noopener noreferrer">MIT License</a>）。</span>
+              <span>角色立绘来自<span class="hover-hint">B站<span class="hover-hint__tooltip"><span
+                      class="hint-title">哔哩哔哩</span><del>全球最大同性交友网站(不是)</del>哔哩哔哩是中国一个以视频弹幕为特色的综合视频平台，总部在上海。它最早以
+                    ACG（动画、漫画、游戏）内容起家，后来扩展到番剧、游戏、音乐、舞蹈、科技、知识、生活、鬼畜、直播等多个领域。</span></span>UP主 <a
+                  href="https://space.bilibili.com/522341749" target="_blank" rel="noopener noreferrer">女仆优香</a> 的 <a
+                  href="https://www.bilibili.com/opus/1214489311059116040" target="_blank"
+                  rel="noopener noreferrer">冬装凯伊差分立绘</a> 视频立绘。建站使用到的工具：<a href="https://imagemagick.org/"
+                  target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/"
+                  target="_blank" rel="noopener noreferrer">Git</a>。</span>
               <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
                   href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
                   rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
@@ -4422,11 +4755,12 @@
           <button class="step-btn step-icon" id="modal-minus-btn">－</button>
           <div class="step-display">
             <!--<span class="step-icon-lightning">⚡</span>-->
-            <img class="resource__icon" src="src/ap.avif" alt="AP" loading="lazy" onerror="
+            <!--<img class="resource__icon" src="src/ap.avif" alt="AP" loading="lazy" onerror="
     if (this.dataset.fb === '1') { this.src = 'src/ap.webp'; this.dataset.fb = '2'; }
     else if (this.dataset.fb === '2') { this.src = 'src/ap.png'; this.dataset.fb = '3'; }
     else { this.onerror = null; }
-  " data-fb="1">
+  " data-fb="1">-->
+            <img src="src/ap.svg" alt="AP" class="resource__icon">
             <span id="modal-ap-current">25</span>
             <span class="step-arrow">➔</span>
             <span id="modal-ap-new">145</span>
@@ -4440,22 +4774,24 @@
           <div class="price-row">
             <span class="price-label">单价</span>
             <div class="price-value-box">
-              <img class="price-icon" src="src/pyroxene.avif" alt="Pyroxene" loading="lazy" onerror="
+              <!--<img class="price-icon" src="src/pyroxene.avif" alt="Pyroxene" loading="lazy" onerror="
     if (this.dataset.fb === '1') { this.src = 'src/pyroxene.webp'; this.dataset.fb = '2'; }
     else if (this.dataset.fb === '2') { this.src = 'src/pyroxene.png'; this.dataset.fb = '3'; }
     else { this.onerror = null; }
-  " data-fb="1">
+  " data-fb="1">-->
+              <img src="src/pyroxene.svg" alt="Pyroxene" class="resource__icon">
               <span>30</span>
             </div>
           </div>
           <div class="price-row">
             <span class="price-label">总价</span>
             <div class="price-value-box total-price">
-              <img class="price-icon" src="src/pyroxene.avif" alt="Pyroxene" loading="lazy" onerror="
+              <!--<img class="price-icon" src="src/pyroxene.avif" alt="Pyroxene" loading="lazy" onerror="
     if (this.dataset.fb === '1') { this.src = 'src/pyroxene.webp'; this.dataset.fb = '2'; }
     else if (this.dataset.fb === '2') { this.src = 'src/pyroxene.png'; this.dataset.fb = '3'; }
     else { this.onerror = null; }
-  " data-fb="1">
+  " data-fb="1">-->
+              <img src="src/pyroxene.svg" alt="Pyroxene" class="resource__icon">
               <span id="modal-total-price">30</span>
             </div>
           </div>
@@ -4475,16 +4811,126 @@
   </div>
 
   <!-- 网易云音乐悬浮窗 -->
+  <!-- 网易云音乐播放器（自建，支持多曲） -->
   <div class="music-float" id="music-float" aria-hidden="true">
-    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86"
-      src="https://music.163.com/outchain/player?type=2&id=2093260104&auto=0&height=66"></iframe>
+    <div class="mp">
+
+      <!-- 头部：封面 + 曲目信息 + 列表按钮 -->
+      <div class="mp__head">
+        <div class="mp__cover" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </svg>
+        </div>
+
+        <div class="mp__meta">
+          <div class="mp__title" id="mp-title">未播放</div>
+          <div class="mp__artist" id="mp-artist">—</div>
+        </div>
+
+        <button class="mp__icon-btn" id="mp-list-btn" type="button" aria-label="播放列表" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 播放列表（可折叠） -->
+      <div class="mp__playlist" id="mp-playlist" hidden>
+        <div class="mp__playlist-head">
+          <span>播放列表</span>
+          <span class="mp__playlist-count" id="mp-count">0 首</span>
+        </div>
+        <ul class="mp__playlist-body" id="mp-list"></ul>
+      </div>
+
+      <!-- 进度条 -->
+      <div class="mp__progress">
+        <span class="mp__time" id="mp-current">00:00</span>
+        <input class="mp__range mp__seek" id="mp-seek" type="range" min="0" max="1000" step="1" value="0"
+          aria-label="播放进度">
+        <span class="mp__time" id="mp-duration">00:00</span>
+      </div>
+
+      <!-- 控制按钮 -->
+      <div class="mp__controls">
+        <button class="mp__icon-btn" id="mp-mode" type="button" aria-label="播放模式：列表循环">
+          <svg class="mp__mode-icon mp__mode-icon--list" width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 2l4 4-4 4" />
+            <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+            <path d="M7 22l-4-4 4-4" />
+            <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+          </svg>
+          <svg class="mp__mode-icon mp__mode-icon--single" width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 2l4 4-4 4" />
+            <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+            <path d="M7 22l-4-4 4-4" />
+            <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+            <path d="M11 12.5h1.6v4.5" />
+          </svg>
+          <svg class="mp__mode-icon mp__mode-icon--random" width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 3h5v5" />
+            <path d="M4 20L21 3" />
+            <path d="M21 16v5h-5" />
+            <path d="M15 15l6 6" />
+            <path d="M4 4l5 5" />
+          </svg>
+        </button>
+
+        <button class="mp__icon-btn" id="mp-prev" type="button" aria-label="上一首">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M6 5h2.2v14H6zM19 5.6v12.8L9.6 12z" />
+          </svg>
+        </button>
+
+        <button class="mp__play" id="mp-play" type="button" aria-label="播放">
+          <svg class="mp__icon-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5.2v13.6L19 12z" />
+          </svg>
+          <svg class="mp__icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="7" y="5" width="3.4" height="14" rx="1.2" />
+            <rect x="13.6" y="5" width="3.4" height="14" rx="1.2" />
+          </svg>
+        </button>
+
+        <button class="mp__icon-btn" id="mp-next" type="button" aria-label="下一首">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M15.8 5H18v14h-2.2zM5 5.6v12.8L14.4 12z" />
+          </svg>
+        </button>
+
+        <button class="mp__icon-btn" id="mp-volume" type="button" aria-label="音量">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z" />
+            <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+            <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 音量浮层 -->
+      <div class="mp__volume-pop" id="mp-volume-pop" hidden>
+        <input class="mp__range mp__volume" id="mp-volume-range" type="range" min="0" max="100" step="1" value="70"
+          aria-label="音量">
+      </div>
+    </div>
+
+    <audio id="mp-audio" preload="metadata"></audio>
   </div>
 
   <script>
     /* ============================================================
-       资源系统（体力 / 青辉石）
+       资源系统（体力 / 青曜石）
        - 体力每 10 秒自动恢复 1 点，上限 240
-       - 消耗 30 青辉石可恢复 120 体力（弹窗确认）
+       - 消耗 30 青曜石可恢复 120 体力（弹窗确认）
        - 不做任何持久化：刷新页面即重置为初始值
        ============================================================ */
     (function () {
@@ -4494,8 +4940,8 @@
       var AP_RECOVER_INTERVAL = 10000;  // 每 10 秒恢复一次
       var AP_RECOVER_AMOUNT = 1;      // 每次恢复 1 点
 
-      var PYROXENE_INIT = 30;     // 初始青辉石
-      var REFILL_COST = 30;     // 恢复一次消耗的青辉石
+      var PYROXENE_INIT = 30;     // 初始青曜石
+      var REFILL_COST = 30;     // 恢复一次消耗的青曜石
       var REFILL_AMOUNT = 120;    // 恢复一次获得的体力
 
       /* ---------- 状态（只存在内存里，刷新即重置） ---------- */
@@ -4520,7 +4966,7 @@
         render();
       }, AP_RECOVER_INTERVAL);
 
-      /* ---------- 使用青辉石恢复体力（弹窗逻辑） ---------- */
+      /* ---------- 使用青曜石恢复体力（弹窗逻辑） ---------- */
       var modal = document.getElementById('refill-modal');
       var modalCloseBtn = document.getElementById('modal-close-btn');
       var modalCancelBtn = document.getElementById('modal-cancel-btn');
@@ -4536,7 +4982,7 @@
           return;
         }
         if (pyroxene < REFILL_COST) {
-          showToast('青辉石不足，需要 ' + REFILL_COST + ' 个。\n该道具无法通过页内获取，也不提供充值，抱歉哦～');
+          showToast('青曜石不足，需要 ' + REFILL_COST + ' 个。\n该道具无法通过页内获取，也不提供充值，抱歉哦～');
           return;
         }
 
@@ -4633,6 +5079,20 @@
         if (dir > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
         return el.scrollTop > 1;
       }
+      // 判断事件目标是否位于「内层可滚动容器」中（如音乐播放列表），且该容器在该方向还能继续滚动
+      function canInnerScroll(target, dir) {
+        var el = target;
+        while (el && el.nodeType === 1 && el !== document.body && el !== document.documentElement) {
+          var oy = window.getComputedStyle(el).overflowY;
+          if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') &&
+            el.scrollHeight > el.clientHeight + 1) {
+            if (dir > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+            return el.scrollTop > 1;
+          }
+          el = el.parentElement;
+        }
+        return false;
+      }
       // 手机竖屏 + 能力参数页处于详情视图时，锁住整页翻页
       function isPagerLocked() {
         var ability = document.getElementById('ability');
@@ -4698,6 +5158,9 @@
         var dir = e.deltaY > 0 ? 1 : -1;
         var page = pages[current];
 
+        // 内层可滚动容器（如音乐播放列表）还能滚 → 交给它自己滚
+        if (canInnerScroll(e.target, dir)) return;
+
         // 页面内部还能滚 → 交给浏览器原生滚动
         if (canScroll(page, dir)) return;
 
@@ -4731,6 +5194,8 @@
         if (Math.abs(dx) > Math.abs(dy)) return;
 
         var dir = dy > 0 ? 1 : -1;
+        // 内层可滚动容器（如音乐播放列表）还能滚 → 交给它自己滚
+        if (canInnerScroll(e.target, dir)) return;
         if (canScroll(pages[current], dir)) return;
 
         // 详情视图锁翻页
@@ -4739,7 +5204,8 @@
           return;
         }
 
-        e.preventDefault();
+        // 只在事件可取消时才阻止默认滚动
+        if (e.cancelable) e.preventDefault();
       }, { passive: false });
 
       window.addEventListener('touchend', function (e) {
@@ -4816,6 +5282,14 @@
         }, 10000);
         btnMusic.classList.add('music-breath');
 
+        // 统一控制显示/隐藏，避免状态（class / aria）三处不同步
+        function setMusicFloat(show) {
+          musicFloat.classList.toggle('is-visible', show);
+          musicFloat.setAttribute('aria-hidden', show ? 'false' : 'true');
+          btnMusic.setAttribute('aria-pressed', show ? 'true' : 'false');
+          btnMusic.setAttribute('aria-label', show ? '隐藏音乐播放器' : '显示音乐播放器');
+        }
+
         btnMusic.addEventListener('click', function () {
           // 停止呼吸动画
           if (musicBreathTimer) {
@@ -4824,14 +5298,26 @@
           }
           btnMusic.classList.remove('music-breath');
 
-          // 用 class 切换，触发 CSS 过渡动画
-          var willShow = !musicFloat.classList.contains('is-visible');
+          setMusicFloat(!musicFloat.classList.contains('is-visible'));
+        });
 
-          musicFloat.classList.toggle('is-visible', willShow);
-          musicFloat.setAttribute('aria-hidden', willShow ? 'false' : 'true');
+        /* ---------- 点击空白处隐藏悬浮窗 ---------- */
+        document.addEventListener('click', function (e) {
+          // 没显示就不用管
+          if (!musicFloat.classList.contains('is-visible')) return;
+          // 点在悬浮窗内部（含播放列表、音量浮层）→ 不关闭
+          if (musicFloat.contains(e.target)) return;
+          // 点在音乐按钮上 → 交给按钮自己 toggle，避免"开了又关"
+          if (btnMusic.contains(e.target)) return;
 
-          btnMusic.setAttribute('aria-pressed', willShow ? 'true' : 'false');
-          btnMusic.setAttribute('aria-label', willShow ? '隐藏音乐播放器' : '显示音乐播放器');
+          setMusicFloat(false);
+        });
+
+        /* ---------- 按 ESC 也能关 ---------- */
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape' && e.key !== 'Esc') return;
+          if (!musicFloat.classList.contains('is-visible')) return;
+          setMusicFloat(false);
         });
       }
 
@@ -5824,6 +6310,345 @@
           startBlink();
         });
       });
+    })();
+  </script>
+  <script>
+    (function () {
+      'use strict';
+
+      /* ================== 歌单配置 ================== */
+      /* 在这里手动输入歌曲信息，id 为网易云歌曲 ID */
+      var PLAYLIST = [
+        { id: '2093260104', name: 'Shooting Stars', artist: 'KARUT' },
+        { id: '33469292', name: 'hometown', artist: 'mamomo' },
+        { id: '32743519', name: '江上清风游', artist: '变奏的梦想' },
+        { id: '1472039787', name: 'CHINA眉山', artist: 'XDONE' },
+        { id: '1910580587', name: 'Maplecamp☆', artist: 'Shiroi-Ice' },
+        { id: '1394601255', name: '浮光 (The History)', artist: 'Jannik' },
+        { id: '520242026', name: 'Luv Letter', artist: 'TSUKINOSORA' },
+        { id: '557850882', name: '盛夏与蝉鸣', artist: 'Hea2t' },
+        { id: '1984571661', name: '盛夏与蝉鸣2.0', artist: 'Hea2t' },
+        { id: '422429425', name: '青石巷', artist: '魏琮霏' },
+        { id: '434871406', name: '夏の喚く', artist: '邱有句' },
+        { id: '493942', name: '通り雨 - Passing Rain -', artist: 'Otokaze' },
+        { id: '493911', name: '夏恋', artist: 'Otokaze' },
+        { id: '493981', name: '彩月​-​Sai​-​getsu-', artist: 'Otokaze' },
+        { id: '493886', name: '和夏-waka', artist: 'Otokaze' },
+        { id: '493945', name: '帰路 - KaeriMichi -', artist: 'Otokaze' },
+        { id: '493957', name: '乱花街 - Rankagai -', artist: 'Otokaze' },
+        { id: '493958', name: '乱花街 - Rankagai -', artist: 'Otokaze' },
+        { id: '493954', name: '花恋 - Karen -', artist: 'Otokaze' },
+        { id: '2093257373', name: 'Constant Moderato', artist: 'ミツキヨ' },
+        { id: '2093257379', name: 'Connected Sky', artist: 'KARUT' },
+        { id: '2098478355', name: 'RE Aoharu', artist: 'Nor' },
+        { id: '2098477533', name: 'Constant Moderato Piano Arrange', artist: 'ミツキヨ' },
+        { id: '2098477531', name: 'Aoharu', artist: 'Nor' },
+        { id: '2098477957', name: 'GGF', artist: 'Nor' }
+        // 可以继续添加...
+      ];
+      /* ============================================= */
+
+      var API_BASE = 'https://music.163.com/song/media/outer/url?id=';
+      var AUDIO_EXT = '.mp3';
+
+      // DOM
+      var audio = document.getElementById('mp-audio');
+      var titleEl = document.getElementById('mp-title');
+      var artistEl = document.getElementById('mp-artist');
+      var listBtn = document.getElementById('mp-list-btn');
+      var playlistEl = document.getElementById('mp-playlist');
+      var listContainer = document.getElementById('mp-list');
+      var countEl = document.getElementById('mp-count');
+      var currentTimeEl = document.getElementById('mp-current');
+      var durationEl = document.getElementById('mp-duration');
+      var seekEl = document.getElementById('mp-seek');
+      var playBtn = document.getElementById('mp-play');
+      var prevBtn = document.getElementById('mp-prev');
+      var nextBtn = document.getElementById('mp-next');
+      var modeBtn = document.getElementById('mp-mode');
+      var volumeBtn = document.getElementById('mp-volume');
+      var volumePop = document.getElementById('mp-volume-pop');
+      var volumeRange = document.getElementById('mp-volume-range');
+
+      if (!audio || !titleEl || !artistEl || !listContainer) return;
+
+      // 状态
+      var currentIndex = 0;
+      var playMode = 'random'; // 'list' | 'single' | 'random'
+      var isSeeking = false;
+      var volume = 0.7;
+
+      audio.volume = volume;
+      if (volumeRange) volumeRange.value = volume * 100;
+
+      // 更新模式图标
+      function updateModeIcon() {
+        if (!modeBtn) return;
+        modeBtn.dataset.mode = playMode;
+        var labels = { list: '列表循环', single: '单曲循环', random: '随机播放' };
+        modeBtn.setAttribute('aria-label', '播放模式：' + labels[playMode]);
+      }
+
+      // 渲染播放列表
+      function renderPlaylist() {
+        if (!listContainer) return;
+        listContainer.innerHTML = '';
+        PLAYLIST.forEach(function (song, index) {
+          var li = document.createElement('li');
+          li.dataset.index = index;
+          if (index === currentIndex) li.classList.add('is-active');
+          li.innerHTML = '<span class="mp__pl-index">' + (index + 1) + '</span>' +
+            '<span>' + song.name + ' - ' + song.artist + '</span>';
+          li.addEventListener('click', function () {
+            playSong(index);
+            if (playlistEl) playlistEl.hidden = true;
+            if (listBtn) listBtn.setAttribute('aria-expanded', 'false');
+          });
+          listContainer.appendChild(li);
+        });
+        if (countEl) countEl.textContent = PLAYLIST.length + ' 首';
+      }
+
+      // 高亮当前播放项
+      function highlightCurrent() {
+        if (!listContainer) return;
+        var items = listContainer.querySelectorAll('li');
+        items.forEach(function (li, i) {
+          li.classList.toggle('is-active', i === currentIndex);
+        });
+      }
+
+      // 时间格式化
+      function formatTime(sec) {
+        if (!isFinite(sec) || sec < 0) return '00:00';
+        var m = Math.floor(sec / 60);
+        var s = Math.floor(sec % 60);
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      // 播放指定索引歌曲
+      function playSong(index) {
+        if (!PLAYLIST.length) return;
+        index = (index + PLAYLIST.length) % PLAYLIST.length;
+        currentIndex = index;
+        var song = PLAYLIST[index];
+
+        titleEl.textContent = song.name;
+        artistEl.textContent = song.artist;
+        highlightCurrent();
+
+        var url = API_BASE + song.id + AUDIO_EXT;
+        audio.src = url;
+        audio.load();
+
+        audio.play().then(function () {
+          playBtn.classList.add('is-playing');
+          playBtn.setAttribute('aria-label', '暂停');
+        }).catch(function (err) {
+          console.warn('播放失败：', err);
+          titleEl.textContent = song.name + ' (无法播放)';
+        });
+      }
+
+      // 暂停
+      function pause() {
+        audio.pause();
+        playBtn.classList.remove('is-playing');
+        playBtn.setAttribute('aria-label', '播放');
+      }
+
+      // 播放/暂停切换
+      function togglePlay() {
+        if (audio.paused) {
+          audio.play().then(function () {
+            playBtn.classList.add('is-playing');
+            playBtn.setAttribute('aria-label', '暂停');
+          }).catch(function (err) { console.warn('播放失败：', err); });
+        } else {
+          pause();
+        }
+      }
+
+      // 下一首
+      function nextSong() {
+        if (!PLAYLIST.length) return;
+        var next;
+        if (playMode === 'random') {
+          if (PLAYLIST.length > 1) {
+            do { next = Math.floor(Math.random() * PLAYLIST.length); }
+            while (next === currentIndex);
+          } else { next = 0; }
+        } else {
+          next = currentIndex + 1;
+        }
+        playSong(next);
+      }
+
+      // 上一首
+      function prevSong() {
+        if (!PLAYLIST.length) return;
+        var prev;
+        if (playMode === 'random') {
+          if (PLAYLIST.length > 1) {
+            do { prev = Math.floor(Math.random() * PLAYLIST.length); }
+            while (prev === currentIndex);
+          } else { prev = 0; }
+        } else {
+          prev = currentIndex - 1;
+        }
+        playSong(prev);
+      }
+
+      // 播放结束
+      function onEnded() {
+        if (playMode === 'single') {
+          audio.currentTime = 0;
+          audio.play().catch(function () { });
+        } else {
+          nextSong();
+        }
+      }
+
+      // 更新进度
+      function updateProgress() {
+        if (isSeeking) return;
+        var duration = audio.duration;
+        if (isFinite(duration) && duration > 0) {
+          seekEl.value = (audio.currentTime / duration) * 1000;
+          currentTimeEl.textContent = formatTime(audio.currentTime);
+        } else {
+          seekEl.value = 0;
+          currentTimeEl.textContent = '00:00';
+        }
+      }
+
+      function updateDuration() {
+        var duration = audio.duration;
+        durationEl.textContent = (isFinite(duration) && duration > 0) ? formatTime(duration) : '00:00';
+      }
+
+      // 音频事件
+      function initAudioEvents() {
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('durationchange', updateDuration);
+        audio.addEventListener('ended', onEnded);
+        /* 顶栏音乐按钮：随播放状态变色 */
+        var topMusicBtn = document.getElementById('btn-music');
+        function syncTopMusicBtn(on) {
+          if (topMusicBtn) topMusicBtn.classList.toggle('is-playing', on);
+        }
+        audio.addEventListener('play', function () {
+          playBtn.classList.add('is-playing');
+          playBtn.setAttribute('aria-label', '暂停');
+          syncTopMusicBtn(true);
+        });
+        audio.addEventListener('pause', function () {
+          playBtn.classList.remove('is-playing');
+          playBtn.setAttribute('aria-label', '播放');
+          syncTopMusicBtn(false);
+        });
+        audio.addEventListener('error', function () {
+          console.warn('音频加载错误', audio.src);
+          syncTopMusicBtn(false);
+          setTimeout(function () {
+            if (PLAYLIST.length > 1) nextSong();
+          }, 1000);
+        });
+      }
+
+      // 事件绑定
+      function bindEvents() {
+        playBtn.addEventListener('click', togglePlay);
+        prevBtn.addEventListener('click', prevSong);
+        nextBtn.addEventListener('click', nextSong);
+
+        seekEl.addEventListener('input', function () {
+          isSeeking = true;
+          var percent = seekEl.value / 1000;
+          var duration = audio.duration;
+          if (isFinite(duration) && duration > 0) {
+            currentTimeEl.textContent = formatTime(percent * duration);
+          }
+        });
+        seekEl.addEventListener('change', function () {
+          var percent = seekEl.value / 1000;
+          var duration = audio.duration;
+          if (isFinite(duration) && duration > 0) {
+            audio.currentTime = percent * duration;
+          }
+          isSeeking = false;
+        });
+
+        if (listBtn && playlistEl) {
+          listBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var isHidden = playlistEl.hidden;
+            playlistEl.hidden = !isHidden;
+            listBtn.setAttribute('aria-expanded', String(!isHidden));
+          });
+        }
+
+        if (modeBtn) {
+          modeBtn.addEventListener('click', function () {
+            var modes = ['list', 'single', 'random'];
+            var idx = modes.indexOf(playMode);
+            idx = (idx + 1) % modes.length;
+            playMode = modes[idx];
+            updateModeIcon();
+          });
+        }
+
+        if (volumeBtn && volumePop) {
+          volumeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            volumePop.hidden = !volumePop.hidden;
+          });
+          document.addEventListener('click', function (e) {
+            if (!volumePop.hidden && !volumeBtn.contains(e.target) && !volumePop.contains(e.target)) {
+              volumePop.hidden = true;
+            }
+          });
+        }
+
+        if (volumeRange) {
+          volumeRange.addEventListener('input', function () {
+            volume = volumeRange.value / 100;
+            audio.volume = volume;
+          });
+        }
+      }
+
+      // 初始化
+      function init() {
+        if (!PLAYLIST.length) return;
+        renderPlaylist();
+        updateModeIcon();
+        initAudioEvents();
+        bindEvents();
+
+        var first = PLAYLIST[0];
+        titleEl.textContent = first.name;
+        artistEl.textContent = first.artist;
+        audio.src = API_BASE + first.id + AUDIO_EXT;
+        audio.load();
+      }
+
+      // 音乐按钮打开悬浮窗时尝试自动播放（用户点击已产生交互）
+      var musicFloat = document.getElementById('music-float');
+      var btnMusic = document.getElementById('btn-music');
+      if (btnMusic && musicFloat) {
+        btnMusic.addEventListener('click', function () {
+          setTimeout(function () {
+            if (musicFloat.classList.contains('is-visible')) {
+              if (audio.paused && PLAYLIST.length > 0 && audio.src) {
+                audio.play().catch(function () { });
+              }
+            }
+          }, 120);
+        });
+      }
+
+      init();
     })();
   </script>
 </body>

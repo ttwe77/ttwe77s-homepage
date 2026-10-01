@@ -1,0 +1,49 @@
+<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit-->
+ <defs>
+  <symbol height="100%" id="svg_5" viewBox="30 30 150 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+   <defs>
+    <!-- 主体渐变：左上亮黄绿 → 右下鲜艳中绿（饱和度提升） -->
+    <linearGradient id="svg_4" x1="0%" x2="100%" y1="0%" y2="100%">
+     <stop offset="0%" stop-color="#F2FFD9"/>
+     <stop offset="22%" stop-color="#C6F7A3"/>
+     <stop offset="50%" stop-color="#87EB66"/>
+     <stop offset="78%" stop-color="#4ED13D"/>
+     <stop offset="100%" stop-color="#1DBE1D"/>
+    </linearGradient>
+    <!-- 通透光泽层：左上白色高光向右下自然消隐 -->
+    <linearGradient id="svg_3" x1="0%" x2="60%" y1="0%" y2="100%">
+     <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.75"/>
+     <stop offset="35%" stop-color="#E8FFD9" stop-opacity="0.3"/>
+     <stop offset="70%" stop-color="#87EB66" stop-opacity="0.1"/>
+     <stop offset="100%" stop-color="#4ED13D" stop-opacity="0"/>
+    </linearGradient>
+    <!-- 左侧高光图块渐变 -->
+    <linearGradient id="svg_2" x1="0%" x2="100%" y1="0%" y2="100%">
+     <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+     <stop offset="45%" stop-color="#F2FFD9" stop-opacity="0.55"/>
+     <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <!-- 裁剪路径：保证光效只出现在闪电内部 -->
+    <clipPath id="svg_1">
+     <path d="m70,40l80,0l-30,100l50,0l-90,180l20,-140l-60,0l30,-140z"/>
+    </clipPath>
+   </defs>
+   <!-- 1. 底层：渐变填充 + 高饱和绿色描边 -->
+   <path d="m70,40l80,0l-30,100l50,0l-90,180l20,-140l-60,0l30,-140z" fill="url(#svg_4)" stroke="#4ED13D" stroke-linejoin="round" stroke-width="12"/>
+   <!-- 2. 内部光效：通透光泽 + 左侧高光图块 -->
+   <g clip-path="url(#svg_1)">
+    <!-- 整体通透光泽 -->
+    <rect fill="url(#svg_3)" height="350" width="200" x="0" y="0"/>
+    <!-- 左侧高光块（沿左边缘呈楔形收窄） -->
+    <polygon fill="url(#svg_2)" points="70,40 93,44 58,170 43,176"/>
+   </g>
+   <!-- 3. 顶层重描边，保持轮廓干净锐利 -->
+   <path d="m70,40l80,0l-30,100l50,0l-90,180l20,-140l-60,0l30,-140z" fill="none" stroke="#4ED13D" stroke-linejoin="round" stroke-width="12"/>
+  </symbol>
+ </defs>
+ <g class="layer">
+  <title>Layer 1</title>
+  <use href="#svg_5" id="svg_6" transform="matrix(1.23493 0 0 0.957137 -79.8916 13.0014)"/>
+ </g>
+</svg>

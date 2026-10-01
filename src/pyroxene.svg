@@ -1,0 +1,153 @@
+<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- ================= 渐变定义 ================= -->
+    <!-- 外发光光晕 -->
+    <radialGradient id="haloGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#4fd0ff" stop-opacity="0.55"/>
+      <stop offset="60%"  stop-color="#1a9bff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#1a9bff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 外轮廓描边渐变 -->
+    <linearGradient id="outlineGrad" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%"   stop-color="#b4f4ff"/>
+      <stop offset="35%"  stop-color="#4cc4ff"/>
+      <stop offset="70%"  stop-color="#1a8cff"/>
+      <stop offset="100%" stop-color="#0040d8"/>
+    </linearGradient>
+
+    <!-- 宝石底色渐变 -->
+    <radialGradient id="bodyGrad" cx="36%" cy="28%" r="85%">
+      <stop offset="0%"   stop-color="#d6f8ff" stop-opacity="0.95"/>
+      <stop offset="45%"  stop-color="#4cc2ff" stop-opacity="0.92"/>
+      <stop offset="100%" stop-color="#0a4fc4" stop-opacity="0.98"/>
+    </radialGradient>
+
+    <!-- 顶面台面渐变 -->
+    <linearGradient id="tableGrad" x1="25%" y1="0%" x2="75%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="40%"  stop-color="#e2faff"/>
+      <stop offset="100%" stop-color="#9fe6ff"/>
+    </linearGradient>
+
+    <!-- 各切面渐变 -->
+    <linearGradient id="facetTL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#8ee8ff"/>
+    </linearGradient>
+    <linearGradient id="facetTR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#dcfaff"/>
+      <stop offset="100%" stop-color="#42baff"/>
+    </linearGradient>
+    <linearGradient id="facetR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#6ad2ff"/>
+      <stop offset="100%" stop-color="#0b6ce8"/>
+    </linearGradient>
+    <linearGradient id="facetBR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#38a6ff"/>
+      <stop offset="100%" stop-color="#0a44b0"/>
+    </linearGradient>
+    <linearGradient id="facetBL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1fb2ee"/>
+      <stop offset="100%" stop-color="#0b56c8"/>
+    </linearGradient>
+    <linearGradient id="facetL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#cdeeff"/>
+      <stop offset="100%" stop-color="#a8c4ff"/>
+    </linearGradient>
+
+    <!-- ================= 滤镜 ================= -->
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="blurBig" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="34"/>
+    </filter>
+
+    <!-- 台面裁剪区域 -->
+    <clipPath id="tableClip">
+      <path d="M400,230 L530,300 L530,500 L400,570 L270,500 L270,300 Z"/>
+    </clipPath>
+
+    <!-- 四角星闪光 -->
+    <g id="sparkle">
+      <path d="M0,-14 C1.6,-3 3,-1.6 14,0 C3,1.6 1.6,3 0,14 C-1.6,3 -3,1.6 -14,0 C-3,-1.6 -1.6,-3 0,-14 Z"/>
+    </g>
+  </defs>
+
+  <!-- ================= 背景光晕 ================= -->
+  <ellipse cx="400" cy="400" rx="330" ry="390" fill="url(#haloGrad)" filter="url(#blurBig)"/>
+
+  <!-- ================= 宝石底色 ================= -->
+  <path d="M400,60 L660,200 L660,600 L400,740 L140,600 L140,200 Z" fill="url(#bodyGrad)"/>
+
+  <!-- ================= 各个切面 ================= -->
+  <!-- 左上切面 -->
+  <path d="M270,300 L400,230 L400,60 L140,200 Z" fill="url(#facetTL)"/>
+  <!-- 右上切面 -->
+  <path d="M400,230 L530,300 L660,200 L400,60 Z" fill="url(#facetTR)"/>
+  <!-- 右侧切面 -->
+  <path d="M530,300 L530,500 L660,600 L660,200 Z" fill="url(#facetR)"/>
+  <!-- 右下切面 -->
+  <path d="M530,500 L400,570 L400,740 L660,600 Z" fill="url(#facetBR)"/>
+  <!-- 左下切面 -->
+  <path d="M400,570 L270,500 L140,600 L400,740 Z" fill="url(#facetBL)"/>
+  <!-- 左侧切面（带冷紫反光） -->
+  <path d="M270,500 L270,300 L140,200 L140,600 Z" fill="url(#facetL)"/>
+
+  <!-- ================= 中央台面 ================= -->
+  <path d="M400,230 L530,300 L530,500 L400,570 L270,500 L270,300 Z" fill="url(#tableGrad)"/>
+
+  <!-- 台面上的柔光高光（裁剪在台面内） -->
+  <g clip-path="url(#tableClip)">
+    <ellipse cx="355" cy="325" rx="85" ry="52" fill="#ffffff" opacity="0.5"
+             transform="rotate(-22 355 325)" filter="url(#softGlow)"/>
+  </g>
+
+  <!-- 台面内轮廓线 -->
+  <path d="M400,230 L530,300 L530,500 L400,570 L270,500 L270,300 Z"
+        fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" opacity="0.4"/>
+
+  <!-- ================= 外轮廓 ================= -->
+  <!-- 外层发光 -->
+  <path d="M400,60 L660,200 L660,600 L400,740 L140,600 L140,200 Z"
+        fill="none" stroke="url(#outlineGrad)" stroke-width="16"
+        stroke-linejoin="round" filter="url(#softGlow)" opacity="0.65"/>
+  <!-- 主描边 -->
+  <path d="M400,60 L660,200 L660,600 L400,740 L140,600 L140,200 Z"
+        fill="none" stroke="url(#outlineGrad)" stroke-width="12"
+        stroke-linejoin="round"/>
+  <!-- 内芯高光 -->
+  <path d="M400,60 L660,200 L660,600 L400,740 L140,600 L140,200 Z"
+        fill="none" stroke="#ffffff" stroke-width="3"
+        stroke-linejoin="round" opacity="0.6"/>
+
+  <!-- ================= 高光与闪光 ================= -->
+  <!-- 左上部大块高光 -->
+  <ellipse cx="330" cy="240" rx="46" ry="28" fill="#ffffff" opacity="0.55"
+           transform="rotate(-28 330 240)" filter="url(#softGlow)"/>
+
+  <!-- 四角星闪光 -->
+  <g fill="#ffffff">
+    <use href="#sparkle" transform="translate(330,250) scale(1)"/>
+    <use href="#sparkle" transform="translate(505,300) scale(0.62)"/>
+    <use href="#sparkle" transform="translate(250,455) scale(0.5)"/>
+    <use href="#sparkle" transform="translate(560,430) scale(0.45)"/>
+    <use href="#sparkle" transform="translate(430,600) scale(0.55)"/>
+    <use href="#sparkle" transform="translate(465,190) scale(0.4)"/>
+  </g>
+
+  <!-- 细碎光点 -->
+  <g fill="#ffffff">
+    <circle cx="360" cy="380" r="3.2" opacity="0.95"/>
+    <circle cx="480" cy="360" r="2.4" opacity="0.85"/>
+    <circle cx="300" cy="510" r="2.8" opacity="0.8"/>
+    <circle cx="540" cy="520" r="2.2" opacity="0.8"/>
+    <circle cx="420" cy="680" r="2.6" opacity="0.75"/>
+    <circle cx="230" cy="330" r="2" opacity="0.7"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <!-- 整体倾斜的卡片 -->
+  <g transform="rotate(-20 100 100)">
+    <!-- 黄色底卡与橙色边框 -->
+    <rect x="30" y="50" width="140" height="90" rx="8" fill="#FFF200" stroke="#FF9900" stroke-width="10" />
+    
+    <!-- 左侧的信用点/芯片符号 -->
+    <rect x="52" y="80" width="20" height="20" fill="#FFFFFF" stroke="#CCCCCC" stroke-width="4" rx="2" />
+    <rect x="58" y="86" width="8" height="8" fill="#999999" />
+    
+    <!-- 右侧的信用点标志（C形符号） -->
+    <path d="M 130 78 C 110 78 110 118 130 118" fill="none" stroke="#FF9900" stroke-width="12" stroke-linecap="round" />
+    
+    <!-- 右侧标志的横杠装饰 -->
+    <line x1="125" y1="98" x2="135" y2="98" stroke="#FF9900" stroke-width="6" stroke-linecap="round" />
+  </g>
+</svg>
