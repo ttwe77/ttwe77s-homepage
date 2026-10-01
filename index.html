@@ -220,6 +220,38 @@
     /* 音乐按钮：未播放为灰色，正在播放为黑色 */
     #btn-music {
       color: #A3A3A3;
+      position: relative;
+    }
+
+    #btn-music.music-breath::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid rgba(63, 86, 140, .38);
+      pointer-events: none;
+      animation: music-breath 1.5s ease-in-out infinite;
+    }
+
+    @keyframes music-breath {
+
+      0%,
+      100% {
+        transform: scale(.86);
+        opacity: .18;
+      }
+
+      50% {
+        transform: scale(1.16);
+        opacity: .7;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #btn-music.music-breath::after {
+        animation: none;
+        opacity: 0;
+      }
     }
 
     #btn-music:hover {
@@ -2588,6 +2620,7 @@
         grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
         gap: 14px;
       }
+
       /*
       .profile__visual {
         min-height: 420px;
@@ -3182,32 +3215,32 @@
    右侧列表项 · 入场动画
    —— 首次进入 / 从详情返回列表时，子元素错峰浮现
    ============================================================ */
-@keyframes abilityItemIn {
-  from {
-    opacity: 0;
-    /* 用独立 translate 属性，避免与 .ability__item.is-active 的 transform 冲突 */
-    translate: 0 14px;
-  }
+    @keyframes abilityItemIn {
+      from {
+        opacity: 0;
+        /* 用独立 translate 属性，避免与 .ability__item.is-active 的 transform 冲突 */
+        translate: 0 14px;
+      }
 
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
+      to {
+        opacity: 1;
+        translate: 0 0;
+      }
+    }
 
-.ability__item.is-enter {
-  animation: abilityItemIn .42s cubic-bezier(.22, .61, .36, 1) both;
-  animation-delay: calc(var(--i, 0) * 55ms);
-}
+    .ability__item.is-enter {
+      animation: abilityItemIn .42s cubic-bezier(.22, .61, .36, 1) both;
+      animation-delay: calc(var(--i, 0) * 55ms);
+    }
 
-/* 动效降级：直接显示，不做位移 */
-@media (prefers-reduced-motion: reduce) {
-  .ability__item.is-enter {
-    animation: none !important;
-    opacity: 1;
-    translate: none;
-  }
-}
+    /* 动效降级：直接显示，不做位移 */
+    @media (prefers-reduced-motion: reduce) {
+      .ability__item.is-enter {
+        animation: none !important;
+        opacity: 1;
+        translate: none;
+      }
+    }
 
     /* ============================================================
    断点 ④：矮横屏（含手机横放）—— 回到两栏紧凑版
@@ -3799,74 +3832,114 @@
     [contenteditable="true"] {
       cursor: auto;
     }
+
     /* ==================== 角色对话气泡（toast 风格） ==================== */
-.char-dialog {
+    .char-dialog {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 99998;
+      max-width: min(78vw, 360px);
+      min-width: 160px;
+      padding: 12px 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .96);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.7;
+      color: var(--color-text-primary);
+      white-space: pre-line;
+      word-break: break-word;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 14px)) scale(.96);
+      transform-origin: 50% 100%;
+      transition:
+        opacity .25s cubic-bezier(.22, .61, .36, 1),
+        transform .25s cubic-bezier(.22, .61, .36, 1);
+    }
+
+    .char-dialog.is-visible {
+      opacity: 1;
+      transform: translate(-50%, calc(-100% - 14px)) scale(1);
+    }
+
+    /* 指向角色的小三角 */
+    .char-dialog::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-bottom-color: rgba(255, 255, 255, .96);
+      margin-bottom: -1px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      .char-dialog {
+        max-width: 86vw;
+        font-size: 12.5px;
+        padding: 10px 14px;
+      }
+    }
+
+    /* 网易云音乐悬浮窗（挂在顶部栏下方） */
+.music-float {
   position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 99998;
-  max-width: min(78vw, 360px);
-  min-width: 160px;
-  padding: 12px 18px;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, .96);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  /* 关键：从顶部栏底部再往下 12px 开始 */
+  top: calc(var(--topbar-h) + 12px);
+  right: 20px;
+  z-index: 9999;
+  width: 330px;
+  max-width: calc(100vw - 24px);
+  padding: 8px;
+  border-radius: 12px;
   border: 1px solid var(--color-border);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
-  font-family: var(--font-sans);
-  font-size: 13.5px;
-  font-weight: 500;
-  line-height: 1.7;
-  color: var(--color-text-primary);
-  white-space: pre-line;
-  word-break: break-word;
-  pointer-events: none;
+
+  /* ===== 显示/隐藏动画：用 opacity + transform + visibility，不用 display ===== */
   opacity: 0;
-  transform: translate(-50%, calc(-100% - 14px)) scale(.96);
-  transform-origin: 50% 100%;
-  transition:
-    opacity .25s cubic-bezier(.22, .61, .36, 1),
-    transform .25s cubic-bezier(.22, .61, .36, 1);
-}
-
-.char-dialog.is-visible {
-  opacity: 1;
-  transform: translate(-50%, calc(-100% - 14px)) scale(1);
-}
-
-/* 指向角色的小三角 */
-.char-dialog::after {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-bottom-color: rgba(255, 255, 255, .96);
-  margin-bottom: -1px;
+  visibility: hidden;
+  transform: translateY(-14px) scale(.96);
+  transform-origin: top right;   /* 从右上角（音乐按钮方向）展开 */
   pointer-events: none;
+  transition:
+    opacity .3s cubic-bezier(.22, .61, .36, 1),
+    transform .3s cubic-bezier(.22, .61, .36, 1),
+    visibility .3s ease;
 }
 
-@media (max-width: 640px) {
-  .char-dialog {
-    max-width: 86vw;
-    font-size: 12.5px;
-    padding: 10px 14px;
+/* 显示态 */
+.music-float.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.music-float iframe {
+  display: block;
+  width: 100%;
+  max-width: 330px;
+  height: 86px;
+  border: 0;
+}
+
+@media (max-width: 400px) {
+  .music-float {
+    right: 12px;
+    padding: 6px;
   }
 }
   </style>
 </head>
 
 <body>
-
-  <!-- 背景音乐 -->
-  <!-- 背景音乐（按顺序回退：opus → m4a → mp3） -->
-  <audio id="bgm" loop preload="none" playsinline>
-    <source src="src/ShootingStars.opus" type="audio/ogg; codecs=opus">
-    <source src="src/ShootingStars.m4a" type="audio/mp4">
-    <source src="src/ShootingStars.mp3" type="audio/mpeg">
-  </audio>
 
   <!-- ==================== 顶部栏 ==================== -->
   <header class="topbar">
@@ -4038,17 +4111,27 @@
               <div class="card card--static profile__intro reveal">
                 <h3 class="profile__intro-title">自我介绍</h3>
                 <div class="profile__intro-body">
-                  <p>你好啊，我是<span class="hover-hint">77<span class="hover-hint__tooltip"><span class="hint-title">ttwe77</span>ttwe77是我的网名，平时可以称呼我为77哦~</span></span> &gt;_&lt;！</p>
-                  <p>很高兴见到你，我是一个大一学生，很喜欢计算机与网络。平时最享受的就是不断"<span class="hover-hint">折腾<span class="hover-hint__tooltip"><span class="hint-title">折腾</span>你可以把它理解成：反复尝试、钻研、摆弄、鼓捣、投入。类似‘我在爱好上爱钻研’‘我爱鼓捣这些东西’。</span></span>",把日常的东西赋予更多有意思的可能性。</p>
+                  <p>你好啊，我是<span class="hover-hint">77<span class="hover-hint__tooltip"><span
+                          class="hint-title">ttwe77</span>ttwe77是我的网名，平时可以称呼我为77哦~</span></span> &gt;_&lt;！</p>
+                  <p>很高兴见到你，我是一个大一学生，很喜欢计算机与网络。平时最享受的就是不断"<span class="hover-hint">折腾<span
+                        class="hover-hint__tooltip"><span
+                          class="hint-title">折腾</span>你可以把它理解成：反复尝试、钻研、摆弄、鼓捣、投入。类似‘我在爱好上爱钻研’‘我爱鼓捣这些东西’。</span></span>",把日常的东西赋予更多有意思的可能性。
+                  </p>
                   <p class="intro-quote">
-                    <span class="intro-quote__text"><span class="hover-hint">科技倡导个性化<span class="hover-hint__tooltip"><span class="hint-title">科技倡导个性化</span>科技的价值在于赋能个体，尊重并实现每个人的独特性，而非用统一的标准和“科技霸权”去束缚人。</span></span></span>
+                    <span class="intro-quote__text"><span class="hover-hint">科技倡导个性化<span
+                          class="hover-hint__tooltip"><span
+                            class="hint-title">科技倡导个性化</span>科技的价值在于赋能个体，尊重并实现每个人的独特性，而非用统一的标准和“科技霸权”去束缚人。</span></span></span>
                     <span class="intro-quote__author">—— <a href="https://space.bilibili.com/12590" target="_blank"
                         rel="noopener noreferrer">Epcdiy</a></span>
                   </p>
                   <p class="profile__intro-lead">个人信息：</p>
                   <ul class="profile__list">
-                    <li>兴趣爱好：计算机、<span class="hover-hint">音乐<span class="hover-hint__tooltip"><span class="hint-title">喜欢的音乐类型</span>交响、摇滚、二次元、古风、纯音乐、国风、欧美流行、嘻哈说唱、西欧、HOYO-MiX重度依赖</span></span>、游戏、心理学、密码学、Ai</li>
-                    <li>性格标签：<span class="hover-hint">INTP<span class="hover-hint__tooltip"><span class="hint-title">INTP</span>INTP 是 MBTI（迈尔斯-布里格斯类型指标）16 种人格类型中的一种，中文常被称为“逻辑学家”“思想家”或“学者型”。</span></span>、有点社恐、理性客观</li>
+                    <li>兴趣爱好：计算机、<span class="hover-hint">音乐<span class="hover-hint__tooltip"><span
+                            class="hint-title">喜欢的音乐类型</span>交响、摇滚、二次元、古风、纯音乐、国风、欧美流行、嘻哈说唱、西欧、HOYO-MiX重度依赖</span></span>、游戏、心理学、密码学、Ai
+                    </li>
+                    <li>性格标签：<span class="hover-hint">INTP<span class="hover-hint__tooltip"><span
+                            class="hint-title">INTP</span>INTP 是 MBTI（迈尔斯-布里格斯类型指标）16
+                          种人格类型中的一种，中文常被称为“逻辑学家”“思想家”或“学者型”。</span></span>、有点社恐、理性客观</li>
                   </ul>
                   <p>现在是个 Sensei、旅行者、开拓者、舰长、绳匠</p>
                 </div>
@@ -4286,11 +4369,11 @@
 
             <!-- 第三层：致谢与次要声明（小字沉底） -->
             <div class="footer__meta">
-              <p>网站标识码：bm12345678　　备案号：<a style="color:#666" target="_blank" rel="noopener"
+              <!--<p>网站标识码：bm12345678　　备案号：<a style="color:#666" target="_blank" rel="noopener"
                   href="http://beian.miit.gov.cn/">XICP备12345678号-9</a><a style="color:#666;margin-left: 20px;"
                   target="_blank" rel="noopener"
                   href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123"> X公网安备
-                  01234567890123号</a> </p>
+                  01234567890123号</a> </p>-->
               <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
                   rel="noopener noreferrer">ba-click-fx</a>（<a
                   href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
@@ -4304,7 +4387,7 @@
                   rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/" target="_blank"
                   rel="noopener noreferrer">Git</a>。</span>
               <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
-                  href="hhttps://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
+                  href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
                   rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
             </div>
           </footer>
@@ -4391,36 +4474,10 @@
     </div>
   </div>
 
-  <!-- 进入网站：询问是否播放背景音乐 -->
-  <div id="music-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-box">
-      <!-- 头部 -->
-      <div class="modal-header">
-        <h3 class="modal-title">背景音乐</h3>
-        <button class="modal-close" id="music-modal-close-btn" aria-label="关闭">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- 内容区 -->
-      <div class="modal-body">
-        <p class="modal-question">是否播放背景音乐？</p>
-        <p class="modal-subtext">右上角可随时开关</p>
-      </div>
-
-      <!-- 底部按钮 -->
-      <div class="modal-footer">
-        <button class="modal-btn btn-cancel" id="music-modal-cancel-btn">
-          取消
-        </button>
-        <button class="modal-btn btn-confirm" id="music-modal-confirm-btn">
-          播放
-        </button>
-      </div>
-    </div>
+  <!-- 网易云音乐悬浮窗 -->
+  <div class="music-float" id="music-float" aria-hidden="true">
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86"
+      src="https://music.163.com/outchain/player?type=2&id=2093260104&auto=0&height=66"></iframe>
   </div>
 
   <script>
@@ -4576,7 +4633,7 @@
         if (dir > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
         return el.scrollTop > 1;
       }
-            // 手机竖屏 + 能力参数页处于详情视图时，锁住整页翻页
+      // 手机竖屏 + 能力参数页处于详情视图时，锁住整页翻页
       function isPagerLocked() {
         var ability = document.getElementById('ability');
         if (!ability) return false;
@@ -4634,7 +4691,7 @@
       }
 
       /* ---------- 滚轮 ---------- */
-            window.addEventListener('wheel', function (e) {
+      window.addEventListener('wheel', function (e) {
         if (e.ctrlKey) return;
         if (Math.abs(e.deltaY) < 1) return;
 
@@ -4667,7 +4724,7 @@
         touching = true;
       }, { passive: true });
 
-            window.addEventListener('touchmove', function (e) {
+      window.addEventListener('touchmove', function (e) {
         if (!touching || e.touches.length !== 1) return;
         var dy = touchStartY - e.touches[0].clientY;
         var dx = touchStartX - e.touches[0].clientX;
@@ -4698,7 +4755,7 @@
         if (Math.abs(dy) < 60) return;                 // 位移太短，不翻页
         if (Math.abs(dx) > Math.abs(dy)) return;       // 横向滑动
 
-                var dir = dy > 0 ? 1 : -1;
+        var dir = dy > 0 ? 1 : -1;
         if (canScroll(pages[current], dir)) return;
         if (isPagerLocked()) return;   // 详情视图锁翻页
         if (locked) return;
@@ -4747,84 +4804,35 @@
         });
       }
 
-      /* ---------- 背景音乐：默认不播放，进入时弹窗询问 ---------- */
-      var bgm = document.getElementById('bgm');
+      /* ---------- 音乐按钮：控制网易云 iframe 悬浮窗 ---------- */
       var btnMusic = document.getElementById('btn-music');
+      var musicFloat = document.getElementById('music-float');
 
-      function setMusicUI(playing) {
-        if (!btnMusic) return;
-        btnMusic.setAttribute('aria-pressed', playing ? 'true' : 'false');
-        btnMusic.setAttribute('aria-label', playing ? '暂停音乐' : '播放音乐');
-      }
+      if (btnMusic && musicFloat) {
+        // 首次进入：呼吸提示，10 秒后自动停
+        var musicBreathTimer = setTimeout(function () {
+          btnMusic.classList.remove('music-breath');
+          musicBreathTimer = null;
+        }, 10000);
+        btnMusic.classList.add('music-breath');
 
-      function playMusic() {
-        if (!bgm) return;
-        var p = bgm.play();
-        if (p && p.then) {
-          p.catch(function () { setMusicUI(false); });  // 播放失败回退
-        }
-      }
-
-      if (bgm && btnMusic) {
-        bgm.volume = 0.6;          // 音量 0~1，按需调整
-        bgm.pause();               // 确保初始为暂停状态
-        setMusicUI(false);         // 初始：灰色图标
-
-        // 按钮点击：播放 / 暂停
         btnMusic.addEventListener('click', function () {
-          if (bgm.paused) {
-            playMusic();
-          } else {
-            bgm.pause();
+          // 停止呼吸动画
+          if (musicBreathTimer) {
+            clearTimeout(musicBreathTimer);
+            musicBreathTimer = null;
           }
+          btnMusic.classList.remove('music-breath');
+
+          // 用 class 切换，触发 CSS 过渡动画
+          var willShow = !musicFloat.classList.contains('is-visible');
+
+          musicFloat.classList.toggle('is-visible', willShow);
+          musicFloat.setAttribute('aria-hidden', willShow ? 'false' : 'true');
+
+          btnMusic.setAttribute('aria-pressed', willShow ? 'true' : 'false');
+          btnMusic.setAttribute('aria-label', willShow ? '隐藏音乐播放器' : '显示音乐播放器');
         });
-
-        // 同步状态
-        bgm.addEventListener('play', function () { setMusicUI(true); });
-        bgm.addEventListener('pause', function () { setMusicUI(false); });
-
-        /* ----- 进入网站：询问是否播放音乐 ----- */
-        var musicModal = document.getElementById('music-modal');
-        var musicModalConfirm = document.getElementById('music-modal-confirm-btn');
-        var musicModalCancel = document.getElementById('music-modal-cancel-btn');
-        var musicModalClose = document.getElementById('music-modal-close-btn');
-
-        function closeMusicModal() {
-          if (musicModal) musicModal.style.display = 'none';
-        }
-
-        function confirmMusicModal() {
-          playMusic();
-          closeMusicModal();
-        }
-
-        if (musicModal) {
-          // 稍微延迟，等首屏入场动画起步后再弹出
-          setTimeout(function () {
-            musicModal.style.display = 'flex';
-          }, 500);
-
-          if (musicModalConfirm) musicModalConfirm.addEventListener('click', confirmMusicModal);
-          if (musicModalCancel) musicModalCancel.addEventListener('click', closeMusicModal);
-          if (musicModalClose) musicModalClose.addEventListener('click', closeMusicModal);
-
-          // 点击遮罩关闭（视作不播放）
-          musicModal.addEventListener('click', function (e) {
-            if (e.target === musicModal) closeMusicModal();
-          });
-
-          // 键盘：ESC 关闭 / Enter 确认
-          window.addEventListener('keydown', function (e) {
-            if (musicModal.style.display !== 'flex') return;
-            if (e.key === 'Escape') {
-              e.preventDefault();
-              closeMusicModal();
-            } else if (e.key === 'Enter') {
-              e.preventDefault();
-              confirmMusicModal();
-            }
-          }, true);   // 捕获阶段，优先拦截
-        }
       }
 
 
@@ -4848,228 +4856,228 @@
     })();
   </script>
   <script>
-/* ============================================================
-   点击立绘 → 切换立绘 + 播放语音 + 显示对话气泡
-   - art / voice 填【不带扩展名】的基础路径即可，自动回退：
-     图片：.avif → .webp → .png
-     语音：.ogg
-   - 语音播放期间暂停眨眼；播放结束（或失败）后切回默认立绘
-   ============================================================ */
-(function () {
-  'use strict';
+    /* ============================================================
+       点击立绘 → 切换立绘 + 播放语音 + 显示对话气泡
+       - art / voice 填【不带扩展名】的基础路径即可，自动回退：
+         图片：.avif → .webp → .png
+         语音：.ogg
+       - 语音播放期间暂停眨眼；播放结束（或失败）后切回默认立绘
+       ============================================================ */
+    (function () {
+      'use strict';
 
-  /* ================== 用户配置区 ================== */
-  var DEFAULT_ART = 'src/kei/kei';        // 默认立绘 base（不带扩展名）
+      /* ================== 用户配置区 ================== */
+      var DEFAULT_ART = 'src/kei/kei';        // 默认立绘 base（不带扩展名）
 
-  var DIALOGUE = [
-    {
-      text:  '可愛いって言うのやめてください！\n请别说我可爱啦！',
-      art:   'src/kei/CH0335_noweapon_spr_20',
-      voice: 'src/kei/ch0335_lobby_1_1'
-    },
-    {
-      text:  '食事はちゃんと取っていますか？適度な運動も必要です。\n你有好好吃饭吗？适当的运动也是必要的。',
-      art:   'src/kei/CH0335_noweapon_spr_07',
-      voice: 'src/kei/ch0335_lobby_3_2'
-    },
-    {
-      text:  '仕事はほどほどに。とはいえ怠けるのもほどほどに。\n工作要适度，不过偷懒也得适可而止。',
-      art:   'src/kei/CH0335_noweapon_spr_08',
-      voice: 'src/kei/ch0335_lobby_3_4'
-    },
-    {
-      text:  '……本当にもう、手が焼けるんですから。\n……真是的，你实在太让人操心啦。',
-      art:   'src/kei/CH0335_noweapon_spr_29',
-      voice: 'src/kei/ch0335_lobby_3_5'
-    },
-    {
-      text:  '何ですか？用がないなら呼ばないでください。\n什么事？如果没事的话请不要叫我。',
-      art:   'src/kei/CH0335_noweapon_spr_02',
-      voice: 'src/kei/ch0335_lobby_5_1'
-    },
-    {
-      text:  'こんにちは、先生。\n你好，老师。',
-      art:   'src/kei/CH0335_noweapon_spr_08',
-      voice: 'src/kei/ch0335_season_birthday_player_1'
-    }
-  ];
-  /* ================================================= */
+      var DIALOGUE = [
+        {
+          text: '可愛いって言うのやめてください！\n请别说我可爱啦！',
+          art: 'src/kei/CH0335_noweapon_spr_20',
+          voice: 'src/kei/ch0335_lobby_1_1'
+        },
+        {
+          text: '食事はちゃんと取っていますか？適度な運動も必要です。\n你有好好吃饭吗？适当的运动也是必要的。',
+          art: 'src/kei/CH0335_noweapon_spr_07',
+          voice: 'src/kei/ch0335_lobby_3_2'
+        },
+        {
+          text: '仕事はほどほどに。とはいえ怠けるのもほどほどに。\n工作要适度，不过偷懒也得适可而止。',
+          art: 'src/kei/CH0335_noweapon_spr_08',
+          voice: 'src/kei/ch0335_lobby_3_4'
+        },
+        {
+          text: '……本当にもう、手が焼けるんですから。\n……真是的，你实在太让人操心啦。',
+          art: 'src/kei/CH0335_noweapon_spr_29',
+          voice: 'src/kei/ch0335_lobby_3_5'
+        },
+        {
+          text: '何ですか？用がないなら呼ばないでください。\n什么事？如果没事的话请不要叫我。',
+          art: 'src/kei/CH0335_noweapon_spr_02',
+          voice: 'src/kei/ch0335_lobby_5_1'
+        },
+        {
+          text: 'こんにちは、先生。\n你好，老师。',
+          art: 'src/kei/CH0335_noweapon_spr_08',
+          voice: 'src/kei/ch0335_season_birthday_player_1'
+        }
+      ];
+      /* ================================================= */
 
-  var EXTS_IMG   = ['avif', 'webp', 'png'];
-  var EXTS_AUDIO = ['opus','ogg'];
-  var MIME_AUDIO = {
-    opus: 'audio/ogg; codecs=opus',
-    ogg:  'audio/ogg'
-  };
+      var EXTS_IMG = ['avif', 'webp', 'png'];
+      var EXTS_AUDIO = ['opus', 'ogg'];
+      var MIME_AUDIO = {
+        opus: 'audio/ogg; codecs=opus',
+        ogg: 'audio/ogg'
+      };
 
-  var artEl    = document.querySelector('.profile__art');
-  var visualEl = document.querySelector('.profile__visual');
-  var imgEl    = document.querySelector('.profile__art-img');
-  if (!artEl || !imgEl) return;
+      var artEl = document.querySelector('.profile__art');
+      var visualEl = document.querySelector('.profile__visual');
+      var imgEl = document.querySelector('.profile__art-img');
+      if (!artEl || !imgEl) return;
 
-  /* ---------- 立绘路径解析（带回退 + 缓存） ---------- */
-  var imgCache = Object.create(null);
-  function resolveArt(base, cb) {
-    if (!base) { cb(null); return; }
-    if (base in imgCache) { cb(imgCache[base]); return; }
-    var urls = EXTS_IMG.map(function (e) { return base + '.' + e; });
-    var i = 0;
-    (function next() {
-      if (i >= urls.length) { imgCache[base] = null; cb(null); return; }
-      var url = urls[i++];
-      var probe = new Image();
-      probe.onload  = function () { imgCache[base] = url; cb(url); };
-      probe.onerror = next;
-      probe.src = url;
+      /* ---------- 立绘路径解析（带回退 + 缓存） ---------- */
+      var imgCache = Object.create(null);
+      function resolveArt(base, cb) {
+        if (!base) { cb(null); return; }
+        if (base in imgCache) { cb(imgCache[base]); return; }
+        var urls = EXTS_IMG.map(function (e) { return base + '.' + e; });
+        var i = 0;
+        (function next() {
+          if (i >= urls.length) { imgCache[base] = null; cb(null); return; }
+          var url = urls[i++];
+          var probe = new Image();
+          probe.onload = function () { imgCache[base] = url; cb(url); };
+          probe.onerror = next;
+          probe.src = url;
+        })();
+      }
+
+      function setArt(base) {
+        resolveArt(base, function (url) {
+          if (url) imgEl.src = url;
+        });
+      }
+
+      /* ---------- 对话气泡 ---------- */
+      var dialogEl = document.createElement('div');
+      dialogEl.className = 'char-dialog';
+      dialogEl.setAttribute('role', 'status');
+      dialogEl.setAttribute('aria-live', 'polite');
+      document.body.appendChild(dialogEl);
+
+      var hideTimer = null;
+
+      function positionDialog() {
+        if (!visualEl) return;
+
+        var r = visualEl.getBoundingClientRect();
+        var w = dialogEl.offsetWidth;   // 气泡实际渲染宽度
+        var pad = 8;                    // 距视口左右边缘的最小间距
+
+        // 气泡用 transform: translate(-50%, …)，所以 left 是中心线
+        var cx = r.left + r.width / 2;
+        var minLeft = pad + w / 2;
+        var maxLeft = window.innerWidth - pad - w / 2;
+
+        var left = (minLeft > maxLeft)
+          ? window.innerWidth / 2                       // 视口比气泡还窄：直接居中
+          : Math.min(Math.max(cx, minLeft), maxLeft);   // 否则夹在安全范围内
+
+        dialogEl.style.left = left + 'px';
+        dialogEl.style.top = r.bottom + 'px';
+      }
+
+      function showDialog(text) {
+        clearTimeout(hideTimer);
+        dialogEl.textContent = text;
+        positionDialog();
+        requestAnimationFrame(function () {
+          dialogEl.classList.add('is-visible');
+        });
+      }
+
+      function hideDialog() {
+        dialogEl.classList.remove('is-visible');
+      }
+
+      window.addEventListener('resize', function () {
+        if (dialogEl.classList.contains('is-visible')) positionDialog();
+      });
+      window.addEventListener('scroll', function () {
+        if (dialogEl.classList.contains('is-visible')) positionDialog();
+      }, true);
+
+      /* ---------- 语音播放（带格式回退） ---------- */
+      var currentAudio = null;
+
+      function stopVoice() {
+        if (currentAudio) {
+          try { currentAudio.pause(); } catch (e) { }
+          currentAudio = null;
+        }
+      }
+
+      function playVoice(base, onEnd) {
+        stopVoice();
+        if (!base) { onEnd && onEnd(); return; }
+
+        var a = document.createElement('audio');
+        a.preload = 'auto';
+        EXTS_AUDIO.forEach(function (ext) {
+          var s = document.createElement('source');
+          s.src = base + '.' + ext;
+          s.type = MIME_AUDIO[ext];
+          a.appendChild(s);
+        });
+
+        currentAudio = a;
+        var finished = false;
+        function finish() {
+          if (finished) return;
+          finished = true;
+          if (currentAudio === a) currentAudio = null;
+          onEnd && onEnd();
+        }
+
+        a.addEventListener('ended', finish);
+        a.addEventListener('error', finish);
+
+        var p = a.play();
+        if (p && p.catch) p.catch(finish);
+      }
+
+      /* ---------- 一次完整交互 ---------- */
+      var busy = false;
+      var MIN_SHOW = 1200;   // 气泡最短显示时间
+
+      function triggerDialogue() {
+        if (busy) return;
+        if (!DIALOGUE.length) return;
+        busy = true;
+
+        var d = DIALOGUE[Math.floor(Math.random() * DIALOGUE.length)];
+        var shownAt = Date.now();
+
+        /* 1. 暂停自动眨眼 */
+        if (window.blinkPause) window.blinkPause();
+
+        /* 2. 切换立绘 */
+        setArt(d.art);
+
+        /* 3. 显示对话气泡 */
+        showDialog(d.text);
+
+        /* 4. 播放语音；结束（或失败）后切回默认立绘 */
+        playVoice(d.voice, function () {
+          var wait = Math.max(0, MIN_SHOW - (Date.now() - shownAt));
+          setTimeout(function () {
+            busy = false;
+            setArt(DEFAULT_ART);                  // 切回默认立绘
+            if (window.blinkResume) window.blinkResume();  // 恢复眨眼
+            hideTimer = setTimeout(hideDialog, 600);
+          }, wait);
+        });
+      }
+
+      artEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        triggerDialogue();
+      });
+
+      /* 无障碍：键盘 Enter / 空格 */
+      artEl.setAttribute('role', 'button');
+      artEl.setAttribute('tabindex', '0');
+      artEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          triggerDialogue();
+        }
+      });
+
+      /* 兼容旧接口 */
+      window.alarm = triggerDialogue;
     })();
-  }
-
-  function setArt(base) {
-    resolveArt(base, function (url) {
-      if (url) imgEl.src = url;
-    });
-  }
-
-  /* ---------- 对话气泡 ---------- */
-  var dialogEl = document.createElement('div');
-  dialogEl.className = 'char-dialog';
-  dialogEl.setAttribute('role', 'status');
-  dialogEl.setAttribute('aria-live', 'polite');
-  document.body.appendChild(dialogEl);
-
-  var hideTimer = null;
-
-    function positionDialog() {
-    if (!visualEl) return;
-
-    var r = visualEl.getBoundingClientRect();
-    var w = dialogEl.offsetWidth;   // 气泡实际渲染宽度
-    var pad = 8;                    // 距视口左右边缘的最小间距
-
-    // 气泡用 transform: translate(-50%, …)，所以 left 是中心线
-    var cx = r.left + r.width / 2;
-    var minLeft = pad + w / 2;
-    var maxLeft = window.innerWidth - pad - w / 2;
-
-    var left = (minLeft > maxLeft)
-      ? window.innerWidth / 2                       // 视口比气泡还窄：直接居中
-      : Math.min(Math.max(cx, minLeft), maxLeft);   // 否则夹在安全范围内
-
-    dialogEl.style.left = left + 'px';
-    dialogEl.style.top  = r.bottom + 'px';
-  }
-
-  function showDialog(text) {
-    clearTimeout(hideTimer);
-    dialogEl.textContent = text;
-    positionDialog();
-    requestAnimationFrame(function () {
-      dialogEl.classList.add('is-visible');
-    });
-  }
-
-  function hideDialog() {
-    dialogEl.classList.remove('is-visible');
-  }
-
-  window.addEventListener('resize', function () {
-    if (dialogEl.classList.contains('is-visible')) positionDialog();
-  });
-  window.addEventListener('scroll', function () {
-    if (dialogEl.classList.contains('is-visible')) positionDialog();
-  }, true);
-
-  /* ---------- 语音播放（带格式回退） ---------- */
-  var currentAudio = null;
-
-  function stopVoice() {
-    if (currentAudio) {
-      try { currentAudio.pause(); } catch (e) {}
-      currentAudio = null;
-    }
-  }
-
-  function playVoice(base, onEnd) {
-    stopVoice();
-    if (!base) { onEnd && onEnd(); return; }
-
-    var a = document.createElement('audio');
-    a.preload = 'auto';
-    EXTS_AUDIO.forEach(function (ext) {
-      var s = document.createElement('source');
-      s.src  = base + '.' + ext;
-      s.type = MIME_AUDIO[ext];
-      a.appendChild(s);
-    });
-
-    currentAudio = a;
-    var finished = false;
-    function finish() {
-      if (finished) return;
-      finished = true;
-      if (currentAudio === a) currentAudio = null;
-      onEnd && onEnd();
-    }
-
-    a.addEventListener('ended', finish);
-    a.addEventListener('error', finish);
-
-    var p = a.play();
-    if (p && p.catch) p.catch(finish);
-  }
-
-  /* ---------- 一次完整交互 ---------- */
-  var busy = false;
-  var MIN_SHOW = 1200;   // 气泡最短显示时间
-
-  function triggerDialogue() {
-    if (busy) return;
-    if (!DIALOGUE.length) return;
-    busy = true;
-
-    var d = DIALOGUE[Math.floor(Math.random() * DIALOGUE.length)];
-    var shownAt = Date.now();
-
-    /* 1. 暂停自动眨眼 */
-    if (window.blinkPause) window.blinkPause();
-
-    /* 2. 切换立绘 */
-    setArt(d.art);
-
-    /* 3. 显示对话气泡 */
-    showDialog(d.text);
-
-    /* 4. 播放语音；结束（或失败）后切回默认立绘 */
-    playVoice(d.voice, function () {
-      var wait = Math.max(0, MIN_SHOW - (Date.now() - shownAt));
-      setTimeout(function () {
-        busy = false;
-        setArt(DEFAULT_ART);                  // 切回默认立绘
-        if (window.blinkResume) window.blinkResume();  // 恢复眨眼
-        hideTimer = setTimeout(hideDialog, 600);
-      }, wait);
-    });
-  }
-
-  artEl.addEventListener('click', function (e) {
-    e.preventDefault();
-    triggerDialogue();
-  });
-
-  /* 无障碍：键盘 Enter / 空格 */
-  artEl.setAttribute('role', 'button');
-  artEl.setAttribute('tabindex', '0');
-  artEl.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-      e.preventDefault();
-      triggerDialogue();
-    }
-  });
-
-  /* 兼容旧接口 */
-  window.alarm = triggerDialogue;
-})();
-</script>
+  </script>
   <script>
     /* ============================================================
        第 3 页 · 能力参数 Master-Detail
@@ -5209,51 +5217,41 @@
       }
 
       /* ---------- 选中某一项 ---------- */
-function select(index, opts) {
-  console.log('[select] before', root.closest('.page').scrollTop, document.activeElement);
-  var pageEl = root.closest('.page');
-  var keepTop = pageEl ? pageEl.scrollTop : 0;
-  var opening = !!(opts && opts.openDetail && mqMobile.matches);
+      function select(index, opts) {
+        var pageEl = root.closest('.page');
+        var keepTop = pageEl ? pageEl.scrollTop : 0;
+        var opening = !!(opts && opts.openDetail && mqMobile.matches);
 
-  /* 关键 1：打开详情前先让被点击的列表项失焦，
-     否则它被 display:none 隐藏后浏览器会自动滚动页面 */
-  if (opening && document.activeElement && document.activeElement.blur) {
-    document.activeElement.blur();
-  }
+        /* 关键 1：打开详情前先让被点击的列表项失焦，
+           否则它被 display:none 隐藏后浏览器会自动滚动页面 */
+        if (opening && document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
 
-  current = Math.max(0, Math.min(ABILITIES.length - 1, index));
+        current = Math.max(0, Math.min(ABILITIES.length - 1, index));
 
-  var btns = listEl.children;
-  for (var i = 0; i < btns.length; i++) {
-    var on = (i === current);
-    btns[i].classList.toggle('is-active', on);
-    btns[i].setAttribute('aria-selected', on ? 'true' : 'false');
-    btns[i].setAttribute('tabindex', on ? '0' : '-1');
-  }
+        var btns = listEl.children;
+        for (var i = 0; i < btns.length; i++) {
+          var on = (i === current);
+          btns[i].classList.toggle('is-active', on);
+          btns[i].setAttribute('aria-selected', on ? 'true' : 'false');
+          btns[i].setAttribute('tabindex', on ? '0' : '-1');
+        }
 
-  renderDetail(current);
+        renderDetail(current);
 
-  /* 手机竖屏：点列表 → 推入详情屏 */
-  if (opening) {
-    root.setAttribute('data-view', 'detail');
-  }
+        /* 手机竖屏：点列表 → 推入详情屏 */
+        if (opening) {
+          root.setAttribute('data-view', 'detail');
+        }
 
-  /* 关键 2：视图切换重建了 DOM，把滚动位置原样还回去 */
-  if (pageEl && pageEl.scrollTop !== keepTop) {
-    pageEl.scrollTop = keepTop;
-  }
-  console.log('[select] after ', root.closest('.page').scrollTop);
-   // === 临时调试 ===
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            console.log('[select 后两帧] scrollTop =', pageEl.scrollTop,
-                        'active =', document.activeElement);
-          });
-        });
-        // ==============
-}
+        /* 关键 2：视图切换重建了 DOM，把滚动位置原样还回去 */
+        if (pageEl && pageEl.scrollTop !== keepTop) {
+          pageEl.scrollTop = keepTop;
+        }
+      }
 
-            /* ---------- 列表项入场动画（可重复触发） ---------- */
+      /* ---------- 列表项入场动画（可重复触发） ---------- */
       function playListEnter() {
         var items = listEl.children;
         var i;
@@ -5270,7 +5268,7 @@ function select(index, opts) {
         }
       }
 
-            /* ---------- 返回列表屏 ---------- */
+      /* ---------- 返回列表屏 ---------- */
       function backToList() {
         var pageEl = root.closest('.page');
         var keepTop = pageEl ? pageEl.scrollTop : 0;
@@ -5691,142 +5689,143 @@ function select(index, opts) {
     })();
   </script>
   <script>
-/* ============================================================
-   角色立绘 · 自动眨眼 / 表情切换
-   - 睁眼图：src/kei/kei.(avif|webp|png)
-   - 闭眼图：src/kei/kei_close.(avif|webp|png)
-   - 新增：window.blinkPause() / window.blinkResume()
-     供语音播放时暂停 / 恢复眨眼
-   ============================================================ */
-(function () {
-  'use strict';
+    /* ============================================================
+       角色立绘 · 自动眨眼 / 表情切换
+       - 睁眼图：src/kei/kei.(avif|webp|png)
+       - 闭眼图：src/kei/kei_close.(avif|webp|png)
+       - 新增：window.blinkPause() / window.blinkResume()
+         供语音播放时暂停 / 恢复眨眼
+       ============================================================ */
+    (function () {
+      'use strict';
 
-  var img = document.querySelector('.profile__art-img');
-  if (!img) return;
+      var img = document.querySelector('.profile__art-img');
+      if (!img) return;
 
-  if (window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  /* ---------- 定时器池 ---------- */
-  var timers = new Set();
-  function later(fn, ms) {
-    var id = setTimeout(function () { timers.delete(id); fn(); }, ms);
-    timers.add(id);
-    return id;
-  }
-  function clearAllTimers() {
-    timers.forEach(clearTimeout);
-    timers.clear();
-  }
-
-  /* ---------- 探测首个可用地址 ---------- */
-  function firstAvailable(urls, done) {
-    var i = 0;
-    (function next() {
-      if (i >= urls.length) { done(null); return; }
-      var url = urls[i++];
-      var probe = new Image();
-      probe.onload  = function () { done(url); };
-      probe.onerror = next;
-      probe.src = url;
-    })();
-  }
-
-  var raw  = img.getAttribute('src') || 'src/kei/kei.avif';
-  var base = raw.replace(/kei_close/i, 'kei').replace(/\.(avif|webp|png)$/i, '');
-  var dir  = base.replace(/[^/]*$/, '');
-  var name = base.replace(/^.*\//, '');
-  var EXTS = ['avif', 'webp', 'png'];
-
-  var OPEN  = EXTS.map(function (e) { return dir + name + '.' + e; });
-  var CLOSE = EXTS.map(function (e) { return dir + name + '_close.' + e; });
-
-  var openUrl  = null;
-  var closeUrl = null;
-
-  /* ---------- 两路独立暂停 ---------- */
-  var pausedHidden = false;   // 标签页隐藏
-  var pausedVoice  = false;   // 语音播放中
-  function isPaused() { return pausedHidden || pausedVoice; }
-
-  /* ---------- 对外：手动眨一次 ---------- */
-  window.blinkArt = function (duration) {
-    if (!openUrl || !closeUrl || isPaused()) return;
-    img.src = closeUrl;
-    later(function () {
-      if (isPaused()) return;
-      img.src = openUrl;
-    }, duration || 130);
-  };
-
-  /* ---------- 对外：语音播放期间暂停 / 恢复 ---------- */
-  window.blinkPause = function () {
-    pausedVoice = true;
-    clearAllTimers();
-    if (openUrl) img.src = openUrl;       // 立刻回到默认睁眼
-  };
-
-  window.blinkResume = function () {
-    if (!pausedVoice) return;
-    pausedVoice = false;
-    if (openUrl) img.src = openUrl;
-    if (openUrl && closeUrl) schedule();
-  };
-
-  /* ---------- 眨眼循环 ---------- */
-  function blinkOnce() {
-    if (isPaused()) return;
-    img.src = closeUrl;
-    later(function () {
-      if (isPaused()) return;
-      img.src = openUrl;
-      if (Math.random() < 0.18) {
-        later(blinkOnce, 150 + Math.random() * 110);
+      /* ---------- 定时器池 ---------- */
+      var timers = new Set();
+      function later(fn, ms) {
+        var id = setTimeout(function () { timers.delete(id); fn(); }, ms);
+        timers.add(id);
+        return id;
       }
-    }, 100 + Math.random() * 90);
-  }
+      function clearAllTimers() {
+        timers.forEach(clearTimeout);
+        timers.clear();
+      }
 
-  function schedule() {
-    if (isPaused()) return;
-    later(function () {
-      blinkOnce();
-      schedule();
-    }, 6000 + Math.random() * 6000);
-  }
+      /* ---------- 探测首个可用地址 ---------- */
+      function firstAvailable(urls, done) {
+        var i = 0;
+        (function next() {
+          if (i >= urls.length) { done(null); return; }
+          var url = urls[i++];
+          var probe = new Image();
+          probe.onload = function () { done(url); };
+          probe.onerror = next;
+          probe.src = url;
+        })();
+      }
 
-  function startBlink() {
-    later(function () {
-      blinkOnce();
-      schedule();
-    }, 1800 + Math.random() * 1600);
+      var raw = img.getAttribute('src') || 'src/kei/kei.avif';
+      var base = raw.replace(/kei_close/i, 'kei').replace(/\.(avif|webp|png)$/i, '');
+      var dir = base.replace(/[^/]*$/, '');
+      var name = base.replace(/^.*\//, '');
+      var EXTS = ['avif', 'webp', 'png'];
 
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) {
-        pausedHidden = true;
+      var OPEN = EXTS.map(function (e) { return dir + name + '.' + e; });
+      var CLOSE = EXTS.map(function (e) { return dir + name + '_close.' + e; });
+
+      var openUrl = null;
+      var closeUrl = null;
+
+      /* ---------- 两路独立暂停 ---------- */
+      var pausedHidden = false;   // 标签页隐藏
+      var pausedVoice = false;   // 语音播放中
+      function isPaused() { return pausedHidden || pausedVoice; }
+
+      /* ---------- 对外：手动眨一次 ---------- */
+      window.blinkArt = function (duration) {
+        if (!openUrl || !closeUrl || isPaused()) return;
+        img.src = closeUrl;
+        later(function () {
+          if (isPaused()) return;
+          img.src = openUrl;
+        }, duration || 130);
+      };
+
+      /* ---------- 对外：语音播放期间暂停 / 恢复 ---------- */
+      window.blinkPause = function () {
+        pausedVoice = true;
         clearAllTimers();
-        if (openUrl) img.src = openUrl;
-      } else if (pausedHidden) {
-        pausedHidden = false;
-        if (!pausedVoice) {
-          if (openUrl) img.src = openUrl;
-          schedule();
-        }
-      }
-    });
-  }
+        if (openUrl) img.src = openUrl;       // 立刻回到默认睁眼
+      };
 
-  /* ---------- 初始化 ---------- */
-  firstAvailable(OPEN, function (o) {
-    if (!o) return;
-    openUrl = o;
-    firstAvailable(CLOSE, function (c) {
-      if (!c) return;
-      closeUrl = c;
-      if (img.getAttribute('src') !== openUrl) img.src = openUrl;
-      startBlink();
-    });
-  });
-})();
-</script>
+      window.blinkResume = function () {
+        if (!pausedVoice) return;
+        pausedVoice = false;
+        if (openUrl) img.src = openUrl;
+        if (openUrl && closeUrl) schedule();
+      };
+
+      /* ---------- 眨眼循环 ---------- */
+      function blinkOnce() {
+        if (isPaused()) return;
+        img.src = closeUrl;
+        later(function () {
+          if (isPaused()) return;
+          img.src = openUrl;
+          if (Math.random() < 0.18) {
+            later(blinkOnce, 150 + Math.random() * 110);
+          }
+        }, 100 + Math.random() * 90);
+      }
+
+      function schedule() {
+        if (isPaused()) return;
+        later(function () {
+          blinkOnce();
+          schedule();
+        }, 6000 + Math.random() * 6000);
+      }
+
+      function startBlink() {
+        later(function () {
+          blinkOnce();
+          schedule();
+        }, 1800 + Math.random() * 1600);
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) {
+            pausedHidden = true;
+            clearAllTimers();
+            if (openUrl) img.src = openUrl;
+          } else if (pausedHidden) {
+            pausedHidden = false;
+            if (!pausedVoice) {
+              if (openUrl) img.src = openUrl;
+              schedule();
+            }
+          }
+        });
+      }
+
+      /* ---------- 初始化 ---------- */
+      firstAvailable(OPEN, function (o) {
+        if (!o) return;
+        openUrl = o;
+        firstAvailable(CLOSE, function (c) {
+          if (!c) return;
+          closeUrl = c;
+          if (img.getAttribute('src') !== openUrl) img.src = openUrl;
+          startBlink();
+        });
+      });
+    })();
+  </script>
 </body>
+
 </html>
