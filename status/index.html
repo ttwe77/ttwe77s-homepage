@@ -4,79 +4,423 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>个人状态</title>
+<meta name="theme-color" content="#21a5e3">
 <style>
+  /* ==================== 设计变量（复用 /index） ==================== */
   :root{
-    --bg:#0f1115; --card:#171a21; --line:#252b3a;
-    --fg:#e9ecf3; --muted:#8b93a7;
-    --online:#3ddc84; --away:#ffcc4d; --busy:#ff6b6b; --offline:#6b7280;
+    /* 品牌主色 */
+    --color-primary:#21a5e3;
+    --color-primary-hover:#0E7AE0;
+    --color-primary-active:#0B6BC5;
+    --color-blue-light:#ABD7FF;
+    --color-periwinkle:#BEC0EC;
+    --color-orchid:#4454F8;
+
+    /* 中性色 */
+    --color-bg-white:#FFFFFF;
+    --color-bg-light:#FAFAFA;
+    --color-bg-soft:#F5F5F5;
+    --color-border:#EDEDED;
+    --color-border-strong:#D4D4D4;
+    --color-text-primary:#1F1F1F;
+    --color-text-body:#404040;
+    --color-text-secondary:#737373;
+    --color-text-disabled:#A3A3A3;
+
+    /* 功能色 */
+    --color-danger:#F21B28;
+    --color-success:#169B5B;
+    --color-warning:#FFD84D;
+
+    /* 圆角 */
+    --radius-sm:4px;
+    --radius-md:8px;
+    --radius-lg:12px;
+    --radius-xl:16px;
+    --radius-full:9999px;
+
+    /* 阴影 */
+    --shadow-card:0 2px 8px rgba(0,0,0,.06);
+    --shadow-card-hover:0 4px 16px rgba(0,0,0,.1);
+    --shadow-blue:0 6px 20px rgba(18,138,250,.25);
+
+    /* 字体 */
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",
+      "PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
   }
-  *{box-sizing:border-box}
+
+  /* ==================== 基础重置 ==================== */
+  *,*::before,*::after{box-sizing:border-box}
+
+  html,body{margin:0;padding:0}
+
   body{
-    margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
-    background:radial-gradient(900px 500px at 50% -20%,#1e2433,#0f1115 70%);
-    color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI","Noto Sans SC",sans-serif;
+    font-family:var(--font-sans);
+    background:var(--color-bg-light);
+    color:var(--color-text-body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
   }
+
+  /* ==================== 背景装饰（与 /index 一致） ==================== */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 10% 4%, rgba(18,138,250,.12), transparent 42%),
+      radial-gradient(circle at 92% -4%, rgba(171,215,255,.42), transparent 46%),
+      radial-gradient(circle at 72% 96%, rgba(190,192,236,.22), transparent 46%);
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(rgba(18,138,250,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18,138,250,.035) 1px, transparent 1px);
+    background-size:32px 32px;
+  }
+
+  /* ==================== 主卡片 ==================== */
   .card{
-    width:100%;max-width:540px;background:var(--card);border:1px solid var(--line);
-    border-radius:18px;padding:26px 26px 20px;box-shadow:0 24px 60px rgba(0,0,0,.5)
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:560px;
+    background:var(--color-bg-white);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-xl);
+    box-shadow:0 2px 8px rgba(0,0,0,.06), 0 14px 36px rgba(18,138,250,.10);
+    padding:24px 24px 20px;
+    overflow:hidden;
+    animation:cardIn .5s cubic-bezier(.22,.61,.36,1) both;
   }
-  header{display:flex;gap:16px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  @keyframes cardIn{
+    from{opacity:0;transform:translateY(14px) scale(.985)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+
+  /* 底部主色条（与 /index 的 hero 卡片同款） */
+  .card::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:3px;
+    background:linear-gradient(90deg,var(--color-primary),var(--color-blue-light) 70%,transparent);
+    pointer-events:none;
+  }
+
+  /* ==================== 头部 ==================== */
+  .card__head{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--color-border);
+  }
+
   .avatar{
-    width:56px;height:56px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
-    background:linear-gradient(135deg,#4f7cff,#a855f7);color:#fff;font-size:22px;font-weight:700
+    width:60px;
+    height:60px;
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    border-radius:var(--radius-full);
+    border:4px solid #fff;
+    background:linear-gradient(145deg,#5FB0FF 0%,var(--color-primary) 55%,var(--color-orchid) 130%);
+    color:#fff;
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:1px;
+    box-shadow:var(--shadow-blue);
+    user-select:none;
   }
-  h1{margin:0;font-size:19px;font-weight:650}
-  .status{display:flex;align-items:center;gap:8px;margin-top:4px;color:var(--muted);font-size:14px}
-  .dot{width:10px;height:10px;border-radius:50%;background:var(--offline);flex:0 0 auto}
-  .dot.online{background:var(--online);animation:pulse 2s infinite}
-  .dot.away{background:var(--away)}
-  .dot.busy{background:var(--busy)}
+
+  .who{
+    flex:1 1 auto;
+    min-width:0;
+  }
+
+  h1{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:.4px;
+    color:var(--color-text-primary);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--color-text-secondary);
+  }
+
+  /* ---------- 状态指示点 ---------- */
+  .dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:var(--color-text-disabled);
+    flex:0 0 auto;
+  }
+  .dot.online{
+    background:var(--color-success);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  .dot.away{background:#F0B429}
+  .dot.busy{background:var(--color-danger)}
+  .dot.offline{background:var(--color-text-disabled)}
+
   @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(61,220,132,.55)}
-    70%{box-shadow:0 0 0 10px rgba(61,220,132,0)}
-    100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}
+    0%{box-shadow:0 0 0 0 rgba(22,155,91,.45)}
+    70%{box-shadow:0 0 0 8px rgba(22,155,91,0)}
+    100%{box-shadow:0 0 0 0 rgba(22,155,91,0)}
   }
-  h2{
-    font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-    margin:20px 0 10px;font-weight:600
+
+  /* ---------- 状态文字配色 ---------- */
+  .status-text.st-online{color:var(--color-success)}
+  .status-text.st-away{color:#B07A00}
+  .status-text.st-busy{color:var(--color-danger)}
+  .status-text.st-offline{color:var(--color-text-secondary)}
+
+  /* ==================== 区块标题（复用 section-title） ==================== */
+  .section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:20px 0 12px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.06em;
+    color:var(--color-text-primary);
   }
-  ul.programs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-  ul.programs li{
-    display:flex;align-items:baseline;gap:10px;background:#1d2129;
-    border:1px solid var(--line);border-radius:10px;padding:10px 12px
+  .section-title::before{
+    content:"";
+    flex:0 0 auto;
+    width:4px;
+    height:15px;
+    border-radius:2px;
+    background:linear-gradient(180deg,var(--color-primary),var(--color-blue-light));
   }
-  .pname{font-weight:600}
-  .pdetail{color:var(--muted);font-size:13px}
-  .psince{margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap}
-  .empty{color:var(--muted);font-size:14px;padding:10px 2px}
-  footer{
-    margin-top:20px;padding-top:14px;border-top:1px solid var(--line);
-    color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;gap:4px
+  .section-title__sub{
+    margin-left:auto;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.14em;
+    color:var(--color-text-disabled);
   }
-  footer b{color:#c8cfdd;font-weight:500}
+
+  /* ==================== 程序列表 ==================== */
+  .programs{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .programs li{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    background:var(--color-bg-white);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:11px 14px;
+    box-shadow:var(--shadow-card);
+    transition:box-shadow .2s ease, border-color .2s ease, transform .15s ease;
+  }
+  .programs li:hover{
+    box-shadow:var(--shadow-card-hover);
+    border-color:rgba(33,165,227,.35);
+    transform:translateY(-1px);
+  }
+
+  .program-row1{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .pname{
+    font-size:14.5px;
+    font-weight:700;
+    letter-spacing:.2px;
+    color:var(--color-text-primary);
+  }
+
+  .psince{
+    margin-left:auto;
+    font-size:11.5px;
+    font-weight:600;
+    white-space:nowrap;
+    color:var(--color-text-disabled);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .pdetail{
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--color-text-secondary);
+    white-space:normal;
+    word-break:break-word;
+  }
+
+  /* 空状态 */
+  .programs li.empty{
+    padding:16px;
+    background:var(--color-bg-soft);
+    border:1px dashed var(--color-border-strong);
+    box-shadow:none;
+    text-align:center;
+    font-size:13px;
+    color:var(--color-text-secondary);
+    transform:none;
+  }
+  .programs li.empty:hover{
+    box-shadow:none;
+    border-color:var(--color-border-strong);
+    transform:none;
+  }
+
+  /* ==================== 页脚 ==================== */
+  .foot{
+    margin-top:20px;
+    padding-top:14px;
+    border-top:1px solid var(--color-border);
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    font-size:12px;
+    color:var(--color-text-secondary);
+  }
+
+  .foot__row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .foot__row b{
+    font-weight:700;
+    color:var(--color-text-primary);
+    font-variant-numeric:tabular-nums;
+  }
+  .foot__ago{
+    font-size:11.5px;
+    color:var(--color-text-disabled);
+  }
+  .foot__hint{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-top:2px;
+    font-size:11px;
+    color:var(--color-text-disabled);
+  }
+  .foot__hint::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    flex:0 0 auto;
+    background:var(--color-blue-light);
+    box-shadow:0 0 0 3px rgba(171,215,255,.3);
+  }
+
+  /* ==================== 响应式 ==================== */
+  @media (max-width:480px){
+    body{padding:12px}
+
+    .card{
+      padding:18px 16px 16px;
+      border-radius:var(--radius-lg);
+    }
+
+    .card__head{gap:12px;padding-bottom:14px}
+
+    .avatar{
+      width:52px;
+      height:52px;
+      font-size:21px;
+      border-width:3px;
+    }
+
+    h1{font-size:17px}
+    .status{font-size:12.5px;margin-top:4px}
+
+    .section-title{margin:16px 0 10px}
+
+    .programs li{padding:10px 12px}
+    .pname{font-size:13.5px}
+    .pdetail{font-size:12px}
+    .psince{margin-left:0;width:100%;font-size:11px}
+
+    .foot{margin-top:16px;font-size:11.5px}
+  }
+
+  /* ==================== 动效降级 ==================== */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+    }
+  }
 </style>
 </head>
 <body>
 <main class="card">
-  <header>
+  <header class="card__head">
     <div class="avatar" id="avatar">?</div>
-    <div>
+    <div class="who">
       <h1 id="name">加载中…</h1>
       <div class="status">
         <span class="dot" id="dot"></span>
-        <span id="status-text">正在获取状态</span>
+        <span class="status-text st-offline" id="status-text">正在获取状态</span>
       </div>
     </div>
   </header>
 
   <section>
-    <h2>正在运行</h2>
+    <h2 class="section-title">正在运行<span class="section-title__sub">RUNNING</span></h2>
     <ul class="programs" id="programs"></ul>
   </section>
 
-  <footer>
-    <div>服务器最后更新：<b id="server-updated">--</b> <span id="server-ago"></span></div>
-    <div>浏览器最后更新：<b id="client-updated">--</b> <span id="client-ago"></span></div>
+  <footer class="foot">
+    <div class="foot__row">
+      <span>服务器最后更新：</span>
+      <b id="server-updated">--</b>
+      <span class="foot__ago" id="server-ago"></span>
+    </div>
+    <div class="foot__row">
+      <span>浏览器最后更新：</span>
+      <b id="client-updated">--</b>
+      <span class="foot__ago" id="client-ago"></span>
+    </div>
+    <span class="foot__hint">每 10 秒自动刷新</span>
   </footer>
 </main>
 
@@ -89,10 +433,10 @@
   var STALE_MS   = 5 * 60 * 1000;  // 服务端超过 5 分钟没更新 → 视为离线
 
   var STATE = {
-    online:  { text: '在线', cls: 'online'  },
-    away:    { text: '离开', cls: 'away'    },
-    busy:    { text: '忙碌', cls: 'busy'    },
-    offline: { text: '离线', cls: 'offline' }
+    online:  { text: '在线', cls: 'online',  ink: 'st-online'  },
+    away:    { text: '离开', cls: 'away',    ink: 'st-away'    },
+    busy:    { text: '忙碌', cls: 'busy',    ink: 'st-busy'    },
+    offline: { text: '离线', cls: 'offline', ink: 'st-offline' }
   };
 
   function $(id) { return document.getElementById(id); }
@@ -121,17 +465,35 @@
   var lastServerMs = null;     // 服务端最后更新（来自 JSON）
   var lastClientMs = null;     // 客户端最后更新（本地拉取成功时间）
 
+  /* 统一设置状态点 + 状态文字 */
+  function setStatus(key, textOverride) {
+    var s = STATE[key] || STATE.offline;
+
+    $('dot').className = 'dot ' + s.cls;
+
+    var el = $('status-text');
+    el.className = 'status-text ' + s.ink;
+    el.textContent = textOverride || s.text;
+  }
+
   // 从整份数据里取出「正在运行」列表
-  // 新格式：单条 program_name / since
-  // 旧格式：programs 数组（兼容保留）
+  // 当前格式：program_name / program_title / since
+  // 兼容旧格式：programs 数组、program_detail
   function normalizePrograms(data) {
     if (Array.isArray(data.programs) && data.programs.length) {
-      return data.programs;
+      return data.programs.map(function (p) {
+        return {
+          name:   p.name || p.program_name || '',
+          // program_title / detail 可能为空 → 空字符串代表不显示
+          detail: p.program_title || p.detail || p.program_detail || '',
+          since:  p.since || ''
+        };
+      });
     }
     if (data.program_name) {
       return [{
         name:   data.program_name,
-        detail: data.program_detail || data.detail || '',
+        detail: data.program_title || data.program_detail || data.detail || '',
         since:  data.since || ''
       }];
     }
@@ -155,24 +517,30 @@
     list.forEach(function (p) {
       var li = document.createElement('li');
 
+      // 第一行：程序名 + since
+      var row1 = document.createElement('div');
+      row1.className = 'program-row1';
+
       var name = document.createElement('span');
       name.className = 'pname';
       name.textContent = p.name || '未命名';
-      li.appendChild(name);
-
-      if (p.detail) {
-        var d = document.createElement('span');
-        d.className = 'pdetail';
-        d.textContent = p.detail;
-        li.appendChild(d);
-      }
+      row1.appendChild(name);
 
       if (p.since) {
         var t = new Date(p.since);
         var s = document.createElement('span');
         s.className = 'psince';
         s.textContent = isNaN(t.getTime()) ? p.since : '自 ' + fmtTime(t);
-        li.appendChild(s);
+        row1.appendChild(s);
+      }
+      li.appendChild(row1);
+
+      // 第二行：program_title（detail），为空不显示，长文本自动换行
+      if (p.detail != null && String(p.detail).trim() !== '') {
+        var d = document.createElement('div');
+        d.className = 'pdetail';
+        d.textContent = p.detail;
+        li.appendChild(d);
       }
 
       ul.appendChild(li);
@@ -192,10 +560,10 @@
     if (!STATE[key]) key = 'offline';
     if (stale) key = 'offline';
 
-    $('dot').className = 'dot ' + STATE[key].cls;
-    $('status-text').textContent = stale
-      ? '离线（数据已过期）'
-      : (data.status_text || STATE[key].text);
+    setStatus(
+      key,
+      stale ? '离线（数据已过期）' : (data.status_text || STATE[key].text)
+    );
 
     renderPrograms(data);
     $('server-updated').textContent = fmtTime(data.server_updated);
@@ -220,8 +588,7 @@
         render(data);
       })
       .catch(function (e) {
-        $('dot').className = 'dot offline';
-        $('status-text').textContent = '无法获取状态（' + e.message + '）';
+        setStatus('offline', '无法获取状态（' + e.message + '）');
       });
   }
 

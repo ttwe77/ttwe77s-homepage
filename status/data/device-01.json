@@ -2,7 +2,8 @@
   "name": "ttwe77",
   "status": "online",
   "status_text": "在线",
-  "program_name": "WindowsTerminal",
-  "since": "2026-10-03T00:07:01+08:00",
-  "server_updated": "2026-10-03T00:07:01+08:00"
+  "program_name": "tailscale-ipn",
+  "program_title": "",
+  "since": "2026-10-03T01:10:40+08:00",
+  "server_updated": "2026-10-03T01:10:40+08:00"
 }

@@ -1,14 +1,15 @@
-// status-client.cpp — 个人状态 API 客户端
+// main.cpp — 个人状态 API 客户端（托盘版）
 //
 // 编译（MinGW-w64）：
-//   g++ -std=c++17 -O2 -o main.exe main.cpp -lwinhttp -lshell32
+//   g++ -std=c++17 -O2 -o main.exe main.cpp -lwinhttp -lshell32 -luser32 -lgdi32
 //
 // 用法：
-//   status-client.exe                      # 按 client.ini 推送状态
-//   status-client.exe --status busy        # 临时覆盖状态
-//   status-client.exe --get                # 查询当前状态
-//   status-client.exe --health             # 健康检查
-//   status-client.exe -c D:\x\my.ini       # 指定配置文件
+//   main.exe                      # 按 client.ini 推送状态，并常驻托盘
+//   main.exe --status busy        # 临时覆盖状态并托盘常驻
+//   main.exe --get                # 查询当前状态（控制台）
+//   main.exe --health             # 健康检查（控制台）
+//   main.exe --once               # 只推送一次后退出
+//   main.exe -c D:\x\my.ini       # 指定配置文件
 //
 // 退出码：0 成功 / 1 请求或接口失败 / 2 参数错误
 
@@ -193,6 +194,28 @@ static bool json_extract(const std::string& s, const std::string& key, std::stri
         pos += pat.size();
     }
     return false;
+}
+
+// ============================ 优雅退出 ============================
+
+static volatile LONG g_stop = 0;
+static HWND g_tray_hwnd = nullptr;
+
+static BOOL WINAPI console_ctrl_handler(DWORD type) {
+    switch (type) {
+        case CTRL_C_EVENT:
+        case CTRL_BREAK_EVENT:
+        case CTRL_CLOSE_EVENT:
+        case CTRL_LOGOFF_EVENT:
+        case CTRL_SHUTDOWN_EVENT:
+            InterlockedExchange(&g_stop, 1);
+            if (g_tray_hwnd) {                      // ← 唤醒消息循环
+                PostMessageW(g_tray_hwnd, WM_CLOSE, 0, 0);
+            }
+            return TRUE;
+        default:
+            return FALSE;
+    }
 }
 
 // ============================ INI 解析 ============================
@@ -407,12 +430,8 @@ static HttpResult http_request(const std::wstring& method,
 
 // ============================ Windows 环境探测 ============================
 
-static std::string get_foreground_process_name() {
-    HWND hwnd = GetForegroundWindow();
-    if (!hwnd) return std::string();
-
-    DWORD pid = 0;
-    GetWindowThreadProcessId(hwnd, &pid);
+// ── 由 PID 取进程基名（去路径、去 .exe）────────────────────
+static std::string get_process_basename(DWORD pid) {
     if (!pid) return std::string();
 
     HANDLE h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
@@ -435,6 +454,117 @@ static std::string get_foreground_process_name() {
     }
     CloseHandle(h);
     return result;
+}
+
+// ── UWP 子窗口回溯 ────────────────────────────────────────
+struct UwpChildCtx {
+    DWORD parentPid = 0;
+    DWORD realPid   = 0;
+    HWND  realHwnd  = nullptr;
+    bool  strict    = true;
+};
+
+static BOOL CALLBACK enum_uwp_child_proc(HWND child, LPARAM lp) {
+    auto* ctx = reinterpret_cast<UwpChildCtx*>(lp);
+
+    if (ctx->strict) {
+        wchar_t cls[128] = {0};
+        GetClassNameW(child, cls, 128);
+        if (lstrcmpW(cls, L"Windows.UI.Core.CoreWindow") != 0)
+            return TRUE;
+    }
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(child, &pid);
+    if (pid && pid != ctx->parentPid) {
+        ctx->realPid  = pid;
+        ctx->realHwnd = child;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static DWORD resolve_uwp_real_pid(HWND fg, DWORD fgPid) {
+    for (int pass = 0; pass < 2; ++pass) {
+        UwpChildCtx ctx;
+        ctx.parentPid = fgPid;
+        ctx.strict    = (pass == 0);
+        EnumChildWindows(fg, enum_uwp_child_proc,
+                         reinterpret_cast<LPARAM>(&ctx));
+        if (ctx.realPid) return ctx.realPid;
+    }
+    return 0;
+}
+
+// ── 前台进程名（含 UWP 适配）──────────────────────────────
+static std::string get_foreground_process_name() {
+    HWND hwnd = GetForegroundWindow();
+    if (!hwnd) return std::string();
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    if (!pid) return std::string();
+
+    std::string name = get_process_basename(pid);
+
+    if (to_lower(name) == "applicationframehost") {
+        DWORD realPid = resolve_uwp_real_pid(hwnd, pid);
+        if (realPid) {
+            std::string real = get_process_basename(realPid);
+            if (!real.empty()) return real;
+        }
+    }
+
+    return name;
+}
+
+// 获取当前前台顶层窗口的标题（GetWindowTextW）
+// 获取当前前台顶层窗口的标题（含 UWP 兜底）
+static std::string get_foreground_window_title() {
+    HWND hwnd = GetForegroundWindow();
+    if (!hwnd) return std::string();
+
+    auto read_title = [](HWND h) -> std::string {
+        int len = GetWindowTextLengthW(h);
+        if (len <= 0) return std::string();
+        std::wstring buf((size_t)len + 1, L'\0');
+        int n = GetWindowTextW(h, &buf[0], (int)buf.size());
+        if (n <= 0) return std::string();
+        buf.resize((size_t)n);
+        return wide_to_utf8(buf);
+    };
+
+    std::string t = read_title(hwnd);
+    if (!t.empty()) return t;
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    std::string name = get_process_basename(pid);
+    if (to_lower(name) == "applicationframehost") {
+        DWORD realPid = resolve_uwp_real_pid(hwnd, pid);
+        if (realPid) {
+            struct TitleCtx { DWORD pid; std::string title; };
+            TitleCtx ctx{ realPid, {} };
+            EnumChildWindows(hwnd,
+                [](HWND h, LPARAM lp) -> BOOL {
+                    auto* c = reinterpret_cast<TitleCtx*>(lp);
+                    DWORD p = 0;
+                    GetWindowThreadProcessId(h, &p);
+                    if (p != c->pid) return TRUE;
+                    int len = GetWindowTextLengthW(h);
+                    if (len <= 0) return TRUE;
+                    std::wstring buf((size_t)len + 1, L'\0');
+                    int n = GetWindowTextW(h, &buf[0], (int)buf.size());
+                    if (n <= 0) return TRUE;
+                    buf.resize((size_t)n);
+                    c->title = wide_to_utf8(buf);
+                    return FALSE;
+                },
+                reinterpret_cast<LPARAM>(&ctx));
+            if (!ctx.title.empty()) return ctx.title;
+        }
+    }
+    return std::string();
 }
 
 static DWORD get_idle_seconds() {
@@ -478,15 +608,26 @@ struct Config {
     std::string tokenFile;      // 留空则用 exe 同目录 .api_token
     int         timeoutMs  = 5000;
 
+    // 持续推送间隔（秒）。>0 时循环推送；<=0 时只推送一次
+    int         intervalSeconds = 30;
+
     std::string name;
     std::string status     = "online";
     std::string statusText;
     std::string programName;
+    std::string programTitle;   // 仅当命中白名单时填充
     std::string since;
 
     bool detectProgram = false;
     bool detectStatus  = false;
     int  idleMinutes   = 10;
+
+    // 手动指定状态后，不再被 detect_status 覆盖
+    bool statusManual = false;
+
+    // 程序名过滤（存放的都是小写、已去掉 .exe 的条目）
+    std::vector<std::string> programWhitelist;
+    std::vector<std::string> programBlacklist;
 };
 
 static std::string default_status_text(const std::string& s) {
@@ -519,6 +660,379 @@ static bool read_token_file(const std::string& path, std::string& out) {
     s = trim(s);
     if (s.empty()) return false;
     out = s;
+    return true;
+}
+
+// ============================ 名单工具 ============================
+
+// 拆分逗号/分号分隔的名单；全部转小写、去空白，并去掉 .exe 后缀
+static std::vector<std::string> split_list(const std::string& s) {
+    std::vector<std::string> v;
+    std::string cur;
+    auto push = [&]() {
+        std::string t = to_lower(trim(cur));
+        cur.clear();
+        if (t.empty()) return;
+        if (t.size() > 4 && t.substr(t.size() - 4) == ".exe")
+            t = t.substr(0, t.size() - 4);
+        if (!t.empty()) v.push_back(t);
+    };
+    for (char c : s) {
+        if (c == ',' || c == ';' || c == '|') push();
+        else cur += c;
+    }
+    push();
+    return v;
+}
+
+// 比较前先规范化（小写 + 去 .exe）
+static std::string normalize_program(const std::string& s) {
+    std::string t = to_lower(trim(s));
+    if (t.size() > 4 && t.substr(t.size() - 4) == ".exe")
+        t = t.substr(0, t.size() - 4);
+    return t;
+}
+
+static bool list_contains(const std::vector<std::string>& list, const std::string& name) {
+    if (list.empty()) return false;
+    std::string n = normalize_program(name);
+    if (n.empty()) return false;
+    for (const auto& x : list) if (x == n) return true;
+    return false;
+}
+
+// 套用黑白名单规则：
+//   黑名单命中 → program_name = "黑名单"，program_title 置空
+//   白名单命中 → 抓取当前前台窗口标题
+//   其余       → program_title 置空
+static void apply_program_filter(Config& cfg) {
+    if (cfg.programName.empty()) {
+        cfg.programTitle.clear();
+        return;
+    }
+
+    if (list_contains(cfg.programBlacklist, cfg.programName)) {
+        cfg.programName  = "黑名单命中，不予显示";
+        cfg.programTitle.clear();
+        return;
+    }
+
+    if (list_contains(cfg.programWhitelist, cfg.programName)) {
+        cfg.programTitle = get_foreground_window_title();
+    } else {
+        cfg.programTitle.clear();
+    }
+}
+
+// ============================ 单次推送 ============================
+//
+// 返回值：0 成功 / 1 请求或接口失败 / 2 参数错误（配置非法，不适合重试）
+//
+static int push_once(Config& cfg, bool quiet, bool verbose) {
+    // --- 自动探测（每轮重新计算，这样持续推送时能反映最新状态）---
+    if (cfg.detectProgram) {
+        std::string p = get_foreground_process_name();
+        if (!p.empty()) cfg.programName = p;
+    }
+
+    // --- 黑白名单过滤 + 标题获取 ---
+    apply_program_filter(cfg);
+
+    if (cfg.detectStatus && !cfg.statusManual) {
+        DWORD idleSec = get_idle_seconds();
+        if ((int)(idleSec / 60) >= cfg.idleMinutes) {
+            cfg.status = "away";
+            if (cfg.statusText.empty() || cfg.statusText == "在线")
+                cfg.statusText = "离开";
+        } else if (cfg.status.empty() || cfg.status == "away") {
+            cfg.status = "online";
+            if (cfg.statusText.empty() || cfg.statusText == "离开")
+                cfg.statusText = "在线";
+        }
+    }
+
+    // --- 状态校验 ---
+    std::string st = to_lower(trim(cfg.status));
+    if (st != "online" && st != "away" && st != "busy" && st != "offline") {
+        std::cerr << "[错误] status 只能是 online / away / busy / offline，当前: "
+                  << cfg.status << "\n";
+        return 2;
+    }
+    cfg.status = st;
+
+    // --- 文案补全 ---
+    if (cfg.statusText.empty()) cfg.statusText = default_status_text(cfg.status);
+
+    // --- 组装 JSON ---
+    std::ostringstream js;
+    js << "{";
+    bool first = true;
+    auto addField = [&](const char* k, const std::string& v) {
+        if (v.empty()) return;
+        if (!first) js << ",";
+        first = false;
+        js << json_string(k) << ":" << json_string(v);
+    };
+    addField("name",          cfg.name);
+    addField("status",        cfg.status);
+    addField("status_text",   cfg.statusText);
+    addField("program_name",  cfg.programName);
+    addField("program_title", cfg.programTitle);
+    if (!cfg.since.empty()) {
+        addField("since", cfg.since == "now" ? local_iso8601() : cfg.since);
+    }
+    js << "}";
+    std::string body = js.str();
+
+    std::wstring method = L"POST";
+    std::wstring url    = utf8_to_wide(cfg.url);
+
+    std::vector<std::wstring> headers;
+    headers.push_back(L"Content-Type: application/json; charset=utf-8");
+    headers.push_back(L"Accept: application/json");
+    headers.push_back(L"User-Agent: status-client/1.0");
+    if (!cfg.apiKey.empty())
+        headers.push_back(L"X-API-Key: " + utf8_to_wide(cfg.apiKey));
+
+    if (verbose && !quiet) {
+        std::cout << "[请求] POST " << wide_to_utf8(url) << "\n";
+        if (!body.empty()) std::cout << "[请求体] " << body << "\n";
+    }
+
+    // --- 发送 ---
+    HttpResult r = http_request(method, url, body, headers, cfg.timeoutMs);
+
+    if (!r.ok) {
+        std::cerr << "[错误] " << r.error << "\n";
+        return 1;
+    }
+
+    bool httpOk = (r.status >= 200 && r.status < 300);
+
+    if (httpOk) {
+        if (!quiet) {
+            std::cout << "[OK] 状态已更新 (HTTP " << r.status << ")\n";
+            std::string s, tx;
+            if (json_extract(r.body, "status", s))
+                std::cout << "     状态: " << s;
+            if (json_extract(r.body, "status_text", tx))
+                std::cout << " (" << tx << ")";
+            std::cout << "\n";
+            std::string nm, pg, pt, up;
+            if (json_extract(r.body, "name", nm) && !nm.empty())
+                std::cout << "     名称: " << nm << "\n";
+            if (json_extract(r.body, "program_name", pg) && !pg.empty())
+                std::cout << "     程序: " << pg << "\n";
+            if (json_extract(r.body, "program_title", pt) && !pt.empty())
+                std::cout << "     标题: " << pt << "\n";
+            if (json_extract(r.body, "server_updated", up) && !up.empty())
+                std::cout << "     更新: " << up << "\n";
+        }
+        if (verbose) std::cout << r.body << "\n";
+        return 0;
+    }
+
+    std::cerr << "[失败] HTTP " << r.status << "\n";
+    std::string errMsg;
+    if (json_extract(r.body, "error", errMsg)) std::cerr << "       " << errMsg << "\n";
+    else std::cerr << "       " << r.body << "\n";
+    return 1;
+}
+
+// ============================ 托盘 ============================
+
+static const wchar_t* kTrayWndClass = L"StatusClientTrayWnd";
+static const UINT WM_TRAY_NOTIFY = WM_APP + 1;
+static const UINT_PTR TIMER_PUSH = 1;
+
+enum {
+    IDM_STATUS_ONLINE  = 1001,
+    IDM_STATUS_AWAY    = 1002,
+    IDM_STATUS_BUSY    = 1003,
+    IDM_STATUS_OFFLINE = 1004,
+    IDM_PUSH_NOW       = 1010,
+    IDM_EXIT           = 1099
+};
+
+static Config* g_cfg = nullptr;
+static bool g_quiet = false;
+static bool g_verbose = false;
+static NOTIFYICONDATAW g_nid = {};
+static bool g_pushing = false;
+
+static void update_tray_tip() {
+    if (!g_cfg) return;
+
+    std::wstring tip = L"StatusClient - " + utf8_to_wide(g_cfg->status);
+    if (!g_cfg->statusText.empty())
+        tip += L" (" + utf8_to_wide(g_cfg->statusText) + L")";
+
+    lstrcpynW(g_nid.szTip, tip.c_str(), ARRAYSIZE(g_nid.szTip));
+    g_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    Shell_NotifyIconW(NIM_MODIFY, &g_nid);
+}
+
+static void show_tray_menu(HWND hwnd) {
+    POINT pt;
+    GetCursorPos(&pt);
+
+    HMENU menu = CreatePopupMenu();
+    if (!menu) return;
+
+    auto add = [&](UINT id, const wchar_t* text, bool checked) {
+        AppendMenuW(menu, MF_STRING | (checked ? MF_CHECKED : 0), id, text);
+    };
+
+    add(IDM_STATUS_ONLINE,  L"在线 (online)",  g_cfg && g_cfg->status == "online");
+    add(IDM_STATUS_AWAY,    L"离开 (away)",    g_cfg && g_cfg->status == "away");
+    add(IDM_STATUS_BUSY,    L"忙碌 (busy)",    g_cfg && g_cfg->status == "busy");
+    add(IDM_STATUS_OFFLINE, L"离线 (offline)", g_cfg && g_cfg->status == "offline");
+
+    AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
+    AppendMenuW(menu, MF_STRING, IDM_PUSH_NOW, L"立即推送");
+    AppendMenuW(menu, MF_STRING, IDM_EXIT, L"退出");
+
+    SetForegroundWindow(hwnd);
+
+    int cmd = TrackPopupMenu(
+        menu,
+        TPM_RETURNCMD | TPM_RIGHTBUTTON,
+        pt.x, pt.y, 0, hwnd, nullptr);
+
+    DestroyMenu(menu);
+
+    if (cmd)
+        PostMessageW(hwnd, WM_COMMAND, (WPARAM)cmd, 0);
+}
+
+static LRESULT CALLBACK tray_wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    switch (msg) {
+    case WM_TRAY_NOTIFY:
+        if (LOWORD(lp) == WM_RBUTTONUP || LOWORD(lp) == WM_CONTEXTMENU) {
+            show_tray_menu(hwnd);
+        } else if (LOWORD(lp) == WM_LBUTTONDBLCLK) {
+            if (g_cfg && !g_pushing) {
+                g_pushing = true;
+                push_once(*g_cfg, g_quiet, g_verbose);
+                g_pushing = false;
+                update_tray_tip();
+            }
+        }
+        return 0;
+
+    case WM_COMMAND: {
+        int id = LOWORD(wp);
+
+        if (id == IDM_EXIT) {
+            DestroyWindow(hwnd);
+            return 0;
+        }
+
+        if (id == IDM_PUSH_NOW) {
+            if (g_cfg && !g_pushing) {
+                g_pushing = true;
+                push_once(*g_cfg, g_quiet, g_verbose);
+                g_pushing = false;
+                update_tray_tip();
+            }
+            return 0;
+        }
+
+        std::string st;
+        switch (id) {
+        case IDM_STATUS_ONLINE:  st = "online";  break;
+        case IDM_STATUS_AWAY:    st = "away";    break;
+        case IDM_STATUS_BUSY:    st = "busy";    break;
+        case IDM_STATUS_OFFLINE: st = "offline"; break;
+        default: return 0;
+        }
+
+        if (g_cfg) {
+            g_cfg->status = st;
+            g_cfg->statusText = default_status_text(st);
+            g_cfg->statusManual = true;
+            update_tray_tip();
+
+            if (!g_pushing) {
+                g_pushing = true;
+                push_once(*g_cfg, g_quiet, g_verbose);
+                g_pushing = false;
+            }
+        }
+        return 0;
+    }
+
+    case WM_TIMER:
+        if (wp == TIMER_PUSH && g_cfg && !g_pushing) {
+            g_pushing = true;
+            int rc = push_once(*g_cfg, g_quiet, g_verbose);
+            g_pushing = false;
+            update_tray_tip();
+
+            if (rc == 2) {
+                MessageBoxW(hwnd, L"配置错误，程序将退出。",
+                            L"StatusClient", MB_OK | MB_ICONERROR);
+                DestroyWindow(hwnd);
+            }
+        }
+        return 0;
+        case WM_CLOSE:
+    // 可选：退出前主动推一次 offline
+    // if (g_cfg) { g_cfg->status = "offline";
+    //              g_cfg->statusText = default_status_text("offline");
+    //              push_once(*g_cfg, true, false); }
+    DestroyWindow(hwnd);
+    return 0;
+
+    case WM_DESTROY:
+        KillTimer(hwnd, TIMER_PUSH);
+        Shell_NotifyIconW(NIM_DELETE, &g_nid);
+        PostQuitMessage(0);
+        return 0;
+    }
+
+    return DefWindowProcW(hwnd, msg, wp, lp);
+}
+
+static bool init_tray(HINSTANCE hInst, Config& cfg, bool quiet, bool verbose) {
+    g_cfg = &cfg;
+    g_quiet = quiet;
+    g_verbose = verbose;
+
+    WNDCLASSEXW wc = { sizeof(wc) };
+    wc.lpfnWndProc = tray_wnd_proc;
+    wc.hInstance = hInst;
+    wc.lpszClassName = kTrayWndClass;
+
+    if (!RegisterClassExW(&wc))
+        return false;
+
+    HWND hwnd = CreateWindowExW(
+        0, kTrayWndClass, L"StatusClient",
+        0, 0, 0, 0, 0,
+        HWND_MESSAGE, nullptr, hInst, nullptr);
+
+    if (!hwnd)
+        return false;
+
+        g_tray_hwnd = hwnd;
+
+    ZeroMemory(&g_nid, sizeof(g_nid));
+    g_nid.cbSize = sizeof(g_nid);
+    g_nid.hWnd = hwnd;
+    g_nid.uID = 1;
+    g_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    g_nid.uCallbackMessage = WM_TRAY_NOTIFY;
+    g_nid.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_APPLICATION);
+
+    lstrcpynW(g_nid.szTip, L"StatusClient", ARRAYSIZE(g_nid.szTip));
+
+    if (!Shell_NotifyIconW(NIM_ADD, &g_nid)) {
+        DestroyWindow(hwnd);
+        return false;
+    }
+
+    update_tray_tip();
     return true;
 }
 
@@ -557,14 +1071,16 @@ static bool write_default_ini(const std::string& path, std::string& err) {
         "; 请求超时（毫秒）\n"
         "timeout_ms = 5000\n"
         "\n"
+        "; 持续推送间隔（秒）\n"
+        ";   >0 : 每隔该秒数推送一次（托盘常驻，可在托盘菜单退出）\n"
+        ";   <=0: 只推送一次后退出\n"
+        "interval_seconds = 30\n"
+        "\n"
         "[status]\n"
         "; 你的名称（必填，用于服务端识别身份）\n"
         "name =\n"
         "\n"
-        "; 状态: online / away / busy / offline\n"
-        "status = online\n"
-        "\n"
-        "; 状态文案；留空则按状态自动填「在线 / 离开 / 忙碌 / 离线」\n"
+        "; 状态文案；留空则按托盘选择自动填「在线 / 离开 / 忙碌 / 离线」\n"
         "status_text =\n"
         "\n"
         "; 当前程序名；可选，会被 --program 或自动探测覆盖\n"
@@ -578,10 +1094,22 @@ static bool write_default_ini(const std::string& path, std::string& err) {
         "detect_program = false\n"
         "\n"
         "; 是否根据键鼠空闲时长自动切换 away / online\n"
+        "; 注意：在托盘菜单手动选择状态后，本次运行不再被自动检测覆盖\n"
         "detect_status = false\n"
         "\n"
         "; 判定离开的空闲分钟数\n"
-        "idle_minutes = 10\n";
+        "idle_minutes = 10\n"
+        "\n"
+        "[filter]\n"
+        "; 程序名白名单：命中时才抓取前台窗口标题（program_title）\n"
+        "; 逗号 / 分号 / 竖线分隔；不区分大小写；可省略 .exe 后缀\n"
+        "; 例：chrome,firefox,code,windowsterminal\n"
+        "program_whitelist =\n"
+        "\n"
+        "; 程序名黑名单：命中时 program_name 变为「黑名单」，program_title 置空\n"
+        "; 黑名单优先级高于白名单\n"
+        "; 例：wechat,kpassword,1password\n"
+        "program_blacklist =\n";
 
     f.flush();
     return (bool)f;
@@ -601,10 +1129,15 @@ static void print_ini_guide(const std::string& path) {
         "    [server] api_key  — API Key（或用同目录 .api_token）\n"
         "    [status] name     — 你的名称\n"
         "\n"
-        "  填写后重新运行 status-client.exe 即可。\n"
+        "  可选：\n"
+        "    [server] interval_seconds — 持续推送间隔（秒），0 表示只推一次\n"
+        "    [filter] program_whitelist — 需要上报窗口标题的程序\n"
+        "    [filter] program_blacklist — 需要隐藏（显示为「黑名单」）的程序\n"
+        "\n"
+        "  填写后重新运行 main.exe 即可（程序会常驻托盘）。\n"
         "\n"
         "  如果不想用配置文件，也可以临时用命令行参数：\n"
-        "    status-client.exe --url <地址> --key <token> --name <名称>\n"
+        "    main.exe --url <地址> --key <token> --name <名称>\n"
         "\n"
         "============================================================\n";
 }
@@ -613,9 +1146,9 @@ static void print_ini_guide(const std::string& path) {
 
 static void print_usage() {
     std::cout <<
-        "个人状态 API 客户端\n"
+        "个人状态 API 客户端（托盘版）\n"
         "\n"
-        "用法: status-client.exe [选项]\n"
+        "用法: main.exe [选项]\n"
         "\n"
         "  -c, --config <文件>   指定 INI 配置文件（默认 exe 同目录 client.ini）\n"
         "      --url <地址>      覆盖接口地址\n"
@@ -628,6 +1161,9 @@ static void print_usage() {
         "      --program <程序>  覆盖 program_name\n"
         "      --since <时间>    覆盖 since（ISO8601，或 now）\n"
         "\n"
+        "      --interval <秒>   持续推送间隔；0 表示只推送一次\n"
+        "      --once            只推送一次后退出（覆盖 interval_seconds）\n"
+        "\n"
         "      --get             查询当前状态\n"
         "      --health          健康检查\n"
         "  -v, --verbose         输出完整响应\n"
@@ -637,9 +1173,22 @@ static void print_usage() {
 
 // ============================ 主流程 ============================
 
+static void enable_dpi_awareness() {
+    // Win10 1703+：Per-Monitor V2（托盘菜单在混合 DPI 下才不会糊）
+    if (HMODULE hUser32 = GetModuleHandleW(L"user32.dll")) {
+        using SetCtxFn = BOOL (WINAPI*)(HANDLE);
+        auto fn = (SetCtxFn)GetProcAddress(hUser32, "SetProcessDpiAwarenessContext");
+        // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 == (HANDLE)-4
+        if (fn && fn((HANDLE)-4)) return;
+    }
+    // Vista+ 兜底：System DPI Aware
+    SetProcessDPIAware();
+}
+
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
+    enable_dpi_awareness();
 
     // --- 取命令行（宽字符，避免中文路径乱码） ---
     std::vector<std::string> args;
@@ -661,7 +1210,9 @@ int main() {
     std::map<std::string, std::string> overrides;
     bool verbose = false;
     bool quiet   = false;
-    int  timeoutOverride = -1;
+    bool once    = false;
+    int  timeoutOverride  = -1;
+    int  intervalOverride = -1;
 
     try {
         for (size_t i = 1; i < args.size(); ++i) {
@@ -681,6 +1232,8 @@ int main() {
             else if (a == "--text" || a == "--status-text") overrides["status_text"] = need("--text");
             else if (a == "--program")                   overrides["program_name"] = need("--program");
             else if (a == "--since")                     overrides["since"] = need("--since");
+            else if (a == "--interval")                  intervalOverride = std::atoi(need("--interval").c_str());
+            else if (a == "--once")                      once = true;
             else if (a == "--get")                       mode = Mode::Get;
             else if (a == "--health")                    mode = Mode::Health;
             else if (a == "-v" || a == "--verbose")      verbose = true;
@@ -705,9 +1258,9 @@ int main() {
     size_t slashPos = exePath.find_last_of("\\/");
     std::string exeDir = (slashPos == std::string::npos) ? "." : exePath.substr(0, slashPos);
 
-        if (cfgPath.empty()) cfgPath = exeDir + "\\client.ini";
+    if (cfgPath.empty()) cfgPath = exeDir + "\\client.ini";
 
-    // --- 检查配置文件是否存在；不存在则生成模板并提示用户填写 ---
+    // --- 检查配置文件是否存在；不存在则生成模板并弹窗提示用户填写 ---
     {
         std::wstring cfgPathW = utf8_to_wide(cfgPath);
         DWORD attrs = GetFileAttributesW(cfgPathW.c_str());
@@ -717,11 +1270,27 @@ int main() {
         if (!exists) {
             std::string werr;
             if (write_default_ini(cfgPath, werr)) {
-                print_ini_guide(cfgPath);
-                return 0;   // 等用户填好后重跑
+                std::wstring msg =
+                    L"已生成配置文件模板：\n\n" +
+                    utf8_to_wide(cfgPath) +
+                    L"\n\n请至少填写：\n"
+                    L"  [server] url\n"
+                    L"  [server] api_key（或同目录 .api_token）\n"
+                    L"  [status] name\n\n"
+                    L"填写后重新运行本程序。";
+
+                MessageBoxW(nullptr, msg.c_str(),
+                            L"StatusClient 配置提示",
+                            MB_OK | MB_ICONINFORMATION);
+                return 0;
             } else {
-                std::cerr << "[错误] " << werr << "\n";
-                std::cerr << "[提示] 将使用内置默认值继续运行\n";
+                std::wstring msg =
+                    L"无法创建配置文件：\n" + utf8_to_wide(werr);
+
+                MessageBoxW(nullptr, msg.c_str(),
+                            L"StatusClient 错误",
+                            MB_OK | MB_ICONERROR);
+                return 2;
             }
         }
     }
@@ -745,9 +1314,10 @@ int main() {
     cfg.apiKey     = ini.get("server", "api_key");
     cfg.tokenFile  = ini.get("server", "token_file");
     cfg.timeoutMs  = ini.get_int("server", "timeout_ms", cfg.timeoutMs);
+    cfg.intervalSeconds = ini.get_int("server", "interval_seconds", cfg.intervalSeconds);
 
     cfg.name        = ini.get("status", "name");
-    cfg.status      = ini.get("status", "status", "online");
+    cfg.status      = "online";  // 不再从 INI 读取 status，由托盘菜单/命令行控制
     cfg.statusText  = ini.get("status", "status_text");
     cfg.programName = ini.get("status", "program_name");
     cfg.since       = ini.get("status", "since");
@@ -755,6 +1325,9 @@ int main() {
     cfg.detectProgram = ini.get_bool("auto", "detect_program", false);
     cfg.detectStatus  = ini.get_bool("auto", "detect_status", false);
     cfg.idleMinutes   = ini.get_int("auto", "idle_minutes", 10);
+
+    cfg.programWhitelist = split_list(ini.get("filter", "program_whitelist"));
+    cfg.programBlacklist = split_list(ini.get("filter", "program_blacklist"));
 
     // 命令行覆盖
     auto applyOverride = [&](const char* key, std::string& target) {
@@ -765,10 +1338,19 @@ int main() {
     applyOverride("api_key", cfg.apiKey);
     applyOverride("name", cfg.name);
     applyOverride("status", cfg.status);
+
+    // 命令行指定了 --status：标记为手动，自动检测不再覆盖
+    if (overrides.find("status") != overrides.end()) {
+        cfg.statusManual = true;
+        if (overrides.find("status_text") == overrides.end())
+            cfg.statusText = default_status_text(cfg.status);
+    }
+
     applyOverride("status_text", cfg.statusText);
     applyOverride("program_name", cfg.programName);
     applyOverride("since", cfg.since);
-    if (timeoutOverride > 0) cfg.timeoutMs = timeoutOverride;
+    if (timeoutOverride  > 0) cfg.timeoutMs = timeoutOverride;
+    if (intervalOverride >= 0) cfg.intervalSeconds = intervalOverride;
 
     // --- API Key 兜底：读 .api_token ---
     if (cfg.apiKey.empty()) {
@@ -778,99 +1360,79 @@ int main() {
         if (read_token_file(tf, tok)) cfg.apiKey = tok;
     }
 
-    // --- 自动探测 ---
+    // ============================ Push 模式 ============================
     if (mode == Mode::Push) {
-        if (cfg.detectProgram) {
-            std::string p = get_foreground_process_name();
-            if (!p.empty()) cfg.programName = p;
+        if (cfg.name.empty() && !quiet)
+            std::cerr << "[提示] name 为空，将沿用服务端已有值\n";
+        if (!cfg.statusText.empty() && cfg.statusText.size() > 32 && !quiet)
+            std::cerr << "[提示] status_text 超过 32 字符，服务端可能拒绝\n";
+
+        // 单次推送：--once 或 interval_seconds <= 0
+        if (once || cfg.intervalSeconds <= 0) {
+            return push_once(cfg, quiet, verbose);
         }
-        if (cfg.detectStatus) {
-            DWORD idleSec = get_idle_seconds();
-            if ((int)(idleSec / 60) >= cfg.idleMinutes) {
-                cfg.status = "away";
-                if (cfg.statusText.empty() || cfg.statusText == "在线")
-                    cfg.statusText = "离开";
-            } else if (cfg.status.empty() || cfg.status == "away") {
-                cfg.status = "online";
-                if (cfg.statusText.empty() || cfg.statusText == "离开")
-                    cfg.statusText = "在线";
-            }
+
+        // ---- 托盘常驻模式 ----
+// 优雅脱离控制台：
+//   - stdout 是真实控制台 → FreeConsole()，进程彻底不再挂控制台
+//   - stdout 已被重定向（管道/日志文件）→ 只隐藏窗口，保留输出
+if (!verbose) {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD ft = (hOut == INVALID_HANDLE_VALUE || hOut == nullptr)
+                   ? FILE_TYPE_UNKNOWN
+                   : GetFileType(hOut);
+    if (ft == FILE_TYPE_CHAR) {
+        FreeConsole();
+    } else {
+        if (HWND hCon = GetConsoleWindow()) ShowWindow(hCon, SW_HIDE);
+    }
+}
+
+        HINSTANCE hInst = GetModuleHandleW(nullptr);
+        if (!init_tray(hInst, cfg, quiet, verbose)) {
+            MessageBoxW(nullptr, L"托盘初始化失败。",
+                        L"StatusClient", MB_OK | MB_ICONERROR);
+            return 1;
         }
-    }
 
-    // --- 文案补全 ---
-    if (!cfg.statusText.empty() && cfg.statusText.size() > 32) {
-        // 交给服务端校验也行，这里简单截断提示
-        if (!quiet) std::cerr << "[提示] status_text 超过 32 字符，服务端可能拒绝\n";
-    }
-    if (cfg.statusText.empty()) cfg.statusText = default_status_text(cfg.status);
-
-    // --- 组装请求 ---
-    std::wstring method;
-    std::wstring url;
-    std::string  body;
-    std::vector<std::wstring> headers;
-
-    if (mode == Mode::Push) {
-        std::string st = to_lower(trim(cfg.status));
-        if (st != "online" && st != "away" && st != "busy" && st != "offline") {
-            std::cerr << "[错误] status 只能是 online / away / busy / offline，当前: "
-                      << cfg.status << "\n";
+        // 启动后立即推送一次
+        int rc = push_once(cfg, quiet, verbose);
+        if (rc == 2) {
+            MessageBoxW(nullptr, L"配置错误，程序退出。",
+                        L"StatusClient", MB_OK | MB_ICONERROR);
+            Shell_NotifyIconW(NIM_DELETE, &g_nid);
             return 2;
         }
-        cfg.status = st;
 
-        if (cfg.name.empty() && !quiet) {
-            std::cerr << "[提示] name 为空，将沿用服务端已有值\n";
+        SetTimer(g_nid.hWnd, TIMER_PUSH,
+                 (UINT)cfg.intervalSeconds * 1000, nullptr);
+
+        MSG msg;
+        while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
         }
-
-        std::ostringstream js;
-        js << "{";
-        bool first = true;
-        auto addField = [&](const char* k, const std::string& v) {
-            if (v.empty()) return;
-            if (!first) js << ",";
-            first = false;
-            js << json_string(k) << ":" << json_string(v);
-        };
-        addField("name", cfg.name);
-        addField("status", cfg.status);
-        addField("status_text", cfg.statusText);
-        addField("program_name", cfg.programName);
-        if (!cfg.since.empty()) {
-            addField("since", cfg.since == "now" ? local_iso8601() : cfg.since);
-        }
-        js << "}";
-        body = js.str();
-
-        method = L"POST";
-        url    = utf8_to_wide(cfg.url);
-
-        headers.push_back(L"Content-Type: application/json; charset=utf-8");
-        headers.push_back(L"Accept: application/json");
-        headers.push_back(L"User-Agent: status-client/1.0");
-        if (!cfg.apiKey.empty())
-            headers.push_back(L"X-API-Key: " + utf8_to_wide(cfg.apiKey));
-    } else {
-        method = L"GET";
-        if (mode == Mode::Health) {
-            std::string h = cfg.healthUrl.empty() ? derive_health_url(cfg.url) : cfg.healthUrl;
-            url = utf8_to_wide(h);
-        } else {
-            url = utf8_to_wide(cfg.url);
-        }
-        headers.push_back(L"Accept: application/json");
-        headers.push_back(L"User-Agent: status-client/1.0");
+        return 0;
     }
+
+    // ============================ GET / Health 模式 ============================
+    std::wstring url;
+    std::vector<std::wstring> headers;
+
+    if (mode == Mode::Health) {
+        std::string h = cfg.healthUrl.empty() ? derive_health_url(cfg.url) : cfg.healthUrl;
+        url = utf8_to_wide(h);
+    } else {
+        url = utf8_to_wide(cfg.url);
+    }
+    headers.push_back(L"Accept: application/json");
+    headers.push_back(L"User-Agent: status-client/1.0");
 
     if (verbose && !quiet) {
-        std::cout << "[请求] " << (mode == Mode::Push ? "POST" : "GET") << " "
-                  << wide_to_utf8(url) << "\n";
-        if (!body.empty()) std::cout << "[请求体] " << body << "\n";
+        std::cout << "[请求] GET " << wide_to_utf8(url) << "\n";
     }
 
-    // --- 发送 ---
-    HttpResult r = http_request(method, url, body, headers, cfg.timeoutMs);
+    HttpResult r = http_request(L"GET", url, "", headers, cfg.timeoutMs);
 
     if (!r.ok) {
         std::cerr << "[错误] " << r.error << "\n";
@@ -878,34 +1440,6 @@ int main() {
     }
 
     bool httpOk = (r.status >= 200 && r.status < 300);
-
-    if (mode == Mode::Push) {
-        if (httpOk) {
-            if (!quiet) {
-                std::cout << "[OK] 状态已更新 (HTTP " << r.status << ")\n";
-                std::string st, tx;
-                if (json_extract(r.body, "status", st))
-                    std::cout << "     状态: " << st;
-                if (json_extract(r.body, "status_text", tx))
-                    std::cout << " (" << tx << ")";
-                std::cout << "\n";
-                std::string nm, pg, up;
-                if (json_extract(r.body, "name", nm) && !nm.empty())
-                    std::cout << "     名称: " << nm << "\n";
-                if (json_extract(r.body, "program_name", pg) && !pg.empty())
-                    std::cout << "     程序: " << pg << "\n";
-                if (json_extract(r.body, "server_updated", up) && !up.empty())
-                    std::cout << "     更新: " << up << "\n";
-            }
-            if (verbose) std::cout << r.body << "\n";
-            return 0;
-        }
-        std::cerr << "[失败] HTTP " << r.status << "\n";
-        std::string errMsg;
-        if (json_extract(r.body, "error", errMsg)) std::cerr << "       " << errMsg << "\n";
-        else std::cerr << "       " << r.body << "\n";
-        return 1;
-    }
 
     if (mode == Mode::Health) {
         if (httpOk) {
@@ -924,11 +1458,12 @@ int main() {
     }
 
     {
-        std::string nm, st, tx, pg, sc, up;
+        std::string nm, st, tx, pg, pt, sc, up;
         json_extract(r.body, "name", nm);
         json_extract(r.body, "status", st);
         json_extract(r.body, "status_text", tx);
         json_extract(r.body, "program_name", pg);
+        json_extract(r.body, "program_title", pt);
         json_extract(r.body, "since", sc);
         json_extract(r.body, "server_updated", up);
 
@@ -939,6 +1474,7 @@ int main() {
         if (!tx.empty()) std::cout << "  (" << tx << ")";
         std::cout << "\n";
         std::cout << "当前程序   : " << (pg.empty() ? "(无)" : pg) << "\n";
+        std::cout << "窗口标题   : " << (pt.empty() ? "(无)" : pt) << "\n";
         std::cout << "状态开始于 : " << (sc.empty() ? "?" : sc) << "\n";
         std::cout << "服务端更新 : " << (up.empty() ? "?" : up) << "\n";
 

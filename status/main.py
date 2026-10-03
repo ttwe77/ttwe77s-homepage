@@ -10,7 +10,8 @@
 #   "name": "ttwe77",
 #   "status": "online",
 #   "status_text": "在线",
-#   "program_name": "Visual Studio Code",
+#   "program_name": "WindowsTerminal",
+#   "program_title": "命令提示符",
 #   "since": "2026-10-02T23:17:00+08:00",
 #   "server_updated": "2026-10-02T23:17:00+08:00"
 # }
@@ -54,6 +55,7 @@ DEFAULT = {
     "status": "offline",
     "status_text": "离线",
     "program_name": "",
+    "program_title": "",
     "since": None,
     "server_updated": None,
 }
@@ -299,7 +301,8 @@ def replace_status():
       "name": "ttwe77",
       "status": "online",
       "status_text": "在线",
-      "program_name": "Visual Studio Code",
+      "program_name": "WindowsTerminal",
+      "program_title": "命令提示符",
       "since": "2026-10-02T23:17:00+08:00"
     }
     """
@@ -319,7 +322,9 @@ def replace_status():
         data["status_text"] = clean_str(body["status_text"], 32, "status_text")
     if "program_name" in body:
         data["program_name"] = clean_str(body["program_name"], 64, "program_name")
-
+    if "program_title" in body:
+        data["program_title"] = clean_str(body["program_title"], 64, "program_title")
+    
     # since 不传则取当前时间
     data["since"] = parse_iso(body["since"], "since") if body.get("since") else now_iso()
 
