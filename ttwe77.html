@@ -1,0 +1,4914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!--<title>ttwe77·个人主页</title>-->
+  <title>七七的折腾笔记 | 技术·游戏·日常</title>
+  <!--<link rel="icon" href="src/favicon.ico" sizes="any">-->
+  <link rel="icon" href="src/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="src/apple-touch-icon.png">
+  <meta name="theme-color" content="#21a5e3">
+  <meta name="description" content="七七的个人笔记，记录计算机、网络、软硬件折腾、二游与偶尔写的教程。" />
+
+  <!-- ==================== Open Graph / 社交分享 ==================== -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="七七的折腾笔记">
+  <meta property="og:title" content="七七的折腾笔记 | 技术·游戏·日常">
+  <meta property="og:description" content="七七的个人笔记，记录计算机、网络、软硬件折腾、二游与偶尔写的教程。">
+  <meta property="og:url" content="https://100.99.88.77/">
+  <meta property="og:image" content="https://100.99.88.77/src/og-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="七七的折腾笔记主页预览图">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter / X 卡片 -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="七七的折腾笔记 | 技术·游戏·日常">
+  <meta name="twitter:description" content="七七的个人笔记，记录计算机、网络、软硬件折腾、二游与偶尔写的教程。">
+  <meta name="twitter:image" content="https://100.99.88.77/src/og-cover.jpg">
+  <meta name="twitter:image:alt" content="七七的折腾笔记主页预览图">
+
+  <!-- 规范链接，建议和 og:url 一致 -->
+  <link rel="canonical" href="https://100.99.88.77/">
+
+  <script>document.documentElement.classList.add('js');</script>
+  <script type="module">
+    import { BAClickFX } from './libs/ba-click-fx.js';
+    const fx = new BAClickFX();
+    fx.updateConfig({ trailAlways: true });
+    fx.setCompositingReference({ hostCompositing: 'screen' });
+  </script>
+  <style>
+    /* ==================== 设计变量 ==================== */
+    :root {
+      /* 品牌主色 */
+      --color-primary: #21a5e3;
+      --color-primary-hover: #0E7AE0;
+      --color-primary-active: #0B6BC5;
+      --color-blue-light: #ABD7FF;
+      --color-periwinkle: #BEC0EC;
+      --color-orchid: #4454F8;
+
+      /* 中性色 */
+      --color-bg-white: #FFFFFF;
+      --color-bg-light: #FAFAFA;
+      --color-bg-soft: #F5F5F5;
+      --color-border: #EDEDED;
+      --color-border-strong: #D4D4D4;
+      --color-text-primary: #1F1F1F;
+      --color-text-body: #404040;
+      --color-text-secondary: #737373;
+      --color-text-disabled: #A3A3A3;
+
+      /* 功能色 */
+      --color-danger: #F21B28;
+      --color-success: #169B5B;
+      --color-warning: #FFD84D;
+
+      /* 圆角 */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* 阴影 */
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, .06);
+      --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
+      --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
+
+      /* 字体 */
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+
+      /* 布局 */
+      --topbar-h: 56px;
+      --grid-unit: 8px;
+      --page-ease: cubic-bezier(.65, .05, .36, 1);
+      --page-duration: 780ms;
+
+      /* 按钮倾斜角（向右倾斜） */
+      --btn-skew: -10deg;
+    }
+
+    /* ==================== 基础重置 ==================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg-light);
+      color: var(--color-text-body);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      /* 整页分页：禁止浏览器自身的整页滚动 */
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* ==================== 背景装饰（固定，不随分页移动） ==================== */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 4%, rgba(18, 138, 250, .12), transparent 42%),
+        radial-gradient(circle at 92% -4%, rgba(171, 215, 255, .42), transparent 46%),
+        radial-gradient(circle at 72% 96%, rgba(190, 192, 236, .22), transparent 46%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(18, 138, 250, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 138, 250, .035) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* ==================== 顶部栏 ==================== */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 20px;
+      background: rgba(255, 255, 255, 0.92);
+      /* 截图更白的底 */
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      /* 更柔和的底边 */
+    }
+
+    .topbar__title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: .4px;
+      white-space: nowrap;
+      margin-left: 4px;
+    }
+
+    .topbar__spacer {
+      flex: 1 1 auto;
+    }
+
+    /* 图标按钮基础样式 */
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      transition: background .18s ease, transform .12s ease, color .18s ease;
+      background: transparent;
+      /* 透明底 */
+    }
+
+    .icon-btn:active {
+      transform: scale(.94);
+    }
+
+    /* 返回按钮（深蓝底白箭头） */
+    .icon-btn--back {
+      width: 42px;
+      height: 42px;
+      background: #3f568c;
+      color: #ffffff;
+    }
+
+    .icon-btn--back:hover {
+      background: #2d4070;
+      color: #ffffff;
+    }
+    /* ==================== 分页导航（右侧圆点） ==================== */
+    .pager-nav {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 120;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: opacity .3s ease, transform .3s ease;
+      /* 新增：淡出动画 */
+    }
+
+    /* 新增：隐藏状态 */
+    .pager-nav.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-50%) translateX(24px);
+    }
+
+    .pager-nav__dot {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(18, 138, 250, .22);
+      transition: background .25s ease, transform .25s ease, box-shadow .25s ease;
+    }
+
+    .pager-nav__dot::before {
+      content: "";
+      position: absolute;
+      inset: -9px;
+      border-radius: 50%;
+    }
+
+    .pager-nav__dot:hover {
+      background: rgba(18, 138, 250, .5);
+    }
+
+    .pager-nav__dot.is-active {
+      background: var(--color-primary);
+      transform: scale(1.35);
+      box-shadow: 0 0 0 4px rgba(18, 138, 250, .15);
+    }
+
+    /* ==================== 分页容器 ==================== */
+    .pager {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .pager__track {
+      height: 100%;
+      transition: transform var(--page-duration) var(--page-ease);
+      will-change: transform;
+    }
+
+    .page {
+      position: relative;
+      height: 100%;
+      display: flex;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      padding: calc(var(--topbar-h) + 16px) 20px 24px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .page::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page__inner {
+      width: 100%;
+      max-width: 1080px;
+      margin: auto;
+      /* 垂直+水平居中；内容超高时自动退化为可滚动 */
+    }
+
+    /* 每页第一个区块标题不留顶部外边距 */
+    .page__inner>.section-title:first-child {
+      margin-top: 0;
+    }
+
+    /* ==================== 滚动入场动画 ==================== */
+    /* 默认（无 JS）保持可见；仅在 <html class="js"> 时隐藏，等待进入当前页 */
+    .js .reveal {
+      opacity: 0;
+      /* 用独立的 translate 属性做位移，避免与组件自身的 transform 冲突 */
+      translate: 0 22px;
+      transition:
+        opacity .62s cubic-bezier(.22, .61, .36, 1),
+        translate .62s cubic-bezier(.22, .61, .36, 1);
+      will-change: opacity, translate;
+    }
+
+    .js .reveal.is-visible {
+      opacity: 1;
+      translate: 0 0;
+      will-change: auto;
+    }
+
+    /* ==================== 巨型标题区（Masthead） ==================== */
+    .masthead {
+      position: relative;
+      padding: 0 8px;
+    }
+
+    .masthead__eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+    }
+
+    .masthead__eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light));
+      flex: 0 0 auto;
+    }
+
+    .masthead__title {
+      margin-top: 22px;
+      font-size: clamp(46px, 10vw, 116px);
+      line-height: .98;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      background: linear-gradient(118deg, #0889ca 0%, #21a5e3 42%, #39bef8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .masthead__title em {
+      font-style: normal;
+      display: block;
+      font-size: .42em;
+      letter-spacing: .02em;
+      font-weight: 700;
+      opacity: .55;
+      margin-top: .28em;
+    }
+
+    .masthead__subtitle {
+      margin-top: 26px;
+      max-width: 660px;
+      font-size: clamp(15px, 2vw, 19px);
+      line-height: 1.75;
+      color: var(--color-text-secondary);
+    }
+
+    .masthead__meta {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .masthead__meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .masthead__meta span::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-blue-light);
+    }
+
+    .masthead__meta span:first-child::before {
+      background: var(--color-primary);
+    }
+
+    /* 向下滚动提示 */
+    .scroll-hint {
+      margin-top: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--color-text-disabled);
+    }
+
+    .scroll-hint svg {
+      animation: hint-bounce 1.9s ease-in-out infinite;
+    }
+
+    @keyframes hint-bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: .5;
+      }
+
+      50% {
+        transform: translateY(6px);
+        opacity: 1;
+      }
+    }
+
+    /* ==================== 通用卡片 ==================== */
+    .card {
+      position: relative;
+      background: var(--color-bg-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--color-border);
+      padding: 16px;
+      transition: box-shadow .2s ease, transform .15s ease;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .card:active {
+      transform: scale(.98);
+    }
+
+    .card--static:active {
+      transform: none;
+    }
+
+    /* ==================== 区块标题 ==================== */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0 0 12px;
+      letter-spacing: .3px;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+      flex: 0 0 auto;
+    }
+
+    .section-title__sub {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    /* ==================== 主视觉卡片 ==================== */
+    .hero {
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -72px;
+      right: -56px;
+      width: 240px;
+      height: 240px;
+      border-radius: 32px;
+      transform: rotate(18deg);
+      background: linear-gradient(135deg, rgba(18, 138, 250, .12), rgba(171, 215, 255, .32));
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light) 70%, transparent);
+      pointer-events: none;
+    }
+
+    .hero:hover {
+      box-shadow: var(--shadow-card);
+    }
+
+    .hero:active {
+      transform: none;
+    }
+
+    .hero__top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* 头像 */
+    .avatar {
+      position: relative;
+      flex: 0 0 auto;
+      width: 104px;
+      height: 104px;
+    }
+
+    .avatar__img {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius-full);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      border: 4px solid #fff;
+      background: linear-gradient(145deg, #5FB0FF 0%, var(--color-primary) 55%, var(--color-orchid) 130%);
+      box-shadow: var(--shadow-blue);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .avatar__badge {
+      position: absolute;
+      right: -2px;
+      bottom: 2px;
+      height: 22px;
+      padding: 0 9px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(18, 138, 250, .35);
+    }
+
+    /* 名字与标签 */
+    .hero__info {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .hero__name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero__name {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: 1px;
+      line-height: 1.2;
+    }
+
+    .hero__role {
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+
+    .hero__tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    /* 标签 */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .tag--assault {
+      background: var(--color-primary);
+      color: #fff;
+    }
+
+    .tag--burst {
+      background: var(--color-danger);
+      color: #fff;
+    }
+
+    .tag--heavy {
+      background: var(--color-warning);
+      color: var(--color-text-primary);
+    }
+
+    .tag--ssr {
+      background: var(--color-warning);
+      color: var(--color-text-primary);
+    }
+
+    /* 经验条区域 */
+    .hero__exp {
+      position: relative;
+      z-index: 1;
+    }
+
+    .exp-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .exp-num {
+      color: var(--color-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ==================== 进度条 ==================== */
+    .progress-bar {
+      height: 8px;
+      border-radius: var(--radius-sm);
+      background: #F0F0F0;
+      overflow: hidden;
+    }
+
+    .progress-bar__fill {
+      height: 100%;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(90deg, var(--color-primary), #4FA9FF);
+      transition: width .3s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    /* ==================== 数据统计 ==================== */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 16px;
+    }
+
+    .stat__icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: grid;
+      place-items: center;
+      margin-bottom: 8px;
+      background: rgba(18, 138, 250, .1);
+      color: var(--color-primary);
+    }
+
+    .stat__icon--pink {
+      background: rgba(234, 52, 98, .1);
+      color: #EA3462;
+    }
+
+    .stat__icon--purple {
+      background: rgba(68, 84, 248, .1);
+      color: var(--color-orchid);
+    }
+
+    .stat__icon--orange {
+      background: rgba(251, 123, 68, .12);
+      color: #FB7B44;
+    }
+
+    .stat__value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat__label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    /* ==================== 双栏区域 ==================== */
+    .cols {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .panel__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .panel__title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: .3px;
+    }
+
+    .panel__hint {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    /* 技能列表 */
+    .skill+.skill {
+      margin-top: 16px;
+    }
+
+    .skill__head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      font-size: 13px;
+    }
+
+    .skill__name {
+      font-weight: 600;
+      color: var(--color-text-body);
+    }
+
+    .skill__val {
+      font-weight: 700;
+      color: var(--color-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 信息列表 */
+    .info-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      font-size: 13px;
+    }
+
+    .info-row+.info-row {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .info-row__k {
+      flex: 0 0 68px;
+      color: var(--color-text-secondary);
+    }
+
+    .info-row__v {
+      flex: 1 1 auto;
+      text-align: right;
+      color: var(--color-text-primary);
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-success);
+      margin-right: 6px;
+      vertical-align: middle;
+      box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+    }
+
+    /* ==================== 作品网格 ==================== */
+    /* 可点击的作品卡片 */
+    .work[data-href] {
+      cursor: pointer;
+    }
+
+    /* 触摸设备：别残留 hover 阴影 */
+    @media (hover: none) {
+      .work[data-href]:hover {
+        box-shadow: var(--shadow-card);
+      }
+    }
+
+    .works {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .work {
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .work__thumb {
+      aspect-ratio: 16/9;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .work__thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, .14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .14) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: .5;
+    }
+
+    .work__thumb svg {
+      position: relative;
+      z-index: 1;
+      width: 48px;
+      /* 图标宽度，可按需调整 */
+      height: 48px;
+      /* 图标高度，可按需调整 */
+    }
+
+    .work__body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1 1 auto;
+    }
+
+    .work__title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: .2px;
+    }
+
+    .work__desc {
+      font-size: 12.5px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      flex: 1 1 auto;
+    }
+
+    /* ==================== 项目链接 ==================== */
+    .work__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 12.5px;
+      line-height: 1.4;
+      background: rgba(18, 138, 250, .07);
+      border: 1px solid rgba(18, 138, 250, .25);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      padding: 2px 9px;
+      transition: color .18s ease, background .18s ease, border-color .18s ease, transform .15s ease;
+    }
+
+    .work__link::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      bottom: 0;
+      height: 1.5px;
+      background: var(--color-primary);
+      border-radius: 2px;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform .25s cubic-bezier(.65, .05, .36, 1);
+    }
+
+    .work__link:hover {
+      color: var(--color-primary-hover);
+      background: rgba(18, 138, 250, .14);
+      border-color: var(--color-blue-light);
+      transform: translateY(-1px);
+    }
+
+    .work__link:hover::after {
+      transform: scaleX(1);
+    }
+
+    .work__tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 7px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-primary);
+      background: rgba(18, 138, 250, .09);
+    }
+
+    /* ==================== 按钮（向右倾斜） ==================== */
+    .actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: var(--radius-lg);
+      font-weight: 700;
+      letter-spacing: .3px;
+      white-space: nowrap;
+      /* 关键：向右倾斜 */
+      transform: skewX(var(--btn-skew));
+      transform-origin: center;
+      transition: background .18s ease, transform .12s ease, box-shadow .2s ease, border-color .18s ease;
+    }
+
+    .btn:hover {
+      transform: skewX(var(--btn-skew)) translateY(-2px);
+    }
+
+    .btn:active {
+      transform: skewX(var(--btn-skew)) scale(.96);
+    }
+
+    .btn>svg {
+      flex: 0 0 auto;
+    }
+
+    .btn--primary {
+      height: 52px;
+      padding: 0 26px;
+      font-size: 16px;
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(18, 138, 250, .28);
+    }
+
+    .btn--primary:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .btn--primary:active {
+      background: var(--color-primary-active);
+    }
+
+    .btn--secondary {
+      height: 44px;
+      padding: 0 22px;
+      font-size: 14px;
+      font-weight: 600;
+      background: #fff;
+      color: var(--color-primary);
+      border: 1.5px solid var(--color-blue-light);
+    }
+
+    .btn--secondary:hover {
+      background: rgba(18, 138, 250, .06);
+      border-color: var(--color-primary);
+    }
+
+    .btn--secondary:active {
+      background: rgba(18, 138, 250, .12);
+    }
+
+    .btn--ghost {
+      height: 44px;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-primary);
+      background: rgba(18, 138, 250, .08);
+    }
+
+    .btn--ghost:hover {
+      background: rgba(18, 138, 250, .14);
+    }
+
+    /* ==================== 页脚重构版 ==================== */
+    .footer {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    /* --- 第一层：主体信息与计时器 --- */
+    .footer__main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer__brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .footer__mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .footer__mark::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--color-primary);
+      transform: rotate(45deg);
+    }
+
+    .footer__copyright {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    /* 计时器调整 */
+    .footer__uptime {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(33, 165, 227, .09) 0%, rgba(33, 165, 227, .03) 60%, rgba(33, 165, 227, 0) 100%);
+      border: 1px solid rgba(33, 165, 227, .16);
+    }
+
+    /* --- 第二层：开源协议 --- */
+    .footer__license {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .footer__license a {
+      color: var(--color-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* --- 第三层：致谢声明（沉底小字，分隔线区分） --- */
+    .footer__meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--color-border);
+      /* 虚线轻微区分 */
+      font-size: 10.5px;
+      color: var(--color-text-disabled);
+      line-height: 1.6;
+    }
+
+    .footer__meta a {
+      color: var(--color-text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+
+    .footer__meta a:hover {
+      color: var(--color-primary);
+    }
+
+    /* ==================== 响应式适配 ==================== */
+    @media (max-width: 640px) {
+      .footer__main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .footer__uptime {
+        width: 100%;
+        justify-content: center;
+        min-width: 0;
+        padding: 10px;
+      }
+
+      .footer__meta {
+        gap: 6px;
+      }
+    }
+
+    /* ==================== 响应式 ==================== */
+    @media (max-width:860px) {
+      .cols {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width:640px) {
+
+      .topbar {
+        padding: 0 12px;
+        gap: 10px;
+      }
+
+      .page {
+        padding: calc(var(--topbar-h) + 12px) 12px 20px;
+      }
+
+      .pager-nav {
+        right: 8px;
+        gap: 12px;
+      }
+
+      .pager-nav__dot {
+        width: 8px;
+        height: 8px;
+      }
+
+      .masthead {
+        padding: 0 4px;
+      }
+
+      .masthead__eyebrow {
+        letter-spacing: .2em;
+      }
+
+      .masthead__eyebrow::before {
+        width: 22px;
+      }
+
+      .masthead__title {
+        margin-top: 16px;
+      }
+
+      .masthead__subtitle {
+        margin-top: 18px;
+      }
+
+      .masthead__meta {
+        margin-top: 20px;
+        gap: 10px;
+      }
+
+      .scroll-hint {
+        margin-top: 26px;
+      }
+
+      .hero {
+        padding: 20px 18px;
+      }
+
+      .hero__top {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .hero__name-row {
+        justify-content: center;
+      }
+
+      .hero__tags {
+        justify-content: center;
+      }
+
+      .hero__name {
+        font-size: 22px;
+      }
+
+      .avatar {
+        width: 88px;
+        height: 88px;
+      }
+
+      .avatar__img {
+        font-size: 34px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .works {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        gap: 10px;
+      }
+
+      .actions .btn {
+        flex: 1 1 auto;
+      }
+    }
+
+    /* ==================== 动效降级 ==================== */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+
+      .js .reveal {
+        opacity: 1 !important;
+        translate: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* ============================================================
+   竖屏 / 移动端适配
+   ============================================================ */
+
+    /* ---------- 手机竖屏：弹窗内部重排 ---------- */
+    @media (max-width: 480px) {
+      :root {
+        --btn-skew: -6deg;
+      }
+    }
+
+    /* ---------- 4.顶栏：窄屏只保留体力 ---------- */
+    @media (max-width: 705px) {
+
+      /* 顶栏整体：缩小间距，防止右侧按钮被挤掉 */
+      .topbar {
+        padding: 0 8px;
+        gap: 8px;
+      }
+
+      .topbar__title {
+        font-size: 15px;
+        margin-left: 0;
+        white-space: nowrap;
+      }
+
+      .icon-btn--back {
+        width: 36px;
+        height: 36px;
+      }
+
+      /* 右侧按钮：禁止被压缩，确保永远显示 */
+      .topbar>.icon-btn {
+        flex-shrink: 0;
+      }
+    }
+
+    /* ---------- 5. 竖屏平板 ---------- */
+    @media (orientation: portrait) and (max-width: 1024px) {
+      .cols {
+        grid-template-columns: 1fr;
+      }
+
+      .works {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
+
+    /* ---------- 6. 触摸设备禁用 hover 副作用 ---------- */
+    @media (hover: none) {
+
+      /* 返回按钮：触摸端点击后 :hover 会残留，
+     必须锁死深蓝底，否则白图标会消失在白色顶栏上 */
+      .icon-btn--back,
+      .icon-btn--back:hover,
+      .icon-btn--back:active {
+        background: #3f568c;
+        color: #ffffff;
+      }
+
+      /* 其它图标按钮才清掉 hover 底色 */
+      .icon-btn:not(.icon-btn--back):hover {
+        background: transparent;
+      }
+
+      .btn:hover {
+        transform: skewX(var(--btn-skew));
+      }
+    }
+  </style>
+  <style>
+    /* ==================== 第 2 页 · 个人资料 ==================== */
+    .profile {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    /* ---------- 左：立绘 + 名牌 ---------- */
+    .profile__visual {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      min-height: 470px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: linear-gradient(158deg, #7FC4EA 0%, #A9DCF5 42%, #E8F5FD 100%);
+      border: 1px solid rgba(255, 255, 255, .6);
+      box-shadow: var(--shadow-card);
+    }
+
+    .profile__art {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    /* 斜向条纹装饰 */
+    .profile__art::before {
+      content: "";
+      position: absolute;
+      inset: -20% -10%;
+      background: repeating-linear-gradient(118deg,
+          rgba(255, 255, 255, .38) 0 2px,
+          transparent 2px 16px);
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    /* 中央柔光 */
+    .profile__art::after {
+      content: "";
+      position: absolute;
+      width: 78%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+    }
+
+    /* 角色立绘：顶部对齐 → 只展示上半身；放大后向右挪 */
+    .profile__art-img {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      object-fit: cover;
+      object-position: 50% 0;
+      /* 垂直：从顶部开始裁，保留上半身 */
+      transform-origin: top center;
+      transform: scale(0.7) translateX(8%) translateY(-15px);
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .profile__art-inner {
+      position: relative;
+      z-index: 1;
+      width: 176px;
+      height: 176px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-full);
+      border: 6px solid rgba(255, 255, 255, .9);
+      background: linear-gradient(145deg, #5FB0FF 0%, var(--color-primary) 55%, var(--color-orchid) 130%);
+      color: #fff;
+      font-size: 62px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      box-shadow: 0 18px 40px rgba(18, 138, 250, .32);
+      user-select: none;
+    }
+
+    /* 名牌 */
+    .profile__namecard {
+      position: relative;
+      z-index: 2;
+      width: calc(100% - 24px);
+      margin: 0 12px 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(21, 40, 68, .82);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(10, 30, 60, .22);
+      /* 倾斜 */
+      transform: skewX(var(--btn-skew));
+      transform-origin: center;
+      transition: transform .18s ease;
+    }
+
+    .profile__namecard:hover {
+      transform: skewX(var(--btn-skew)) translateY(-2px);
+    }
+
+    .profile__lv {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      padding-right: 14px;
+      border-right: 1px solid rgba(255, 255, 255, .18);
+    }
+
+    .profile__lv-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      opacity: .8;
+      color: var(--color-warning);
+    }
+
+    .profile__lv-num {
+      margin-top: 2px;
+      font-size: 23px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .profile__id {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .profile__id-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .profile__id-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile__id-tag {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--color-warning);
+    }
+
+    .profile__expbar {
+      margin-top: 7px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, .18);
+      overflow: hidden;
+    }
+
+    .profile__expbar>i {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #FFD84D, #FFE98A);
+    }
+
+    /* ---------- 右：面板列 ---------- */
+    .profile__panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    /* 自我介绍 */
+    .profile__intro {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .profile__intro-title {
+      margin: 0;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+    }
+
+    .profile__intro-body {
+      padding: 16px 18px 18px;
+      font-size: 13.5px;
+      line-height: 1.85;
+      color: var(--color-text-body);
+    }
+
+    .profile__intro-lead {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .profile__list {
+      margin: 6px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .profile__list li {
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .profile__list li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .72em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--color-primary);
+    }
+
+    /* GitHub 统计卡（深色） */
+    .profile__github {
+      padding: 0;
+      overflow: hidden;
+      background: #22344C;
+      border-color: rgba(255, 255, 255, .08);
+      color: #DCE9F5;
+    }
+
+    .gh__head {
+      padding: 14px 18px 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      color: #7EE7B0;
+    }
+
+    .gh__body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 0 18px 12px;
+    }
+
+    .gh__list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12.5px;
+    }
+
+    .gh__list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .gh__ico {
+      flex: 0 0 auto;
+      width: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #7EE7B0;
+    }
+
+    .gh__k {
+      flex: 1 1 auto;
+      min-width: 0;
+      color: #B9CBDD;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gh__v {
+      flex: 0 0 auto;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #FFFFFF;
+    }
+
+    /* 评分环 */
+    .gh__grade {
+      position: relative;
+      flex: 0 0 auto;
+      width: 84px;
+      height: 84px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(#4ED08A 0 74%, rgba(255, 255, 255, .12) 74% 100%);
+    }
+
+    .gh__grade::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      background: #22344C;
+    }
+
+    .gh__grade>span {
+      position: relative;
+      z-index: 1;
+      font-size: 22px;
+      font-weight: 800;
+      color: #EAF7F0;
+    }
+
+    /* 语言占比条 */
+    .gh__langs {
+      display: flex;
+      height: 6px;
+    }
+
+    .gh__langs>i {
+      display: block;
+      height: 100%;
+    }
+
+    /* 底部两个按钮 */
+    .profile__links {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .profile__link {
+      flex: 1 1 0;
+      height: 52px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0F3A58;
+      background: linear-gradient(180deg, #B4E6FC 0%, #7FCEF3 100%);
+      box-shadow: 0 4px 12px rgba(18, 138, 250, .2);
+    }
+
+    .profile__link:hover {
+      background: linear-gradient(180deg, #C6EEFD 0%, #96DAF8 100%);
+    }
+
+    /* ---------- 响应式 ---------- */
+    @media (max-width: 860px) {
+      .profile {
+        grid-template-columns: 1fr;
+      }
+
+      .profile__visual {
+        min-height: 400px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .profile__visual {
+        min-height: 280px;
+      }
+
+      .profile__art-inner {
+        width: 128px;
+        height: 128px;
+        font-size: 46px;
+        border-width: 5px;
+      }
+
+      .gh__body {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 12px;
+      }
+
+      .gh__list {
+        width: 100%;
+      }
+
+      .profile__links {
+        flex-direction: column;
+      }
+
+      .profile__link {
+        flex: 0 0 auto;
+        width: 100%;
+      }
+    }
+
+    /* ============================================================
+   手机横屏适配（宽 ≥ 高，且高度有限）
+   —— 放在所有断点之后，覆盖 860px 的单列规则
+   ============================================================ */
+    @media (orientation: landscape) and (max-height: 560px) {
+
+      /* 页面整体内边距收紧 */
+      .page {
+        padding: calc(var(--topbar-h) + 8px) 12px 12px;
+      }
+
+      .section-title {
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+
+      /* 关键：改回两列，左侧立绘固定比例 */
+      .profile {
+        grid-template-columns: minmax(210px, 32%) minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      /* 覆盖掉单列断点里的 min-height:340px */
+      .profile__visual {
+        min-height: 0;
+        height: 100%;
+      }
+
+      /* 立绘：横屏容器变窄，缩放/位移都要收敛 */
+      .profile__art-img {
+        object-position: 0% 0%;
+        transform: scale(1.2) translateX(9%);
+      }
+
+      /* 名牌紧凑化 */
+      .profile__namecard {
+        width: calc(100% - 16px);
+        margin: 0 8px 8px;
+        padding: 6px 10px;
+        gap: 10px;
+      }
+
+      .profile__lv {
+        padding-right: 10px;
+      }
+
+      .profile__lv-label {
+        font-size: 9px;
+      }
+
+      .profile__lv-num {
+        font-size: 20px;
+      }
+
+      .profile__id-name {
+        font-size: 13px;
+      }
+
+      .profile__id-tag {
+        font-size: 9px;
+      }
+
+      .profile__expbar {
+        height: 5px;
+        margin-top: 5px;
+      }
+
+      /* 右侧面板：整体瘦身 */
+      .profile__panel {
+        gap: 8px;
+      }
+
+      .profile__intro-title {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      .profile__intro-body {
+        padding: 10px 14px 12px;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .profile__intro-lead {
+        margin-top: 6px;
+      }
+
+      .profile__list {
+        margin-top: 4px;
+      }
+
+      /* GitHub 卡片 */
+      .gh__head {
+        padding: 8px 14px 6px;
+        font-size: 13px;
+      }
+
+      .gh__body {
+        padding: 0 14px 8px;
+        gap: 10px;
+      }
+
+      .gh__list {
+        gap: 3px;
+        font-size: 11px;
+      }
+
+      .gh__grade {
+        width: 60px;
+        height: 60px;
+      }
+
+      .gh__grade::before {
+        inset: 5px;
+      }
+
+      .gh__grade>span {
+        font-size: 17px;
+      }
+
+      /* 底部两个按钮 */
+      .profile__links {
+        gap: 8px;
+      }
+
+      .profile__link {
+        height: 40px;
+        font-size: 13px;
+      }
+    }
+
+    /* 极矮横屏（例如 320–380px 高的老机型）再压一层 */
+    @media (orientation: landscape) and (max-height: 400px) {
+      .profile {
+        grid-template-columns: minmax(180px, 30%) minmax(0, 1fr);
+      }
+
+      .profile__art-img {
+        object-position: 0% 0%;
+        transform: scale(1) translateX(17px);
+      }
+
+      .profile__intro-body {
+        font-size: 11.5px;
+        line-height: 1.65;
+      }
+
+      .gh__list {
+        font-size: 10.5px;
+      }
+
+      .profile__link {
+        height: 36px;
+        font-size: 12px;
+      }
+    }
+
+    /* ============================================================
+   平板适配
+   —— 放在所有断点之后，覆盖 860px 单列规则
+   ============================================================ */
+
+    /* ---------- ① 平板竖屏：单列，立绘按宽度反推高度 ---------- */
+    @media (min-width: 641px) and (max-width: 900px) and (orientation: portrait) {
+
+      .profile {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      /* 关键：把 min-height 交给 aspect-ratio，避免被压扁 */
+      .profile__visual {
+        min-height: 0;
+        /* 覆盖 340px */
+        aspect-ratio: 3 / 2;
+        /* 宽 820 → 高约 547 */
+        /* max-height: 56vh; */
+        /* 矮平板兜底 */
+      }
+
+      /* 立绘取景：配合更宽更方的容器 */
+      .profile__art-img {
+        object-position: 50% 5%;
+        transform: translateX(5%) scale(0.6);
+      }
+
+      /* 名牌放大一档，和宽立绘区比例协调 */
+      .profile__namecard {
+        width: calc(100% - 24px);
+        margin: 0 12px 14px;
+        padding: 10px 16px;
+        gap: 16px;
+      }
+
+      .profile__lv {
+        padding-right: 16px;
+      }
+
+      .profile__lv-label {
+        font-size: 11px;
+      }
+
+      .profile__lv-num {
+        font-size: 26px;
+      }
+
+      .profile__id-name {
+        font-size: 15px;
+      }
+
+      .profile__id-tag {
+        font-size: 10px;
+      }
+
+      .profile__expbar {
+        height: 6px;
+        margin-top: 8px;
+      }
+
+      /* 右列限宽居中，避免文字行长过长 */
+      .profile__panel {
+        width: 100%;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+    }
+
+    /* ---------- ② 平板横屏：保持两列，收窄左列 ---------- */
+    @media (min-width: 900px) and (max-width: 1366px) and (orientation: landscape) {
+
+      .profile {
+        grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
+        gap: 14px;
+      }
+
+      /*
+      .profile__visual {
+        min-height: 420px;
+      }*/
+
+      .profile__art-img {
+        object-position: 50% 0%;
+        transform: scale(0.9) translateX(10%);
+      }
+    }
+
+    /* ==================== 自我介绍里的引用 ==================== */
+    .intro-quote {
+      position: relative;
+      margin: 14px 0;
+      padding: 10px 16px 10px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg,
+          rgba(33, 165, 227, .10) 0%,
+          rgba(33, 165, 227, .02) 100%);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--color-text-secondary);
+      overflow: hidden;
+    }
+
+    /* 左侧渐变竖条 */
+    .intro-quote::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+    }
+
+    /* 右上角大引号装饰 */
+    .intro-quote::after {
+      content: "\201C";
+      position: absolute;
+      right: 10px;
+      top: -8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1;
+      color: rgba(33, 165, 227, .14);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .intro-quote__author {
+      display: inline-block;
+      margin-left: 6px;
+      font-weight: 700;
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+
+    .intro-quote__author a {
+      color: inherit;
+      border-bottom: 1px dashed currentColor;
+      transition: color .18s ease, border-color .18s ease;
+    }
+
+    .intro-quote__author a:hover {
+      color: var(--color-primary-hover);
+      border-bottom-style: solid;
+      border-bottom-color: var(--color-primary-hover);
+    }
+
+    /* ============================================================
+   第 3 页 · 能力参数（Master-Detail）
+   ============================================================ */
+
+    /* ---------- 基础：桌面两栏 ---------- */
+    .ability {
+      display: grid;
+      grid-template-columns: minmax(0, 1.16fr) minmax(0, .84fr);
+      gap: 28px;
+      align-items: start;
+      overflow-anchor: none;
+    }
+
+    /* ---------- 左栏：详情 ---------- */
+    .ability__detail {
+      min-width: 0;
+    }
+
+    .ability__card {
+      position: relative;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(150deg, rgba(255, 255, 255, .97) 0%, rgba(238, 247, 255, .94) 100%);
+      border: 1px solid rgba(255, 255, 255, .9);
+      box-shadow: 0 12px 34px rgba(18, 138, 250, .14);
+      overflow: hidden;
+    }
+
+    /* 右上斜纹装饰 */
+    .ability__card::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 260px;
+      height: 260px;
+      background: repeating-linear-gradient(118deg, rgba(33, 165, 227, .10) 0 2px, transparent 2px 14px);
+      transform: rotate(6deg);
+      pointer-events: none;
+    }
+
+    /* 底部主色条 */
+    .ability__card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light) 72%, transparent);
+      pointer-events: none;
+    }
+
+    /* 玻璃标题框 */
+    .ability__frame {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px 16px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(214, 238, 255, .88));
+      border: 1px solid rgba(255, 255, 255, .95);
+      /* 右下斜切的非对称圆角，BA 味来源 */
+      border-radius: 10px 10px 24px 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 8px 22px rgba(18, 138, 250, .14);
+    }
+
+    .ability__no {
+      flex: 0 0 auto;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: var(--color-primary);
+    }
+
+    .ability__title {
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: .02em;
+      color: #14283C;
+    }
+
+    .ability__lv {
+      flex: 0 0 auto;
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+
+    .ability__lv i {
+      font-style: normal;
+      font-size: .52em;
+      font-weight: 700;
+      letter-spacing: .06em;
+      margin-right: 1px;
+    }
+
+    /* 章节式 tagline */
+    .ability__tagline {
+      position: relative;
+      z-index: 1;
+      margin: 16px 0 0;
+      padding-left: 10px;
+      border-left: 3px solid var(--color-primary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--color-text-primary);
+    }
+
+    /* 正文 */
+    .ability__desc {
+      position: relative;
+      z-index: 1;
+      margin: 12px 0 0;
+      font-size: 13.5px;
+      line-height: 1.85;
+      color: var(--color-text-body);
+    }
+
+    /* 要点 */
+    .ability__points {
+      position: relative;
+      z-index: 1;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ability__points li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--color-text-secondary);
+    }
+
+    .ability__points li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .78em;
+      width: 5px;
+      height: 5px;
+      border-radius: 1px;
+      background: var(--color-primary);
+      transform: rotate(45deg);
+    }
+
+    /* 底部 chip 排 */
+    .ability__chips {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--color-border);
+    }
+
+    /* ---------- 右栏：列表 ---------- */
+    .ability__list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .ability__item {
+      --i: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: var(--radius-md);
+      background: #fff;
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card);
+      text-align: left;
+      transition: box-shadow .2s ease,
+        border-color .2s ease, background .2s ease;
+    }
+
+    .ability__item:hover {
+      box-shadow: var(--shadow-card-hover);
+      border-color: rgba(33, 165, 227, .42);
+    }
+
+    .ability__item.is-active {
+      border-color: rgba(33, 165, 227, .55);
+      box-shadow: 0 6px 18px rgba(18, 138, 250, .18);
+    }
+
+    /* 斜切编号片 */
+    .ability__item-no {
+      flex: 0 0 auto;
+      width: 36px;
+      padding: 3px 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+      background: #A9CBE8;
+      border-radius: 3px;
+      transform: skewX(var(--btn-skew));
+      transition: background .2s ease, box-shadow .2s ease;
+    }
+
+    .ability__item.is-active .ability__item-no {
+      background: var(--color-primary);
+      box-shadow: 0 3px 10px rgba(18, 138, 250, .35);
+    }
+
+    .ability__item-title {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ability__item-arrow {
+      flex: 0 0 auto;
+      font-size: 13px;
+      color: var(--color-text-disabled);
+      transition: color .2s ease, transform .2s ease;
+    }
+
+    .ability__item.is-active .ability__item-arrow {
+      color: var(--color-primary);
+      transform: translateX(2px);
+    }
+
+    /* 手机端返回按钮（默认隐藏） */
+    .ability__back {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-primary);
+      background: rgba(18, 138, 250, .08);
+    }
+
+    .ability__back:active {
+      background: rgba(18, 138, 250, .16);
+    }
+
+    /* ============================================================
+   断点 ①：平板竖屏 641~900 —— 两栏但压缩
+   ============================================================ */
+    @media (min-width: 641px) and (max-width: 900px) {
+      .ability {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .ability__card {
+        padding: 16px;
+      }
+
+      .ability__frame {
+        padding: 11px 14px 13px;
+      }
+
+      .ability__title {
+        font-size: 22px;
+      }
+
+      .ability__lv {
+        font-size: 18px;
+      }
+
+      .ability__tagline {
+        margin-top: 12px;
+        font-size: 12.5px;
+      }
+
+      .ability__desc {
+        font-size: 12.5px;
+        line-height: 1.75;
+      }
+
+      .ability__points {
+        margin-top: 10px;
+      }
+
+      .ability__points li {
+        font-size: 12.5px;
+        line-height: 1.75;
+      }
+
+      .ability__chips {
+        margin-top: 12px;
+        padding-top: 10px;
+      }
+
+      .ability__item {
+        padding: 11px 12px;
+        gap: 10px;
+      }
+
+      .ability__item-arrow {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+   断点 ②：481~640 —— 上下结构，列表变底部横滑条
+   ============================================================ */
+    @media (min-width: 481px) and (max-width: 640px) {
+      .ability {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .ability__list {
+        flex-direction: row;
+        gap: 8px;
+        padding: 2px 2px 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+      }
+
+      .ability__list::-webkit-scrollbar {
+        display: none;
+      }
+
+      .ability__item {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 138px;
+        transform: none;
+        scroll-snap-align: start;
+      }
+
+      .ability__item.is-active {
+        transform: translateY(-2px);
+      }
+
+      .ability__item-arrow {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+   断点 ③：手机竖屏 ≤480 —— 推入式（列表屏 / 详情屏）
+   ============================================================ */
+    @media (max-width: 480px) and (orientation: portrait) {
+      .ability {
+        display: block;
+      }
+
+      .ability__list {
+        gap: 8px;
+      }
+
+      .ability__item {
+        padding: 14px 14px;
+        transform: none;
+        /* 手机不做堆叠错位，省空间 */
+      }
+
+      .ability__item.is-active {
+        transform: translateX(-4px);
+      }
+
+      /* 默认只显示列表 */
+      .ability__detail {
+        display: none;
+      }
+
+      .ability[data-view="detail"] .ability__list {
+        display: none;
+      }
+
+      .ability[data-view="detail"] .ability__detail {
+        display: block;
+        animation: abilitySlideIn .3s cubic-bezier(.22, .61, .36, 1) backwards;
+      }
+
+      .ability__back {
+        display: inline-flex;
+      }
+
+      .ability__card {
+        padding: 16px;
+      }
+
+      .ability__title {
+        font-size: 24px;
+      }
+
+      .ability__lv {
+        font-size: 18px;
+      }
+
+      .ability__tagline {
+        font-size: 12.5px;
+      }
+
+      .ability__desc {
+        font-size: 13px;
+        line-height: 1.8;
+      }
+
+      .ability__points li {
+        font-size: 12.5px;
+      }
+
+      .ability__chips .chip {
+        font-size: 10px;
+      }
+    }
+
+    @keyframes abilitySlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ============================================================
+       点击右侧列表 → 左栏详情入场动画
+       ============================================================ */
+
+    /* 卡片整体：淡入 + 上移 + 轻微缩放 */
+    @keyframes abilityDetailIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 返回按钮：左侧滑入 */
+    @keyframes abilityBackIn {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* 卡片内部子块：淡入上移（用于错峰） */
+    @keyframes abilityInnerIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 卡片整体 */
+    .ability__card.is-enter {
+      animation: abilityDetailIn .42s cubic-bezier(.22, .61, .36, 1) backwards;
+    }
+
+    /* 返回按钮 */
+    .ability__back.is-enter {
+      animation: abilityBackIn .3s cubic-bezier(.22, .61, .36, 1) backwards;
+    }
+
+    /* 内部错峰（标题框已在卡片内，不用重复） */
+    .ability__card.is-enter .ability__tagline {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .06s backwards;
+    }
+
+    .ability__card.is-enter .ability__desc {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .12s backwards;
+    }
+
+    .ability__card.is-enter .ability__points {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .18s backwards;
+    }
+
+    .ability__card.is-enter .ability__chips {
+      animation: abilityInnerIn .38s cubic-bezier(.22, .61, .36, 1) .24s backwards;
+    }
+
+    /* ============================================================
+   右侧列表项 · 入场动画
+   —— 首次进入 / 从详情返回列表时，子元素错峰浮现
+   ============================================================ */
+    @keyframes abilityItemIn {
+      from {
+        opacity: 0;
+        /* 用独立 translate 属性，避免与 .ability__item.is-active 的 transform 冲突 */
+        translate: 0 14px;
+      }
+
+      to {
+        opacity: 1;
+        translate: 0 0;
+      }
+    }
+
+    .ability__item.is-enter {
+      animation: abilityItemIn .42s cubic-bezier(.22, .61, .36, 1) backwards;
+      animation-delay: calc(var(--i, 0) * 55ms);
+    }
+
+    /* 动效降级：直接显示，不做位移 */
+    @media (prefers-reduced-motion: reduce) {
+      .ability__item.is-enter {
+        animation: none !important;
+        opacity: 1;
+        translate: none;
+      }
+    }
+
+    /* ============================================================
+   断点 ④：矮横屏（含手机横放）—— 回到两栏紧凑版
+   ============================================================ */
+    @media (orientation: landscape) and (max-height: 560px) {
+      .ability {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+        gap: 14px;
+      }
+
+      /* 覆盖手机档留下的隐藏状态 */
+      .ability__detail {
+        display: block;
+      }
+
+      .ability__list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ability__back {
+        display: none;
+      }
+
+      .ability__card {
+        padding: 14px;
+      }
+
+      .ability__frame {
+        padding: 10px 14px 12px;
+      }
+
+      .ability__title {
+        font-size: 20px;
+      }
+
+      .ability__lv {
+        font-size: 16px;
+      }
+
+      .ability__tagline {
+        margin-top: 10px;
+        font-size: 12px;
+      }
+
+      .ability__desc {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .ability__points {
+        margin-top: 8px;
+      }
+
+      .ability__points li {
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .ability__chips {
+        margin-top: 10px;
+        padding-top: 10px;
+      }
+
+      .ability__item {
+        padding: 9px 12px;
+        transform: none;
+      }
+
+      .ability__item.is-active {
+        transform: translateX(-4px);
+      }
+
+      .ability__item-arrow {
+        display: none;
+      }
+    }
+
+    del {
+      text-decoration: line-through;
+      text-decoration-thickness: 3px;
+    }
+
+    /* ==================== 悬停提示框 ==================== */
+    .hover-hint {
+      position: relative;
+      cursor: help;
+      border-bottom: 1px dashed currentColor;
+      transition: border-color .2s ease;
+      white-space: nowrap;
+    }
+
+    .hover-hint:hover {
+      border-bottom-style: solid;
+    }
+
+    /* tooltip 由 JS 传送到 <body> 下，用 fixed 定位，彻底避开祖先 overflow 裁剪 */
+    .hover-hint__tooltip {
+      position: fixed;
+      left: -9999px;
+      /* 由 JS 覆盖 */
+      top: -9999px;
+      /* 由 JS 覆盖 */
+      min-width: 200px;
+      max-width: 300px;
+      width: max-content;
+      padding: 12px 16px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+      border: 1px solid var(--color-border);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--color-text-body);
+      text-align: left;
+      white-space: normal;
+      word-break: break-word;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+        transform .25s cubic-bezier(.22, .61, .36, 1),
+        visibility .25s ease;
+      z-index: 999999;
+    }
+
+    .hover-hint__tooltip.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* 当上方空间不足，tooltip 翻到元素下方时用 */
+    .hover-hint__tooltip.is-below {
+      transform: translateY(-6px);
+    }
+
+    .hover-hint__tooltip.is-below.is-visible {
+      transform: translateY(0);
+    }
+
+    /* 小三角箭头（默认指向下方 —— tooltip 在上方） */
+    .hover-hint__tooltip::after,
+    .hover-hint__tooltip::before {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: solid transparent;
+      pointer-events: none;
+    }
+
+    .hover-hint__tooltip::before {
+      border-width: 8px;
+      border-top-color: var(--color-border);
+      margin-top: 1px;
+    }
+
+    .hover-hint__tooltip::after {
+      border-width: 7px;
+      border-top-color: #ffffff;
+      margin-top: 0;
+    }
+
+    /* 翻转到下方时，箭头朝上 */
+    .hover-hint__tooltip.is-below::before,
+    .hover-hint__tooltip.is-below::after {
+      top: auto;
+      bottom: 100%;
+      margin-top: 0;
+    }
+
+    .hover-hint__tooltip.is-below::before {
+      border-top-color: transparent;
+      border-bottom-color: var(--color-border);
+      margin-bottom: 1px;
+    }
+
+    .hover-hint__tooltip.is-below::after {
+      border-top-color: transparent;
+      border-bottom-color: #ffffff;
+    }
+
+    /* 提示框内标题（可选） */
+    .hover-hint__tooltip .hint-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 6px;
+      letter-spacing: .2px;
+    }
+
+    .hover-hint__tooltip .hint-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+      flex: 0 0 auto;
+    }
+
+    /* 手机端微调 */
+    @media (max-width: 640px) {
+      .hover-hint__tooltip {
+        min-width: 170px;
+        max-width: 240px;
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+    }
+
+    /* ==================== 立项至今 · 实时计时 ==================== */
+    .footer__uptime {
+      flex: 1 1 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg,
+          rgba(33, 165, 227, .09) 0%,
+          rgba(33, 165, 227, .03) 60%,
+          rgba(33, 165, 227, 0) 100%);
+      border: 1px solid rgba(33, 165, 227, .16);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    .footer__uptime-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+    }
+
+    /* 呼吸小圆点 */
+    .footer__uptime-label::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-success);
+      box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+      animation: uptime-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes uptime-pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 3px rgba(22, 155, 91, .16);
+      }
+
+      50% {
+        opacity: .55;
+        box-shadow: 0 0 0 6px rgba(22, 155, 91, .06);
+      }
+    }
+
+    .footer__uptime-value {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .uptime-unit {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 2px;
+      white-space: nowrap;
+    }
+
+    .uptime-unit b {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--color-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .uptime-unit i {
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    /* 窄屏微调 */
+    @media (max-width: 640px) {
+      .footer__uptime {
+        gap: 8px;
+        padding: 9px 12px;
+      }
+
+      .footer__uptime-value {
+        gap: 6px;
+      }
+
+      .uptime-unit b {
+        font-size: 12px;
+      }
+
+      .uptime-unit i {
+        font-size: 10px;
+      }
+    }
+
+
+    /* ============================================================
+   详情正文内嵌富文本（第 6 章「技能介绍」）
+   —— 复用全局标题语言、渐变条、菱形列表、内联 chip
+   ============================================================ */
+
+    /* 块级容器化后的首尾外边距收口 */
+    .ability__desc> :first-child {
+      margin-top: 0;
+    }
+
+    .ability__desc> :last-child {
+      margin-bottom: 0;
+    }
+
+    /* ---------- H1 · 总标题条（深蓝渐变，右下斜切） ---------- */
+    .ability__desc h1 {
+      margin: 0 0 16px;
+      padding: 11px 16px;
+      font-size: clamp(15px, 2.4vw, 17px);
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: .1em;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+      border-radius: 10px 10px 24px 10px;
+      box-shadow: 0 6px 18px rgba(20, 40, 60, .2);
+    }
+
+    /* H1 紧接 H2 时收紧一次间距 */
+    .ability__desc h1+h2 {
+      margin-top: 12px;
+    }
+
+    /* ---------- H2 · 板块标题（左侧渐变竖条 + 右侧渐隐延长线） ---------- */
+    .ability__desc h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0 8px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: var(--color-text-primary);
+    }
+
+    .ability__desc h2::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 4px;
+      height: 15px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+    }
+
+    .ability__desc h2::after {
+      content: "";
+      flex: 1 1 auto;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(33, 165, 227, .3), rgba(33, 165, 227, 0));
+    }
+
+    /* ---------- H3 · 小标题（菱形记号 + 主色文字） ---------- */
+    .ability__desc h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 4px;
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--color-primary);
+    }
+
+    .ability__desc h3::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 5px;
+      height: 5px;
+      border-radius: 1px;
+      background: var(--color-primary);
+      transform: rotate(45deg);
+    }
+
+    /* ---------- 列表 ---------- */
+    .ability__desc ul {
+      margin: 0 0 2px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ability__desc li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--color-text-secondary);
+    }
+
+    .ability__desc li+li {
+      margin-top: 1px;
+    }
+
+    .ability__desc li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .75em;
+      width: 5px;
+      height: 5px;
+      border-radius: 1px;
+      background: var(--color-blue-light);
+      transform: rotate(45deg);
+    }
+
+    /* ---------- strong · 关键词（主色 + 极浅底，内联 chip 感） ---------- */
+    .ability__desc strong {
+      padding: 0 4px;
+      border-radius: 3px;
+      font-weight: 700;
+      color: var(--color-primary);
+      background: rgba(18, 138, 250, .08);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+
+    /* ---------- 响应式微调 ---------- */
+    @media (max-width: 480px) and (orientation: portrait) {
+      .ability__desc h1 {
+        padding: 10px 14px;
+        letter-spacing: .06em;
+      }
+
+      .ability__desc h2 {
+        margin: 15px 0 6px;
+        font-size: 14px;
+      }
+
+      .ability__desc h3 {
+        font-size: 13px;
+      }
+
+      .ability__desc li {
+        font-size: 12.5px;
+        line-height: 1.8;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 560px) {
+      .ability__desc h1 {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      .ability__desc h1+h2 {
+        margin-top: 9px;
+      }
+
+      .ability__desc h2 {
+        margin: 12px 0 5px;
+        font-size: 13px;
+      }
+
+      .ability__desc h2::before {
+        height: 13px;
+      }
+
+      .ability__desc h3 {
+        margin: 9px 0 3px;
+        font-size: 12px;
+      }
+
+      .ability__desc li {
+        font-size: 11.5px;
+        line-height: 1.65;
+      }
+    }
+
+    /* ==================== 轻提示（Toast） ==================== */
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: calc(var(--topbar-h) + 16px);
+      z-index: 99999;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      max-width: min(86vw, 360px);
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, .92);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-card-hover);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1.5;
+      text-align: center;
+      word-break: break-word;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -10px);
+      transition:
+        opacity .25s cubic-bezier(.22, .61, .36, 1),
+        transform .25s cubic-bezier(.22, .61, .36, 1);
+      white-space: pre-line;
+    }
+
+    /* 左侧主色小圆点（和顶栏状态点同语言） */
+    .toast::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* ==================== 自定义鼠标指针 ==================== */
+    /* 目录：src/cursors/  —— normal.cur / link.cur / help.cur */
+
+    /* 1) 全局默认指针 */
+    html,
+    body {
+      cursor: url('src/cursors/normal.cur'), auto;
+    }
+
+    /* 2) 可点击元素 → link.cur（含 a / button / 各类“按钮感”容器） */
+    a,
+    button,
+    .btn,
+    .icon-btn,
+    .pager-nav__dot,
+    .work[data-href],
+    .ability__item,
+    .ability__back,
+    .profile__art,
+    .profile__namecard,
+    [role="button"] {
+      cursor: url('src/cursors/link.cur'), pointer;
+    }
+
+    /* 3) 悬停提示 → help.cur（覆盖原本的 cursor: help） */
+    .hover-hint {
+      cursor: url('src/cursors/help.cur'), help;
+    }
+
+    /* 4) 文本输入区保持默认文本指针（避免输入时看不到光标） */
+    input,
+    textarea,
+    [contenteditable="true"] {
+      cursor: auto;
+    }
+
+    /* ==================== 角色对话气泡（toast 风格） ==================== */
+    .char-dialog {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 99998;
+      max-width: min(78vw, 360px);
+      min-width: 160px;
+      padding: 12px 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .96);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 500;
+      line-height: 1.7;
+      color: var(--color-text-primary);
+      white-space: pre-line;
+      word-break: break-word;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 14px)) scale(.96);
+      transform-origin: 50% 100%;
+      transition:
+        opacity .25s cubic-bezier(.22, .61, .36, 1),
+        transform .25s cubic-bezier(.22, .61, .36, 1);
+    }
+
+    .char-dialog.is-visible {
+      opacity: 1;
+      transform: translate(-50%, calc(-100% - 14px)) scale(1);
+    }
+
+    /* 指向角色的小三角 */
+    .char-dialog::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-bottom-color: rgba(255, 255, 255, .96);
+      margin-bottom: -1px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      .char-dialog {
+        max-width: 86vw;
+        font-size: 12.5px;
+        padding: 10px 14px;
+      }
+    }
+
+        /* 右侧动作按钮（深蓝图标） */
+    .icon-btn--action {
+      color: #3f568c;
+    }
+
+    .icon-btn--action:hover {
+      background: rgba(63, 86, 140, 0.08);
+    }
+
+    .icon-btn--action:active {
+      transform: scale(.94);
+    }
+
+        @media (hover: none) {
+      .icon-btn:not(.icon-btn--back):hover {
+        background: transparent;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==================== 顶部栏 ==================== -->
+  <header class="topbar">
+  <!-- 返回按钮（深蓝色圆形） -->
+  <button class="icon-btn icon-btn--back" aria-label="返回" onclick="closeTab()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  <!-- 标题 -->
+  <div class="topbar__title">七七的折腾笔记</div>
+
+      <div class="topbar__spacer"></div>
+
+    <!-- 右侧跳转按钮 -->
+    <a class="icon-btn icon-btn--action"
+       href="/ttwe77old.html"
+       aria-label="访问旧版"
+       title="访问旧版">
+      <svg t="1791041914741" fill="currentColor" width="22" height="22" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8463"><path d="M708.388571 121.904762L902.095238 320.804571V828.952381a73.142857 73.142857 0 0 1-73.142857 73.142857H195.047619a73.142857 73.142857 0 0 1-73.142857-73.142857V195.047619a73.142857 73.142857 0 0 1 73.142857-73.142857h513.340952zM292.571429 195.023238L195.047619 195.047619v633.904762l97.52381-0.024381V536.380952h438.857142v292.547048L828.952381 828.952381V350.549333l-97.52381-100.156952V365.714286H292.571429V195.023238zM658.285714 609.52381H365.714286v219.40419h292.571428V609.52381z m-48.761904 73.142857v73.142857h-195.04762v-73.142857h195.04762z m48.761904-487.619048H365.714286v97.52381h292.571428V195.047619z" p-id="8464"></path></svg>
+      </a>
+  </header>
+</header>
+
+  <!-- ==================== 右侧分页导航 ==================== -->
+  <nav class="pager-nav" id="pager-nav" aria-label="页面导航">
+    <button class="pager-nav__dot is-active" type="button" data-goto="0" aria-label="第 1 页：封面"></button>
+    <button class="pager-nav__dot" type="button" data-goto="1" aria-label="第 2 页：作战数据"></button>
+    <button class="pager-nav__dot" type="button" data-goto="2" aria-label="第 3 页：能力参数"></button>
+    <button class="pager-nav__dot" type="button" data-goto="3" aria-label="第 4 页：作品记录"></button>
+    <button class="pager-nav__dot" type="button" data-goto="4" aria-label="第 5 页：建立连接"></button>
+  </nav>
+
+  <!-- ==================== 分页主体 ==================== -->
+  <div class="pager" id="pager">
+    <div class="pager__track" id="pager-track">
+
+      <!-- ---------- 第 1 页 · 封面 ---------- -->
+      <section class="page" aria-label="封面">
+        <div class="page__inner">
+          <div class="masthead">
+            <h1 class="masthead__title reveal">
+              ttwe 77
+            </h1>
+
+            <p class="masthead__eyebrow reveal">与你的日常，便是奇迹</p>
+
+            <p class="masthead__subtitle reveal">
+              技术宅一枚，沉迷计算机与网络，爱折腾软硬件（尤其是Windows）。<br>日常打二游，偶尔写点教程。欢迎同好交流。
+            </p>
+
+            <!--<div class="masthead__meta reveal">
+            <span>杭州 · 中国</span>
+            <span>TypeScript / Vue / Canvas</span>
+            <span>可接洽合作</span>
+          </div>-->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 第 2 页 · 个人简介 ==================== -->
+      <section class="page" aria-label="个人资料">
+        <div class="page__inner">
+          <h2 class="section-title reveal">个人资料<span class="section-title__sub">PROFILE</span></h2>
+
+          <section class="profile">
+            <!-- ---------- 左：立绘 + 名牌 ---------- -->
+            <div class="profile__visual reveal">
+              <div class="profile__art">
+                <img class="profile__art-img" src="src/kei/kei.avif" alt="我推立绘" loading="lazy" onerror="
+    if (this.dataset.fb === '1') { this.src = 'src/kei/kei.webp'; this.dataset.fb = '2'; }
+    else if (this.dataset.fb === '2') { this.src = 'src/kei/kei.png'; this.dataset.fb = '3'; }
+    else { this.onerror = null; }
+  " data-fb="1">
+              </div>
+
+              <div class="profile__namecard">
+                <div class="profile__lv">
+                  <span class="profile__lv-label">Lv.</span>
+                  <span class="profile__lv-num">90</span>
+                </div>
+
+                <div class="profile__id">
+                  <div class="profile__id-row">
+                    <span class="profile__id-name">ttwe 77</span>
+                    <span class="profile__id-tag">MAX</span>
+                  </div>
+                  <div class="profile__expbar">
+                    <i style="width:100%"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ---------- 右：自我介绍 / GitHub / 链接 ---------- -->
+            <div class="profile__panel">
+              <!-- 自我介绍 -->
+              <div class="card card--static profile__intro reveal">
+                <h3 class="profile__intro-title">自我介绍</h3>
+                <div class="profile__intro-body">
+                  <p>你好啊，我是<span class="hover-hint">77<span class="hover-hint__tooltip"><span
+                          class="hint-title">ttwe77</span>ttwe77是我的网名，平时可以称呼我为77哦~</span></span> &gt;_&lt;！</p>
+                  <p>很高兴见到你，我是一个大一学生，很喜欢计算机与网络。平时最享受的就是不断"<span class="hover-hint">折腾<span
+                        class="hover-hint__tooltip"><span
+                          class="hint-title">折腾</span>你可以把它理解成：反复尝试、钻研、摆弄、鼓捣、投入。类似‘我在爱好上爱钻研’‘我爱鼓捣这些东西’。</span></span>",把日常的东西赋予更多有意思的可能性。
+                  </p>
+                  <p class="intro-quote">
+                    <span class="intro-quote__text"><span class="hover-hint">科技倡导个性化<span
+                          class="hover-hint__tooltip"><span
+                            class="hint-title">科技倡导个性化</span>科技的价值在于赋能个体，尊重并实现每个人的独特性，而非用统一的标准和“科技霸权”去束缚人。</span></span></span>
+                    <span class="intro-quote__author">—— <a href="https://space.bilibili.com/12590" target="_blank"
+                        rel="noopener noreferrer">Epcdiy</a></span>
+                  </p>
+                  <p class="profile__intro-lead">个人信息：</p>
+                  <ul class="profile__list">
+                    <li>兴趣爱好：计算机、<span class="hover-hint">音乐<span class="hover-hint__tooltip"><span
+                            class="hint-title">喜欢的音乐类型</span>交响、摇滚、二次元、古风、纯音乐、国风、欧美流行、嘻哈说唱、西欧、HOYO-MiX重度依赖</span></span>、游戏、心理学、密码学、Ai
+                    </li>
+                    <li>性格标签：<span class="hover-hint">INTP<span class="hover-hint__tooltip"><span
+                            class="hint-title">INTP</span>INTP 是 MBTI（迈尔斯-布里格斯类型指标）16
+                          种人格类型中的一种，中文常被称为“逻辑学家”“思想家”或“学者型”。</span></span>、有点社恐、理性客观</li>
+                  </ul>
+                  <p>现在是个 Sensei、旅行者、开拓者、舰长、绳匠</p>
+                </div>
+              </div>
+
+              <!-- GitHub 统计 -->
+              <!--<div class="card card--static profile__github reveal">
+          <div class="gh__head">ttwe 77's GitHub Stats</div>
+
+          <div class="gh__body">
+            <ul class="gh__list">
+              <li>
+                <span class="gh__ico">★</span>
+                <span class="gh__k">Total Stars Earned:</span>
+                <span class="gh__v">261</span>
+              </li>
+              <li>
+                <span class="gh__ico">↻</span>
+                <span class="gh__k">Total Commits (last year):</span>
+                <span class="gh__v">427</span>
+              </li>
+              <li>
+                <span class="gh__ico">⇄</span>
+                <span class="gh__k">Total PRs:</span>
+                <span class="gh__v">20</span>
+              </li>
+              <li>
+                <span class="gh__ico">!</span>
+                <span class="gh__k">Total Issues:</span>
+                <span class="gh__v">1</span>
+              </li>
+              <li>
+                <span class="gh__ico">▤</span>
+                <span class="gh__k">Contributed to (last year):</span>
+                <span class="gh__v">12</span>
+              </li>
+            </ul>
+
+            <div class="gh__grade"><span>B+</span></div>
+          </div>-->
+
+              <!-- 语言占比条 -->
+              <!--<div class="gh__langs" aria-hidden="true">
+            <i style="width:46%;background:#7C9CFF"></i>
+            <i style="width:26%;background:#FFD84D"></i>
+            <i style="width:18%;background:#4ED08A"></i>
+            <i style="width:10%;background:#F4756A"></i>
+          </div>
+        </div>-->
+
+              <!-- 底部按钮 -->
+              <div class="profile__links reveal">
+                <a class="btn profile__link" href="https://gitee.com/ttwe77" target="_blank"
+                  rel="noopener noreferrer">Gitee</a>
+                <a class="btn profile__link" href="https://github.com/ttwe77" target="_blank"
+                  rel="noopener noreferrer">GitHub</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ---------- 第 3 页 · 能力参数 ---------- -->
+      <section class="page" aria-label="能力参数">
+        <div class="page__inner">
+          <h2 class="section-title reveal">小故事/碎碎念<span class="section-title__sub">STORY/THOUGHTS</span></h2>
+
+          <!-- data-view：手机端状态机，"list" | "detail" -->
+          <section class="ability reveal" id="ability" data-view="list">
+            <!-- 左栏：当前选中项的详情（JS 填充） -->
+            <div class="ability__detail" id="ability-detail"></div>
+
+            <!-- 右栏：可选项列表（JS 填充） -->
+            <div class="ability__list" id="ability-list" role="tablist" aria-label="能力分类"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ---------- 第 4 页 · 作品记录 ---------- -->
+      <section class="page" aria-label="作品记录">
+        <div class="page__inner">
+          <h2 class="section-title reveal">作品记录<span class="section-title__sub">SELECTED WORKS</span></h2>
+
+          <section class="works">
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/Quickly-Run-Kit">
+              <div class="work__thumb" style="--c1:#8AB4F8; --c2:#5E8BFF;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 7h16v13H4z" />
+                  <path d="M9 7V4h6v3" />
+                </svg>
+                </svg>
+              </div>
+              <div class="work__body">
+                <h3 class="work__title">快 Run 工具箱</h3>
+                <p class="work__desc">设计于Windows PATH中的实用工具，可使用Win+R快速启动。</p>
+                <div class="work__tags">
+                  <span class="chip">C++</span>
+                  <span class="chip">Python</span>
+                  <span class="chip">Windows</span>
+                  <span class="chip">工具箱</span>
+                  <span class="chip">快速启动</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/ttwe77s-homepage">
+              <div class="work__thumb" style="--c1:#5FB0FF;--c2:#21a5e3;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+                </svg>
+              </div>
+              <div class="work__body">
+                <h3 class="work__title">ttwe77s-homepage 个人主页</h3>
+                <p class="work__desc">纯原生 HTML/CSS/JS 打造的个人主页，采用多页分页导航与错峰入场动画。</p>
+                <div class="work__tags">
+                  <span class="chip">HTML</span>
+                  <span class="chip">CSS</span>
+                  <span class="chip">JavaScript</span>
+                  <span class="chip">个人主页</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/Save-your-Peepers-20-20-20-Timer">
+              <div class="work__thumb" style="--c1:#7BE0B8; --c2:#34C79F;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </svg>
+                </svg>
+              </div>
+              <div class="work__body">
+                <h3 class="work__title">Save-your-Peepers 护眼计时器</h3>
+                <p class="work__desc">基于 20-20-20 护眼规则的 Windows 桌面计时器，通过全屏覆盖层与抢焦点机制强制休息，保护眼睛健康。</p>
+                <div class="work__tags">
+                  <span class="chip">Python</span>
+                  <span class="chip">C++</span>
+                  <span class="chip">守护双眼</span>
+                  <span class="chip">20-20-20</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/Redshitone-Technology4Windows">
+              <div class="work__thumb" style="--c1:#E39BEA; --c2:#A97CE6;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l3 3-3 3-3-3zM5 9l3 3-3 3-3-3zM19 9l3 3-3 3-3-3zM12 16l3 3-3 3-3-3z" />
+                </svg>
+                </svg>
+              </div>
+              <div class="work__body">
+                <h3 class="work__title">Redshitone-Technology4Windows</h3>
+                <p class="work__desc">赤石科技整活工具集，用最正经的代码实现完全无用的程序，涵盖 Win32 C++、Python、Web 三种技术栈。</p>
+                <div class="work__tags">
+                  <span class="chip">C++</span>
+                  <span class="chip">Python</span>
+                  <span class="chip">HTML/CSS/JavaScript</span>
+                  <span class="chip">整活</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card work reveal" data-href="https://gitee.com/ttwe77/TripleDoublePinyinKeygen">
+              <div class="work__thumb" style="--c1:#9BA4B5; --c2:#6C7A9F;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="6" width="20" height="12" rx="2" />
+                  <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" />
+                </svg>
+                </svg>
+              </div>
+              <div class="work__body">
+                <h3 class="work__title">三重双拼汉字加密密钥生成器</h3>
+                <p class="work__desc">基于三重双拼映射的对称密钥生成工具，适用于无电子设备的互相加密交流。将汉字加密为高分辨率 QWERTY 键盘 PNG 视觉密钥，支持 UUID 复现与多语言转换。
+                </p>
+                <div class="work__tags">
+                  <span class="chip">Java</span>
+                  <span class="chip">密码学</span>
+                  <span class="chip">双拼</span>
+                  <span class="chip">PNG</span>
+                </div>
+              </div>
+            </article>
+
+          </section>
+        </div>
+      </section>
+
+      <!-- ---------- 第 5 页 · 建立连接 ---------- -->
+      <section class="page" aria-label="建立连接">
+        <div class="page__inner">
+          <h2 class="section-title reveal">建立连接<span class="section-title__sub">CONTACT</span></h2>
+
+          <section class="card panel card--static reveal" style="padding:26px 24px;">
+            <div class="actions">
+              <a class="btn btn--primary" href="mailto:ttwe77@yeah.net" onclick="showToast('邮箱地址：ttwe77@yeah.net');">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M2 7l10 6 10-6" />
+                </svg>
+                发送邮件
+              </a>
+              <a class="btn btn--secondary" href="https://github.com/ttwe77" target="_blank"
+                rel="noopener noreferrer">GitHub</a>
+              <a class="btn btn--secondary" href="https://gitee.com/ttwe77" target="_blank"
+                rel="noopener noreferrer">Gitee</a>
+              <!--<a class="btn btn--ghost" href="#">下载简历 (PDF)</a>-->
+            </div>
+          </section>
+
+          <footer class="footer reveal">
+            <!-- 第一层：主体信息 & 计时器 -->
+            <div class="footer__main">
+              <div class="footer__brand">
+                <span class="footer__mark">由ttwe77熬了5天夜肝出来的一个个人主页</span>
+                <span class="footer__copyright">© 2026 ttwe77</span>
+              </div>
+
+              <!-- 计时器高亮展示 -->
+              <div class="footer__uptime">
+                <span class="footer__uptime-label">立项至今</span>
+                <span class="footer__uptime-value" id="uptime-value">—</span>
+              </div>
+            </div>
+
+            <!-- 第二层：开源协议说明 -->
+            <div class="footer__license">
+              <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
+                  href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
+                  仓库</a> 查阅。</span>
+            </div>
+
+            <!-- 第三层：致谢与次要声明（小字沉底） -->
+            <div class="footer__meta">
+              <!--<p>网站标识码：bm12345678　　备案号：<a style="color:#666" target="_blank" rel="noopener"
+                  href="http://beian.miit.gov.cn/">XICP备12345678号-9</a><a style="color:#666;margin-left: 20px;"
+                  target="_blank" rel="noopener"
+                  href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123"> X公网安备
+                  01234567890123号</a> </p>-->
+              <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
+                  rel="noopener noreferrer">ba-click-fx</a>（<a
+                  href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
+                  href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
+                  rel="noopener noreferrer">BlueArchive-Cursors</a>（<a
+                  href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a>）。</span>
+              <span>角色立绘来自<span class="hover-hint">B站<span class="hover-hint__tooltip"><span
+                      class="hint-title">哔哩哔哩</span><del>全球最大同性交友网站(不是)</del>哔哩哔哩是中国一个以视频弹幕为特色的综合视频平台，总部在上海。它最早以
+                    ACG（动画、漫画、游戏）内容起家，后来扩展到番剧、游戏、音乐、舞蹈、科技、知识、生活、鬼畜、直播等多个领域。</span></span>UP主 <a
+                  href="https://space.bilibili.com/522341749" target="_blank" rel="noopener noreferrer">女仆优香</a> 的 <a
+                  href="https://www.bilibili.com/opus/1214489311059116040" target="_blank"
+                  rel="noopener noreferrer">冬装凯伊差分立绘</a> 视频立绘。建站使用到的工具：<a href="https://imagemagick.org/"
+                  target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/"
+                  target="_blank" rel="noopener noreferrer">Git</a>。</span>
+              <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
+                  href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
+                  rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
+            </div>
+          </footer>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       整页上下分页控制器
+       - 滚轮 / 触摸滑动 / 键盘 / 右侧圆点 均可切换
+       - 页面内容超出视口时，先在页内滚动，到边界再翻页
+       - 翻页动画期间锁定，避免连续跳跃
+       ============================================================ */
+    (function () {
+      var track = document.getElementById('pager-track');
+      var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+      var dots = Array.prototype.slice.call(document.querySelectorAll('.pager-nav__dot'));
+
+      if (!track || !pages.length) return;
+
+      var reduceMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var DURATION = reduceMotion ? 0 : 780;
+      var current = 0;
+      var locked = false;
+      var lockTimer = null;
+      var revealTimer = null;
+      var revealed = [];
+
+      /* ---------- 工具 ---------- */
+      function clamp(i) { return Math.max(0, Math.min(pages.length - 1, i)); }
+
+      // 判断某个页面在指定方向是否还能继续内部滚动
+      function canScroll(el, dir) {
+        if (!el) return false;
+        if (el.scrollHeight <= el.clientHeight + 1) return false;
+        if (dir > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+        return el.scrollTop > 1;
+      }
+      // 判断事件目标是否位于「内层可滚动容器」中（如音乐播放列表），且该容器在该方向还能继续滚动
+      function canInnerScroll(target, dir) {
+        var el = target;
+        while (el && el.nodeType === 1 && el !== document.body && el !== document.documentElement) {
+          var oy = window.getComputedStyle(el).overflowY;
+          if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') &&
+            el.scrollHeight > el.clientHeight + 1) {
+            if (dir > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+            return el.scrollTop > 1;
+          }
+          el = el.parentElement;
+        }
+        return false;
+      }
+      // 手机竖屏 + 能力参数页处于详情视图时，锁住整页翻页
+      function isPagerLocked() {
+        var ability = document.getElementById('ability');
+        if (!ability) return false;
+        if (ability.getAttribute('data-view') !== 'detail') return false;
+        return window.matchMedia('(max-width: 480px) and (orientation: portrait)').matches;
+      }
+
+      /* ---------- 入场动画 ---------- */
+      function revealPage(i) {
+        if (revealed[i]) return;
+        revealed[i] = true;
+        var els = pages[i].querySelectorAll('.reveal');
+        Array.prototype.forEach.call(els, function (el, k) {
+          el.style.transitionDelay = Math.min(k * 70, 420) + 'ms';
+          el.classList.add('is-visible');
+        });
+      }
+
+      /* ---------- 圆点状态 ---------- */
+      function updateDots() {
+        dots.forEach(function (d, i) {
+          d.classList.toggle('is-active', i === current);
+          d.setAttribute('aria-current', i === current ? 'true' : 'false');
+        });
+      }
+
+      /* ---------- 跳转 ---------- */
+      function goTo(target) {
+        target = clamp(target);
+        if (target === current) return;
+        if (locked) return;
+
+        current = target;
+        locked = true;
+
+        // 用位移百分比：轨道高度 = 视口高度，-100% 即一页
+        track.style.transition = reduceMotion ? 'none' : '';
+        track.style.transform = 'translate3d(0,' + (-current * 100) + '%,0)';
+
+        // 重置新页面的内部滚动位置
+        pages[current].scrollTop = 0;
+
+        updateDots();
+
+        // 等页面滑入大半后再播放内容入场
+        clearTimeout(revealTimer);
+        revealTimer = setTimeout(function () {
+          revealPage(current);
+        }, DURATION * 0.35);
+
+        clearTimeout(lockTimer);
+        lockTimer = setTimeout(function () {
+          locked = false;
+        }, DURATION + 80);
+      }
+
+      /* ---------- 滚轮 ---------- */
+      window.addEventListener('wheel', function (e) {
+        if (e.ctrlKey) return;
+        if (Math.abs(e.deltaY) < 1) return;
+
+        var dir = e.deltaY > 0 ? 1 : -1;
+        var page = pages[current];
+
+        // 内层可滚动容器（如音乐播放列表）还能滚 → 交给它自己滚
+        if (canInnerScroll(e.target, dir)) return;
+
+        // 页面内部还能滚 → 交给浏览器原生滚动
+        if (canScroll(page, dir)) return;
+
+        // 详情视图锁翻页：页内滚到头也停在原地
+        if (isPagerLocked()) {
+          e.preventDefault();
+          return;
+        }
+
+        e.preventDefault();                       // 阻止橡皮筋 / 惯性溢出
+        if (locked) return;
+        goTo(current + dir);
+      }, { passive: false });
+
+      /* ---------- 触摸滑动 ---------- */
+      var touchStartY = 0;
+      var touchStartX = 0;
+      var touching = false;
+
+      window.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+        touching = true;
+      }, { passive: true });
+
+      window.addEventListener('touchmove', function (e) {
+        if (!touching || e.touches.length !== 1) return;
+        var dy = touchStartY - e.touches[0].clientY;
+        var dx = touchStartX - e.touches[0].clientX;
+        if (Math.abs(dx) > Math.abs(dy)) return;
+
+        var dir = dy > 0 ? 1 : -1;
+        // 内层可滚动容器（如音乐播放列表）还能滚 → 交给它自己滚
+        if (canInnerScroll(e.target, dir)) return;
+        if (canScroll(pages[current], dir)) return;
+
+        // 详情视图锁翻页
+        if (isPagerLocked()) {
+          e.preventDefault();
+          return;
+        }
+
+        // 只在事件可取消时才阻止默认滚动
+        if (e.cancelable) e.preventDefault();
+      }, { passive: false });
+
+      window.addEventListener('touchend', function (e) {
+        if (!touching) return;
+        touching = false;
+
+        var t = e.changedTouches[0];
+        if (!t) return;
+
+        var dy = touchStartY - t.clientY;
+        var dx = touchStartX - t.clientX;
+
+        if (Math.abs(dy) < 60) return;                 // 位移太短，不翻页
+        if (Math.abs(dx) > Math.abs(dy)) return;       // 横向滑动
+
+        var dir = dy > 0 ? 1 : -1;
+        if (canScroll(pages[current], dir)) return;
+        if (isPagerLocked()) return;   // 详情视图锁翻页
+        if (locked) return;
+        goTo(current + dir);
+      }, { passive: true });
+
+      /* ---------- 键盘 ---------- */
+      window.addEventListener('keydown', function (e) {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+        var key = e.key;
+        var ae = document.activeElement;
+        var focusable = ae && /^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+
+        if (key === 'Home') { e.preventDefault(); goTo(0); return; }
+        if (key === 'End') { e.preventDefault(); goTo(pages.length - 1); return; }
+
+        var dir = 0;
+        if (key === 'ArrowDown' || key === 'PageDown') dir = 1;
+        else if (key === 'ArrowUp' || key === 'PageUp') dir = -1;
+        else if ((key === ' ' || key === 'Spacebar') && !focusable) dir = 1;
+        else return;
+
+        if (canScroll(pages[current], dir)) return;   // 让页面内部先滚
+        e.preventDefault();
+        goTo(current + dir);
+      });
+
+      /* ---------- 圆点点击 ---------- */
+      dots.forEach(function (dot) {
+        dot.addEventListener('click', function () {
+          goTo(parseInt(dot.getAttribute('data-goto'), 10) || 0);
+        });
+      });
+
+      /* ---------- 窗口尺寸变化 ---------- */
+      var resizeTimer = null;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          pages.forEach(function (p) { p.scrollTop = 0; });
+        }, 150);
+      });
+
+      /* ---------- 初始化 ---------- */
+      updateDots();
+      // 首屏入场
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          revealPage(0);
+        });
+      });
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       点击立绘 → 切换立绘 + 播放语音 + 显示对话气泡
+       - art / voice 填【不带扩展名】的基础路径即可，自动回退：
+         图片：.avif → .webp → .png
+         语音：.ogg
+       - 语音播放期间暂停眨眼；播放结束（或失败）后切回默认立绘
+       ============================================================ */
+    (function () {
+      'use strict';
+
+      /* ================== 用户配置区 ================== */
+      var DEFAULT_ART = 'src/kei/kei';        // 默认立绘 base（不带扩展名）
+
+      var DIALOGUE = [
+        {
+          text: '可愛いって言うのやめてください！\n请别说我可爱啦！',
+          art: 'src/kei/CH0335_noweapon_spr_20',
+          voice: 'src/kei/ch0335_lobby_1_1'
+        },
+        {
+          text: '食事はちゃんと取っていますか？適度な運動も必要です。\n你有好好吃饭吗？适当的运动也是必要的。',
+          art: 'src/kei/CH0335_noweapon_spr_07',
+          voice: 'src/kei/ch0335_lobby_3_2'
+        },
+        {
+          text: '仕事はほどほどに。とはいえ怠けるのもほどほどに。\n工作要适度，不过偷懒也得适可而止。',
+          art: 'src/kei/CH0335_noweapon_spr_08',
+          voice: 'src/kei/ch0335_lobby_3_4'
+        },
+        {
+          text: '……本当にもう、手が焼けるんですから。\n……真是的，你实在太让人操心啦。',
+          art: 'src/kei/CH0335_noweapon_spr_29',
+          voice: 'src/kei/ch0335_lobby_3_5'
+        },
+        {
+          text: '何ですか？用がないなら呼ばないでください。\n什么事？如果没事的话请不要叫我。',
+          art: 'src/kei/CH0335_noweapon_spr_02',
+          voice: 'src/kei/ch0335_lobby_5_1'
+        },
+        {
+          text: 'こんにちは、先生。\n你好，老师。',
+          art: 'src/kei/CH0335_noweapon_spr_08',
+          voice: 'src/kei/ch0335_season_birthday_player_1'
+        }
+      ];
+      /* ================================================= */
+
+      var EXTS_IMG = ['avif', 'webp', 'png'];
+      var EXTS_AUDIO = ['opus', 'ogg'];
+      var MIME_AUDIO = {
+        opus: 'audio/ogg; codecs=opus',
+        ogg: 'audio/ogg'
+      };
+
+      var artEl = document.querySelector('.profile__art');
+      var visualEl = document.querySelector('.profile__visual');
+      var imgEl = document.querySelector('.profile__art-img');
+      if (!artEl || !imgEl) return;
+
+      /* ---------- 立绘路径解析（带回退 + 缓存） ---------- */
+      var imgCache = Object.create(null);
+      function resolveArt(base, cb) {
+        if (!base) { cb(null); return; }
+        if (base in imgCache) { cb(imgCache[base]); return; }
+        var urls = EXTS_IMG.map(function (e) { return base + '.' + e; });
+        var i = 0;
+        (function next() {
+          if (i >= urls.length) { imgCache[base] = null; cb(null); return; }
+          var url = urls[i++];
+          var probe = new Image();
+          probe.onload = function () { imgCache[base] = url; cb(url); };
+          probe.onerror = next;
+          probe.src = url;
+        })();
+      }
+
+      function setArt(base) {
+        resolveArt(base, function (url) {
+          if (url) imgEl.src = url;
+        });
+      }
+
+      /* ---------- 对话气泡 ---------- */
+      var dialogEl = document.createElement('div');
+      dialogEl.className = 'char-dialog';
+      dialogEl.setAttribute('role', 'status');
+      dialogEl.setAttribute('aria-live', 'polite');
+      document.body.appendChild(dialogEl);
+
+      var hideTimer = null;
+
+      function positionDialog() {
+        if (!visualEl) return;
+
+        var r = visualEl.getBoundingClientRect();
+        var w = dialogEl.offsetWidth;   // 气泡实际渲染宽度
+        var pad = 8;                    // 距视口左右边缘的最小间距
+
+        // 气泡用 transform: translate(-50%, …)，所以 left 是中心线
+        var cx = r.left + r.width / 2;
+        var minLeft = pad + w / 2;
+        var maxLeft = window.innerWidth - pad - w / 2;
+
+        var left = (minLeft > maxLeft)
+          ? window.innerWidth / 2                       // 视口比气泡还窄：直接居中
+          : Math.min(Math.max(cx, minLeft), maxLeft);   // 否则夹在安全范围内
+
+        dialogEl.style.left = left + 'px';
+        dialogEl.style.top = r.bottom + 'px';
+      }
+
+      function showDialog(text) {
+        clearTimeout(hideTimer);
+        dialogEl.textContent = text;
+        positionDialog();
+        requestAnimationFrame(function () {
+          dialogEl.classList.add('is-visible');
+        });
+      }
+
+      function hideDialog() {
+        dialogEl.classList.remove('is-visible');
+      }
+
+      window.addEventListener('resize', function () {
+        if (dialogEl.classList.contains('is-visible')) positionDialog();
+      });
+      window.addEventListener('scroll', function () {
+        if (dialogEl.classList.contains('is-visible')) positionDialog();
+      }, true);
+
+      /* ---------- 语音播放（带格式回退） ---------- */
+      var currentAudio = null;
+
+      function stopVoice() {
+        if (currentAudio) {
+          try { currentAudio.pause(); } catch (e) { }
+          currentAudio = null;
+        }
+      }
+
+      function playVoice(base, onEnd) {
+        stopVoice();
+        if (!base) { onEnd && onEnd(); return; }
+
+        var a = document.createElement('audio');
+        a.preload = 'auto';
+        EXTS_AUDIO.forEach(function (ext) {
+          var s = document.createElement('source');
+          s.src = base + '.' + ext;
+          s.type = MIME_AUDIO[ext];
+          a.appendChild(s);
+        });
+
+        currentAudio = a;
+        var finished = false;
+        function finish() {
+          if (finished) return;
+          finished = true;
+          if (currentAudio === a) currentAudio = null;
+          onEnd && onEnd();
+        }
+
+        a.addEventListener('ended', finish);
+        a.addEventListener('error', finish);
+
+        var p = a.play();
+        if (p && p.catch) p.catch(finish);
+      }
+
+      /* ---------- 一次完整交互 ---------- */
+      var busy = false;
+      var MIN_SHOW = 1200;   // 气泡最短显示时间
+
+      function triggerDialogue() {
+        if (busy) return;
+        if (!DIALOGUE.length) return;
+        busy = true;
+
+        var d = DIALOGUE[Math.floor(Math.random() * DIALOGUE.length)];
+        var shownAt = Date.now();
+
+        /* 1. 暂停自动眨眼 */
+        if (window.blinkPause) window.blinkPause();
+
+        /* 2. 切换立绘 */
+        setArt(d.art);
+
+        /* 3. 显示对话气泡 */
+        showDialog(d.text);
+
+        /* 4. 播放语音；结束（或失败）后切回默认立绘 */
+        playVoice(d.voice, function () {
+          var wait = Math.max(0, MIN_SHOW - (Date.now() - shownAt));
+          setTimeout(function () {
+            busy = false;
+            setArt(DEFAULT_ART);                  // 切回默认立绘
+            if (window.blinkResume) window.blinkResume();  // 恢复眨眼
+            hideTimer = setTimeout(hideDialog, 600);
+          }, wait);
+        });
+      }
+
+      artEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        triggerDialogue();
+      });
+
+      /* 无障碍：键盘 Enter / 空格 */
+      artEl.setAttribute('role', 'button');
+      artEl.setAttribute('tabindex', '0');
+      artEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          triggerDialogue();
+        }
+      });
+
+      /* 兼容旧接口 */
+      window.alarm = triggerDialogue;
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       第 3 页 · 能力参数 Master-Detail
+       - 一份数据 + 一个 selectedIndex，三档布局共用
+       - 手机端切换 data-view="list" / "detail"
+       ============================================================ */
+    (function () {
+      var ABILITIES = [
+        {
+          no: '01',
+          title: '最初的起点',
+          lv: 0,
+          tagline: '第 1 章 | 从裕语言起步，构建安卓软件',
+          desc: '从我初中开始，我就开始用<span class="hover-hint">裕语言<span class="hover-hint__tooltip"><span class="hint-title">裕语言</span>裕语言是指 iApp(手机软件) 平台专用的脚本语言，是一种基于 Java 的扩展性脚本语言。它以简易的上手门槛，让开发者能在手机上快速开发安卓应用。</span></span>写安卓软件。因为该语言简单易学，我在很短的时间内上手。并且借此做了不少小项目，让我对Android和Linux系统有了更深的理解。<br><br>然而在之后我意识到<span class="hover-hint">学裕语言没有前途<span class="hover-hint__tooltip"><span class="hint-title">学裕语言没有前途</span>裕语言是封闭的专有语言，生态局限于iApp(手机软件)内部且小众；裕语言性能上限低，难以开发复杂应用；裕语言保护薄弱，易被破解。</span></span>，所以我之后转向了Java、Python等其他编程语言。',
+          points: [],
+          chips: ['裕语言', 'Android', 'Linux']
+        },
+        {
+          no: '02',
+          title: '从 PPT 到系统折腾',
+          lv: 10,
+          tagline: '第 2 章 | 一台新电脑',
+          desc: '我在我高一的时候，用自己的理解购买并组装了我人生中的第一台电脑（感谢Very的硬件赞助和帮忙）。我最初是用它来做一些PPT等简单的生产 <del>和玩游戏</del>。<br>之后我开始研究了下Windows系统的个性化，之后就一发不可收拾地开始研究系统了 <del>好在那时我没把我的系统干掉</del>。<br>因为当时我用的是超级低配的电脑（<span class="hover-hint">i5-3570<span class="hover-hint__tooltip"><span class="hint-title">i5-3570大致参数</span>于 2012 年第二季度发布，4 核心 / 4 线程（不支持超线程技术），基础频率 3.40 GHz，最大睿频频率 3.80 GHz</span></span>+RX580+<span class="hover-hint">HDD<span class="hover-hint__tooltip"><span class="hint-title">HDD</span>希捷的2TB机械硬盘，每分钟转5400圈。用作系统盘</span></span>），为了改善我的体验，我开始学习优化系统的方法。<br>很快我就对组策略、注册表、系统文件和系统优化都有了更深的理解。',
+          points: [],
+          chips: ['装机', 'Windows']
+        },
+        {
+          no: '03',
+          title: '数据要留在自己手里',
+          lv: 25,
+          tagline: '第 3 章 | 数据安全与加密通信',
+          desc: '我高中的时候还挺喜欢密码学的。有一天我在跟同学传纸条的时候，注意到我传的纸条有被偷看的风险，所以我开始研究加密通信，找出一些安全的通信方式。<br>之后我跟我的舍友<del>争论</del>协商出了一个最优解：汉字拆开它的声母、韵母和音标来分别加密。<br>之后我为了更方便地生成密钥，我用Java写了一个密钥生成器，程序生成后只需要打印出来就不用手写了。(๑•̀ㅂ•́)و✧ <a class="work__link" target="_blank" rel="noopener noreferrer" href="https://gitee.com/ttwe77/TripleDoublePinyinKeygen">项目地址</a>。<br>之后我发现我还挺有天赋的，在我一不小心安装上<span class="hover-hint">OpenSSL<span class="hover-hint__tooltip"><span class="hint-title">OpenSSL</span>OpenSSL 是一个开源的加密与安全通信工具包，主要用来实现 SSL/TLS 协议和各种密码学算法。我们平时访问 HTTPS 网站，底层经常就是 TLS 在加密通信，而很多服务器、客户端、程序库用的就是 OpenSSL。</span></span>之后就越来越一发不可收拾了。RSA啊，AES啊，证书啊啥的都了解了。<br>之后呢就变得和外国人一样，注重个人隐私了。',
+          points: ['DoH、ECH', '对称与非对称加密', '数据安全'],
+          chips: ['加密通信', '数据安全', '密钥生成']
+        },
+        {
+          no: '04',
+          title: '无聊时翻开的世界',
+          lv: 40,
+          tagline: '第 4 章 | 从课本到当下',
+          desc: '我在高中的时候，买了些大学的计算机相关的课本来应对无聊。我买过挺多书的，其中我最喜欢看的是<a href="https://baike.baidu.com/item/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89/22206553" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">《计算机网络》</a>。<br>我基本上是无聊的时候随手翻翻看，<a href="https://www.tup.tsinghua.edu.cn/booksCenter/book_08131901.html"  target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">《计算机导论》</a>枯燥乏味，有些知识我已经了解了，<span class="hover-hint">有些感觉根本用不上<span class="hover-hint__tooltip"><span class="hint-title">有些感觉根本用不上</span>之后我去 中国大学MOOC 做了点计算机二级的模拟题，被真实了。</span></span> (￣▽￣)。而计算机网络则改变了我对当下网络的看法，从“能上网”到“知道为什么能上网”，看问题的视角变了。我现在很羡慕我自己能用之前学到的知识解决当下的问题。',
+          points: ['在无聊的高中时代，一本《计算机网络》提前连接了未来的兴趣', '开始理解网络不是魔法，而是协议、分层、寻址和一次次转发', '过去觉得抽象的概念，后来变成排障时的直觉', '很羡慕当时的自己：无聊翻书，也能翻到改变认知的那一本'],
+          chips: ['计算机网络', '自学启蒙', '知识迁移', '高中']
+        },
+        {
+          no: '05',
+          title: '我的编程启蒙之路',
+          lv: 70,
+          tagline: '第 5 章 | 从 Vibe Coding 到 Python',
+          desc: '记得那是我在坐公交车的时候，我想尝试一下电脑编程。在<a href="https://www.deepseek.com/" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">DeepSeek</a>的指导下，我最先尝试了<span class="hover-hint">小熊猫C++<span class="hover-hint__tooltip"><span class="hint-title">小熊猫C++（Red Panda Dev-C++）</span>小熊猫C++是一款开源、免费、轻量级、跨平台的 C/C++ 集成开发环境（IDE）。它基于 Qt 框架从零开发，是经典工具 Dev-C++ 的现代替代品，主要面向编程初学者、学生、以及算法竞赛（OI/ACM）选手。它最大的特点是免配置、开箱即用。安装包体积小，自带编译器和常用库，打开就能写代码，省去了新手最头疼的环境配置环节。</span></span>这个IDE。<br>最先我是没啥自学编程的动力的，我就叫DeepSeek来 <span class="hover-hint">Vibe Coding<span class="hover-hint__tooltip"><span class="hint-title">Vibe Coding（氛围编程）</span>Vibe Coding是指用自然语言向 AI 描述你想要的软件功能或体验，由 AI 生成可运行代码的软件开发方式。你无需逐行手写代码，甚至不需要完全理解 AI 生成的实现细节。这个词由 OpenAI 联合创始人 Andrej Karpathy 在 2025 年 2 月提出，他形容这种状态是「I just vibe. I don\'t even touch the keyboard sometimes. I just talk to the AI, it writes the code, I review it, and we iterate.」（完全沉浸在氛围里，忘记代码本身的存在）。该词后来被《柯林斯词典》评为 2025 年度词汇。</span></span> C++(<span class="hover-hint">MinGW64<span class="hover-hint__tooltip"><span class="hint-title">MinGW64（Minimalist GNU for Windows 64-bit）</span>MinGW64 是 Windows 平台上的一个开发工具集。简单说，它让你能在 Windows 上使用 GCC（GNU 编译器集合）来编译 C、C++ 等程序，生成原生的 Windows 可执行文件（.exe），而不需要依赖像 Cygwin 那样的 POSIX 模拟层。</span></span>)，做出了第二个<a href="https://gitee.com/ttwe77/DiyWindow" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">简单的项目</a><br>之后我继续Vibe Coding，做了完全无用的<span class="hover-hint">搞笑项目<span class="hover-hint__tooltip"><span class="hint-title">搞笑项目-赤石科技</span>赤石科技 = 用最正经的代码、最复杂的界面、最唬人的流程，实现完全没用、纯整活、纯搞笑的程序。不解决任何实际问题，只提供节目效果。</span></span>——<a href="https://gitee.com/ttwe77/Redshitone-Technology4Windows" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">赤石科技</a><br>在开发期间我深刻意识到C++过于复杂，于是后续开发转向Python（有时候还是会用C++的，因为小而美）',
+          points: ['在公交车上萌生学习编程的念头，借助 DeepSeek 入门',
+            '使用小熊猫 C++ IDE + MinGW64 环境起步',
+            '通过 Vibe Coding 完成第一个简单项目：DiyWindow',
+            '开发搞笑项目「赤石科技」，积累实战经验',
+            '因 C++ 过于复杂，主力语言转向 Python，C++ 仅用于小而美的场景'],
+          chips: ['C++', 'Python', 'Vibe Coding', '小熊猫C++', 'DeepSeek', 'MinGW64']
+        },
+        {
+          no: '06',
+          title: '科技树',
+          lv: 90,
+          tagline: '第 6 章 | 目前会的东西',
+          desc: '<h2>软件层面</h2><h3>编程语言</h3><ul><li>平时主要用<strong>C++</strong>和<strong>Python</strong>。</li><li>通常都是<strong><span class="hover-hint">Vibe Coding<span class="hover-hint__tooltip"><span class="hint-title">Vibe Coding（氛围编程）</span>Vibe Coding是指用自然语言向 AI 描述你想要的软件功能或体验，由 AI 生成可运行代码的软件开发方式。你无需逐行手写代码，甚至不需要完全理解 AI 生成的实现细节。这个词由 OpenAI 联合创始人 Andrej Karpathy 在 2025 年 2 月提出，他形容这种状态是「I just vibe. I don\'t even touch the keyboard sometimes. I just talk to the AI, it writes the code, I review it, and we iterate.」（完全沉浸在氛围里，忘记代码本身的存在）。该词后来被《柯林斯词典》评为 2025 年度词汇。</span></span></strong>，<del>Ai真是太好用了</del>。</li></ul><h3>网站&amp;App</h3><ul><li>会搭网站，一般用<strong>HTML/CSS/JS</strong>，<del>其它一概不会</del>。能把项目跑起来。</li><li>以前用<strong><span class="hover-hint">iApp<span class="hover-hint__tooltip"><span class="hint-title">裕语言</span>裕语言是指 iApp(手机软件) 平台专用的脚本语言，是一种基于 Java 的扩展性脚本语言。它以简易的上手门槛，让开发者能在手机上快速开发安卓应用。</span></span></strong>和<strong><span class="hover-hint">Android Studio<span class="hover-hint__tooltip"><span class="hint-title">Android Studio</span>Android Studio 是 Google 官方推出的 Android 应用开发集成开发环境（IDE）。它就是一个专门用来做安卓手机 App 的软件。</span></span></strong>做过一些小工具、小App。</li></ul><h3>系统&amp;运维</h3><ul><li>熟悉<strong><span class="hover-hint">Linux<span class="hover-hint__tooltip"><span class="hint-title">Linux</span>Linux 是一个开源的、免费的操作系统内核，也是目前世界上最主流的服务器操作系统之一。</span></span></strong>和<strong>Windows</strong>的基本命令。</li><li>会在终端里操作文件、检查网络、做版本控制这些。最常用的命令是<strong><span class="hover-hint">FFmpeg<span class="hover-hint__tooltip"><span class="hint-title">FFmpeg</span>FFmpeg 是一套开源、免费的音视频处理工具集，被公认为音视频领域的“瑞士军刀”。它不是一个单独的软件，而是一组命令行程序和底层库的集合。</span></span></strong>。</li><li>会用<strong><span class="hover-hint">Nginx<span class="hover-hint__tooltip"><span class="hint-title">Nginx</span>Nginx 是一个轻量、高性能的 Web 服务器和反向代理服务器，常用来做网站入口、负载均衡、静态资源服务和 HTTPS 网关。</span></span></strong>把项目简单上线。</li></ul><h3>自动化</h3><ul><li>喜欢用<strong>Python</strong>处理简单、重复性的任务，能自动就自动。</li></ul><h2>AI相关</h2><ul><li>会用<strong><span class="hover-hint">llama.cpp<span class="hover-hint__tooltip"><span class="hint-title">llama.cpp</span>llama.cpp 是一个用 C/C++ 编写的开源大语言模型（LLM）推理引擎，核心目标是让你能在各种普通硬件上本地、高效地运行大模型，无需依赖云端服务。它的出现是为了让普通人也能在消费级设备上运行大模型。你不需要昂贵的专业 GPU 集群，用自己的笔记本电脑、台式机甚至手机就能跑起来。</span></span></strong>在本地部署AI大模型。</li><li>平时习惯用AI工具写代码、改bug、写文档、查资料、做表。</li><li>写代码这块也比较依赖AI辅助，效率会高不少。</li></ul><h2>硬件层面</h2><ul><li>自己动手组装过<strong>2台台式电脑</strong>。</li><li>硬件这块愿意折腾，装机、换件这些<span class="hover-hint">不怵<span class="hover-hint__tooltip"><span class="hint-title">不怵</span>小生不才，文采有限，就让Ai帮我润色了一下。结果Ai生成出了“不怵”这个字。小生在此为您解释：‌“不怵”就是不害怕、不畏惧的意思‌，读作 ‌bù chù‌，常用来形容人胆子大、面对困难或权威时不退缩。‌‌</span></span>。</li></ul>',
+          points: [],
+          chips: ['C++', 'Python', 'Vibe Coding', 'Linux', 'Windows', 'Nginx', 'Python 自动化', 'llama.cpp', 'AI 辅助开发', 'Android Studio', 'iApp', 'DIY 装机']
+        }
+      ];
+
+      var root = document.getElementById('ability');
+      if (!root) return;
+
+      var listEl = root.querySelector('.ability__list');
+      var detailEl = root.querySelector('.ability__detail');
+      if (!listEl || !detailEl) return;
+
+      var current = 0;
+      var mqMobile = window.matchMedia('(max-width: 480px) and (orientation: portrait)');
+
+      /* ---------- 渲染右栏列表 ---------- */
+      function buildList() {
+        var html = '';
+        for (var i = 0; i < ABILITIES.length; i++) {
+          var d = ABILITIES[i];
+          html += '<button class="ability__item" type="button" role="tab"'
+            + ' data-index="' + i + '"'
+            + ' aria-selected="false"'
+            + ' style="--i:' + i + '">'
+            + '<span class="ability__item-no">' + d.no + '</span>'
+            + '<span class="ability__item-title">' + d.title + '</span>'
+            + '<span class="ability__item-arrow" aria-hidden="true">▸</span>'
+            + '</button>';
+        }
+        listEl.innerHTML = html;
+      }
+
+      /* ---------- 渲染左栏详情 ---------- */
+      function renderDetail(i) {
+        var d = ABILITIES[i];
+        var html = '';
+
+        html += '<button class="ability__back is-enter" type="button" data-back>'
+          + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"'
+          + ' stroke="currentColor" stroke-width="3" stroke-linecap="round"'
+          + ' stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>'
+          + '返回列表'
+          + '</button>';
+
+        html += '<article class="ability__card is-enter">';
+
+        html += '<div class="ability__frame">'
+          + '<span class="ability__no">' + d.no + '</span>'
+          + '<h3 class="ability__title">' + d.title + '</h3>'
+          + '<span class="ability__lv"><i>Lv.</i>' + d.lv + '</span>'
+          + '</div>';
+
+        html += '<p class="ability__tagline">' + d.tagline + '</p>';
+        html += '<div class="ability__desc">' + d.desc + '</div>';
+
+        if (d.points && d.points.length) {
+          html += '<ul class="ability__points">';
+          for (var k = 0; k < d.points.length; k++) {
+            html += '<li>' + d.points[k] + '</li>';
+          }
+          html += '</ul>';
+        }
+        if (d.chips && d.chips.length) {
+          html += '<div class="ability__chips">';
+          for (var m = 0; m < d.chips.length; m++) {
+            html += '<span class="chip">' + d.chips[m] + '</span>';
+          }
+          html += '</div>';
+        }
+
+        html += '</article>';
+
+        detailEl.innerHTML = html;
+      }
+
+      /* ---------- 选中某一项 ---------- */
+      function select(index, opts) {
+        var pageEl = root.closest('.page');
+        var keepTop = pageEl ? pageEl.scrollTop : 0;
+        var opening = !!(opts && opts.openDetail && mqMobile.matches);
+
+        /* 关键 1：打开详情前先让被点击的列表项失焦，
+           否则它被 display:none 隐藏后浏览器会自动滚动页面 */
+        if (opening && document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+
+        current = Math.max(0, Math.min(ABILITIES.length - 1, index));
+
+        var btns = listEl.children;
+        for (var i = 0; i < btns.length; i++) {
+          var on = (i === current);
+          btns[i].classList.toggle('is-active', on);
+          btns[i].setAttribute('aria-selected', on ? 'true' : 'false');
+          btns[i].setAttribute('tabindex', on ? '0' : '-1');
+        }
+
+        renderDetail(current);
+
+        /* 手机竖屏：点列表 → 推入详情屏 */
+        if (opening) {
+          root.setAttribute('data-view', 'detail');
+        }
+
+        /* 关键 2：视图切换重建了 DOM，把滚动位置原样还回去 */
+        if (pageEl && pageEl.scrollTop !== keepTop) {
+          pageEl.scrollTop = keepTop;
+        }
+      }
+
+      /* ---------- 列表项入场动画（可重复触发） ---------- */
+      function playListEnter() {
+        var items = listEl.children;
+        var i;
+
+        for (i = 0; i < items.length; i++) {
+          items[i].classList.remove('is-enter');
+        }
+
+        // 强制回流，让同一个动画能重新播放
+        void listEl.offsetWidth;
+
+        for (i = 0; i < items.length; i++) {
+          items[i].classList.add('is-enter');
+        }
+      }
+
+      /* ---------- 返回列表屏 ---------- */
+      function backToList() {
+        var pageEl = root.closest('.page');
+        var keepTop = pageEl ? pageEl.scrollTop : 0;
+
+        root.setAttribute('data-view', 'list');
+
+        /* 列表子元素重新播放入场动画 */
+        playListEnter();
+
+        /* 恢复整页滚动位置（scrollIntoView 会连带滚动 .page，所以弃用） */
+        if (pageEl) pageEl.scrollTop = keepTop;
+
+        /* 只需处理横向滑条（481~640 断点）的横向定位，用 scrollLeft 不动 .page */
+        var isHScroll = window.matchMedia('(min-width: 481px) and (max-width: 640px)').matches;
+        if (isHScroll) {
+          var btn = listEl.children[current];
+          if (btn) {
+            var target = btn.offsetLeft - (listEl.clientWidth - btn.offsetWidth) / 2;
+            if (listEl.scrollTo) {
+              listEl.scrollTo({ left: target, behavior: 'smooth' });
+            } else {
+              listEl.scrollLeft = target;
+            }
+          }
+        }
+      }
+
+      /* ---------- 事件 ---------- */
+      listEl.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('.ability__item') : null;
+        if (!btn || !listEl.contains(btn)) return;
+        select(parseInt(btn.getAttribute('data-index'), 10) || 0, { openDetail: true });
+      });
+
+      detailEl.addEventListener('click', function (e) {
+        var back = e.target.closest ? e.target.closest('[data-back]') : null;
+        if (back) backToList();
+      });
+
+      /* 列表内的方向键切换，并阻止冒泡到整站分页 */
+      listEl.addEventListener('keydown', function (e) {
+        var key = e.key;
+        if (key !== 'ArrowDown' && key !== 'ArrowUp'
+          && key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+
+        var dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var next = (current + dir + ABILITIES.length) % ABILITIES.length;
+        select(next);
+        if (listEl.children[next]) listEl.children[next].focus();
+      });
+
+      /* ---------- 顶栏返回键：手机详情屏时接管 ---------- */
+      var topBack = document.querySelector('.icon-btn--back');
+      if (topBack) {
+        topBack.addEventListener('click', function () {
+          if (mqMobile.matches && root.getAttribute('data-view') === 'detail') {
+            backToList();
+          }
+        });
+      }
+
+      /* ---------- 断点切换：离开手机竖屏时强制回到 list 状态 ---------- */
+      function onMqChange() {
+        if (!mqMobile.matches) root.setAttribute('data-view', 'list');
+      }
+
+      if (mqMobile.addEventListener) mqMobile.addEventListener('change', onMqChange);
+      else if (mqMobile.addListener) mqMobile.addListener(onMqChange);
+
+      /* ---------- 初始化 ---------- */
+      buildList();
+      playListEnter();
+      select(0);
+    })();
+  </script>
+  <script>
+    function closeTab() {
+      // 1) 脚本打开的窗口才允许关闭
+      try {
+        if (window.opener && window.opener !== window) {
+          window.close();
+          setTimeout(function () {
+            if (!document.hidden) showToast('浏览器阻止了关闭');
+          }, 300);
+          return;
+        }
+      } catch (e) { }
+
+      // 2) 不在第 1 页 → 先回首页
+      var track = document.getElementById('pager-track');
+      var t = (track && track.style.transform) || '';
+      var onFirst = !t || /translate3d\(\s*0/.test(t);
+
+      if (!onFirst) {
+        var firstDot = document.querySelector('.pager-nav__dot[data-goto="0"]');
+        if (firstDot) { firstDot.click(); return; }
+      }
+
+      // 3) 在第 1 页但向下滚过 → 先回顶
+      var firstPage = document.querySelector('.page');
+      if (firstPage && firstPage.scrollTop > 1) {
+        firstPage.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // 4) 第 1 页顶部 → 返回浏览器上一页（即 a.html）
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+
+      // 5) 真的无处可去 → 提示
+      showToast('已经在首页顶部');
+    }
+
+    function showToast(msg) {
+      var old = document.getElementById('__close_toast__');
+      if (old) old.remove();
+
+      var el = document.createElement('div');
+      el.id = '__close_toast__';
+      el.className = 'toast';
+      el.textContent = msg;
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+
+      // 下一帧再加 is-visible，保证过渡生效
+      requestAnimationFrame(function () {
+        el.classList.add('is-visible');
+      });
+
+      setTimeout(function () {
+        el.classList.remove('is-visible');
+        setTimeout(function () { el.remove(); }, 300);
+      }, 1800);
+    }
+
+    window.closeTab = closeTab;
+  </script>
+  <script>
+    /* ============================================================
+       悬停提示框（事件委托版）
+       支持动态插入的 .hover-hint，例如第3页能力参数里的 i5-3570
+       ============================================================ */
+    (function () {
+      var active = null;      // 当前显示的 tooltip 元素
+      var activeHint = null;  // 当前对应的 .hover-hint 元素
+
+      // 获取 tooltip，并把它移动到 body 下，避免被 overflow 裁剪
+      function getTooltip(hint) {
+        if (!hint) return null;
+
+        var tooltip = hint.__tooltip;
+        if (tooltip && tooltip.parentNode) return tooltip;
+
+        tooltip = hint.querySelector('.hover-hint__tooltip');
+        if (!tooltip) return null;
+
+        hint.__tooltip = tooltip;
+        tooltip.__hint = hint;
+        document.body.appendChild(tooltip);
+        return tooltip;
+      }
+
+      // 定位
+      function place(hint, tooltip) {
+        var pad = 8;   // 距视口边缘的最小间距
+        var gap = 10;  // tooltip 与元素的间距
+
+        tooltip.style.left = '-9999px';
+        tooltip.style.top = '-9999px';
+
+        var r = hint.getBoundingClientRect();
+        var tw = tooltip.offsetWidth;
+        var th = tooltip.offsetHeight;
+
+        // 水平：以元素中心对齐，超出视口则贴边
+        var cx = r.left + r.width / 2;
+        var left = cx - tw / 2;
+        if (left < pad) left = pad;
+        var maxLeft = window.innerWidth - tw - pad;
+        if (left > maxLeft) left = Math.max(pad, maxLeft);
+
+        // 垂直：默认在上方；上方放不下则翻到下方
+        var top = r.top - gap - th;
+        var below = false;
+        if (top < pad) {
+          top = r.bottom + gap;
+          below = true;
+        }
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+        tooltip.classList.toggle('is-below', below);
+      }
+
+      // 显示
+      function show(hint) {
+        var tooltip = getTooltip(hint);
+        if (!tooltip) return;
+        if (active === tooltip) return;
+
+        if (active) active.classList.remove('is-visible');
+
+        active = tooltip;
+        activeHint = hint;
+
+        place(hint, tooltip);
+        requestAnimationFrame(function () {
+          tooltip.classList.add('is-visible');
+        });
+      }
+
+      // 隐藏
+      function hide(hint) {
+        var tooltip = hint
+          ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
+          : active;
+
+        if (!tooltip) return;
+        tooltip.classList.remove('is-visible');
+
+        if (active === tooltip) {
+          active = null;
+          activeHint = null;
+        }
+      }
+
+      // 鼠标进入
+      document.addEventListener('mouseover', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+        show(hint);
+      });
+
+      // 鼠标离开
+      document.addEventListener('mouseout', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+
+        // 如果只是移动到该 hint 的子元素，不隐藏
+        var related = e.relatedTarget;
+        if (related && hint.contains(related)) return;
+
+        hide(hint);
+      });
+
+      // 键盘聚焦
+      document.addEventListener('focusin', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+        show(hint);
+      });
+
+      document.addEventListener('focusout', function (e) {
+        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+        if (!hint) return;
+        hide(hint);
+      });
+
+      // 滚动 / 缩放 / 触屏时隐藏
+      window.addEventListener('scroll', function () {
+        if (active && activeHint) hide(activeHint);
+      }, true);
+
+      window.addEventListener('resize', function () {
+        if (active && activeHint) hide(activeHint);
+      });
+
+      document.addEventListener('touchstart', function () {
+        if (active && activeHint) hide(activeHint);
+      }, { passive: true });
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       立项至今 · 实时计时
+       - 起点：1790333910（2026-09-25 18:58:30，东八区）
+       - 全程按 UTC+8 计算，不受访客本地时区影响
+       - 每秒对齐整秒刷新一次
+       ============================================================ */
+    (function () {
+      var START_TS = 1790333910;              // 立项 Unix 时间戳（秒）
+      var START_MS = START_TS * 1000;
+      var TZ_OFFSET = 8 * 60 * 60 * 1000;     // 东八区固定偏移
+
+      var valueEl = document.getElementById('uptime-value');
+      if (!valueEl) return;
+
+      var timer = null;
+
+      /* 把真实时间戳映射成“UTC 字段即东八区挂钟”的 Date */
+      function toCST(ms) {
+        return new Date(ms + TZ_OFFSET);
+      }
+
+      /* 在 CST 语义下平移月份（自动夹紧到目标月的最后一天） */
+      function addMonthsCST(d, months) {
+        var y = d.getUTCFullYear();
+        var m = d.getUTCMonth() + months;
+        var day = d.getUTCDate();
+        var hh = d.getUTCHours();
+        var mm = d.getUTCMinutes();
+        var ss = d.getUTCSeconds();
+        var ms = d.getUTCMilliseconds();
+
+        var ty = y + Math.floor(m / 12);
+        var tm = ((m % 12) + 12) % 12;
+        var lastDay = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+
+        return new Date(Date.UTC(ty, tm, Math.min(day, lastDay), hh, mm, ss, ms));
+      }
+
+      /* 计算两时刻之间的“年月日时分秒” */
+      function diffCST(startMs, endMs) {
+        if (endMs <= startMs) {
+          return { y: 0, mo: 0, d: 0, h: 0, mi: 0, s: 0 };
+        }
+
+        var s = toCST(startMs);
+        var e = toCST(endMs);
+
+        // 完整年
+        var y = e.getUTCFullYear() - s.getUTCFullYear();
+        var anchor = addMonthsCST(s, y * 12);
+        if (anchor > e) {
+          y -= 1;
+          anchor = addMonthsCST(s, y * 12);
+        }
+
+        // 完整月
+        var mo = (e.getUTCFullYear() - anchor.getUTCFullYear()) * 12
+          + (e.getUTCMonth() - anchor.getUTCMonth());
+        var base = addMonthsCST(anchor, mo);
+        if (base > e) {
+          mo -= 1;
+          base = addMonthsCST(anchor, mo);
+        }
+
+        // 余下的天 / 时 / 分 / 秒
+        var rest = e - base;
+        var d = Math.floor(rest / 86400000); rest -= d * 86400000;
+        var h = Math.floor(rest / 3600000); rest -= h * 3600000;
+        var mi = Math.floor(rest / 60000); rest -= mi * 60000;
+        var sec = Math.floor(rest / 1000);
+
+        return { y: y, mo: mo, d: d, h: h, mi: mi, s: sec };
+      }
+
+      function pad(n) {
+        n = Number(n) || 0;
+        if (n < 0) n = 0;
+        return n < 10 ? '0' + n : String(n);
+      }
+
+      var UNITS = [
+        { k: 'y', label: '年' },
+        { k: 'mo', label: '月' },
+        { k: 'd', label: '天' },
+        { k: 'h', label: '时' },
+        { k: 'mi', label: '分' },
+        { k: 's', label: '秒' }
+      ];
+
+      function render(parts) {
+        var html = '';
+        for (var i = 0; i < UNITS.length; i++) {
+          html += '<span class="uptime-unit">'
+            + '<b>' + pad(parts[UNITS[i].k]) + '</b>'
+            + '<i>' + UNITS[i].label + '</i>'
+            + '</span>';
+        }
+        valueEl.innerHTML = html;
+      }
+
+      function tick() {
+        render(diffCST(START_MS, Date.now()));
+        // 对齐到下一个整秒，避免长时间运行后的漂移
+        timer = setTimeout(tick, 1000 - (Date.now() % 1000));
+      }
+
+      // 标签页重新可见时立刻校准一次
+      document.addEventListener('visibilitychange', function () {
+        clearTimeout(timer);
+        if (!document.hidden) tick();
+      });
+
+      tick();
+    })();
+  </script>
+
+  <script>
+    /* ============================================================
+        作品卡片：鼠标点击 / 触摸点击 → 新标签页打开 data-href
+        ============================================================ */
+    (function () {
+      var SEL = '.work[data-href]';
+
+      function openCard(card) {
+        var url = card.getAttribute('data-href');
+        if (!url) return;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      document.addEventListener('click', function (e) {
+        // 卡片内部若有真实 <a> / <button>，交给它们自己处理
+        if (e.target.closest && e.target.closest('a, button')) return;
+
+        var card = e.target.closest ? e.target.closest(SEL) : null;
+        if (!card) return;
+
+        openCard(card);
+      });
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       角色立绘 · 自动眨眼 / 表情切换
+       - 睁眼图：src/kei/kei.(avif|webp|png)
+       - 闭眼图：src/kei/kei_close.(avif|webp|png)
+       - 新增：window.blinkPause() / window.blinkResume()
+         供语音播放时暂停 / 恢复眨眼
+       ============================================================ */
+    (function () {
+      'use strict';
+
+      var img = document.querySelector('.profile__art-img');
+      if (!img) return;
+
+      if (window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      /* ---------- 定时器池 ---------- */
+      var timers = new Set();
+      function later(fn, ms) {
+        var id = setTimeout(function () { timers.delete(id); fn(); }, ms);
+        timers.add(id);
+        return id;
+      }
+      function clearAllTimers() {
+        timers.forEach(clearTimeout);
+        timers.clear();
+      }
+
+      /* ---------- 探测首个可用地址 ---------- */
+      function firstAvailable(urls, done) {
+        var i = 0;
+        (function next() {
+          if (i >= urls.length) { done(null); return; }
+          var url = urls[i++];
+          var probe = new Image();
+          probe.onload = function () { done(url); };
+          probe.onerror = next;
+          probe.src = url;
+        })();
+      }
+
+      var raw = img.getAttribute('src') || 'src/kei/kei.avif';
+      var base = raw.replace(/kei_close/i, 'kei').replace(/\.(avif|webp|png)$/i, '');
+      var dir = base.replace(/[^/]*$/, '');
+      var name = base.replace(/^.*\//, '');
+      var EXTS = ['avif', 'webp', 'png'];
+
+      var OPEN = EXTS.map(function (e) { return dir + name + '.' + e; });
+      var CLOSE = EXTS.map(function (e) { return dir + name + '_close.' + e; });
+
+      var openUrl = null;
+      var closeUrl = null;
+
+      /* ---------- 两路独立暂停 ---------- */
+      var pausedHidden = false;   // 标签页隐藏
+      var pausedVoice = false;   // 语音播放中
+      function isPaused() { return pausedHidden || pausedVoice; }
+
+      /* ---------- 对外：手动眨一次 ---------- */
+      window.blinkArt = function (duration) {
+        if (!openUrl || !closeUrl || isPaused()) return;
+        img.src = closeUrl;
+        later(function () {
+          if (isPaused()) return;
+          img.src = openUrl;
+        }, duration || 130);
+      };
+
+      /* ---------- 对外：语音播放期间暂停 / 恢复 ---------- */
+      window.blinkPause = function () {
+        pausedVoice = true;
+        clearAllTimers();
+        if (openUrl) img.src = openUrl;       // 立刻回到默认睁眼
+      };
+
+      window.blinkResume = function () {
+        if (!pausedVoice) return;
+        pausedVoice = false;
+        if (openUrl) img.src = openUrl;
+        if (openUrl && closeUrl) schedule();
+      };
+
+      /* ---------- 眨眼循环 ---------- */
+      function blinkOnce() {
+        if (isPaused()) return;
+        img.src = closeUrl;
+        later(function () {
+          if (isPaused()) return;
+          img.src = openUrl;
+          if (Math.random() < 0.18) {
+            later(blinkOnce, 150 + Math.random() * 110);
+          }
+        }, 100 + Math.random() * 90);
+      }
+
+      function schedule() {
+        if (isPaused()) return;
+        later(function () {
+          blinkOnce();
+          schedule();
+        }, 6000 + Math.random() * 6000);
+      }
+
+      function startBlink() {
+        later(function () {
+          blinkOnce();
+          schedule();
+        }, 1800 + Math.random() * 1600);
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) {
+            pausedHidden = true;
+            clearAllTimers();
+            if (openUrl) img.src = openUrl;
+          } else if (pausedHidden) {
+            pausedHidden = false;
+            if (!pausedVoice) {
+              if (openUrl) img.src = openUrl;
+              schedule();
+            }
+          }
+        });
+      }
+
+      /* ---------- 初始化 ---------- */
+      firstAvailable(OPEN, function (o) {
+        if (!o) return;
+        openUrl = o;
+        firstAvailable(CLOSE, function (c) {
+          if (!c) return;
+          closeUrl = c;
+          if (img.getAttribute('src') !== openUrl) img.src = openUrl;
+          startBlink();
+        });
+      });
+    })();
+  </script>
+</body>
+
+</html>

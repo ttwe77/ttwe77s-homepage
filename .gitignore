@@ -1,5 +1,7 @@
 nginx-1.30.5/*
 .trae/rules/git-commit-message.md
-瀹㈡埛绔痋client.ini
 客户端/client.ini
 客户端/main.exe
+status/.api_token
+status/data/device-01.json.lock
+status/data/device-01.json
