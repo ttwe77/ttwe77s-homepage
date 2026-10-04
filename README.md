@@ -109,8 +109,8 @@ ttwe77s-homepage/
 │       ├── json.hpp           # 头文件依赖
 │       └── *-LICENSE.txt      # 引用库许可证
 │
-├── 客户端/                    # Windows 状态客户端（托盘）
-│   ├── main.cpp               # 源码（WinHTTP + Win32 托盘）
+└── 客户端/                    # Windows 状态客户端（托盘）
+    └── main.cpp               # 源码（WinHTTP + Win32 托盘）
 ```
 
 ---
