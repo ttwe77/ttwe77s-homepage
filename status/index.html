@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>个人状态</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><linearGradient id='bgGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2321a5e3'/><stop offset='100%25' stop-color='%234454F8'/></linearGradient><radialGradient id='pulseGrad' cx='50%25' cy='50%25' r='50%25'><stop offset='0%25' stop-color='%23169B5B' stop-opacity='0.4'/><stop offset='100%25' stop-color='%23169B5B' stop-opacity='0'/></radialGradient></defs><rect width='24' height='24' rx='6' fill='url(%23bgGrad)'/><circle cx='12' cy='12' r='10' stroke='%23FFFFFF' stroke-width='0.75' fill='none' opacity='0.3' stroke-dasharray='2 3'/><circle cx='12' cy='9.5' r='3' fill='%23FFFFFF'/><path d='M7 17c0-3 10-3 10 0' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' fill='none'/><circle cx='18.5' cy='5.5' r='4.5' fill='url(%23pulseGrad)'/><circle cx='18.5' cy='5.5' r='3.5' fill='%23169B5B' stroke='%23FFFFFF' stroke-width='1.5'/></svg>">
 <meta name="theme-color" content="#21a5e3">
 <style>
   /* ==================== 设计变量（复用 /index） ==================== */
   :root{
-    /* 品牌主色 */
+    /* 主色 */
     --color-primary:#21a5e3;
     --color-primary-hover:#0E7AE0;
     --color-primary-active:#0B6BC5;
@@ -374,9 +375,29 @@
     .section-title{margin:16px 0 10px}
 
     .programs li{padding:10px 12px}
-    .pname{font-size:13.5px}
-    .pdetail{font-size:12px}
-    .psince{margin-left:0;width:100%;font-size:11px}
+    
+    /* ========== 修改开始 ========== */
+    /* 1. 拆解 program-row1，让内部元素直接参与 li 的纵向排列 */
+    .program-row1 {
+      display: contents; 
+    }
+    
+    /* 2. 调整元素在手机端的视觉顺序 */
+    .pname {
+      order: 1; /* 第一行：程序名 */
+      font-size:13.5px;
+    }
+    .pdetail {
+      order: 2; /* 第二行：详情 */
+      font-size:12px;
+    }
+    .psince {
+      order: 3; /* 第三行：开始时间 */
+      margin-left:0;
+      width:100%;
+      font-size:11px;
+    }
+    /* ========== 修改结束 ========== */
 
     .foot{margin-top:16px;font-size:11.5px}
   }
