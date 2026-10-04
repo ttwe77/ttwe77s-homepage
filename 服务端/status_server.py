@@ -37,7 +37,7 @@ def _default_token_file():
 
 CONFIG = {
     # status.json 的绝对路径，必须和 nginx root 一致
-    "file": os.environ.get("STATUS_FILE", r"E:\0Project\ttwe77s-homepage\nginx-1.30.5\html\status\data\device-01.json"),
+    "file": os.environ.get("STATUS_FILE", r"device-01.json"),
     # 可选：静态 API Key（为空则只用自动生成的 token）
     "api_key": os.environ.get("STATUS_API_KEY", ""),
     # token 文件位置（默认在 main.py 同目录）

@@ -5,3 +5,4 @@ nginx-1.30.5/*
 status/.api_token
 status/data/device-01.json.lock
 status/data/device-01.json
+客户端/client.exe
