@@ -192,6 +192,42 @@ EMOJI_MAP = {
 }
 EMOJI_RE = re.compile(r":([a-zA-Z0-9_+-]+):")
 
+# 自动链接：<https://...> / <mailto:...> / <email@example.com>
+AUTOLINK_RE = re.compile(
+    r"<("
+    r"(?:https?|ftp)://[^<>\s]+"
+    r"|mailto:[^<>\s]+"
+    r"|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+    r")>",
+    re.I,
+)
+
+_EMAIL_ONLY_RE = re.compile(
+    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+)
+
+
+def _autolink_repl(m: re.Match) -> str:
+    """把 <url> / <mailto:...> / <email> 变成 <a>。"""
+    target = m.group(1)
+
+    # mailto: 前缀：href 保留 mailto:，展示去掉前缀
+    if target.lower().startswith("mailto:"):
+        addr = target[7:]
+        return (
+            f'<a href="mailto:{esc_attr(addr)}">{esc(addr)}</a>'
+        )
+
+    # 纯邮箱：自动补 mailto:
+    if _EMAIL_ONLY_RE.match(target):
+        return f'<a href="mailto:{esc_attr(target)}">{esc(target)}</a>'
+
+    # 普通 URL
+    return (
+        f'<a href="{esc_attr(target)}" target="_blank" '
+        f'rel="noopener noreferrer">{esc(target)}</a>'
+    )
+
 
 def render_inline(text) -> str:
     if text is None:
@@ -220,6 +256,9 @@ def render_inline(text) -> str:
     text = HINT_RE.sub(
         lambda m: put(hint_html(m.group(1), m.group(2), m.group(3))), text
     )
+
+    # ★ 5.5) 自动链接（在转义之前处理，否则 <> 会被转成 &lt;/&gt;）
+    text = AUTOLINK_RE.sub(lambda m: put(_autolink_repl(m)), text)
 
     # 6) 转义剩下的纯文本
     text = esc(text)
