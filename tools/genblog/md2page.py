@@ -268,8 +268,6 @@ BLOCK_START_RE = re.compile(
     r")"
 )
 
-#UL_ITEM_RE = re.compile(r"^\s*[-*+]\s+(.*)$")
-#OL_ITEM_RE = re.compile(r"^\s*\d+[.)]\s+(.*)$")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 FENCE_OPEN_RE = re.compile(r"^```([^\s`]*)\s*$")
 TABLE_SEP_RE = re.compile(r"^\s*\|?[\s:|-]+\|[\s:|-]*$")
@@ -281,6 +279,7 @@ SETEXT_RE = re.compile(r"^\s*(=+|-+)\s*$")
 ALERT_RE = re.compile(r"^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)", re.I)
 LIST_ITEM_RE = re.compile(r"^([ \t]*)([-*+]|\d+[.)])[ \t]+(.*)$")
 TASK_ITEM_RE = re.compile(r"^\[([ xX])\][ \t]+(.*)$")
+INDENTED_CODE_RE = re.compile(r"^(?: {4}|\t)")
 
 
 def _is_block_start(lines: list[str], i: int) -> bool:
@@ -723,6 +722,33 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
             out.append(block)
             continue
 
+         # ---------- 缩进代码块 ----------
+        if INDENTED_CODE_RE.match(raw):
+            buf = []
+            while i < n:
+                line = lines[i]
+                if line.startswith("    "):
+                    buf.append(line[4:])
+                elif line.startswith("\t"):
+                    buf.append(line[1:])
+                elif not line.strip():
+                    # 向后窥探：如果空行后面跟着非缩进行，则代码块结束
+                    j = i + 1
+                    while j < n and not lines[j].strip():
+                        j += 1
+                    if j < n and INDENTED_CODE_RE.match(lines[j]):
+                        buf.append("")  # 属于代码块内部的空行，保留
+                    else:
+                        break  # 代码块结束
+                else:
+                    break  # 遇到非缩进行，代码块结束
+                i += 1
+            # 移除代码块末尾多余的空行
+            while buf and not buf[-1].strip():
+                buf.pop()
+            out.append(render_code_block("\n".join(buf), "text"))
+            continue
+
         # ---------- 段落 ----------
         buf = [raw]                      # ← 保留原始行（含行尾空格）
         i += 1
@@ -1046,7 +1072,25 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
 
 def indent(text: str, spaces: int) -> str:
     pad = " " * spaces
-    return "\n".join(pad + line if line.strip() else line for line in text.split("\n"))
+    lines = text.split("\n")
+    out = []
+    in_pre = False
+    for line in lines:
+        if in_pre:
+            # 在 <pre> 内部：原样保留，绝对不加缩进
+            out.append(line)
+            if "</pre>" in line:
+                in_pre = False
+        else:
+            # 不在 <pre> 内部：正常添加缩进
+            if line.strip():
+                out.append(pad + line)
+            else:
+                out.append(line)
+            # 遇到 <pre> 且不是单行闭合的情况，标记进入 pre 区域
+            if "<pre>" in line and "</pre>" not in line:
+                in_pre = True
+    return "\n".join(out)
 
 
 # ==========================================================================
