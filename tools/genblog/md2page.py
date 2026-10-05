@@ -28,7 +28,7 @@ Markdown 约定（front matter 用 --- 包起来）：
 """
 
 from __future__ import annotations
-
+import string 
 import argparse
 import html as html_mod
 import re
@@ -286,6 +286,11 @@ def _autolink_repl(m: re.Match) -> str:
         f'rel="noopener noreferrer">{esc(target)}</a>'
     )
 
+# 反斜杠转义：\* \_ \# \[ \] \( \) \{ \} \. \! \| \+ \- \> \` \\ 等
+# 只针对 ASCII 标点，和 CommonMark 保持一致
+BACKSLASH_ESCAPE_RE = re.compile(
+    r"\\([" + re.escape(string.punctuation) + r"])"
+)
 
 def render_inline(text) -> str:
     if text is None:
@@ -295,8 +300,23 @@ def render_inline(text) -> str:
     stash: list[str] = []
 
     def put(fragment: str) -> str:
+        # 若 fragment 内部已包含先前的占位符引用，先就地展开，
+        # 避免在最终还原时被 re.sub 的“不重扫替换结果”特性漏掉。
+        fragment = re.sub(
+            r"\x00(\d+)\x00",
+            lambda m: stash[int(m.group(1))],
+            fragment,
+        )
         stash.append(fragment)
         return f"\x00{len(stash) - 1}\x00"
+
+    # 0) 反斜杠转义 —— 必须最先执行
+    #    \*abc\*   →  字面 *abc*
+    #    \`abc\`   →  字面 `abc`
+    #    \# \[ \| \! \. \> \+ \- 同理
+    text = BACKSLASH_ESCAPE_RE.sub(
+        lambda m: put(esc(m.group(1))), text
+    )
 
     # 1) 保护 HTML 实体 (必须在转义前)
     text = HTML_ENTITY_RE.sub(lambda m: put(m.group(0)), text)
