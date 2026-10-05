@@ -157,16 +157,68 @@ def hint_html(text: str, title: str, content: str) -> str:
 def _link_repl(m: re.Match) -> str:
     label = m.group(1)
     url = m.group(2).replace('"', "%22")
+    title = m.group(3) or ""
+
     attrs = ""
     if re.match(r"^https?://", url):
         attrs = ' target="_blank" rel="noopener noreferrer"'
-    return f'<a href="{url}"{attrs}>{label}</a>'
+
+    # 注意：此时文本已经过 esc()，title 里的 " 已被正则排除，不需要再转义
+    title_attr = f' title="{title}"' if title else ""
+    return f'<a href="{url}"{title_attr}{attrs}>{label}</a>'
 
 
 # 新增与更新的正则
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
 HINT_RE = re.compile(r"\[\[([^|\]]+)\|([^|\]]+)\|([^\]]+)\]\]")
-LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+
+# 通用片段：![alt](url "title")
+_IMG_SRC = r'!\[([^\]]*)\]\(\s*([^\s)]+)(?:\s+["\']([^"\']*)["\'])?\s*\)'
+
+# 链接形式的图片：[![alt](img "t1")](href "t2")
+#   分组：1=alt  2=img_url  3=img_title  4=href  5=href_title
+LINKED_IMAGE_RE = re.compile(
+    r'\['
+    + _IMG_SRC
+    + r'\]'
+    r'\(\s*([^\s)]+)(?:\s+["\']([^"\']*)["\'])?\s*\)'
+)
+
+# 独立图片：分组 1=alt  2=url  3=title
+IMAGE_RE = re.compile(_IMG_SRC)
+
+# 普通链接：分组 1=label  2=url  3=title
+LINK_RE = re.compile(
+    r'\[([^\]]+)\]\(\s*([^\s)]+)(?:\s+["\']([^"\']*)["\'])?\s*\)'
+)
+
+
+def _img_html(alt: str, url: str, title: str = "") -> str:
+    parts = [f'src="{esc_attr(url)}"', f'alt="{esc_attr(alt)}"']
+    if title:
+        parts.append(f'title="{esc_attr(title)}"')
+    parts.append('loading="lazy"')
+    return "<img " + " ".join(parts) + ">"
+
+
+def _image_repl(m: re.Match) -> str:
+    return _img_html(m.group(1), m.group(2), m.group(3) or "")
+
+
+def _linked_image_repl(m: re.Match) -> str:
+    img = _img_html(m.group(1), m.group(2), m.group(3) or "")
+    href = m.group(4)
+    title = m.group(5) or ""
+
+    attrs = ""
+    if re.match(r"^https?://", href):
+        attrs = ' target="_blank" rel="noopener noreferrer"'
+
+    title_attr = f' title="{esc_attr(title)}"' if title else ""
+    return (
+        f'<a class="img-link" href="{esc_attr(href)}"'
+        f'{title_attr}{attrs}>{img}</a>'
+    )
 
 # 粗体、斜体、粗斜体
 BOLD_ITALIC_RE = re.compile(r"\*\*\*(.+?)\*\*\*|___(.+?)___")
@@ -257,8 +309,16 @@ def render_inline(text) -> str:
         lambda m: put(hint_html(m.group(1), m.group(2), m.group(3))), text
     )
 
-    # ★ 5.5) 自动链接（在转义之前处理，否则 <> 会被转成 &lt;/&gt;）
+    # 5.5) 自动链接（在转义之前处理，否则 <> 会被转成 &lt;/&gt;）
     text = AUTOLINK_RE.sub(lambda m: put(_autolink_repl(m)), text)
+
+    # 5.6) 链接形式的图片：必须先于独立图片，也先于普通链接
+    text = LINKED_IMAGE_RE.sub(
+        lambda m: put(_linked_image_repl(m)), text
+    )
+
+    # 5.7) 独立图片（此时它不可能再被 LINK_RE 误吞）
+    text = IMAGE_RE.sub(lambda m: put(_image_repl(m)), text)
 
     # 6) 转义剩下的纯文本
     text = esc(text)
