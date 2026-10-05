@@ -246,7 +246,7 @@ HTML_TAG_RE = re.compile(
     r"<(/?)(u|ins|del|mark|sub|sup|small|abbr|cite|kbd|div|p|details|summary|span|"
     r"a|img|table|thead|tbody|tr|th|td|ul|ol|li|blockquote|pre|code|h[1-6]|"
     r"section|article|aside|header|footer|nav|figure|figcaption|iframe|video|"
-    r"audio|canvas|svg|path|circle|rect|line|polyline|polygon|g|defs|use|symbol|text)\b([^>]*?)>",
+    r"audio|canvas|progress|meter|svg|path|circle|rect|line|polyline|polygon|g|defs|use|symbol|text)\b([^>]*?)>",
     re.I
 )
 HTML_ENTITY_RE = re.compile(r"&[a-zA-Z0-9#]+;")
