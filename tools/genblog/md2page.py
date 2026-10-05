@@ -171,6 +171,8 @@ def _link_repl(m: re.Match) -> str:
 # 新增与更新的正则
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
 HINT_RE = re.compile(r"\[\[([^|\]]+)\|([^|\]]+)\|([^\]]+)\]\]")
+INLINE_CODE_RE = re.compile(r"`([^`]+)`")
+INLINE_MATH_RE = re.compile(r"\$(?!\$)([^\$\n]+?)\$(?!\$)")
 
 # 通用片段：![alt](url "title")
 _IMG_SRC = r'!\[([^\]]*)\]\(\s*([^\s)]+)(?:\s+["\']([^"\']*)["\'])?\s*\)'
@@ -333,6 +335,17 @@ def render_inline(text) -> str:
     # 3) 保护允许的 HTML 标签
     text = HTML_TAG_RE.sub(lambda m: put(m.group(0)), text)
 
+    # 3.5) 行内公式 $...$
+    #   放在转义之前，TeX 里的 \frac、\{ 等反斜杠才不会被 HTML 转义处理掉
+    text = INLINE_MATH_RE.sub(
+        lambda m: put(
+            '<span class="math-inline">'
+            + r"\(" + esc(m.group(1)) + r"\)"
+            + "</span>"
+        ),
+        text,
+    )
+
     # 4) 行内换行标签 <br> / <br/> / <br />
     text = re.sub(r"<br\s*/?>", lambda m: put("<br>"), text, flags=re.I)
 
@@ -410,6 +423,7 @@ BLOCK_START_RE = re.compile(
     r"^(?:"
     r"#{1,6}\s"                 # 标题
     r"|```"                      # 围栏
+    r"|\$\$"                     # ← 加这一行：块级公式
     r"|:::"                      # callout
     r"|>"                        # 引用
     r"|-{3,}\s*$|\*{3,}\s*$|_{3,}\s*$"   # 分隔线
@@ -825,6 +839,33 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
                 i += 1
             i += 1  # 跳过收尾 ```
             out.append(render_code_block("\n".join(buf), lang))
+            continue
+        
+        # ---------- 块级公式 $$...$$ ----------
+        if s.startswith("$$"):
+            # 情况 A：单行 $$E=mc^2$$
+            if len(s) > 4 and s.endswith("$$"):
+                tex = s[2:-2].strip()
+                i += 1
+            else:
+                # 情况 B：多行
+                i += 1
+                buf = []
+                while i < n and not lines[i].rstrip().endswith("$$"):
+                    buf.append(lines[i])
+                    i += 1
+                if i < n:
+                    tail = lines[i].rstrip()[:-2]   # 去掉行尾的 $$
+                    if tail.strip():
+                        buf.append(tail)
+                    i += 1
+                tex = "\n".join(buf)
+
+            out.append(
+                '<div class="math-block">'
+                + r"\[" + esc(tex) + r"\]"
+                + "</div>"
+            )
             continue
 
         # ---------- callout ----------
