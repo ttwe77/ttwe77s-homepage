@@ -163,13 +163,34 @@ def _link_repl(m: re.Match) -> str:
     return f'<a href="{url}"{attrs}>{label}</a>'
 
 
+# 新增与更新的正则
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
 HINT_RE = re.compile(r"\[\[([^|\]]+)\|([^|\]]+)\|([^\]]+)\]\]")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
-BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
-DEL_RE = re.compile(r"~~(.+?)~~")
+
+# 粗体、斜体、粗斜体
+BOLD_ITALIC_RE = re.compile(r"\*\*\*(.+?)\*\*\*|___(.+?)___")
+BOLD_STAR_RE = re.compile(r"\*\*(.+?)\*\*")
+BOLD_UNDER_RE = re.compile(r"__(.+?)__")
 EM_STAR_RE = re.compile(r"(?<![\*\w])\*([^*\n]+)\*(?!\*)")
 EM_UNDER_RE = re.compile(r"(?<![\w_])_([^_\n]+)_(?![\w_])")
+
+# 删除线、高亮、上下标
+DEL_RE = re.compile(r"~~(.+?)~~")
+MARK_RE = re.compile(r"==([^=\n]+)==")
+SUB_RE = re.compile(r"~([^~\n]+)~")
+SUP_RE = re.compile(r"\^([^\^\n]+)\^")
+
+# HTML 标签与实体保护
+HTML_TAG_RE = re.compile(r"<(/?)(u|ins|del|mark|sub|sup|small|abbr|cite|kbd)\b([^>]*?)>", re.I)
+HTML_ENTITY_RE = re.compile(r"&[a-zA-Z0-9#]+;")
+
+# Emoji 扩展
+EMOJI_MAP = {
+    "smile": "😄", "rocket": "🚀", "+1": "👍", 
+    "heart": "❤️", "fire": "🔥", "tada": "🎉"
+}
+EMOJI_RE = re.compile(r":([a-zA-Z0-9_+-]+):")
 
 
 def render_inline(text) -> str:
@@ -183,34 +204,51 @@ def render_inline(text) -> str:
         stash.append(fragment)
         return f"\x00{len(stash) - 1}\x00"
 
-    # 1) 行内代码（最先，避免其中的符号被后续规则吃掉）
+    # 1) 保护 HTML 实体 (必须在转义前)
+    text = HTML_ENTITY_RE.sub(lambda m: put(m.group(0)), text)
+
+    # 2) 行内代码（最先，避免其中的符号被后续规则吃掉）
     text = INLINE_CODE_RE.sub(lambda m: put(f"<code>{esc(m.group(1))}</code>"), text)
 
-    # 1.5) 行内换行标签 <br> / <br/> / <br />
+    # 3) 保护允许的 HTML 标签
+    text = HTML_TAG_RE.sub(lambda m: put(m.group(0)), text)
+
+    # 4) 行内换行标签 <br> / <br/> / <br />
     text = re.sub(r"<br\s*/?>", lambda m: put("<br>"), text, flags=re.I)
 
-
-    # 2) hover 提示
+    # 5) hover 提示
     text = HINT_RE.sub(
         lambda m: put(hint_html(m.group(1), m.group(2), m.group(3))), text
     )
 
-    # 3) 转义剩下的纯文本
+    # 6) 转义剩下的纯文本
     text = esc(text)
 
-    # 4) 强调
-    text = BOLD_RE.sub(r"<strong>\1</strong>", text)
-    text = DEL_RE.sub(r"<del>\1</del>", text)
+    # 7) 强调（粗斜体 -> 粗体 -> 斜体，顺序不能乱）
+    text = BOLD_ITALIC_RE.sub(
+        lambda m: f"<strong><em>{m.group(1) or m.group(2)}</em></strong>", text
+    )
+    text = BOLD_STAR_RE.sub(r"<strong>\1</strong>", text)
+    text = BOLD_UNDER_RE.sub(r"<strong>\1</strong>", text)
     text = EM_STAR_RE.sub(r"<em>\1</em>", text)
     text = EM_UNDER_RE.sub(r"<em>\1</em>", text)
 
-    # 5) 链接
+    # 8) 其他扩展语法
+    text = DEL_RE.sub(r"<del>\1</del>", text)
+    text = MARK_RE.sub(r"<mark>\1</mark>", text)
+    text = SUB_RE.sub(r"<sub>\1</sub>", text)
+    text = SUP_RE.sub(r"<sup>\1</sup>", text)
+
+    # 9) Emoji 替换
+    text = EMOJI_RE.sub(lambda m: EMOJI_MAP.get(m.group(1), m.group(0)), text)
+
+    # 10) 链接
     text = LINK_RE.sub(_link_repl, text)
 
-    # 6) 还原占位
+    # 11) 还原占位
     text = re.sub(r"\x00(\d+)\x00", lambda m: stash[int(m.group(1))], text)
 
-    # 7) 硬换行哨兵 -> <br>
+    # 12) 硬换行哨兵 -> <br>
     text = text.replace("\x01", "<br>\n")
 
     return text
@@ -239,7 +277,8 @@ HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})\s*$")
 FENCE_OPEN_RE = re.compile(r"^```([^\s`]*)\s*$")
 TABLE_SEP_RE = re.compile(r"^\s*\|?[\s:|-]+\|[\s:|-]*$")
 HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})\s*$")
-SETEXT_RE = re.compile(r"^\s*(=+|-+)\s*$")   # ← 新增
+SETEXT_RE = re.compile(r"^\s*(=+|-+)\s*$")
+ALERT_RE = re.compile(r"^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)", re.I)
 
 
 def _is_block_start(lines: list[str], i: int) -> bool:
@@ -340,7 +379,12 @@ def render_code_block(code: str, lang: str) -> str:
 
 def render_callout(buf: list[str]) -> str:
     body = " ".join(x.strip() for x in buf if x.strip())
-    return f'<div class="callout">{render_inline(body)}</div>'
+    return (
+        f'<div class="callout callout--warning">\n'
+        f'    <div class="callout__title">WARNING</div>\n'
+        f'    <div class="callout__body">{render_inline(body)}</div>\n'
+        f'</div>'
+    )
 
 
 def make_slug(text: str, seen: dict) -> str:
@@ -355,12 +399,15 @@ def make_slug(text: str, seen: dict) -> str:
     return base
 
 
-def render_markdown(md: str):
+def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | None = None):
     """返回 (html, headings)。headings = [(level, id, text), ...]"""
+    if seen_slugs is None:
+        seen_slugs = {}
+    if headings is None:
+        headings = []
+
     lines = md.split("\n")
     out: list[str] = []
-    headings: list[tuple[int, str, str]] = []
-    seen_slugs: dict = {}
 
     i, n = 0, len(lines)
 
@@ -439,14 +486,36 @@ def render_markdown(md: str):
             out.append(tbl)
             continue
 
-        # ---------- 引用 ----------
+        # ---------- 引用 / GFM Alert ----------
         if s.startswith(">"):
             buf = []
             while i < n and lines[i].strip().startswith(">"):
-                buf.append(re.sub(r"^\s*>\s?", "", lines[i]))
+                # 移除一层 > 和紧跟的一个空格（如果有）
+                line = re.sub(r"^\s*>\s?", "", lines[i])
+                buf.append(line)
                 i += 1
-            body = " ".join(x.strip() for x in buf if x.strip())
-            out.append(f"<blockquote><p>{render_inline(body)}</p></blockquote>")
+
+            # 检查第一行是否包含 GFM Alert 语法
+            first_line = buf[0].strip() if buf else ""
+            alert_match = ALERT_RE.match(first_line)
+
+            if alert_match:
+                alert_type = alert_match.group(1).upper()
+                # 去掉第一行（标题行），将剩余内容递归渲染
+                rest_md = "\n".join(buf[1:])
+                inner_html, _ = render_markdown(rest_md, seen_slugs, headings)
+                
+                out.append(
+                    f'<div class="callout callout--{alert_type.lower()}">\n'
+                    f'    <div class="callout__title">{alert_type}</div>\n'
+                    f'    <div class="callout__body">\n{inner_html}\n    </div>\n'
+                    f'</div>'
+                )
+            else:
+                # 普通引用块，将去掉一层 > 后的内容递归渲染，以支持嵌套引用
+                inner_md = "\n".join(buf)
+                inner_html, _ = render_markdown(inner_md, seen_slugs, headings)
+                out.append(f"<blockquote>\n{inner_html}\n</blockquote>")
             continue
 
         # ---------- 无序 / 有序列表 ----------
