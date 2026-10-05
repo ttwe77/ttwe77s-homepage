@@ -376,12 +376,23 @@ def render_code_block(code: str, lang: str) -> str:
         "</div>"
     )
 
+# ==========================================================================
+# 提示框图标 (SVG)
+# ==========================================================================
+CALLOUT_ICONS = {
+    "note": '<svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+    "tip": '<svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>',
+    "important": '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#8250df" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>',
+    "warning": '<svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    "caution": '<svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+}
 
-def render_callout(buf: list[str]) -> str:
+def render_callout(buf: list[str], c_type: str = "warning") -> str:
     body = " ".join(x.strip() for x in buf if x.strip())
+    icon_svg = CALLOUT_ICONS.get(c_type, CALLOUT_ICONS["warning"])
     return (
-        f'<div class="callout callout--warning">\n'
-        f'    <div class="callout__title">WARNING</div>\n'
+        f'<div class="callout callout--{c_type}">\n'
+        f'    <div class="callout__title">{icon_svg} {c_type.upper()}</div>\n'
         f'    <div class="callout__body">{render_inline(body)}</div>\n'
         f'</div>'
     )
@@ -434,13 +445,19 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
 
         # ---------- callout ----------
         if s.startswith(":::"):
+            parts = s.split(maxsplit=1)
+            c_type = "warning"  # 默认类型
+            if len(parts) > 1:
+                t = parts[1].strip().lower()
+                if t in ("note", "tip", "important", "warning", "caution"):
+                    c_type = t
             i += 1
             buf = []
             while i < n and not lines[i].strip().startswith(":::"):
                 buf.append(lines[i])
                 i += 1
             i += 1
-            out.append(render_callout(buf))
+            out.append(render_callout(buf, c_type))
             continue
 
         # ---------- 标题 ----------
@@ -501,13 +518,15 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
 
             if alert_match:
                 alert_type = alert_match.group(1).upper()
+                c_type = alert_type.lower()
+                icon_svg = CALLOUT_ICONS.get(c_type, CALLOUT_ICONS["note"])
                 # 去掉第一行（标题行），将剩余内容递归渲染
                 rest_md = "\n".join(buf[1:])
                 inner_html, _ = render_markdown(rest_md, seen_slugs, headings)
                 
                 out.append(
-                    f'<div class="callout callout--{alert_type.lower()}">\n'
-                    f'    <div class="callout__title">{alert_type}</div>\n'
+                    f'<div class="callout callout--{c_type}">\n'
+                    f'    <div class="callout__title">{icon_svg} {alert_type}</div>\n'
                     f'    <div class="callout__body">\n{inner_html}\n    </div>\n'
                     f'</div>'
                 )
