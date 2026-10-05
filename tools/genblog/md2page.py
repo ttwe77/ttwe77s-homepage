@@ -230,8 +230,14 @@ EM_UNDER_RE = re.compile(r"(?<![\w_])_([^_\n]+)_(?![\w_])")
 # 删除线、高亮、上下标
 DEL_RE = re.compile(r"~~(.+?)~~")
 MARK_RE = re.compile(r"==([^=\n]+)==")
-SUB_RE = re.compile(r"~([^~\n]+)~")
-SUP_RE = re.compile(r"\^([^\^\n]+)\^")
+SUB_RE = re.compile(r"(?<!~)~([^~\n\[\]]+)~(?!~)")
+SUP_RE = re.compile(r"\^([^\^\n\[\]]+)\^")
+
+FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:\s*(.*)$")
+FOOTNOTE_REF_RE = re.compile(r"\[\^([^\]]+)\]")
+
+_footnote_defs: dict[str, str] = {}
+_footnote_order: list[str] = []
 
 # HTML 标签与实体保护
 HTML_TAG_RE = re.compile(
@@ -345,6 +351,23 @@ def render_inline(text) -> str:
 
     # 5.7) 独立图片（此时它不可能再被 LINK_RE 误吞）
     text = IMAGE_RE.sub(lambda m: put(_image_repl(m)), text)
+
+    # 5.8) 脚注引用
+    def _fn_ref(m: re.Match) -> str:
+        fid = m.group(1)
+        if fid not in _footnote_defs:
+            return m.group(0)          # 未定义 → 原样，交给 esc 处理
+        if fid not in _footnote_order:
+            _footnote_order.append(fid)
+        n = _footnote_order.index(fid) + 1
+        return put(
+            f'<sup class="footnote-ref">'
+            f'<a href="#fn-{esc_attr(fid)}" '
+            f'id="fnref-{esc_attr(fid)}">{n}</a>'
+            f'</sup>'
+        )
+
+    text = FOOTNOTE_REF_RE.sub(_fn_ref, text)
 
     # 6) 转义剩下的纯文本
     text = esc(text)
@@ -768,6 +791,17 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
         headings = []
 
     lines = md.split("\n")
+
+    # 抽走脚注定义行（形如 [^1]: 内容），正文里不渲染
+    filtered: list[str] = []
+    for line in lines:
+        m = FOOTNOTE_DEF_RE.match(line.strip())
+        if m:
+            _footnote_defs[m.group(1)] = m.group(2).strip()
+            continue
+        filtered.append(line)
+    lines = filtered
+
     out: list[str] = []
 
     i, n = 0, len(lines)
@@ -1321,7 +1355,31 @@ def main(argv=None) -> int:
     if "title" not in meta:
         meta["title"] = md_path.stem
 
+    # ★ 每次渲染前清空脚注状态
+    _footnote_defs.clear()
+    _footnote_order.clear()
+
     content, headings = render_markdown(body)
+
+    # ★ 拼装脚注区
+    if _footnote_order:
+        items = []
+        for fid in _footnote_order:
+            items.append(
+                f'<li id="fn-{esc_attr(fid)}">'
+                f'{render_inline(_footnote_defs[fid])} '
+                f'<a class="footnote-backref" '
+                f'href="#fnref-{esc_attr(fid)}">↩</a>'
+                f'</li>'
+            )
+        content += (
+            '\n\n<section class="footnotes">\n'
+            '<hr>\n'
+            '<ol>\n'
+            + "\n".join(items)
+            + '\n</ol>\n</section>'
+        )
+
     page = build_page(meta, content, headings, parts_dir)
 
     out_path = Path(args.out) if args.out else md_path.with_suffix(".html")
