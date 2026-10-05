@@ -419,6 +419,24 @@ def render_inline(text) -> str:
 # 块级渲染
 # ==========================================================================
 
+# CJK 判定：汉字 / 中文标点 / 全角符号
+_CJK_RE = re.compile(
+    r"[\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]"
+)
+
+
+def _joiner(prev_line: str, next_line: str) -> str:
+    """软换行的连接符：两侧都是 CJK 时不插空格，否则插一个。"""
+    prev_text = prev_line.rstrip()
+    next_text = next_line.lstrip()
+    if (
+        prev_text and next_text
+        and _CJK_RE.match(prev_text[-1])
+        and _CJK_RE.match(next_text[0])
+    ):
+        return ""
+    return " "
+
 BLOCK_START_RE = re.compile(
     r"^(?:"
     r"#{1,6}\s"                 # 标题
@@ -844,8 +862,18 @@ CALLOUT_ICONS = {
     "caution": '<svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
 }
 
+def _join_soft(lines: list[str]) -> str:
+    """把多行文本按 CJK 规则拼成一段。"""
+    lines = [ln.strip() for ln in lines if ln.strip()]
+    out = ""
+    for idx, ln in enumerate(lines):
+        if idx:
+            out += _joiner(lines[idx - 1], ln)
+        out += ln
+    return out
+
 def render_callout(buf: list[str], c_type: str = "warning") -> str:
-    body = " ".join(x.strip() for x in buf if x.strip())
+    body = _join_soft(buf)
     icon_svg = CALLOUT_ICONS.get(c_type, CALLOUT_ICONS["warning"])
     return (
         f'<div class="callout callout--{c_type}">\n'
@@ -877,13 +905,37 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
     lines = md.split("\n")
 
     # 抽走脚注定义行（形如 [^1]: 内容），正文里不渲染
+    # 支持多行：后续缩进（4 空格 / 1 tab）的行都算作该脚注的续行
     filtered: list[str] = []
-    for line in lines:
-        m = FOOTNOTE_DEF_RE.match(line.strip())
+    i = 0
+    while i < len(lines):
+        m = FOOTNOTE_DEF_RE.match(lines[i].strip())
         if m:
-            _footnote_defs[m.group(1)] = m.group(2).strip()
+            fid = m.group(1)
+            buf = [m.group(2).strip()]
+            i += 1
+            while i < len(lines):
+                nxt = lines[i]
+                # 空行：向后看，如果后面还有缩进行才算同一条脚注
+                if not nxt.strip():
+                    j = i + 1
+                    while j < len(lines) and not lines[j].strip():
+                        j += 1
+                    if j < len(lines) and INDENTED_CODE_RE.match(lines[j]):
+                        buf.append("")
+                        i = j
+                        continue
+                    break
+                if INDENTED_CODE_RE.match(nxt):
+                    # 去掉一层缩进（4 空格或 1 tab）
+                    buf.append(nxt[1:] if nxt.startswith("\t") else nxt[4:])
+                    i += 1
+                else:
+                    break
+            _footnote_defs[fid] = "\n".join(buf).rstrip()
             continue
-        filtered.append(line)
+        filtered.append(lines[i])
+        i += 1
     lines = filtered
 
     out: list[str] = []
@@ -1113,7 +1165,7 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
                 prev = buf[idx - 1]
                 # 行尾两个及以上空格，或行尾反斜杠 => 硬换行
                 hard = bool(re.search(r" {2,}$", prev) or re.search(r"\\$", prev))
-                parts.append("\x01" if hard else " ")
+                parts.append("\x01" if hard else _joiner(prev, line))
             parts.append(line.strip())   # 单行收尾空格在这里丢掉
 
         out.append("<p>" + render_inline("".join(parts)) + "</p>")
@@ -1242,12 +1294,7 @@ def build_tag_spans(meta: dict) -> str:
 
 
 def fill_article_head(tpl: str, meta: dict) -> str:
-    out = replace_between(
-        tpl,
-        '<div class="article-head__eyebrow">',
-        "</div>",
-        esc(meta.get("eyebrow", "Blog · Note")),
-    )
+    out = tpl
     out = replace_between(
         out,
         '<h1 class="article-head__title">',
@@ -1374,6 +1421,7 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
     progress = read(parts_dir / "read_progress.html").strip()
     article_head_tpl = read(parts_dir / "article_head.html").strip()
     toc_tpl = read(parts_dir / "toc.html").strip()
+    toc_toggle = read(parts_dir / "toc_toggle.html").strip()
     to_top = read(parts_dir / "to_top.html").strip()
     footer = read(parts_dir / "footer.html").strip()
     scripts_raw = read(parts_dir / "scripts.html")
@@ -1418,6 +1466,7 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
         f"{indent(toc, 8)}\n\n"
         "    </div>\n"
         "</div>\n\n"
+        f"{toc_toggle}\n\n"
         f"{to_top}\n\n"
         f"{scripts}\n\n"
         "</body>\n\n"
@@ -1485,11 +1534,24 @@ def main(argv=None) -> int:
     if _footnote_order:
         items = []
         for fid in _footnote_order:
-            items.append(
-                f'<li id="fn-{esc_attr(fid)}">'
-                f'{render_inline(_footnote_defs[fid])} '
+            fn_body, _ = render_markdown(_footnote_defs[fid])
+            
+            backref_html = (
                 f'<a class="footnote-backref" '
                 f'href="#fnref-{esc_attr(fid)}">↩</a>'
+            )
+            
+            # 将返回键插入到最后一个 </p> 内部，紧跟文字
+            if fn_body.rstrip().endswith("</p>"):
+                idx = fn_body.rfind("</p>")
+                fn_body = fn_body[:idx] + " " + backref_html + fn_body[idx:]
+            else:
+                # 如果正文末尾不是 </p>（例如以列表或代码块结尾），则直接拼在后面
+                fn_body += " " + backref_html
+                
+            items.append(
+                f'<li id="fn-{esc_attr(fid)}">\n'
+                f'{fn_body}\n'
                 f'</li>'
             )
         content += (

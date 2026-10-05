@@ -206,6 +206,7 @@ TARGETS = [
     ("article_head",  "article_head.html",   "outer", dict(tag="header", cls="article-head")),
     ("article_body",  "article_body.html",   "outer", dict(tag="div", eid="article-body")),
     ("toc",           "toc.html",            "outer", dict(tag="aside", cls="toc")),
+    ("toc_toggle",    "toc_toggle.html",     "outer", dict(tag="button", eid="toc-toggle")),
     ("to_top",        "to_top.html",         "outer", dict(tag="button", eid="to-top")),
     ("footer",        "footer.html",         "outer", dict(tag="footer", cls="footer")),
 ]
