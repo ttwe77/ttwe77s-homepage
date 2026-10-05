@@ -268,8 +268,8 @@ BLOCK_START_RE = re.compile(
     r")"
 )
 
-UL_ITEM_RE = re.compile(r"^\s*[-*+]\s+(.*)$")
-OL_ITEM_RE = re.compile(r"^\s*\d+[.)]\s+(.*)$")
+#UL_ITEM_RE = re.compile(r"^\s*[-*+]\s+(.*)$")
+#OL_ITEM_RE = re.compile(r"^\s*\d+[.)]\s+(.*)$")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 FENCE_OPEN_RE = re.compile(r"^```([^\s`]*)\s*$")
 TABLE_SEP_RE = re.compile(r"^\s*\|?[\s:|-]+\|[\s:|-]*$")
@@ -279,6 +279,8 @@ TABLE_SEP_RE = re.compile(r"^\s*\|?[\s:|-]+\|[\s:|-]*$")
 HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})\s*$")
 SETEXT_RE = re.compile(r"^\s*(=+|-+)\s*$")
 ALERT_RE = re.compile(r"^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)", re.I)
+LIST_ITEM_RE = re.compile(r"^([ \t]*)([-*+]|\d+[.)])[ \t]+(.*)$")
+TASK_ITEM_RE = re.compile(r"^\[([ xX])\][ \t]+(.*)$")
 
 
 def _is_block_start(lines: list[str], i: int) -> bool:
@@ -287,7 +289,7 @@ def _is_block_start(lines: list[str], i: int) -> bool:
         return True
     if BLOCK_START_RE.match(s):
         return True
-    if UL_ITEM_RE.match(lines[i]) or OL_ITEM_RE.match(lines[i]):
+    if LIST_ITEM_RE.match(lines[i]):
         return True
     return False
 
@@ -325,31 +327,210 @@ def _parse_table(lines: list[str], i: int):
     return f'<div class="table-wrap"><table>{thead}{tbody}</table></div>', i
 
 
-def _parse_list(lines: list[str], i: int, ordered: bool):
-    tag = "ol" if ordered else "ul"
-    pat = OL_ITEM_RE if ordered else UL_ITEM_RE
-    items = []
+def _parse_list_item(line: str):
+    """解析单行列表项，返回 dict 或 None。"""
+    m = LIST_ITEM_RE.match(line)
+    if not m:
+        return None
+    indent = len(m.group(1).replace("\t", "    "))
+    marker = m.group(2)
+    content = m.group(3)
+    ordered = marker[0].isdigit()
+    # ★ 关键：提取起始序号，比如 "3." → 3，"12)" → 12
+    start = int(marker.rstrip(".)")) if ordered else None
+    return {
+        "indent": indent,
+        "ordered": ordered,
+        "content": content,
+        "start": start,          # ← 无序列表是 None
+    }
+
+
+def _parse_list(lines, i, base_indent=None):
+    """递归解析列表：支持嵌套 / 任务列表 / 指定起始序号。"""
     n = len(lines)
+    first = _parse_list_item(lines[i])
+    if first is None:
+        return "", i
+
+    if base_indent is None:
+        base_indent = first["indent"]
+
+    ordered = first["ordered"]
+    # ★ 关键：把第一项的 start 记下来，用于输出 <ol start="N">
+    start_num = first["start"] if ordered else None
+    items = []
 
     while i < n:
-        m = pat.match(lines[i])
-        if not m:
+        info = _parse_list_item(lines[i])
+        if info is None:
             break
-        buf = [m.group(1)]
-        i += 1
-        # 续行
-        while (
-            i < n
-            and lines[i].strip()
-            and not pat.match(lines[i])
-            and not _is_block_start(lines, i)
-        ):
-            buf.append(lines[i].strip())
-            i += 1
-        items.append(" ".join(buf))
+        # 必须是同级、同类型的项
+        if info["indent"] != base_indent:
+            break
+        if info["ordered"] != ordered:
+            break
 
-    body = "".join(f"<li>{render_inline(x)}</li>" for x in items)
-    return f"<{tag}>{body}</{tag}>", i
+        text_buf = [info["content"]]
+        i += 1
+        nested_html = []
+
+        # 处理续行 / 嵌套 / 空行
+        while i < n:
+            line = lines[i]
+
+            # 空行：向后窥探，看是否仍属于本列表
+            if not line.strip():
+                j = i + 1
+                while j < n and not lines[j].strip():
+                    j += 1
+                if j < n:
+                    nxt = _parse_list_item(lines[j])
+                    if nxt and nxt["indent"] >= base_indent:
+                        i = j
+                        continue
+                break
+
+            nxt = _parse_list_item(line)
+            if nxt is not None:
+                if nxt["indent"] > base_indent:
+                    # 缩进更深 → 递归成子列表
+                    sub, i = _parse_list(lines, i)
+                    nested_html.append(sub)
+                    continue
+                break   # 同级/更浅 → 本项结束
+
+            # 普通续行
+            stripped = line.lstrip()
+            if len(line) - len(stripped) > base_indent:
+                text_buf.append(stripped)
+                i += 1
+            else:
+                break
+
+        text = " ".join(text_buf)
+
+        # 任务列表
+        task = TASK_ITEM_RE.match(text)
+        if task:
+            checked = task.group(1).lower() == "x"
+            body = (
+                f'<input class="task-checkbox" type="checkbox" disabled'
+                f'{" checked" if checked else ""}> '
+                + render_inline(task.group(2))
+            )
+            li_class = ' class="task-list-item"'
+        else:
+            body = render_inline(text)
+            li_class = ""
+
+        if nested_html:
+            body += "\n" + "\n".join(nested_html)
+
+        items.append(f"<li{li_class}>{body}</li>")
+
+    # ★ 关键：把 start 输出到 <ol>
+    tag = "ol" if ordered else "ul"
+    attrs = ""
+    if ordered and start_num and start_num != 1:
+        attrs = f' start="{start_num}"'
+
+    return f"<{tag}{attrs}>\n" + "\n".join(items) + f"\n</{tag}>", i
+
+
+def _parse_list(lines: list[str], i: int, base_indent: int | None = None):
+    """递归解析列表，支持：嵌套 / 任务列表 / 自定义起始序号。
+
+    返回 (html, next_i)。
+    """
+    n = len(lines)
+    first = _parse_list_item(lines[i])
+    if first is None:
+        return "", i
+    if base_indent is None:
+        base_indent = first["indent"]
+
+    ordered = first["ordered"]
+    start_num = first["start"]
+    items: list[str] = []
+
+    while i < n:
+        info = _parse_list_item(lines[i])
+        if info is None:
+            break
+        if info["indent"] < base_indent:
+            break
+        if info["indent"] > base_indent:
+            # 同级突然变深：交给上面内层循环处理，这里不该出现
+            break
+        if info["ordered"] != ordered:
+            break
+
+        # ---- 当前列表项的正文 ----
+        text_buf = [info["content"]]
+        i += 1
+        nested_html: list[str] = []
+
+        # 收集续行 / 嵌套列表
+        while i < n:
+            line = lines[i]
+
+            # 空行：窥探后面是否还属于本列表
+            if not line.strip():
+                j = i + 1
+                while j < n and not lines[j].strip():
+                    j += 1
+                if j < n:
+                    nxt = _parse_list_item(lines[j])
+                    if nxt and nxt["indent"] >= base_indent:
+                        i = j
+                        continue
+                break
+
+            nxt = _parse_list_item(line)
+            if nxt is not None:
+                if nxt["indent"] > base_indent:
+                    # 递归解析子列表
+                    sub, i = _parse_list(lines, i)
+                    nested_html.append(sub)
+                    continue
+                break  # 同级/更浅 —— 当前项结束
+
+            # 普通续行：必须比当前项缩进更深
+            stripped = line.lstrip()
+            cur_indent = len(line) - len(stripped)
+            if cur_indent > base_indent:
+                text_buf.append(stripped)
+                i += 1
+            else:
+                break
+
+        text = " ".join(text_buf)
+
+        # ---- 任务列表 ----
+        task = TASK_ITEM_RE.match(text)
+        if task:
+            checked = task.group(1).lower() == "x"
+            body = (
+                f'<input class="task-checkbox" type="checkbox" disabled'
+                f'{" checked" if checked else ""}> '
+                + render_inline(task.group(2))
+            )
+            li_class = ' class="task-list-item"'
+        else:
+            body = render_inline(text)
+            li_class = ""
+
+        if nested_html:
+            body += "\n" + "\n".join(nested_html)
+
+        items.append(f"<li{li_class}>{body}</li>")
+
+    tag = "ol" if ordered else "ul"
+    attrs = ""
+    if ordered and start_num and start_num != 1:
+        attrs = f' start="{start_num}"'
+    return f"<{tag}{attrs}>\n" + "\n".join(items) + f"\n</{tag}>", i
 
 
 def render_code_block(code: str, lang: str) -> str:
@@ -536,15 +717,9 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
                 inner_html, _ = render_markdown(inner_md, seen_slugs, headings)
                 out.append(f"<blockquote>\n{inner_html}\n</blockquote>")
             continue
-
-        # ---------- 无序 / 有序列表 ----------
-        if UL_ITEM_RE.match(raw):
-            block, i = _parse_list(lines, i, ordered=False)
-            out.append(block)
-            continue
-
-        if OL_ITEM_RE.match(raw):
-            block, i = _parse_list(lines, i, ordered=True)
+        # ---------- 列表（无序 / 有序 / 嵌套 / 任务列表）----------
+        if LIST_ITEM_RE.match(raw):
+            block, i = _parse_list(lines, i)
             out.append(block)
             continue
 
