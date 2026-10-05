@@ -392,18 +392,53 @@ def _is_block_start(lines: list[str], i: int) -> bool:
     return False
 
 
+# 未被转义的竖线才是单元格分隔符
+_CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
+
+
 def _split_table_row(row: str) -> list[str]:
     row = row.strip()
     if row.startswith("|"):
         row = row[1:]
-    if row.endswith("|"):
+    # 行尾的 | 只是装饰性边框；如果是 \| 则要保留
+    if row.endswith("|") and not row.endswith("\\|"):
         row = row[:-1]
-    return [c.strip() for c in row.split("|")]
+    cells = _CELL_SPLIT_RE.split(row)
+    # 把 \| 还原成字面竖线
+    return [c.strip().replace("\\|", "|") for c in cells]
 
+def _parse_align(sep_line: str) -> list[str]:
+    """从 :--- / ---: / :---: 解析每列对齐方式。"""
+    aligns = []
+    for c in _split_table_row(sep_line):
+        left, right = c.startswith(":"), c.endswith(":")
+        if left and right:
+            aligns.append("center")
+        elif right:
+            aligns.append("right")
+        elif left:
+            aligns.append("left")
+        else:
+            aligns.append("")
+    return aligns
+
+
+def _align_attr(aligns: list[str], idx: int) -> str:
+    a = aligns[idx] if idx < len(aligns) else ""
+    return f' style="text-align:{a}"' if a else ""
 
 def _parse_table(lines: list[str], i: int):
     header = _split_table_row(lines[i])
+    aligns = _parse_align(lines[i + 1])
     i += 2  # 跳过表头行与分隔行
+
+    ncol = len(header)
+    # 分隔行列数按表头补齐 / 截断，避免错位
+    if len(aligns) < ncol:
+        aligns += [""] * (ncol - len(aligns))
+    else:
+        aligns = aligns[:ncol]
+
     rows = []
     while i < len(lines) and lines[i].strip() and "|" in lines[i]:
         rows.append(_split_table_row(lines[i]))
@@ -411,17 +446,27 @@ def _parse_table(lines: list[str], i: int):
 
     thead = (
         "<thead><tr>"
-        + "".join(f"<th>{render_inline(c)}</th>" for c in header)
+        + "".join(
+            f"<th{_align_attr(aligns, k)}>{render_inline(c)}</th>"
+            for k, c in enumerate(header)
+        )
         + "</tr></thead>"
     )
-    tbody = (
-        "<tbody>"
-        + "".join(
-            "<tr>" + "".join(f"<td>{render_inline(c)}</td>" for c in r) + "</tr>"
-            for r in rows
+
+    body_rows = []
+    for r in rows:
+        if len(r) < ncol:                 # 单元格不够时补空，避免错列
+            r = r + [""] * (ncol - len(r))
+        body_rows.append(
+            "<tr>"
+            + "".join(
+                f"<td{_align_attr(aligns, k)}>{render_inline(c)}</td>"
+                for k, c in enumerate(r)
+            )
+            + "</tr>"
         )
-        + "</tbody>"
-    )
+
+    tbody = "<tbody>" + "".join(body_rows) + "</tbody>"
     return f'<div class="table-wrap"><table>{thead}{tbody}</table></div>', i
 
 
