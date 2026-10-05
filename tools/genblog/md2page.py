@@ -234,7 +234,13 @@ SUB_RE = re.compile(r"~([^~\n]+)~")
 SUP_RE = re.compile(r"\^([^\^\n]+)\^")
 
 # HTML 标签与实体保护
-HTML_TAG_RE = re.compile(r"<(/?)(u|ins|del|mark|sub|sup|small|abbr|cite|kbd)\b([^>]*?)>", re.I)
+HTML_TAG_RE = re.compile(
+    r"<(/?)(u|ins|del|mark|sub|sup|small|abbr|cite|kbd|div|p|details|summary|span|"
+    r"a|img|table|thead|tbody|tr|th|td|ul|ol|li|blockquote|pre|code|h[1-6]|"
+    r"section|article|aside|header|footer|nav|figure|figcaption|iframe|video|"
+    r"audio|canvas|svg|path|circle|rect|line|polyline|polygon|g|defs|use|symbol|text)\b([^>]*?)>",
+    re.I
+)
 HTML_ENTITY_RE = re.compile(r"&[a-zA-Z0-9#]+;")
 
 # Emoji 扩展
@@ -782,6 +788,37 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
                 i += 1
             i += 1
             out.append(render_callout(buf, c_type))
+            continue
+
+        # ---------- 原生 HTML 块 ----------
+        # 如果遇到常见的块级 HTML 标签开头，则视为原生 HTML 块，原样输出
+        HTML_BLOCK_START_RE = re.compile(
+            r"^\s*<(div|p|details|summary|table|ul|ol|li|blockquote|pre|h[1-6]|"
+            r"section|article|aside|header|footer|nav|figure|figcaption|iframe|video|audio|canvas|svg)\b",
+            re.I
+        )
+        
+        if HTML_BLOCK_START_RE.match(raw):
+            buf = []
+            depth = 0
+            while i < n:
+                line = lines[i]
+                # 粗略计算标签嵌套深度，忽略注释中的标签
+                clean_line = re.sub(r'<!--.*?-->', '', line)
+                opens = len(re.findall(r'<[a-zA-Z][^>]*[^/]>', clean_line))
+                closes = len(re.findall(r'</[a-zA-Z][^>]*>', clean_line))
+                self_closes = len(re.findall(r'<[a-zA-Z][^>]*/>', clean_line))
+                opens -= self_closes
+                depth += opens - closes
+
+                buf.append(line)
+                i += 1
+                # 当深度归零且当前行有内容时，认为 HTML 块结束
+                if depth <= 0 and line.strip():
+                    break
+            
+            # 直接原样输出，不经过 Markdown 解析
+            out.append("\n".join(buf))
             continue
 
         # ---------- 标题 ----------
