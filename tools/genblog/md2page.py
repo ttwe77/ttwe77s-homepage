@@ -764,6 +764,76 @@ def render_code_block(code: str, lang: str) -> str:
     )
 
 # ==========================================================================
+# Mermaid 图表
+# ==========================================================================
+
+MERMAID_LANGS = {"mermaid", "mmd"}
+
+
+def render_mermaid(code: str) -> str:
+    """把 ```mermaid 代码块渲染成待处理的容器，由前端脚本转成 SVG。
+
+    用 <pre> 包裹是为了保留源码里的换行与缩进，
+    esc() 负责把 & < > 转义，mermaid 读取 textContent 时会自动还原。
+    """
+    return (
+        '<div class="mermaid-wrap">\n'
+        '<pre class="mermaid">\n'
+        + esc(code.strip())
+        + "\n</pre>\n"
+        "</div>"
+    )
+
+
+# 只有页面里真的出现图表时才注入这段脚本
+MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+    var nodes = document.querySelectorAll(".mermaid");
+    if (!nodes.length || !window.mermaid) return;
+
+    mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        themeVariables: {
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+            fontSize: "13px",
+            primaryColor: "#E8F4FD",
+            primaryTextColor: "#1F1F1F",
+            primaryBorderColor: "#21A5E3",
+            lineColor: "#9BB7CC",
+            secondaryColor: "#F2F6FF",
+            tertiaryColor: "#FAFAFA",
+            background: "#FFFFFF",
+            mainBkg: "#E8F4FD",
+            nodeBorder: "#21A5E3",
+            clusterBkg: "#F7FBFF",
+            clusterBorder: "#CFE6F7",
+            edgeLabelBackground: "#FFFFFF",
+            actorBkg: "#E8F4FD",
+            actorBorder: "#21A5E3",
+            actorTextColor: "#1F1F1F",
+            signalColor: "#404040",
+            signalTextColor: "#404040",
+            noteBkgColor: "#FFF8DD",
+            noteBorderColor: "#FFD84D"
+        },
+        flowchart: { curve: "basis", htmlLabels: true, useMaxWidth: true },
+        sequence: { useMaxWidth: true, mirrorActors: false }
+    });
+
+    mermaid.run({ nodes: nodes }).then(function () {
+        document.querySelectorAll(".mermaid-wrap").forEach(function (el) {
+            el.classList.add("is-rendered");
+        });
+    }).catch(function (err) {
+        console.error("[mermaid]", err);
+    });
+})();
+</script>"""
+
+# ==========================================================================
 # 提示框图标 (SVG)
 # ==========================================================================
 CALLOUT_ICONS = {
@@ -838,9 +908,14 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
                 buf.append(lines[i])
                 i += 1
             i += 1  # 跳过收尾 ```
-            out.append(render_code_block("\n".join(buf), lang))
+
+            code = "\n".join(buf)
+            if lang.strip().lower() in MERMAID_LANGS:
+                out.append(render_mermaid(code))
+            else:
+                out.append(render_code_block(code, lang))
             continue
-        
+
         # ---------- 块级公式 $$...$$ ----------
         if s.startswith("$$"):
             # 情况 A：单行 $$E=mc^2$$
@@ -1313,6 +1388,10 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
     )
     scripts = rebuild_scripts(scripts_raw)
 
+    # 页面里出现 mermaid 图表时才注入渲染脚本
+    if 'class="mermaid"' in content:
+        scripts = scripts + "\n\n" + MERMAID_SCRIPT
+
     article_body = (
         '<div class="card article-body" id="article-body">\n\n'
         + content
@@ -1364,7 +1443,7 @@ def indent(text: str, spaces: int) -> str:
             else:
                 out.append(line)
             # 遇到 <pre> 且不是单行闭合的情况，标记进入 pre 区域
-            if "<pre>" in line and "</pre>" not in line:
+            if re.search(r"<pre\b", line) and "</pre>" not in line:
                 in_pre = True
     return "\n".join(out)
 
