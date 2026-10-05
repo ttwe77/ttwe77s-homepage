@@ -34,7 +34,7 @@
   <link rel="canonical" href="https://100.99.88.77/">
   <script>document.documentElement.classList.add('js');</script>
   <script type="module">
-    import { BAClickFX } from './libs/ba-click-fx.js';
+    import { BAClickFX } from '/libs/ba-click-fx.js';
     const fx = new BAClickFX();
     fx.updateConfig({ trailAlways: true });
     fx.setCompositingReference({ hostCompositing: 'screen' });
@@ -681,6 +681,7 @@
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       overflow: hidden;
     }
 
@@ -2794,13 +2795,13 @@
           <footer class="footer reveal" data-delay="140">
             <div class="footer__brand">
               <span class="footer__mark">七七的折腾笔记</span>
-              <span>© 2026 七七的折腾笔记 · 用心记录每一行代码与生活</span>
+              <span>© 2026 ttwe77</span>
             </div>
-            <div class="footer__links">
+            <!--<div class="footer__links">
               <a href="#">RSS 订阅</a>
               <a href="#">GitHub</a>
               <a href="#">邮件联系</a>
-            </div>
+            </div>-->
           </footer>
 
         </div>
@@ -3055,6 +3056,82 @@
         return svg;
       }
 
+      /* =========================================================
+       *  行内富文本：只识别 hover-hint 这一种内嵌结构
+       *  ---------------------------------------------------------
+       *  <span class="hover-hint">可见文字<span class="hover-hint__tooltip">
+       *    <span class="hint-title">提示标题（可选）</span>提示内容</span></span>
+       *
+       *  · 只有这一种结构会被当成 HTML，其余内容（含其他标签）一律转义
+       *  · 提示内容里的 <br> 会保留为换行，其余按纯文本处理
+       *  · 返回 { html, text }，text 是去掉提示后的纯文字（供 aria-label 用）
+       * =======================================================*/
+      var HINT_OPEN = '<span class="hover-hint">';
+      var TIP_OPEN = '<span class="hover-hint__tooltip">';
+      var TITLE_OPEN = '<span class="hint-title">';
+      var SPAN_CLOSE = '</span>';
+
+      function parseInline(raw) {
+        var src = String(raw == null ? '' : raw);
+        var html = '', text = '', pos = 0;
+
+        while (pos < src.length) {
+          var start = src.indexOf(HINT_OPEN, pos);
+
+          if (start === -1) {                       // 剩下的都是普通文字
+            html += esc(src.slice(pos));
+            text += src.slice(pos);
+            break;
+          }
+
+          html += esc(src.slice(pos, start));
+          text += src.slice(pos, start);
+
+          var labelStart = start + HINT_OPEN.length;
+          var tipStart = src.indexOf(TIP_OPEN, labelStart);
+
+          if (tipStart === -1) {                    // 结构不完整 → 整段当纯文本
+            html += esc(src.slice(start));
+            text += src.slice(start);
+            break;
+          }
+
+          var label = src.slice(labelStart, tipStart);
+          var innerStart = tipStart + TIP_OPEN.length;
+          var innerEnd = src.indexOf(SPAN_CLOSE + SPAN_CLOSE, innerStart);
+
+          if (innerEnd === -1) {                    // 同上
+            html += esc(src.slice(start));
+            text += src.slice(start);
+            break;
+          }
+
+          var inner = src.slice(innerStart, innerEnd);
+
+          /* 拆出可选的提示标题 */
+          var title = '';
+          if (inner.slice(0, TITLE_OPEN.length) === TITLE_OPEN) {
+            var titleEnd = inner.indexOf(SPAN_CLOSE, TITLE_OPEN.length);
+            if (titleEnd !== -1) {
+              title = inner.slice(TITLE_OPEN.length, titleEnd);
+              inner = inner.slice(titleEnd + SPAN_CLOSE.length);
+            }
+          }
+
+          html += '<span class="hover-hint">' + esc(label) +
+            '<span class="hover-hint__tooltip">' +
+            (title ? '<span class="hint-title">' + esc(title) + '</span>' : '') +
+            esc(inner).replace(/&lt;br\s*\/?&gt;/gi, '<br>') +
+            '</span></span>';
+
+          text += label;
+
+          pos = innerEnd + SPAN_CLOSE.length * 2;
+        }
+
+        return { html: html, text: text };
+      }
+
       /* 'blog/index.ini' → 'blog/' */
       function dirOf(url) {
         var clean = String(url).split(/[?#]/)[0];
@@ -3113,6 +3190,11 @@
        *
        *  · 第 1 列「文件名」必填，只收 .html / .htm
        *  · 第 7 列「SVG」可省略；省略时使用兜底图标
+       *  · 「标题」「摘要」两列可内嵌 hover-hint 结构：
+       *      <span class="hover-hint">可见文字<span class="hover-hint__tooltip">
+       *        <span class="hint-title">提示标题（可选）</span>提示内容</span></span>
+       *    · 提示内容里可用 <br> 换行，其余内容按纯文本转义
+       *    · 因为字段用 "|" 分隔，提示内容里不要出现 "|"
        * =======================================================*/
       function parseIni(text) {
         var list = [];
@@ -3226,20 +3308,24 @@
 
           var meta = [item.date, item.category].filter(Boolean).join(' · ');
 
+          /* 标题 / 摘要支持内嵌 hover-hint，其余内容照旧转义 */
+          var title = parseInline(item.title);
+          var desc = parseInline(item.desc);
+
           var tags = item.tags.slice(0, 3).map(function (t) {
             return '<span class="chip">' + esc(t) + '</span>';
           }).join('');
 
           return '' +
             '<article class="card work" data-href="' + esc(POST_BASE + item.file) + '"' +
-            ' tabindex="0" role="link" aria-label="' + esc(item.title) + '">' +
+            ' tabindex="0" role="link" aria-label="' + esc(title.text) + '">' +
             '<div class="work__thumb" style="--c1:' + c[0] + ';--c2:' + c[1] + '">' +
             icon +
             '</div>' +
             '<div class="work__body">' +
             '<div class="work__meta">' + esc(meta) + '</div>' +
-            '<h3 class="work__title">' + esc(item.title) + '</h3>' +
-            '<p class="work__desc">' + esc(item.desc) + '</p>' +
+            '<h3 class="work__title">' + title.html + '</h3>' +
+            '<p class="work__desc">' + desc.html + '</p>' +
             '<div class="work__tags">' + tags + '</div>' +
             '</div>' +
             '</article>';
@@ -3654,7 +3740,7 @@
         var card = e.target.closest && e.target.closest('.work[data-href]');
         if (!card) return;
         var href = card.dataset.href;
-        if (href && href !== '#') window.location.href = href;
+        window.open(href, '_blank', 'noopener,noreferrer');
       });
 
       worksEl.addEventListener('keydown', function (e) {
