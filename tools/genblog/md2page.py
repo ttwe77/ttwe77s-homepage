@@ -884,10 +884,18 @@ def render_callout(buf: list[str], c_type: str = "warning") -> str:
 
 
 def make_slug(text: str, seen: dict) -> str:
-    s = re.sub(r"^[\s\u3000]*[一二三四五六七八九十百千\d]+\s*[、.．,)）:：]\s*", "", text)
-    s = re.sub(r"[^\w\u4e00-\u9fff]+", "-", s, flags=re.UNICODE).strip("-").lower()
-    base = "h-" + (s or "sec")
+    # 1) 去掉行内 markdown 标记，避免 `**粗**` 之类混进 id
+    s = re.sub(r"[`*_~\[\]()]+", "", text)
+    s = s.strip().lower()
 
+    # 2) 空白 → 连字符
+    s = re.sub(r"\s+", "-", s)
+
+    # 3) 去掉除 单词字符/汉字/连字符 以外的所有字符（含 . , ! ? 等）
+    s = re.sub(r"[^\w\u4e00-\u9fff-]", "", s, flags=re.UNICODE)
+    s = s.strip("-")
+
+    base = s or "sec"
     if base in seen:
         seen[base] += 1
         return f"{base}-{seen[base]}"

@@ -3,7 +3,7 @@ title: Markdown 全样式示例文档
 description: 这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。
 date: 2026-10-05
 category: 前端
-readtime: 8
+readtime: 4
 author: ttwe77
 tags: MarkDown, 示例, 语法
 license: CC BY-NC 4.0
@@ -297,7 +297,7 @@ ___
 
 这里有一个脚注[^1]，这里还有另一个[^longnote]。
 
-[^1]: 这是脚注内容。
+[^1]: 这是脚注内容。你可以点击右边箭头返回。
 
 [^longnote]: 这是多行脚注。
     缩进可以继续脚注内容。
