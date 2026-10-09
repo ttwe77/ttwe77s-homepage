@@ -861,6 +861,61 @@ static std::vector<Preset> parse_presets(const Ini& ini) {
     return out;
 }
 
+// ============================ 电源规则 ============================
+//
+// [power] 段的 suspend_status / resume_status 支持两种写法：
+//   1) 旧写法：只填一个状态名，等价于 status=<那个值>
+//        suspend_status = offline
+//   2) 规则写法：和 since_rules 右侧一样，多字段用分号分隔
+//        suspend_status = status=offline; status_text=睡眠中
+//
+// 可覆盖字段：status / status_text / program_name / program_title / since / name
+// 空字符串 → 不启用该事件
+
+struct PowerRule {
+    std::vector<RuleAction> actions;
+    bool valid = false;   // 是否配置了有效规则（用于判断推不推）
+};
+
+static PowerRule parse_power_rule(const std::string& raw) {
+    PowerRule r;
+    std::string v = trim(raw);
+    if (v.empty()) return r;
+
+    // ---- 旧写法：整段只是一个状态名 ----
+    if (v.find('=') == std::string::npos) {
+        std::string st = to_lower(v);
+        if (st == "online" || st == "away" ||
+            st == "busy"   || st == "offline") {
+            r.actions.push_back({"status", st});
+            r.valid = true;
+        }
+        return r;
+    }
+
+    // ---- 新写法：字段=值; 字段=值; ... ----
+    size_t start = 0;
+    while (start < v.size()) {
+        size_t semi = v.find(';', start);
+        std::string part = (semi == std::string::npos)
+                           ? v.substr(start)
+                           : v.substr(start, semi - start);
+        part = trim(part);
+        if (!part.empty()) {
+            size_t eq = part.find('=');
+            if (eq != std::string::npos) {
+                std::string k   = to_lower(trim(part.substr(0, eq)));
+                std::string val = trim(part.substr(eq + 1));
+                if (!k.empty()) r.actions.push_back({k, val});
+            }
+        }
+        if (semi == std::string::npos) break;
+        start = semi + 1;
+    }
+    r.valid = !r.actions.empty();
+    return r;
+}
+
 // ============================ 配置结构 ============================
 
 struct Config {
@@ -896,9 +951,9 @@ struct Config {
     // 托盘预设
     std::vector<Preset>      presets;
 
-    // 电源事件推送（留空表示不推送）
-    std::string powerSuspendStatus;   // 进入睡眠/休眠前
-    std::string powerResumeStatus;    // 恢复后（留空则推当前状态）
+    // 电源事件推送（规则为空 / valid=false 表示不推送）
+    PowerRule powerSuspendRule;       // 进入睡眠/休眠前
+    PowerRule powerResumeRule;        // 恢复后（无效则推当前状态）
 };
 
 static std::string default_status_text(const std::string& s) {
@@ -964,26 +1019,31 @@ static void apply_program_filter(Config& cfg) {
 static std::string g_mem_program_name;
 static std::string g_mem_since;
 
-static int push_once(Config& cfg, bool quiet, bool verbose) {
+static int push_once(Config& cfg, bool quiet, bool verbose,
+                     bool skipAutoDetect = false) {
     // --- 自动探测（每轮重新计算，这样持续推送时能反映最新状态）---
-    if (cfg.detectProgram) {
-        std::string p = get_foreground_process_name();
-        if (!p.empty()) cfg.programName = p;
-    }
+    // skipAutoDetect = true 时（电源事件推送）跳过程序名/空闲探测，
+    // 以免覆盖 [power] 规则中显式设置的 program_name / program_title。
+    if (!skipAutoDetect) {
+        if (cfg.detectProgram) {
+            std::string p = get_foreground_process_name();
+            if (!p.empty()) cfg.programName = p;
+        }
 
-    // --- 黑白名单过滤 + 标题获取 ---
-    apply_program_filter(cfg);
+        // --- 黑白名单过滤 + 标题获取 ---
+        apply_program_filter(cfg);
 
-    if (cfg.detectStatus && !cfg.statusManual) {
-        DWORD idleSec = get_idle_seconds();
-        if ((int)(idleSec / 60) >= cfg.idleMinutes) {
-            cfg.status = "away";
-            if (cfg.statusText.empty() || cfg.statusText == "在线")
-                cfg.statusText = "离开";
-        } else if (cfg.status.empty() || cfg.status == "away") {
-            cfg.status = "online";
-            if (cfg.statusText.empty() || cfg.statusText == "离开")
-                cfg.statusText = "在线";
+        if (cfg.detectStatus && !cfg.statusManual) {
+            DWORD idleSec = get_idle_seconds();
+            if ((int)(idleSec / 60) >= cfg.idleMinutes) {
+                cfg.status = "away";
+                if (cfg.statusText.empty() || cfg.statusText == "在线")
+                    cfg.statusText = "离开";
+            } else if (cfg.status.empty() || cfg.status == "away") {
+                cfg.status = "online";
+                if (cfg.statusText.empty() || cfg.statusText == "离开")
+                    cfg.statusText = "在线";
+            }
         }
     }
 
@@ -1159,22 +1219,71 @@ static int push_once(Config& cfg, bool quiet, bool verbose) {
     return 1;
 }
 
-// 用指定状态推送一次，推送完成后恢复原状态（用于电源事件）
-static void push_with_status(Config& cfg, const std::string& st,
-                             const std::string& tx, bool quiet, bool verbose) {
-    std::string savedSt = cfg.status;
-    std::string savedTx = cfg.statusText;
-    bool        savedMn = cfg.statusManual;
+// 按 [power] 规则推送一次，推送完成后恢复 cfg 与内存状态（用于电源事件）
+static void push_with_power_rule(Config& cfg, const PowerRule& rule,
+                                 bool quiet, bool verbose) {
+    if (!rule.valid) return;
 
-    cfg.status     = st;
-    cfg.statusText = tx.empty() ? default_status_text(st) : tx;
-    cfg.statusManual = true;   // 避免被 detect_status 覆盖
+    // 保存现场：cfg 全量 + 程序名/since 内存
+    Config      savedCfg        = cfg;
+    std::string savedMemProgram = g_mem_program_name;
+    std::string savedMemSince   = g_mem_since;
 
-    push_once(cfg, quiet, verbose);
+    bool statusChanged = false;
+    bool textSet       = false;
+    bool sinceSet      = false;
 
-    cfg.status       = savedSt;
-    cfg.statusText   = savedTx;
-    cfg.statusManual = savedMn;
+    for (const auto& a : rule.actions) {
+        if (a.field == "status") {
+            std::string st = to_lower(trim(a.value));
+            if (st == "online" || st == "away" ||
+                st == "busy"   || st == "offline") {
+                cfg.status = st;
+                statusChanged = true;
+            }
+        } else if (a.field == "status_text") {
+            cfg.statusText = a.value;
+            textSet = true;
+        } else if (a.field == "program_name") {
+            cfg.programName = a.value;
+        } else if (a.field == "program_title") {
+            cfg.programTitle = a.value;
+        } else if (a.field == "name") {
+            cfg.name = a.value;
+        } else if (a.field == "since") {
+            std::string v = trim(a.value);
+            if (v == "now" || v.empty()) {
+                // 交给 push_once 用当前时间
+                cfg.since.clear();
+                sinceSet = true;
+            } else if (is_valid_iso8601(v)) {
+                cfg.since = v;
+                sinceSet = true;
+            }
+            // 非法值静默忽略，避免服务端 400
+        }
+    }
+
+    // 规则改了 status 却没给 status_text → 补默认文案
+    if (statusChanged && !textSet)
+        cfg.statusText = default_status_text(cfg.status);
+
+    // 阻止 detect_status 覆盖
+    cfg.statusManual = true;
+
+    // 如果规则显式指定了 since，就临时清掉内存，让 push_once 重新计算，
+    // 否则会因为 program_name 命中内存而错误复用旧时间。
+    if (sinceSet) {
+        g_mem_program_name.clear();
+        g_mem_since.clear();
+    }
+
+    push_once(cfg, quiet, verbose, /*skipAutoDetect=*/true);
+
+    // 恢复
+    cfg = savedCfg;
+    g_mem_program_name = savedMemProgram;
+    g_mem_since        = savedMemSince;
 }
 
 // ============================ 托盘 ============================
@@ -1344,30 +1453,28 @@ static LRESULT CALLBACK tray_wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         return 0;
     }
 
-    case WM_POWERBROADCAST:
+        case WM_POWERBROADCAST:
         if (wp == PBT_APMSUSPEND) {
-            // 进入睡眠/休眠前：推送「挂起」状态（如果配置了）
-            if (g_cfg && !g_cfg->powerSuspendStatus.empty()) {
-                std::string st = to_lower(g_cfg->powerSuspendStatus);
-                if (st == "online" || st == "away" ||
-                    st == "busy"   || st == "offline") {
-                    push_with_status(*g_cfg, st, "", true, false);
-                }
+            // 进入睡眠/休眠前：按 [power] suspend_status 规则推送
+            if (g_cfg && g_cfg->powerSuspendRule.valid && !g_pushing) {
+                g_pushing = true;
+                push_with_power_rule(*g_cfg, g_cfg->powerSuspendRule,
+                                     true, false);
+                g_pushing = false;
             }
             return TRUE;
         }
         if (wp == PBT_APMRESUMEAUTOMATIC || wp == PBT_APMRESUMESUSPEND) {
-            // 恢复后：推送配置的状态；未配置则推送当前状态
-            if (g_cfg) {
-                std::string st = to_lower(g_cfg->powerResumeStatus);
-                if (st == "online" || st == "away" ||
-                    st == "busy"   || st == "offline") {
-                    push_with_status(*g_cfg, st, "", true, false);
-                } else if (!g_pushing) {
-                    g_pushing = true;
+            // 恢复后：优先用 [power] resume_status 规则；未配置则推当前状态
+            if (g_cfg && !g_pushing) {
+                g_pushing = true;
+                if (g_cfg->powerResumeRule.valid) {
+                    push_with_power_rule(*g_cfg, g_cfg->powerResumeRule,
+                                         true, false);
+                } else {
                     push_once(*g_cfg, g_quiet, g_verbose);
-                    g_pushing = false;
                 }
+                g_pushing = false;
                 update_tray_tip();
             }
             return TRUE;
@@ -1570,10 +1677,25 @@ static bool write_default_ini(const std::string& path, std::string& err) {
         "\n"
         "[power]\n"
         "; 电源事件：睡眠/休眠前与恢复后自动推送\n"
-        "; 状态只能是 online / away / busy / offline；留空表示不推送\n"
-        "; 例：suspend_status = offline  （睡眠前标记为离线）\n"
-        ";     resume_status  = online   （恢复后自动回到在线）\n"
-        "; 若 resume_status 留空，则恢复后推送当前状态\n"
+        ";\n"
+        "; 支持两种写法：\n"
+        ";   1) 旧写法（只改 status，写一个状态名即可）\n"
+        ";        suspend_status = offline\n"
+        ";        resume_status  = online\n"
+        ";\n"
+        ";   2) 规则写法（同 since_rules 右侧，可覆盖多个字段）\n"
+        ";        suspend_status = status=offline; status_text=睡眠中\n"
+        ";        resume_status  = status=online;  status_text=回来了\n"
+        ";\n"
+        "; 可覆盖字段与 since_rules 相同：\n"
+        ";   status         online / away / busy / offline\n"
+        ";   status_text    状态文案\n"
+        ";   program_name   上报的程序名\n"
+        ";   program_title  窗口标题\n"
+        ";   since          起始时间，必须为 ISO 8601 或 now\n"
+        ";   name           上报的名称\n"
+        ";\n"
+        "; 留空表示不推送；resume_status 留空则恢复后推送当前状态\n"
         "suspend_status =\n"
         "resume_status  =\n";
 
@@ -1767,8 +1889,8 @@ int main() {
     cfg.sinceRules = parse_since_rules(ini);
     cfg.presets    = parse_presets(ini);
 
-    cfg.powerSuspendStatus = ini.get("power", "suspend_status");
-    cfg.powerResumeStatus  = ini.get("power", "resume_status");
+    cfg.powerSuspendRule = parse_power_rule(ini.get("power", "suspend_status"));
+    cfg.powerResumeRule  = parse_power_rule(ini.get("power", "resume_status"));
 
     // 命令行覆盖
     auto applyOverride = [&](const char* key, std::string& target) {
