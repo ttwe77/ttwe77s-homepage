@@ -38,6 +38,7 @@
     const fx = new BAClickFX();
     fx.updateConfig({ trailAlways: true });
     fx.setCompositingReference({ hostCompositing: 'screen' });
+    fx.setThemeColor('#80c1ff');
   </script>
   <style>
     /* ============ 设计令牌 ============ */
@@ -2533,6 +2534,172 @@
     [contenteditable="true"] {
       cursor: auto;
     }
+    /* ==================== OpenPGP 公钥卡片 ==================== */
+.pgp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 指纹：等宽、分组、可整体选中 */
+.pgp-fpr {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  letter-spacing: .04em;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  word-break: break-all;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, rgba(33, 165, 227, .08) 0%, rgba(33, 165, 227, .02) 100%);
+  border: 1px dashed rgba(33, 165, 227, .28);
+  user-select: all;
+}
+
+.pgp-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pgp-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--color-primary);
+  background: rgba(33, 165, 227, .08);
+  border: 1px solid rgba(33, 165, 227, .22);
+  white-space: nowrap;
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .12s ease;
+}
+
+.pgp-btn:hover {
+  background: rgba(33, 165, 227, .14);
+  border-color: var(--color-primary);
+}
+
+.pgp-btn:active {
+  transform: scale(.97);
+}
+
+.pgp-btn--primary {
+  color: #fff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.pgp-btn--primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.pgp-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* 公钥展开区 */
+.pgp-key {
+  border-radius: var(--radius-md);
+  background: #f7fafc;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.pgp-key[hidden] {
+  display: none;
+}
+
+.pgp-key__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: #eef5fb;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pgp-key__copy {
+  padding: 2px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(33, 165, 227, .28);
+  background: rgba(255, 255, 255, .7);
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.pgp-key__copy:hover {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.pgp-key__copy:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.pgp-key pre {
+  margin: 0;
+  padding: 10px 12px;
+  max-height: 220px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--color-text-body);
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.pgp-key pre::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.pgp-key pre::-webkit-scrollbar-thumb {
+  background: rgba(33, 165, 227, .25);
+  border-radius: 3px;
+}
+
+.pgp-key.is-loading pre {
+  color: var(--color-text-secondary);
+}
+
+.pgp-key.is-error pre {
+  color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .pgp-fpr {
+    font-size: 11.5px;
+    padding: 8px 10px;
+    letter-spacing: .02em;
+  }
+
+  .pgp-btn {
+    font-size: 12px;
+    height: 32px;
+    padding: 0 10px;
+  }
+}
   </style>
 </head>
 
@@ -2721,7 +2888,7 @@
           <div class="posts-layout">
 
             <!-- 左栏：头像 + 简介 -->
-            <aside class="posts-sidebar reveal" data-delay="60" aria-label="博主简介">
+            <aside class="posts-sidebar reveal" data-delay="60" aria-label="简介">
 
               <div class="card card--static sidebar-card">
                 <div class="sidebar-avatar" aria-hidden="true">
@@ -2738,11 +2905,11 @@
                   日常打二游，偶尔写点代码或折腾软件。欢迎同好交流。
                 </p>
                 <div class="intro-quote">
-                    <span class="intro-quote__text"><span class="hover-hint">科技倡导个性化<span
-                          class="hover-hint__tooltip"><span
-                            class="hint-title">科技倡导个性化</span>科技的价值在于赋能个体，尊重并实现每个人的独特性，而非用统一的标准和“科技霸权”去束缚人。(仅个人理解)</span></span></span>
-                    <span class="intro-quote__author">—— <a href="https://space.bilibili.com/12590" target="_blank"
-                        rel="noopener noreferrer">Epcdiy</a></span>
+                  <span class="intro-quote__text"><span class="hover-hint">科技倡导个性化<span
+                        class="hover-hint__tooltip"><span
+                          class="hint-title">科技倡导个性化</span>科技的价值在于赋能个体，尊重并实现每个人的独特性，而非用统一的标准和“科技霸权”去束缚人。(仅个人理解)</span></span></span>
+                  <span class="intro-quote__author">—— <a href="https://space.bilibili.com/12590" target="_blank"
+                      rel="noopener noreferrer">Epcdiy</a></span>
                 </div>
               </div>
 
@@ -2752,26 +2919,58 @@
                 </div>
                 <div class="info-list">
                   <div class="info-row">
-                    <span class="info-row__k"><span class="hover-hint">爱来自<span class="hover-hint__tooltip"><span class="hint-title">爱来自（梗）</span>“爱来自XX”是一个源自机翻（机器翻译）错误的网络流行梗，核心笑点在于翻译软件将英文“love from China”中的“China”错误地直译成了“瓷器”。随着国内各大平台开始显示IP属地，这个梗迅速被本地化。人们开始用“爱来自山东”、“爱来自大山的东边”这类句式，来表明自己的评论来源地，带有一种亲切的调侃意味。</span></span></span>
-                    <span class="info-row__v"><span class="hover-hint">广阔的西边<span class="hover-hint__tooltip"><span class="hint-title">广阔的西边（梗）</span>“广阔”取“广”，“西边”取“西”，合起来就是“广西”。</span></span></span>
+                    <span class="info-row__k"><span class="hover-hint">爱来自<span class="hover-hint__tooltip"><span
+                            class="hint-title">爱来自（梗）</span>“爱来自XX”是一个源自机翻（机器翻译）错误的网络流行梗，核心笑点在于翻译软件将英文“love from
+                          China”中的“China”错误地直译成了“瓷器”。随着国内各大平台开始显示IP属地，这个梗迅速被本地化。人们开始用“爱来自山东”、“爱来自大山的东边”这类句式，来表明自己的评论来源地，带有一种亲切的调侃意味。</span></span></span>
+                    <span class="info-row__v"><span class="hover-hint">广阔的西边<span class="hover-hint__tooltip"><span
+                            class="hint-title">广阔的西边（梗）</span>“广阔”取“广”，“西边”取“西”，合起来就是“广西”。</span></span></span>
                   </div>
                   <div class="info-row">
-                    <span class="info-row__k">职业</span>
-                    <span class="info-row__v">前端工程师</span>
+                    <span class="info-row__k"><span class="hover-hint">职业<span class="hover-hint__tooltip"><span
+                            class="hint-title">职业</span>学生本身就是一种身份/职业状态。</span></span></span>
+                    <span class="info-row__v"><span class="hover-hint">大学牲<span class="hover-hint__tooltip"><span
+                            class="hint-title">大学牲（梗）</span><span
+                            style="font-size:10px;line-height: 1.1; display: block;">家人们谁懂啊，大学牲这词，纯纯谐音梗+牛马文学+自嘲三合一。<br>大学生，生是生活的生，好歹还有点人样；大学牲，牲是牲口的牲，直接物种降级。<br><br>你以为上大学：自由、恋爱、诗和远方。<br>实际上大学：早八、签到、青年大学习、体测、四六级、小组作业、实验报告、期末周、论文查重、秋招考研考公，一套军体拳下来，鼠鼠我啊，眼里没光，只剩怨气。<br><br>宿舍像牲口棚，DDL像鞭子，绩点像饲料，保研考研像围栏，毕业像出栏。上课像上工，下课像换班，放假像短暂放风。主打一个：我不是大学生，我是大学牲口，生产队的驴看了都给我递烟。</span></span></span></span>
                   </div>
                   <div class="info-row">
                     <span class="info-row__k">邮箱</span>
-                    <span class="info-row__v">hi@qinglan.dev</span>
+                    <span class="info-row__v"><span class="hover-hint">ttwe77@yeah.net<span
+                          class="hover-hint__tooltip"><span
+                            class="hint-title">我的邮箱地址</span>我的个人专用邮箱是<b>ttwe77@yeah.net</b>。当然你也可以通过<b>ttwe77@outlook.com</b>联系我，只不过我不保证这封邮件会不会被扔进垃圾邮件分类中。</span></span></span>
                   </div>
                   <div class="info-row">
-                    <span class="info-row__k">状态</span>
+                    <span class="info-row__k">是个</span>
                     <span class="info-row__v">
-                      <span class="status-dot"></span>接受合作与约稿
+                      <span class="hover-hint">夜猫子<span class="hover-hint__tooltip"><span
+                            class="hint-title">夜猫子</span>白日喧嚣退去，灵感才在深夜里苏醒。</span></span>
                     </span>
                   </div>
                 </div>
               </div>
+              <!-- ==================== OpenPGP 公钥卡片 ==================== -->
+<div class="card card--static panel pgp-card">
+  <div class="panel__head">
+    <span class="panel__title">OpenPGP 公钥</span>
+    <span class="panel__hint">RSA 4096</span>
+  </div>
 
+  <!-- 指纹：每 4 位一组，用空格分隔 -->
+  <div class="pgp-fpr" id="pgp-fpr">C55B F64B BAF7 5D43 55BC 5990 A8B5 684E 24B6 C489</div>
+
+  <div class="pgp-actions">
+    <button class="pgp-btn" id="pgp-view-btn" type="button"
+            aria-expanded="false" aria-controls="pgp-key">查看公钥</button>
+    <button class="pgp-btn" id="pgp-copy-btn" type="button">复制指纹</button>
+  </div>
+
+  <div class="pgp-key" id="pgp-key" hidden>
+    <div class="pgp-key__head">
+      <span>ASCII Armor</span>
+      <button class="pgp-key__copy" id="pgp-copy-key" type="button">复制</button>
+    </div>
+    <pre id="pgp-key-text"></pre>
+  </div>
+</div>
             </aside>
 
             <!-- 右栏：文章列表 -->
@@ -4465,6 +4664,172 @@
       }, { passive: true });
     })();
   </script>
+  <script>
+  /* ============================================================
+     OpenPGP 公钥卡片
+     - 指纹：静态写死在 FPR_DISPLAY，首屏直接渲染，不发请求
+     - .asc：仅在用户点击「查看公钥」或「复制」时才 fetch，结果缓存
+     ============================================================ */
+  (function () {
+    'use strict';
+
+    /* ---------- ① 静态配置 ---------- */
+    /* 指纹（仅用于展示，可带空格；复制时自动去掉空格） */
+    var FPR_RAW = 'C55BF64BBAF75D4355BC5990A8B5684E24B6C489';
+
+    /* 公钥文件地址 */
+    var ASC_URL = '/src/ttwe77_public.asc';
+
+    /* ---------- ② DOM ---------- */
+    //var fprEl      = document.getElementById('pgp-fpr');
+    var viewBtn    = document.getElementById('pgp-view-btn');
+    var copyBtn    = document.getElementById('pgp-copy-btn');
+    var keyBox     = document.getElementById('pgp-key');
+    var keyPre     = document.getElementById('pgp-key-text');
+    var copyKeyBtn = document.getElementById('pgp-copy-key');
+
+    if (!viewBtn || !copyBtn || !keyBox || !keyPre) return;
+
+    /* ---------- ③ 首屏只渲染指纹，不请求 ---------- */
+    //fprEl.textContent = FPR_DISPLAY;
+
+    /* ---------- ④ 通用复制（带 execCommand 兜底） ---------- */
+    function copyText(text, okMsg, failMsg) {
+      function fallback() {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          ta.setAttribute('readonly', '');
+          document.body.appendChild(ta);
+          ta.select();
+          var ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          if (window.showToast) window.showToast(ok ? okMsg : failMsg);
+        } catch (e) {
+          if (window.showToast) window.showToast(failMsg);
+        }
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(function () { if (window.showToast) window.showToast(okMsg); })
+          .catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    /* 复制指纹 */
+    copyBtn.addEventListener('click', function () {
+      copyText(FPR_RAW, '指纹已复制', '复制失败，请手动选择指纹');
+    });
+
+    /* ---------- ⑤ 公钥按需加载 + 缓存 ---------- */
+    var ascCache = null;    // 拿到后就不再重复请求
+    var ascPromise = null;  // 在途请求去重
+
+    function loadAsc() {
+      if (ascCache) return Promise.resolve(ascCache);
+      if (ascPromise) return ascPromise;
+
+      ascPromise = fetch(ASC_URL, { cache: 'no-store' })
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.text();
+        })
+        .then(function (text) {
+          ascCache = text;
+          ascPromise = null;
+          return text;
+        })
+        .catch(function (err) {
+          ascPromise = null;
+          throw err;
+        });
+
+      return ascPromise;
+    }
+
+    /* ---------- ⑥ 展开 / 收起 ---------- */
+    var expanded = false;
+
+    function setKeyState(state, text) {
+      keyBox.classList.toggle('is-loading', state === 'loading');
+      keyBox.classList.toggle('is-error', state === 'error');
+
+      if (state === 'loading')      keyPre.textContent = '正在加载公钥…';
+      else if (state === 'error')   keyPre.textContent = text || '公钥加载失败';
+      else if (state === 'done')    keyPre.textContent = text;
+    }
+
+    function showKey() {
+      expanded = true;
+      viewBtn.textContent = '收起公钥';
+      viewBtn.setAttribute('aria-expanded', 'true');
+      keyBox.hidden = false;
+
+      /* 已缓存直接渲染，不再请求 */
+      if (ascCache) {
+        setKeyState('done', ascCache);
+        return;
+      }
+
+      setKeyState('loading');
+
+      loadAsc()
+        .then(function (text) {
+          if (!expanded) return;          // 加载途中被收起，就不再写入
+          setKeyState('done', text);
+        })
+        .catch(function (err) {
+          if (!expanded) return;
+          setKeyState('error',
+            '公钥加载失败：' + (err.message || err) +
+            '\n请稍后重试，或手动下载 ' + ASC_URL);
+        });
+    }
+
+    function hideKey() {
+      expanded = false;
+      viewBtn.textContent = '查看公钥';
+      viewBtn.setAttribute('aria-expanded', 'false');
+      keyBox.hidden = true;
+    }
+
+    viewBtn.addEventListener('click', function () {
+      if (expanded) hideKey();
+      else showKey();
+    });
+
+    /* ---------- ⑦ 复制完整公钥（需要时再拉取） ---------- */
+    if (copyKeyBtn) {
+      copyKeyBtn.addEventListener('click', function () {
+        if (ascCache) {
+          copyText(ascCache, '公钥已复制到剪贴板', '复制失败，请手动选择');
+          return;
+        }
+
+        var originalText = copyKeyBtn.textContent;
+        copyKeyBtn.disabled = true;
+        copyKeyBtn.textContent = '加载中…';
+
+        loadAsc()
+          .then(function (text) {
+            copyText(text, '公钥已复制到剪贴板', '复制失败，请手动选择');
+          })
+          .catch(function () {
+            if (window.showToast) window.showToast('公钥加载失败，请稍后重试');
+          })
+          .then(function () {
+            copyKeyBtn.disabled = false;
+            copyKeyBtn.textContent = originalText;
+          });
+      });
+    }
+  })();
+</script>
 </body>
 
 </html>

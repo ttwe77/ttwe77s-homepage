@@ -406,9 +406,3 @@ sequenceDiagram
 
 [openai]: https://openai.com
 [github]: https://github.com
-
----
-
-## 许可证
-
-本文档可自由使用、修改和分发。
