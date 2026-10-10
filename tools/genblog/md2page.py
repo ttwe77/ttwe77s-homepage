@@ -173,7 +173,7 @@ def _link_repl(m: re.Match) -> str:
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
 HINT_RE = re.compile(r"\[\[([^|\]]+)\|([^|\]]+)\|([^\]]+)\]\]")
 INLINE_CODE_RE = re.compile(r"`([^`]+)`")
-INLINE_MATH_RE = re.compile(r"\$(?!\$)([^\$\n]+?)\$(?!\$)")
+INLINE_MATH_RE = re.compile(r"(?<!\$)\$(?!\s)([^\$\n]+?)(?<!\s)\$(?!\$)")
 
 # 通用片段：![alt](url "title")
 _IMG_SRC = r'!\[([^\]]*)\]\(\s*([^\s)]+)(?:\s+["\']([^"\']*)["\'])?\s*\)'
@@ -303,29 +303,40 @@ BACKSLASH_ESCAPE_RE = re.compile(
 
 _IFRAME_RE = re.compile(r"<iframe\b([^>]*?)/?>", re.I)
 _IFRAME_TITLE_RE = re.compile(r'\btitle\s*=', re.I)
+_IFRAME_LOADING_RE = re.compile(r'\bloading\s*=', re.I)
 _IFRAME_SRC_RE = re.compile(r'\bsrc\s*=\s*["\']([^"\']*)["\']', re.I)
 
 
-def add_iframe_titles(html: str) -> str:
-    """给没有 title 的 iframe 补一个 title（幂等，已有 title 则不动）。"""
+def add_iframe_attrs(html: str) -> str:
+    """给 iframe 补 title 和 loading="lazy"（幂等，已有则不动）。"""
     def repl(m: re.Match) -> str:
         attrs = m.group(1)
-        if _IFRAME_TITLE_RE.search(attrs):
+        add: list[str] = []
+
+        # 1) title
+        if not _IFRAME_TITLE_RE.search(attrs):
+            label = "嵌入内容"
+            src_m = _IFRAME_SRC_RE.search(attrs)
+            if src_m:
+                try:
+                    host = urlparse(src_m.group(1)).hostname
+                    if host:
+                        label = f"来自 {host} 的嵌入内容"
+                except Exception:
+                    pass
+            add.append(f'title="{esc_attr(label)}"')
+
+        # 2) 懒加载
+        if not _IFRAME_LOADING_RE.search(attrs):
+            add.append('loading="lazy"')
+
+        if not add:
             return m.group(0)
 
-        label = "嵌入内容"
-        src_m = _IFRAME_SRC_RE.search(attrs)
-        if src_m:
-            try:
-                host = urlparse(src_m.group(1)).hostname
-                if host:
-                    label = f"来自 {host} 的嵌入内容"
-            except Exception:
-                pass
-
-        # 保留原有 self-closing 风格
         close = "/>" if m.group(0).rstrip().endswith("/>") else ">"
-        return f'<iframe{attrs} title="{esc_attr(label)}"{close}'
+        base = attrs.strip()
+        merged = " ".join(([base] if base else []) + add)
+        return f"<iframe {merged}{close}"
 
     return _IFRAME_RE.sub(repl, html)
 
@@ -743,6 +754,21 @@ def render_mermaid(code: str) -> str:
         "</div>"
     )
 
+# 只有页面里真的出现公式时才注入这段脚本
+MATH_SCRIPT = r"""<script>
+window.MathJax = {
+    tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+    },
+    svg: { fontCache: 'global' },
+    options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+};
+</script>
+<script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>"""
 
 # 只有页面里真的出现图表时才注入这段脚本
 MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
@@ -1388,6 +1414,9 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
     # 页面里出现 mermaid 图表时才注入渲染脚本
     if 'class="mermaid"' in content:
         scripts = scripts + "\n\n" + MERMAID_SCRIPT
+    # 页面里出现公式时才注入 MathJax
+    if ('class="math-block"' in content) or ('class="math-inline"' in content):
+        scripts = scripts + "\n\n" + MATH_SCRIPT
 
     article_body = (
         '<div class="card article-body" id="article-body">\n\n'
@@ -1478,7 +1507,7 @@ def main(argv=None) -> int:
     _footnote_order.clear()
 
     content, headings = render_markdown(body)
-    content = add_iframe_titles(content)
+    content = add_iframe_attrs(content)
 
     # ★ 拼装脚注区
     if _footnote_order:
