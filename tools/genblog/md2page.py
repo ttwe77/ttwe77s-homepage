@@ -35,6 +35,10 @@ import re
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
+from pygments import highlight as pyg_highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
 
 # ==========================================================================
 # 转义工具
@@ -65,79 +69,78 @@ def replace_between(html: str, start: str, end: str, new: str) -> str:
     return html[: i + len(start)] + new + html[j:]
 
 
-# ==========================================================================
-# 语法着色
-# ==========================================================================
+# --------------------------------------------------------------------------
+# 语法着色（Pygments）
+# --------------------------------------------------------------------------
 
-CSS_TOKEN_RE = re.compile(
-    r"(?P<comment>/\*[\s\S]*?\*/)"
-    r"|(?P<str>\"[^\"\n]*\"|'[^'\n]*')"
-    r"|(?P<at>@[a-zA-Z-]+)"
-    r"|(?P<prop>--[a-zA-Z0-9_-]+)"
-    r"|(?P<hex>#[0-9a-fA-F]{3,8}\b)"
-    r"|(?P<num>-?(?:\d+\.?\d*|\.\d+)"
-    r"(?:px|em|rem|%|s|ms|vh|vw|vmin|vmax|deg|fr|ch|ex|pt)?)"
-    r"|(?P<word>[a-zA-Z-]+(?=\s*:))"
-)
-
-JS_TOKEN_RE = re.compile(
-    r"(?P<comment>//[^\n]*|/\*[\s\S]*?\*/)"
-    r"|(?P<str>\"(?:[^\"\\\n]|\\.)*\"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)"
-    r"|(?P<kw>\b(?:const|let|var|function|return|if|else|for|while|do|new|class"
-    r"|extends|import|export|from|default|await|async|try|catch|finally|throw"
-    r"|typeof|instanceof|in|of|this|super|null|undefined|true|false|break"
-    r"|continue|switch|case|delete|void|yield)\b)"
-    r"|(?P<obj>\b(?:document|window|localStorage|sessionStorage|console|Math|JSON"
-    r"|Object|Array|String|Number|Boolean|Promise|Date|RegExp|Error|navigator"
-    r"|location|history|setTimeout|setInterval|requestAnimationFrame"
-    r"|getElementById|querySelector|querySelectorAll|addEventListener"
-    r"|classList|dataset|closest|innerHTML|innerText|textContent|style)\b)"
-    r"|(?P<num>\b\d+(?:\.\d+)?\b)"
-)
-
-_CSS_CLS = {"comment": "tok-com", "str": "tok-str", "at": "tok-at",
-            "prop": "tok-prop", "hex": "tok-val", "num": "tok-val",
-            "word": "tok-prop"}
-
-_JS_CLS = {"comment": "tok-com", "str": "tok-str", "kw": "tok-sel",
-           "obj": "tok-prop", "num": "tok-val"}
-
-
-def _tokenize(src: str, pattern: re.Pattern, mapping: dict) -> str:
-    def repl(m):
-        return f'<span class="{mapping[m.lastgroup]}">{m.group(0)}</span>'
-    return pattern.sub(repl, src)
-
-
-def highlight_css(src: str) -> str:
-    return _tokenize(esc(src), CSS_TOKEN_RE, _CSS_CLS)
-
-
-def highlight_js(src: str) -> str:
-    return _tokenize(esc(src), JS_TOKEN_RE, _JS_CLS)
-
-
-def highlight_plain(src: str) -> str:
-    return esc(src)
-
-
-HIGHLIGHTERS = {
-    "css": highlight_css,
-    "js": highlight_js,
-    "javascript": highlight_js,
-    "mjs": highlight_js,
-    "html": highlight_plain,
-    "xml": highlight_plain,
-    "svg": highlight_plain,
-    "json": highlight_plain,
-    "bash": highlight_plain,
-    "sh": highlight_plain,
-    "shell": highlight_plain,
-    "text": highlight_plain,
-    "": highlight_plain,
+# 语言别名 → Pygments 词法分析器名
+LANG_ALIAS = {
+    "js": "javascript",
+    "javascript": "javascript",
+    "mjs": "javascript",
+    "cjs": "javascript",
+    "ts": "typescript",
+    "tsx": "tsx",
+    "jsx": "jsx",
+    "py": "python",
+    "python3": "python",
+    "sh": "bash",
+    "shell": "bash",
+    "zsh": "bash",
+    "console": "bash",
+    "html": "html",
+    "xml": "xml",
+    "svg": "xml",
+    "vue": "html",
+    "css": "css",
+    "scss": "scss",
+    "less": "less",
+    "json": "json",
+    "yaml": "yaml",
+    "yml": "yaml",
+    "toml": "toml",
+    "ini": "ini",
+    "sql": "sql",
+    "md": "markdown",
+    "markdown": "markdown",
+    "diff": "diff",
+    "patch": "diff",
+    "go": "go",
+    "rust": "rust",
+    "rs": "rust",
+    "java": "java",
+    "c": "c",
+    "cpp": "cpp",
+    "c++": "cpp",
+    "php": "php",
+    "rb": "ruby",
+    "ruby": "ruby",
+    "text": "text",
+    "txt": "text",
+    "": "text",
 }
 
+# 顶栏显示用标签（Pygments 名字不理想时覆盖）
 LANG_LABEL = {"js": "javascript", "sh": "bash", "": "text"}
+
+# nowrap=True：只吐 <span class="k"> 这种行内标记，
+# 外层的 <pre><code> 我们在 render_code_block 里自己拼
+_PYG_FORMATTER = HtmlFormatter(nowrap=True)
+
+
+def highlight_code(code: str, lang: str) -> str:
+    """用 Pygments 着色，返回可以直接塞进 <pre><code> 的 HTML 片段。
+
+    注意：Pygments 会自己转义 & < >，这里 **不能再调 esc()**，
+    否则会二次转义成 &amp;lt;。
+    """
+    raw = (lang or "").strip().lower()
+    name = LANG_ALIAS.get(raw, raw or "text")
+    try:
+        lexer = get_lexer_by_name(name, stripnl=False, stripall=False)
+    except ClassNotFound:
+        lexer = get_lexer_by_name("text")
+    return pyg_highlight(code, lexer, _PYG_FORMATTER)
 
 
 # ==========================================================================
@@ -711,7 +714,7 @@ def _parse_list(lines: list[str], i: int, base_indent: int | None = None):
 
 def render_code_block(code: str, lang: str) -> str:
     lang = (lang or "").lower()
-    hl = HIGHLIGHTERS.get(lang, highlight_plain)(code)
+    hl = highlight_code(code, lang)
     label = LANG_LABEL.get(lang, lang or "text")
 
     return (
@@ -768,10 +771,12 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>"""
+    src="https://cdn.staticfile.org/mathjax/3.2.2/es5/tex-svg.js"></script>"""
+#    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>"""
 
 # 只有页面里真的出现图表时才注入这段脚本
-MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+#MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+MERMAID_SCRIPT = """<script src="https://cdn.staticfile.org/mermaid/10.6.1/mermaid.min.js"></script>
 <script>
 (function () {
     var nodes = document.querySelectorAll(".mermaid");

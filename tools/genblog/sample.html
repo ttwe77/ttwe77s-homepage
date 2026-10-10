@@ -649,30 +649,120 @@
             border-radius: 4px;
         }
 
-        /* 极简语法着色 */
-        .tok-com {
+        /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
+
+        /* 注释 */
+        .code-block pre code .c,
+        .code-block pre code .c1,
+        .code-block pre code .cm,
+        .code-block pre code .cs,
+        .code-block pre code .cd,
+        .code-block pre code .ch {
             color: #6C8299;
             font-style: italic;
         }
 
-        .tok-sel {
+        /* 关键字 / 选择器 / 标签名 */
+        .code-block pre code .k,
+        .code-block pre code .kc,
+        .code-block pre code .kd,
+        .code-block pre code .kn,
+        .code-block pre code .kp,
+        .code-block pre code .kr,
+        .code-block pre code .kt,
+        .code-block pre code .nt,
+        .code-block pre code .nc,
+        .code-block pre code .nf,
+        .code-block pre code .nd,
+        .code-block pre code .ne {
             color: #7FC4EA;
         }
 
-        .tok-prop {
+        /* 属性名 / 内建 / 命名空间 / 变量 */
+        .code-block pre code .na,
+        .code-block pre code .nb,
+        .code-block pre code .bp,
+        .code-block pre code .nn,
+        .code-block pre code .nx,
+        .code-block pre code .nv,
+        .code-block pre code .py,
+        .code-block pre code .vc,
+        .code-block pre code .vg,
+        .code-block pre code .vi {
             color: #7EE7B0;
         }
 
-        .tok-val {
+        /* 数字 / 常量 */
+        .code-block pre code .m,
+        .code-block pre code .mf,
+        .code-block pre code .mi,
+        .code-block pre code .mh,
+        .code-block pre code .mo,
+        .code-block pre code .il,
+        .code-block pre code .no {
             color: #FFD84D;
         }
 
-        .tok-str {
+        /* 字符串 */
+        .code-block pre code .s,
+        .code-block pre code .s1,
+        .code-block pre code .s2,
+        .code-block pre code .sb,
+        .code-block pre code .sc,
+        .code-block pre code .sd,
+        .code-block pre code .se,
+        .code-block pre code .sh,
+        .code-block pre code .si,
+        .code-block pre code .sx,
+        .code-block pre code .sr,
+        .code-block pre code .ss,
+        .code-block pre code .sa,
+        .code-block pre code .dl {
             color: #FFB4A2;
         }
 
-        .tok-at {
+        /* 运算符 / 标点 */
+        .code-block pre code .o,
+        .code-block pre code .ow,
+        .code-block pre code .p {
+            color: #A9CBE8;
+        }
+
+        /* 装饰器 / @ 规则 / 元信息 */
+        .code-block pre code .gh,
+        .code-block pre code .gu,
+        .code-block pre code .nd,
+        .code-block pre code .na+.nd {
             color: #C4A7FF;
+        }
+
+        /* diff 用 */
+        .code-block pre code .gd {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gi {
+            color: #7EE7B0;
+        }
+
+        /* 错误 token（少用，出问题时一眼能看到） */
+        .code-block pre code .err {
+            color: #F4756A;
+            background: rgba(244, 117, 106, .12);
+            border-radius: 2px;
+        }
+
+        /* 空白 / 行号占位 */
+        .code-block pre code .w {
+            color: #5A7288;
+        }
+
+        .code-block pre code .gr {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gt {
+            color: #7FC4EA;
         }
 
         /* 表格 */
@@ -1459,33 +1549,36 @@
             }
         }
 
-        /* ============ 自定义鼠标指针 ============ */
-        html,
-        body {
-            cursor: url('/src/cursors/normal.cur'), auto;
-        }
+        /* ============ 自定义鼠标指针：仅桌面 / 精确指针设备 ============ */
+        @media (hover: hover) and (pointer: fine) {
 
-        a,
-        button,
-        .btn,
-        .icon-btn,
-        .chip,
-        .toc__link,
-        .post-nav__item,
-        .code-block__copy,
-        [role="button"] {
-            cursor: url('/src/cursors/link.cur'), pointer;
-        }
+            html,
+            body {
+                cursor: url('/src/cursors/normal.cur'), auto;
+            }
 
-        .hover-hint,
-        .article-body abbr[title] {
-            cursor: url('/src/cursors/help.cur'), help;
-        }
+            a,
+            button,
+            .btn,
+            .icon-btn,
+            .chip,
+            .toc__link,
+            .post-nav__item,
+            .code-block__copy,
+            [role="button"] {
+                cursor: url('/src/cursors/link.cur'), pointer;
+            }
 
-        input,
-        textarea,
-        [contenteditable="true"] {
-            cursor: auto;
+            .hover-hint,
+            .article-body abbr[title] {
+                cursor: url('/src/cursors/help.cur'), help;
+            }
+
+            input,
+            textarea,
+            [contenteditable="true"] {
+                cursor: auto;
+            }
         }
 
         /* ============ 目录：深层标题逐级缩进 ============ */

@@ -640,30 +640,120 @@
             border-radius: 4px;
         }
 
-        /* 极简语法着色 */
-        .tok-com {
+        /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
+
+        /* 注释 */
+        .code-block pre code .c,
+        .code-block pre code .c1,
+        .code-block pre code .cm,
+        .code-block pre code .cs,
+        .code-block pre code .cd,
+        .code-block pre code .ch {
             color: #6C8299;
             font-style: italic;
         }
 
-        .tok-sel {
+        /* 关键字 / 选择器 / 标签名 */
+        .code-block pre code .k,
+        .code-block pre code .kc,
+        .code-block pre code .kd,
+        .code-block pre code .kn,
+        .code-block pre code .kp,
+        .code-block pre code .kr,
+        .code-block pre code .kt,
+        .code-block pre code .nt,
+        .code-block pre code .nc,
+        .code-block pre code .nf,
+        .code-block pre code .nd,
+        .code-block pre code .ne {
             color: #7FC4EA;
         }
 
-        .tok-prop {
+        /* 属性名 / 内建 / 命名空间 / 变量 */
+        .code-block pre code .na,
+        .code-block pre code .nb,
+        .code-block pre code .bp,
+        .code-block pre code .nn,
+        .code-block pre code .nx,
+        .code-block pre code .nv,
+        .code-block pre code .py,
+        .code-block pre code .vc,
+        .code-block pre code .vg,
+        .code-block pre code .vi {
             color: #7EE7B0;
         }
 
-        .tok-val {
+        /* 数字 / 常量 */
+        .code-block pre code .m,
+        .code-block pre code .mf,
+        .code-block pre code .mi,
+        .code-block pre code .mh,
+        .code-block pre code .mo,
+        .code-block pre code .il,
+        .code-block pre code .no {
             color: #FFD84D;
         }
 
-        .tok-str {
+        /* 字符串 */
+        .code-block pre code .s,
+        .code-block pre code .s1,
+        .code-block pre code .s2,
+        .code-block pre code .sb,
+        .code-block pre code .sc,
+        .code-block pre code .sd,
+        .code-block pre code .se,
+        .code-block pre code .sh,
+        .code-block pre code .si,
+        .code-block pre code .sx,
+        .code-block pre code .sr,
+        .code-block pre code .ss,
+        .code-block pre code .sa,
+        .code-block pre code .dl {
             color: #FFB4A2;
         }
 
-        .tok-at {
+        /* 运算符 / 标点 */
+        .code-block pre code .o,
+        .code-block pre code .ow,
+        .code-block pre code .p {
+            color: #A9CBE8;
+        }
+
+        /* 装饰器 / @ 规则 / 元信息 */
+        .code-block pre code .gh,
+        .code-block pre code .gu,
+        .code-block pre code .nd,
+        .code-block pre code .na+.nd {
             color: #C4A7FF;
+        }
+
+        /* diff 用 */
+        .code-block pre code .gd {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gi {
+            color: #7EE7B0;
+        }
+
+        /* 错误 token（少用，出问题时一眼能看到） */
+        .code-block pre code .err {
+            color: #F4756A;
+            background: rgba(244, 117, 106, .12);
+            border-radius: 2px;
+        }
+
+        /* 空白 / 行号占位 */
+        .code-block pre code .w {
+            color: #5A7288;
+        }
+
+        .code-block pre code .gr {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gt {
+            color: #7FC4EA;
         }
 
         /* 表格 */
@@ -1450,33 +1540,36 @@
             }
         }
 
-        /* ============ 自定义鼠标指针 ============ */
-        html,
-        body {
-            cursor: url('/src/cursors/normal.cur'), auto;
-        }
+        /* ============ 自定义鼠标指针：仅桌面 / 精确指针设备 ============ */
+        @media (hover: hover) and (pointer: fine) {
 
-        a,
-        button,
-        .btn,
-        .icon-btn,
-        .chip,
-        .toc__link,
-        .post-nav__item,
-        .code-block__copy,
-        [role="button"] {
-            cursor: url('/src/cursors/link.cur'), pointer;
-        }
+            html,
+            body {
+                cursor: url('/src/cursors/normal.cur'), auto;
+            }
 
-        .hover-hint,
-        .article-body abbr[title] {
-            cursor: url('/src/cursors/help.cur'), help;
-        }
+            a,
+            button,
+            .btn,
+            .icon-btn,
+            .chip,
+            .toc__link,
+            .post-nav__item,
+            .code-block__copy,
+            [role="button"] {
+                cursor: url('/src/cursors/link.cur'), pointer;
+            }
 
-        input,
-        textarea,
-        [contenteditable="true"] {
-            cursor: auto;
+            .hover-hint,
+            .article-body abbr[title] {
+                cursor: url('/src/cursors/help.cur'), help;
+            }
+
+            input,
+            textarea,
+            [contenteditable="true"] {
+                cursor: auto;
+            }
         }
 
         /* ============ 目录：深层标题逐级缩进 ============ */
@@ -1872,6 +1965,26 @@
             }
         }
 
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
     </style>
 </head>
 
@@ -2131,11 +2244,11 @@
             <h3 id="任务列表">任务列表</h3>
 
             <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked> 已完成任务</li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled> 未完成任务</li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled> 带 <strong>格式</strong> 的任务
+            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="已完成任务"> 已完成任务</li>
+            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="未完成任务"> 未完成任务</li>
+            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="带 格式 的任务"> 带 <strong>格式</strong> 的任务
             <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked> 子任务</li>
+            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="子任务"> 子任务</li>
             </ul></li>
             </ul>
 
@@ -2164,8 +2277,9 @@
                     </button>
                 </div>
                 <pre><code>function hello() {
-  console.log("Hello");
-}</code></pre>
+  console.log(&quot;Hello&quot;);
+}
+</code></pre>
             </div>
 
             <p>围栏代码块：</p>
@@ -2182,9 +2296,10 @@
                         复制
                     </button>
                 </div>
-                <pre><code><span class="tok-sel">function</span> hello(name) {
-  <span class="tok-prop">console</span>.log(<span class="tok-str">`Hello, ${name}!`</span>);
-}</code></pre>
+                <pre><code><span class="kd">function</span><span class="w"> </span><span class="nx">hello</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
             </div>
 
             <div class="code-block">
@@ -2199,8 +2314,9 @@
                         复制
                     </button>
                 </div>
-                <pre><code>def hello(name: str) -&gt; None:
-    print(f"Hello, {name}!")</code></pre>
+                <pre><code><span class="k">def</span><span class="w"> </span><span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+</code></pre>
             </div>
 
             <div class="code-block">
@@ -2215,15 +2331,16 @@
                         复制
                     </button>
                 </div>
-                <pre><code>+ 新增行
-- 删除行
-! 注意行
-+ 新增行
-- 删除行
-! 注意行
-+ 新增行
-- 删除行
-! 注意行</code></pre>
+                <pre><code><span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+</code></pre>
             </div>
 
             <div class="code-block">
@@ -2239,7 +2356,8 @@
                     </button>
                 </div>
                 <pre><code>纯文本代码块。
-这里不能直接包含三个反引号，否则会提前结束代码块。</code></pre>
+这里不能直接包含三个反引号，否则会提前结束代码块。
+</code></pre>
             </div>
 
             <h2 id="7-链接">7. 链接</h2>
@@ -2350,7 +2468,8 @@
                         复制
                     </button>
                 </div>
-                <pre><code><span class="tok-sel">const</span> price = <span class="tok-str">"$9.9"</span>;  <span class="tok-com">// 代码块里的 $ 不会被当公式</span></code></pre>
+                <pre><code><span class="kd">const</span><span class="w"> </span><span class="nx">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$9.9&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// 代码块里的 $ 不会被当公式</span>
+</code></pre>
             </div>
 
             <ul>
@@ -2415,9 +2534,9 @@ sequenceDiagram
 
             <h2 id="18-媒体与嵌入">18. 媒体与嵌入</h2>
 
-            <iframe src="https://example.com" width="300" height="150"></iframe>
+            <iframe src="https://example.com" width="300" height="150" title="来自 example.com 的嵌入内容" loading="lazy"></iframe>
 
-            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2755332551&auto=0&height=66"></iframe>
+            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2755332551&auto=0&height=66" title="来自 music.163.com 的嵌入内容" loading="lazy"></iframe>
 
             <h2 id="19-其他扩展">19. 其他扩展</h2>
 
@@ -2476,6 +2595,8 @@ sequenceDiagram
                             <div class="footer__brand">
                                 <span class="footer__mark">七七的折腾笔记</span>
                                 <span>© 2026 ttwe77</span>
+                                <a href="https://beian.miit.gov.cn/" target="_blank"
+                                    rel="noopener noreferrer">桂ICP备2026023217号-1</a>
                             </div>
                             <div class="footer__links">
                                 <a href="/">返回首页</a>
@@ -2549,6 +2670,7 @@ sequenceDiagram
 import { BAClickFX } from '/libs/ba-click-fx.js';
         const fx = new BAClickFX();
         fx.setCompositingReference({ hostCompositing: 'screen' });
+        fx.setThemeColor('#80c1ff');
 </script>
 
 <script>
@@ -2863,23 +2985,6 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
 </script>
 
 <script>
-MathJax = {
-            tex: {
-                inlineMath: [['\\(', '\\)']],
-                displayMath: [['\\[', '\\]']],
-                processEscapes: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-            }
-        };
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js" defer>
-
-</script>
-
-<script>
 (function () {
             var btn = document.getElementById('toc-toggle');
             var layout = document.querySelector('.article-layout');
@@ -2926,7 +3031,7 @@ MathJax = {
         })();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.staticfile.org/mermaid/10.6.1/mermaid.min.js"></script>
 <script>
 (function () {
     var nodes = document.querySelectorAll(".mermaid");
@@ -2972,6 +3077,21 @@ MathJax = {
     });
 })();
 </script>
+
+<script>
+window.MathJax = {
+    tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+    },
+    svg: { fontCache: 'global' },
+    options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+};
+</script>
+<script id="MathJax-script" async
+    src="https://cdn.staticfile.org/mathjax/3.2.2/es5/tex-svg.js"></script>
 
 </body>
 
