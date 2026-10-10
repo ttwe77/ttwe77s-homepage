@@ -21,6 +21,7 @@
         import { BAClickFX } from '/libs/ba-click-fx.js';
         const fx = new BAClickFX();
         fx.setCompositingReference({ hostCompositing: 'screen' });
+        fx.setThemeColor('#80c1ff');
     </script>
 
     <style>
@@ -1879,6 +1880,26 @@
                 padding: 14px 8px;
             }
         }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
     </style>
 </head>
 
@@ -2239,6 +2260,8 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
                     <div class="footer__brand">
                         <span class="footer__mark">七七的折腾笔记</span>
                         <span>© 2026 ttwe77</span>
+                        <a href="https://beian.miit.gov.cn/" target="_blank"
+                            rel="noopener noreferrer">桂ICP备2026023217号-1</a>
                     </div>
                     <div class="footer__links">
                         <a href="/">返回首页</a>
@@ -2591,19 +2614,6 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
             }, { passive: true });
         })();
     </script>
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['\\(', '\\)']],
-                displayMath: [['\\[', '\\]']],
-                processEscapes: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-            }
-        };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js" defer></script>
     <script>
         (function () {
             var btn = document.getElementById('toc-toggle');

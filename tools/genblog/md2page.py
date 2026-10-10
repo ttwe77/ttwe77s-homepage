@@ -34,6 +34,7 @@ import html as html_mod
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 # ==========================================================================
 # 转义工具
@@ -299,6 +300,34 @@ def _autolink_repl(m: re.Match) -> str:
 BACKSLASH_ESCAPE_RE = re.compile(
     r"\\([" + re.escape(string.punctuation) + r"])"
 )
+
+_IFRAME_RE = re.compile(r"<iframe\b([^>]*?)/?>", re.I)
+_IFRAME_TITLE_RE = re.compile(r'\btitle\s*=', re.I)
+_IFRAME_SRC_RE = re.compile(r'\bsrc\s*=\s*["\']([^"\']*)["\']', re.I)
+
+
+def add_iframe_titles(html: str) -> str:
+    """给没有 title 的 iframe 补一个 title（幂等，已有 title 则不动）。"""
+    def repl(m: re.Match) -> str:
+        attrs = m.group(1)
+        if _IFRAME_TITLE_RE.search(attrs):
+            return m.group(0)
+
+        label = "嵌入内容"
+        src_m = _IFRAME_SRC_RE.search(attrs)
+        if src_m:
+            try:
+                host = urlparse(src_m.group(1)).hostname
+                if host:
+                    label = f"来自 {host} 的嵌入内容"
+            except Exception:
+                pass
+
+        # 保留原有 self-closing 风格
+        close = "/>" if m.group(0).rstrip().endswith("/>") else ">"
+        return f'<iframe{attrs} title="{esc_attr(label)}"{close}'
+
+    return _IFRAME_RE.sub(repl, html)
 
 def render_inline(text) -> str:
     if text is None:
@@ -570,98 +599,6 @@ def _parse_list_item(line: str):
     }
 
 
-def _parse_list(lines, i, base_indent=None):
-    """递归解析列表：支持嵌套 / 任务列表 / 指定起始序号。"""
-    n = len(lines)
-    first = _parse_list_item(lines[i])
-    if first is None:
-        return "", i
-
-    if base_indent is None:
-        base_indent = first["indent"]
-
-    ordered = first["ordered"]
-    # ★ 关键：把第一项的 start 记下来，用于输出 <ol start="N">
-    start_num = first["start"] if ordered else None
-    items = []
-
-    while i < n:
-        info = _parse_list_item(lines[i])
-        if info is None:
-            break
-        # 必须是同级、同类型的项
-        if info["indent"] != base_indent:
-            break
-        if info["ordered"] != ordered:
-            break
-
-        text_buf = [info["content"]]
-        i += 1
-        nested_html = []
-
-        # 处理续行 / 嵌套 / 空行
-        while i < n:
-            line = lines[i]
-
-            # 空行：向后窥探，看是否仍属于本列表
-            if not line.strip():
-                j = i + 1
-                while j < n and not lines[j].strip():
-                    j += 1
-                if j < n:
-                    nxt = _parse_list_item(lines[j])
-                    if nxt and nxt["indent"] >= base_indent:
-                        i = j
-                        continue
-                break
-
-            nxt = _parse_list_item(line)
-            if nxt is not None:
-                if nxt["indent"] > base_indent:
-                    # 缩进更深 → 递归成子列表
-                    sub, i = _parse_list(lines, i)
-                    nested_html.append(sub)
-                    continue
-                break   # 同级/更浅 → 本项结束
-
-            # 普通续行
-            stripped = line.lstrip()
-            if len(line) - len(stripped) > base_indent:
-                text_buf.append(stripped)
-                i += 1
-            else:
-                break
-
-        text = " ".join(text_buf)
-
-        # 任务列表
-        task = TASK_ITEM_RE.match(text)
-        if task:
-            checked = task.group(1).lower() == "x"
-            body = (
-                f'<input class="task-checkbox" type="checkbox" disabled'
-                f'{" checked" if checked else ""}> '
-                + render_inline(task.group(2))
-            )
-            li_class = ' class="task-list-item"'
-        else:
-            body = render_inline(text)
-            li_class = ""
-
-        if nested_html:
-            body += "\n" + "\n".join(nested_html)
-
-        items.append(f"<li{li_class}>{body}</li>")
-
-    # ★ 关键：把 start 输出到 <ol>
-    tag = "ol" if ordered else "ul"
-    attrs = ""
-    if ordered and start_num and start_num != 1:
-        attrs = f' start="{start_num}"'
-
-    return f"<{tag}{attrs}>\n" + "\n".join(items) + f"\n</{tag}>", i
-
-
 def _parse_list(lines: list[str], i: int, base_indent: int | None = None):
     """递归解析列表，支持：嵌套 / 任务列表 / 自定义起始序号。
 
@@ -735,9 +672,13 @@ def _parse_list(lines: list[str], i: int, base_indent: int | None = None):
         task = TASK_ITEM_RE.match(text)
         if task:
             checked = task.group(1).lower() == "x"
+            # 用去掉 markdown 标记后的纯文本做无障碍标签
+            label_text = re.sub(r"[`*_~\[\]()!]+", "", task.group(2)).strip()
+            aria_label = esc_attr(label_text) or "待办事项"
             body = (
                 f'<input class="task-checkbox" type="checkbox" disabled'
-                f'{" checked" if checked else ""}> '
+                f'{" checked" if checked else ""}'
+                f' aria-label="{aria_label}"> '
                 + render_inline(task.group(2))
             )
             li_class = ' class="task-list-item"'
@@ -1537,6 +1478,7 @@ def main(argv=None) -> int:
     _footnote_order.clear()
 
     content, headings = render_markdown(body)
+    content = add_iframe_titles(content)
 
     # ★ 拼装脚注区
     if _footnote_order:
