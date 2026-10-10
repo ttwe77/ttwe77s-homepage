@@ -1272,6 +1272,14 @@ def build_tag_spans(meta: dict) -> str:
     inner = "\n        ".join(f'<span class="chip">{esc(t)}</span>' for t in tags)
     return "\n        " + inner + "\n    "
 
+def fill_topbar(tpl: str, meta: dict) -> str:
+    """把顶栏里的 <div class="topbar__title"> 换成文章标题。"""
+    return replace_between(
+        tpl,
+        '<div class="topbar__title">',
+        "</div>",
+        esc(meta.get("title", "未命名")),
+    )
 
 def fill_article_head(tpl: str, meta: dict) -> str:
     out = tpl
@@ -1397,7 +1405,7 @@ def rebuild_scripts(scripts_html: str) -> str:
 def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
     head_tpl = read(parts_dir / "head.html")
     css = read(parts_dir / "style.css")
-    topbar = read(parts_dir / "topbar.html").strip()
+    topbar = fill_topbar(read(parts_dir / "topbar.html").strip(), meta)
     progress = read(parts_dir / "read_progress.html").strip()
     article_head_tpl = read(parts_dir / "article_head.html").strip()
     toc_tpl = read(parts_dir / "toc.html").strip()
