@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="theme-color" content="#21a5e3">
-    <title>Markdown 全样式示例文档 · 七七的折腾笔记</title>
+    <title>从立项到上线：我的个人网站搭建记录 · 七七的折腾笔记</title>
     <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="src/apple-touch-icon.png">
-    <meta name="description" content="这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。">
+    <meta name="description" content="记录从虚拟主机、内网穿透到 Nginx、阿里云 ECS、域名备案与网站上线的建站经历。">
 
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="七七的折腾笔记">
-    <meta property="og:title" content="Markdown 全样式示例文档">
-    <meta property="og:description" content="这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。">
+    <meta property="og:title" content="从立项到上线：我的个人网站搭建记录">
+    <meta property="og:description" content="记录从虚拟主机、内网穿透到 Nginx、阿里云 ECS、域名备案与网站上线的建站经历。">
     <meta property="og:locale" content="zh_CN">
 <style>
 /* ============ 设计令牌 ============ */
@@ -999,12 +999,7 @@
         }
 
         .toc__link--sub {
-            padding-left: 24px;
             font-size: 12px;
-        }
-
-        .toc__link--sub:hover {
-            padding-left: 27px;
         }
 
         /* ============ 页脚 ============ */
@@ -1170,15 +1165,11 @@
             }
 
             .toc__link {
-                padding: 8px 0 8px 12px;
+                padding: 8px 0;
                 border-left: 2px solid var(--color-border);
                 border-radius: 0;
                 background: transparent;
                 white-space: normal;
-            }
-
-            .toc__link:hover {
-                padding-left: 15px;
             }
 
             .toc__link.is-active {
@@ -1189,7 +1180,6 @@
 
             .toc__link--sub {
                 display: block;
-                padding-left: 24px;
             }
         }
 
@@ -1572,97 +1562,59 @@
             }
         }
 
-        /* ============ 目录：深层标题逐级缩进 ============ */
-        .toc__link--h4 {
+        /* ============ 目录：标题层级逐级缩进 ============ */
+        .toc__link--h1 {
+            padding-left: 12px;
+        }
+
+        .toc__link--h2 {
+            padding-left: 24px;
+        }
+
+        .toc__link--h3 {
             padding-left: 36px;
+        }
+
+        .toc__link--h4 {
+            padding-left: 48px;
             font-size: 11.8px;
             color: var(--color-text-disabled);
         }
 
-        .toc__link--h4:hover {
-            padding-left: 39px;
-        }
-
         .toc__link--h5 {
-            padding-left: 48px;
+            padding-left: 60px;
             font-size: 11.5px;
             color: var(--color-text-disabled);
         }
 
-        .toc__link--h5:hover {
-            padding-left: 51px;
-        }
-
         .toc__link--h6 {
-            padding-left: 60px;
+            padding-left: 72px;
             font-size: 11.2px;
             color: var(--color-text-disabled);
         }
 
-        .toc__link--h6:hover {
+        .toc__link--h1:hover {
+            padding-left: 15px;
+        }
+
+        .toc__link--h2:hover {
+            padding-left: 27px;
+        }
+
+        .toc__link--h3:hover {
+            padding-left: 39px;
+        }
+
+        .toc__link--h4:hover {
+            padding-left: 51px;
+        }
+
+        .toc__link--h5:hover {
             padding-left: 63px;
         }
 
-        /* ---------- 正文 h4：短竖条 ---------- */
-        .article-body h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 24px 0 8px;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: .01em;
-            color: var(--color-text-primary);
-        }
-
-        .article-body h4::before {
-            content: "";
-            flex: 0 0 auto;
-            width: 3px;
-            height: 14px;
-            border-radius: 2px;
-            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
-        }
-
-        /* ---------- 正文 h5：短横线 ---------- */
-        .article-body h5 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 20px 0 6px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--color-text-primary);
-        }
-
-        .article-body h5::before {
-            content: "";
-            flex: 0 0 auto;
-            width: 8px;
-            height: 2px;
-            border-radius: 1px;
-            background: var(--color-primary);
-        }
-
-        /* ---------- 正文 h6：小圆点 + 弱化 ---------- */
-        .article-body h6 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 18px 0 6px;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: .02em;
-            color: var(--color-text-secondary);
-        }
-
-        .article-body h6::before {
-            content: "";
-            flex: 0 0 auto;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--color-blue-light);
+        .toc__link--h6:hover {
+            padding-left: 75px;
         }
 
         /* ============ 扩展 Markdown/HTML 语法样式 ============ */
@@ -1999,7 +1951,7 @@
             <img src="/src/bloglogo.png" alt="" width="30" height="30">
         </picture>
 
-        <div class="topbar__title">Markdown 全样式示例文档</div>
+        <div class="topbar__title">从立项到上线：我的个人网站搭建记录</div>
 
         <div class="topbar__spacer"></div>
 
@@ -2033,558 +1985,99 @@
             <article>
 
             <header class="article-head">
-                                    <h1 class="article-head__title">Markdown 全样式示例文档</h1>
+                                    <h1 class="article-head__title">从立项到上线：我的个人网站搭建记录</h1>
 
                                     <p class="article-head__desc">
-                                        这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。
+                                        记录从虚拟主机、内网穿透到 Nginx、阿里云 ECS、域名备案与网站上线的建站经历。
                                     </p>
 
                                     <div class="article-head__meta">
-                    <span>2026-10-05</span>
-                    <span>前端</span>
-                    <span>约 4 分钟</span>
+                    <span>2026-10-07</span>
+                    <span>建站</span>
+                    <span>约 6 分钟</span>
                     <span>ttwe77</span>
                 </div>
 
                                     <div class="article-head__tags">
-                    <span class="chip">MarkDown</span>
-                    <span class="chip">示例</span>
-                    <span class="chip">语法</span>
+                    <span class="chip">个人网站</span>
+                    <span class="chip">阿里云</span>
+                    <span class="chip">记录</span>
                 </div>
                                 </header>
 
             <div class="card article-body" id="article-body">
 
-            <p>&lt;!-- 这是一段 Markdown 注释，不会显示 --&gt;</p>
-
-            <h1 id="markdown-全样式示例文档">Markdown 全样式示例文档</h1>
-
             <blockquote>
-            <p>说明：Markdown 有多种方言，本文覆盖 CommonMark、GFM 以及常见扩展。不同渲染器支持程度不同。</p>
+            <p>写于 10月7日晚自习 19:32；10 月 13 日更新备案与上线部分。太久没写字已经不会写字了</p>
             </blockquote>
 
-            <h2 id="目录">目录</h2>
+            <h1 id="立项之前">立项之前</h1>
 
-            <ul>
-            <li><a href="#1-标题">1. 标题</a></li>
-            <li><a href="#2-段落与换行">2. 段落与换行</a></li>
-            <li><a href="#3-强调与文本样式">3. 强调与文本样式</a></li>
-            <li><a href="#4-引用">4. 引用</a></li>
-            <li><a href="#5-列表">5. 列表</a></li>
-            <li><a href="#6-代码">6. 代码</a></li>
-            <li><a href="#7-链接">7. 链接</a></li>
-            <li><a href="#8-图片">8. 图片</a></li>
-            <li><a href="#9-表格">9. 表格</a></li>
-            <li><a href="#10-分隔线">10. 分隔线</a></li>
-            <li><a href="#11-html">11. HTML</a></li>
-            <li><a href="#12-转义字符">12. 转义字符</a></li>
-            <li><a href="#13-脚注">13. 脚注</a></li>
-            <li><a href="#14-数学公式">14. 数学公式</a></li>
-            <li><a href="#15-图表-mermaid">15. 图表 Mermaid</a></li>
-            <li><a href="#16-徽章与表情">16. 徽章与表情</a></li>
-            <li><a href="#17-提示与折叠">17. 提示与折叠</a></li>
-            <li><a href="#18-媒体与嵌入">18. 媒体与嵌入</a></li>
-            <li><a href="#19-其他扩展">19. 其他扩展</a></li>
-            </ul>
+            <p>在立项之前呢，我曾经试过搭建网站。</p>
 
-            <p>部分渲染器支持自动目录：</p>
+            <h2 id="第一次建站经历">第一次建站经历</h2>
 
-            <p>[TOC]</p>
+            <p>记得那还是在 GPT 还没普及的时候，我一时兴起就想试着建个站玩玩。按照网上的教程，我注册了一个虚拟主机的提供商（我记得是 HostFree），然后去某某二级域名分发网站上拿了一个域名，又去某模板网站上下了一个看起来还行的模板。当时还是古法编程，我用手机软件 <code>AIDE Web</code> (一些基础知识我是在这学的） 照着模板改，最终上传到虚拟主机上完成建站了（就是速度慢了点）。</p>
+
+            <h2 id="第二次建站经历">第二次建站经历</h2>
+
+            <p>感觉这不算第二次。第二次我是用内网穿透做的。这次就是本地<code>KSWEB + ngrok</code>部署的，缺点就是这样做手机耗电量极大，而且后台进程容易被Kill。之后因为虚拟主机国内连接困难，内网穿透要实名（花生壳、Sakura FRP），就没怎么折腾网站了。</p>
+
+            <h2 id="之后">之后</h2>
+
+            <p>之后配了电脑，有条件了。我第一个和现在用的就是 Nginx，因为它简洁、轻量。</p>
+
+            <p>得益于之前的经验，我萌生了搭建网站的想法。嗯不对，我建站之初纯纯是为了好奇。<br><br>我当初是好奇蔚蓝档案的 UI 设计风格是啥，就问了下<span class="hover-hint">蓝色大肥鱼<span class="hover-hint__tooltip"><span class="hint-title">蓝色大肥鱼</span>“蓝色大肥鱼”是 DeepSeek在中文互联网上最出圈的拟人化爱称，指代一只贪吃、爱摸鱼、有“活人感”的蓝色鲸鱼少女形象。</span></span>。感觉它说的不是很详细，之后我用另一个 AI 生成了风格介绍，又用 DeepSeek 整合，总结了一篇 Markdown 文档……要不生成一篇 UI 设计规范？就是这么巧，在一步一步地我就让 DeepSeek 生成了我的个人主页。</p>
+
+            <h1 id="项目成立">项目成立</h1>
+
+            <p>哎呀都做出来了怎能不做版本控制，用版本控制怎能不连接远程仓库。OK 干它！于是从军训后几天到昨天没一天是闲着的（昨天是 2026-10-06），我的国庆假期啊……</p>
+
+            <h2 id="网页开发">网页开发</h2>
+
+            <h3 id="个人主页">个人主页</h3>
+
+            <p>这个没什么好讲的。我只要复制粘贴就好了，而蓝色大肥鱼要考虑的可就多了。主页界面我参考了下游戏 UI 和一些模仿项目，做了一套还看得过去的 UI。当时思考如何布局时就和我现在写水文一样深思熟虑。但最终还是做出来了，不是吗？因为服务器成本原因，PNG 素材被压成 WebP，又被压成 AVIF，图标干脆重画成 SVG。ICO 的网页图标直接换为 SVG 了。</p>
+
+            <h3 id="七七的折腾笔记">七七的折腾笔记</h3>
+
+            <p>再想想，我还是往里面写点内容吧，我看你们都这样。才……才不是备案不让这么起名呢。我依旧仿游戏风格让 AI 生成网页，因为没后端，我就静态配置了每个页面。DeepSeek 说如果需要切换页面（不新建标签页）而不停止音乐播放，需要重构网页。呃，就这样挺好的。</p>
+
+            <h3 id="笔记页面">笔记页面</h3>
+
+            <p>我啊，依旧延续用静态页面的传统。写好 Markdown 就让 Python 处理成 html，可方便了（但后期维护不方便）。因为是静态页面，点赞、评论是没有的。就连账号都注册不了（SSH 除外）。</p>
+
+            <h1 id="服务器购置">服务器购置</h1>
+
+            <p>我之前用过阿里云的 <code>云解析 DNS</code> 中的 <code>移动解析HTTPDNS</code>（DoH），所以建站时我用的阿里云。在我稍微了解方法后，我开始考虑是用<strong>虚拟主机</strong>还是<strong>云服务器 ECS</strong>。结果我发现在<strong>虚拟主机</strong>、<strong>轻量应用服务器</strong>和 <strong>ECS</strong> 中，就 <strong>ECS</strong> 最便宜。在选购期间，阿里云客服居然还给我来电了，只因为我跟在线人工客服咨询过（就发了一句话），它向我推荐了一年 99 元的 ECS。很快啊，我就放弃了之前考虑的 ECS 配置，拥抱了便宜套餐。</p>
+
+            <h1 id="域名备案">域名备案</h1>
+
+            <p>买了服务器，怎能少了域名呢？在朋友的推荐下，我从更便宜的 <code>.top</code> 和便宜的 <code>.cn</code> 域名中选择了 <code>.cn</code> 域名，并以我的网名注册为域名前缀。注册域名时的速度很快啊，不到一天就注册下来了。之后就是 ICP 备案了。听阿里云客服说我们这边备案可能要 20 天左右。我的天啊，为什么这么慢。但令我惊讶的是，10 月 3 日提交的到 10 月 10 日就通过了。</p>
+
+            <h1 id="网站上线">网站上线</h1>
+
+            <p>收到邮件那晚，我直接说如果网站没上线我就不睡了。可结果实际上我睡觉的时间是 1:40（还有早八呢，可爽了呢~）。</p>
+
+            <p>上线占了 10%，配置服务器用了 90% 的时间。我差点被阿里云的 <strong>边缘安全加速 ESA</strong> 整破防了（强者抱怨环境；但我是弱者，我不仅抱怨环境，我还抱怨强者。）。设置了一堆东西，甚至这个功能还免费帮我从 <strong>Let's Encrypt</strong> 那申请了SSL证书用于ESA。就是有个缺点：SSL证书无法导出啊，我还得自己再申请。</p>
+
+            <p>ESA 这东西，说好听点叫边缘安全加速，说难听点叫“我明明只想上线，你却让我重新学一遍网络”。域名接入、CNAME、回源、缓存、SSL/TLS、强制 HTTPS、HSTS……每一项看起来都能默认，每一项默认完都可能有惊喜。</p>
+
+            <p>还好有点经验，至少看控制台不像飞机的仪表盘。</p>
 
             <hr>
 
-            <h2 id="1-标题">1. 标题</h2>
+            <p>之后实际去访问，又出岔子了。访问https://www.ttwe77.cn可以，但是访问https://ttwe77.cn却不行。之后又是几小时的排查（中途爬去上课了），结果我发现好像就只有我电脑不能访问。哎罢了不管了。</p>
 
-            <h1 id="h1-一级标题">H1 一级标题</h1>
+            <p>至此，网站从文件夹里的 HTML，变成了互联网上的一个地址。虽然它还很简陋，但至少，它活了。</p>
 
-            <h2 id="h2-二级标题">H2 二级标题</h2>
-
-            <h3 id="h3-三级标题">H3 三级标题</h3>
-
-            <h4 id="h4-四级标题">H4 四级标题</h4>
-
-            <h5 id="h5-五级标题">H5 五级标题</h5>
-
-            <h6 id="h6-六级标题">H6 六级标题</h6>
-
-            <h1 id="一级标题-setext">一级标题 Setext</h1>
-
-            <h2 id="二级标题-setext">二级标题 Setext</h2>
-
-            <h2 id="2-段落与换行">2. 段落与换行</h2>
-
-            <p>这是第一个段落。Markdown 中用一个空行分隔段落。</p>
-
-            <p>这是第二个段落。这一行与上一行属于同一段落，通常渲染为同一段。</p>
-
-            <p>这一行末尾有两个空格，<br>
-            所以这里会强制换行。</p>
-
-            <p>这一行末尾使用反斜杠，\<br>
-            也会强制换行。</p>
-
-            <p>也可以使用 HTML：第一行<br>第二行。</p>
-
-            <h2 id="3-强调与文本样式">3. 强调与文本样式</h2>
-
-            <p><em>斜体</em> 或 <em>斜体</em><br>
-            <strong>粗体</strong> 或 <strong>粗体</strong><br>
-            <strong><em>粗斜体</em></strong> 或 <strong><em>粗斜体</em></strong><br>
-            <del>删除线</del><br>
-            <u>下划线</u><br>
-            <ins>插入下划线</ins><br>
-            <del>删除线 HTML</del><br>
-            <mark>高亮</mark><br>
-            <mark>高亮（部分扩展）</mark><br>
-            H<sub>2</sub>O 下标（部分扩展）<br>
-            X<sup>2</sup> 上标（部分扩展）<br>
-            <sub>下标</sub> 和 <sup>上标</sup><br>
-            <small>小号文字</small><br>
-            <abbr title="HyperText Markup Language">HTML</abbr><br>
-            <cite>引用作品名</cite><br>
-            <kbd>Ctrl</kbd> + <kbd>C</kbd><br>
-            😄 🚀 👍 （emoji 扩展）<br>
-            &copy; &amp; &lt; &gt; &nbsp;</p>
-
-            <h2 id="4-引用">4. 引用</h2>
-
-            <blockquote>
-            <p>一级引用</p>
-
-            <p>引用中可以包含 <strong>粗体</strong>、<em>斜体</em>、<code>代码</code>。</p>
-
-            <blockquote>
-            <p>二级嵌套引用</p>
-
-            <blockquote>
-            <p>三级嵌套引用</p>
-            </blockquote>
-            </blockquote>
-            </blockquote>
-
-            <div class="callout callout--note">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> NOTE</div>
-                <div class="callout__body">
-            <p>GFM 提示：普通信息。</p>
-                </div>
-            </div>
-
-            <div class="callout callout--tip">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg> TIP</div>
-                <div class="callout__body">
-            <p>提示信息。</p>
-                </div>
-            </div>
-
-            <div class="callout callout--important">
-                <div class="callout__title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#8250df" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg> IMPORTANT</div>
-                <div class="callout__body">
-            <p>重要信息。</p>
-                </div>
-            </div>
-
-            <div class="callout callout--warning">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> WARNING</div>
-                <div class="callout__body">
-            <p>警告信息。</p>
-                </div>
-            </div>
-
-            <div class="callout callout--caution">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> CAUTION</div>
-                <div class="callout__body">
-            <p>注意信息。</p>
-                </div>
-            </div>
-
-            <h2 id="5-列表">5. 列表</h2>
-
-            <h3 id="无序列表">无序列表</h3>
-
-            <ul>
-            <li>项目一</li>
-            <li>项目二
-            <ul>
-            <li>子项目 A</li>
-            <li>子项目 B
-            <ul>
-            <li>子项目</li>
-            </ul></li>
-            </ul></li>
-            <li>使用星号</li>
-            <li>使用加号</li>
-            </ul>
-
-            <h3 id="有序列表">有序列表</h3>
-
-            <ol>
-            <li>第一项</li>
-            <li>第二项
-            <ol>
-            <li>子项 2.1</li>
-            <li>子项 2.2</li>
-            </ol></li>
-            <li>第三项</li>
-            </ol>
-
-            <p>从指定数字开始：</p>
-
-            <ol start="3">
-            <li>第三项</li>
-            <li>第四项</li>
-            </ol>
-
-            <p>从指定数字开始：</p>
-
-            <ol start="3">
-            <li>第三项</li>
-            <li>第四项</li>
-            </ol>
-
-            <h3 id="任务列表">任务列表</h3>
-
-            <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="已完成任务"> 已完成任务</li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="未完成任务"> 未完成任务</li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="带 格式 的任务"> 带 <strong>格式</strong> 的任务
-            <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="子任务"> 子任务</li>
-            </ul></li>
-            </ul>
-
-            <h3 id="定义列表部分扩展">定义列表（部分扩展）</h3>
-
-            <p>术语 1 : 定义 1</p>
-
-            <p>术语 2 : 定义 2 : 另一个定义</p>
-
-            <h2 id="6-代码">6. 代码</h2>
-
-            <p>行内代码：<code>printf("Hello")</code>、<code>&lt;div&gt;</code>、<code>npm install</code>。</p>
-
-            <p>缩进代码块：</p>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">text</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code>function hello() {
-  console.log(&quot;Hello&quot;);
-}
-</code></pre>
-            </div>
-
-            <p>围栏代码块：</p>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">javascript</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code><span class="kd">function</span><span class="w"> </span><span class="nx">hello</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre>
-            </div>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">python</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code><span class="k">def</span><span class="w"> </span><span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
-</code></pre>
-            </div>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">diff</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code><span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-</code></pre>
-            </div>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">text</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code>纯文本代码块。
-这里不能直接包含三个反引号，否则会提前结束代码块。
-</code></pre>
-            </div>
-
-            <h2 id="7-链接">7. 链接</h2>
-
-            <p>行内链接：<a href="https://openai.com" title="OpenAI 官网" target="_blank" rel="noopener noreferrer">OpenAI</a></p>
-
-            <p>行内链接：<a href="https://openai.com" target="_blank" rel="noopener noreferrer">OpenAI</a></p>
-
-            <p>自动链接：<a href="https://www.example.com" target="_blank" rel="noopener noreferrer">https://www.example.com</a></p>
-
-            <p>邮箱：<a href="mailto:test@example.com">test@example.com</a></p>
-
-            <p>锚点链接：<a href="#1-标题">回到标题</a></p>
-
-            <p>相对链接：<a href="./README.md">README</a></p>
-
-            <p>引用式链接定义：</p>
-
-            <p>[github]: https://github.com "GitHub"</p>
-
-            <h2 id="8-图片">8. 图片</h2>
-
-            <p><img src="https://100.99.88.77/src/head.avif" alt="替代文本" title="图片标题" loading="lazy"></p>
-
-            <p>带链接的图片：</p>
-
-            <p><a class="img-link" href="https://example.com" target="_blank" rel="noopener noreferrer"><img src="https://100.99.88.77/src/head.avif" alt="替代文本" loading="lazy"></a></p>
-
-            <p>引用式图片：</p>
-
-            <p>![Logo][logo]</p>
-
-            <p>[logo]: https://100.99.88.77/src/head.avif "Logo"</p>
-
-            <h2 id="9-表格">9. 表格</h2>
-
-            <div class="table-wrap"><table><thead><tr><th style="text-align:left">左对齐</th><th style="text-align:center">居中对齐</th><th style="text-align:right">右对齐</th></tr></thead><tbody><tr><td style="text-align:left">单元格</td><td style="text-align:center">单元格</td><td style="text-align:right">单元格</td></tr><tr><td style="text-align:left">内容</td><td style="text-align:center"><strong>粗体</strong></td><td style="text-align:right"><code>代码</code></td></tr><tr><td style="text-align:left">长内容</td><td style="text-align:center"><a href="https://example.com" target="_blank" rel="noopener noreferrer">链接</a></td><td style="text-align:right">42</td></tr></tbody></table></div>
-
-            <p>转义管道：</p>
-
-            <div class="table-wrap"><table><thead><tr><th>名称</th><th>说明</th></tr></thead><tbody><tr><td>A | B</td><td>使用 <code>|</code> 转义</td></tr></tbody></table></div>
-
-            <h2 id="10-分隔线">10. 分隔线</h2>
-
-            <hr>
-
-            <hr>
-
-            <hr>
-
-            <h2 id="11-html">11. HTML</h2>
-
-            <div style="padding: 8px; border: 1px solid #ccc;">
-              这是一个 HTML 块。
-            </div>
-
-            <p align="center">居中段落</p>
-
-            <details>
-              <summary>点击展开</summary>
-              折叠内容。
-            </details>
-
-            <p>我的世界<span class="hover-hint">显示的文字<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>是</p>
-
-            <p>&lt;!-- HTML 注释不会显示 --&gt;</p>
-
-            <h2 id="12-转义字符">12. 转义字符</h2>
-
-            <p>*不是斜体*<br>
-            _不是斜体_<br>
-            # 不是标题<br>
-            [不是链接]<br>
-            `不是代码`<br>
-            &gt; 不是引用<br>
-            + 不是列表<br>
-            - 不是列表<br>
-            . 不是有序列表<br>
-            ! 不是图片<br>
-            | 不是表格分隔符<br>
-            { } ( ) # + - . !</p>
-
-            <h2 id="13-脚注">13. 脚注</h2>
-
-            <p>这里有一个脚注<sup class="footnote-ref"><a href="#fn-1" id="fnref-1">1</a></sup>，这里还有另一个<sup class="footnote-ref"><a href="#fn-longnote" id="fnref-longnote">2</a></sup>。</p>
-
-            <h2 id="14-数学公式">14. 数学公式</h2>
-
-            <p>行内公式：<span class="math-inline">\(E = mc^2\)</span></p>
-
-            <p>块级公式：</p>
-
-            <div class="math-block">\[\frac{n!}{k!(n-k)!} = \binom{n}{k}\]</div>
-
-            <p>行内公式：<span class="math-inline">\(E = mc^2\)</span>，还有 <span class="math-inline">\(a^2 + b^2 = c^2\)</span>。</p>
-
-            <div class="math-block">\[\frac{n!}{k!(n-k)!} = \binom{n}{k}\]</div>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">javascript</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code><span class="kd">const</span><span class="w"> </span><span class="nx">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$9.9&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// 代码块里的 $ 不会被当公式</span>
-</code></pre>
-            </div>
-
-            <ul>
-            <li><code>$E = mc^2$</code> → <code>&lt;span class="math-inline"&gt;(E = mc^2)&lt;/span&gt;</code></li>
-            <li>多行 <code>$$…$$</code> → <code>&lt;div class="math-block"&gt;[\frac{n!}{k!(n-k)!} = \binom{n}{k}]&lt;/div&gt;</code></li>
-            <li>代码块里的 <code>$</code> 被 <code>INLINE_CODE_RE</code> 先一步保护，不会误伤。</li>
-            </ul>
-
-            <h3 id="两个注意点">两个注意点</h3>
-
-            <ol>
-            <li><strong>美元号歧义</strong>：正文里写 <code>价格是 $5 到 $10</code> 时，会被误判成行内公式。真要写美元，用 <code>$</code> 转义（已有的 <code>BACKSLASH_ESCAPE_RE</code> 会处理）。</li>
-            <li><strong><code>$$</code> 必须独占一行开头</strong>：块级公式的触发条件是 <code>s.startswith("$$")</code>，别在段落中间直接塞 <code>$$…$$</code>。</li>
-            </ol>
-
-            <h2 id="15-图表-mermaid">15. 图表 Mermaid</h2>
-
-            <div class="mermaid-wrap">
-            <pre class="mermaid">
-graph TD
-  A[开始] --&gt; B{判断}
-  B --&gt;|是| C[执行]
-  B --&gt;|否| D[结束]
-  C --&gt; D
-</pre>
-            </div>
-
-            <div class="mermaid-wrap">
-            <pre class="mermaid">
-sequenceDiagram
-  participant 用户
-  participant 系统
-  用户-&gt;&gt;系统: 请求
-  系统--&gt;&gt;用户: 响应
-</pre>
-            </div>
-
-            <h2 id="16-徽章与表情">16. 徽章与表情</h2>
-
-            <p><img src="https://img.shields.io/badge/Markdown-000000?style=flat&amp;logo=markdown" alt="Markdown" loading="lazy"> <img src="https://img.shields.io/badge/license-MIT-blue" alt="License" loading="lazy"></p>
-
-            <p>😄 ❤️ 🚀</p>
-
-            <h2 id="17-提示与折叠">17. 提示与折叠</h2>
-
-            <div class="callout callout--note">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> NOTE</div>
-                <div class="callout__body">
-            <p>这是一个提示块。</p>
-                </div>
-            </div>
-
-            <details>
-              <summary>展开查看详情</summary>
-
-              这里可以放 **Markdown** 内容。
-
-              ```js
-              console.log("Hello");
-              ```
-            </details>
-
-            <h2 id="18-媒体与嵌入">18. 媒体与嵌入</h2>
-
-            <iframe src="https://example.com" width="300" height="150" title="来自 example.com 的嵌入内容" loading="lazy"></iframe>
-
-            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2755332551&auto=0&height=66" title="来自 music.163.com 的嵌入内容" loading="lazy"></iframe>
-
-            <h2 id="19-其他扩展">19. 其他扩展</h2>
-
-            <p>行内 HTML 与 Markdown 混合：<span style="color: red;">红色文字</span> 和 <strong>粗体</strong>。</p>
-
-            <p>键盘输入：<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Delete</kbd></p>
-
-            <p>上标/下标：H<sub>2</sub>O，E=mc<sup>2</sup></p>
-
-            <p>缩写：<abbr title="Application Programming Interface">API</abbr></p>
-
-            <p>高亮：<mark>重要内容</mark></p>
-
-            <p>进度条：</p>
-
-            <p><progress value="70" max="100">70%</progress></p>
-
-            <h2 id="20-引用式链接汇总">20. 引用式链接汇总</h2>
-
-            <p>[OpenAI][openai]<br>
-            [GitHub][github]</p>
-
-            <p>[openai]: https://openai.com [github]: https://github.com</p>
-
-            <section class="footnotes">
-            <hr>
-            <ol>
-            <li id="fn-1">
-            <p>这是脚注内容。你可以点击右边箭头返回。 <a class="footnote-backref" href="#fnref-1">↩</a></p>
-            </li>
-            <li id="fn-longnote">
-            <p>这是多行脚注。缩进可以继续脚注内容。</p>
-
-            <p>也可以包含代码和列表：</p>
-
-            <ul>
-            <li>项目一</li>
-            <li>项目二</li>
-            </ul> <a class="footnote-backref" href="#fnref-longnote">↩</a>
-            </li>
-            </ol>
-            </section>
+            <p>xdm，快来恭喜我！啊对哦，静态网页发不了评论。</p>
 
             <div class="article-foot">
                 <span class="article-foot__license">
                     本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
                 </span>
-                <span>最后更新于 2026-10-05</span>
+                <span>最后更新于 2026-10-13</span>
             </div>
 
             </div>
@@ -2610,41 +2103,18 @@ sequenceDiagram
                         <div class="card toc__card">
                             <div class="toc__head">目录</div>
                             <nav class="toc__list" id="toc-list">
-                                <a class="toc__link toc__link--h1" data-level="1" href="#markdown-全样式示例文档">Markdown 全样式示例文档</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#目录">目录</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#1-标题">1. 标题</a>
-                                <a class="toc__link toc__link--h1" data-level="1" href="#h1-一级标题">H1 一级标题</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#h2-二级标题">H2 二级标题</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#h3-三级标题">H3 三级标题</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#h4-四级标题">H4 四级标题</a>
-                                <a class="toc__link toc__link--h5 toc__link--sub" data-level="5" href="#h5-五级标题">H5 五级标题</a>
-                                <a class="toc__link toc__link--h6 toc__link--sub" data-level="6" href="#h6-六级标题">H6 六级标题</a>
-                                <a class="toc__link toc__link--h1" data-level="1" href="#一级标题-setext">一级标题 Setext</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#二级标题-setext">二级标题 Setext</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#2-段落与换行">2. 段落与换行</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#3-强调与文本样式">3. 强调与文本样式</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#4-引用">4. 引用</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#5-列表">5. 列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#无序列表">无序列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#有序列表">有序列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#任务列表">任务列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#定义列表部分扩展">定义列表（部分扩展）</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#6-代码">6. 代码</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#7-链接">7. 链接</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#8-图片">8. 图片</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#9-表格">9. 表格</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#10-分隔线">10. 分隔线</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#11-html">11. HTML</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#12-转义字符">12. 转义字符</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#13-脚注">13. 脚注</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#14-数学公式">14. 数学公式</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#两个注意点">两个注意点</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#15-图表-mermaid">15. 图表 Mermaid</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#16-徽章与表情">16. 徽章与表情</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#17-提示与折叠">17. 提示与折叠</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#18-媒体与嵌入">18. 媒体与嵌入</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#19-其他扩展">19. 其他扩展</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#20-引用式链接汇总">20. 引用式链接汇总</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#立项之前">立项之前</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第一次建站经历">第一次建站经历</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第二次建站经历">第二次建站经历</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#之后">之后</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#项目成立">项目成立</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#网页开发">网页开发</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#个人主页">个人主页</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#七七的折腾笔记">七七的折腾笔记</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#笔记页面">笔记页面</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#服务器购置">服务器购置</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#域名备案">域名备案</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#网站上线">网站上线</a>
                             </nav>
                         </div>
                     </aside>
@@ -3030,68 +2500,6 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
             updateAria();
         })();
 </script>
-
-<script src="https://cdn.staticfile.org/mermaid/10.6.1/mermaid.min.js"></script>
-<script>
-(function () {
-    var nodes = document.querySelectorAll(".mermaid");
-    if (!nodes.length || !window.mermaid) return;
-
-    mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "strict",
-        theme: "base",
-        themeVariables: {
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
-            fontSize: "13px",
-            primaryColor: "#E8F4FD",
-            primaryTextColor: "#1F1F1F",
-            primaryBorderColor: "#21A5E3",
-            lineColor: "#9BB7CC",
-            secondaryColor: "#F2F6FF",
-            tertiaryColor: "#FAFAFA",
-            background: "#FFFFFF",
-            mainBkg: "#E8F4FD",
-            nodeBorder: "#21A5E3",
-            clusterBkg: "#F7FBFF",
-            clusterBorder: "#CFE6F7",
-            edgeLabelBackground: "#FFFFFF",
-            actorBkg: "#E8F4FD",
-            actorBorder: "#21A5E3",
-            actorTextColor: "#1F1F1F",
-            signalColor: "#404040",
-            signalTextColor: "#404040",
-            noteBkgColor: "#FFF8DD",
-            noteBorderColor: "#FFD84D"
-        },
-        flowchart: { curve: "basis", htmlLabels: true, useMaxWidth: true },
-        sequence: { useMaxWidth: true, mirrorActors: false }
-    });
-
-    mermaid.run({ nodes: nodes }).then(function () {
-        document.querySelectorAll(".mermaid-wrap").forEach(function (el) {
-            el.classList.add("is-rendered");
-        });
-    }).catch(function (err) {
-        console.error("[mermaid]", err);
-    });
-})();
-</script>
-
-<script>
-window.MathJax = {
-    tex: {
-        inlineMath: [['\\(', '\\)']],
-        displayMath: [['\\[', '\\]']]
-    },
-    svg: { fontCache: 'global' },
-    options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-};
-</script>
-<script id="MathJax-script" async
-    src="https://cdn.staticfile.org/mathjax/3.2.2/es5/tex-svg.js"></script>
 
 </body>
 

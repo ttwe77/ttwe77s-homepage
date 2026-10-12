@@ -771,12 +771,10 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async
-    src="https://cdn.staticfile.org/mathjax/3.2.2/es5/tex-svg.js"></script>"""
-#    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>"""
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>"""
 
 # 只有页面里真的出现图表时才注入这段脚本
-#MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-MERMAID_SCRIPT = """<script src="https://cdn.staticfile.org/mermaid/10.6.1/mermaid.min.js"></script>
+MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
 (function () {
     var nodes = document.querySelectorAll(".mermaid");

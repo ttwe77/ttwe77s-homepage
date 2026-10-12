@@ -1008,12 +1008,7 @@
         }
 
         .toc__link--sub {
-            padding-left: 24px;
             font-size: 12px;
-        }
-
-        .toc__link--sub:hover {
-            padding-left: 27px;
         }
 
         /* ============ 页脚 ============ */
@@ -1179,15 +1174,11 @@
             }
 
             .toc__link {
-                padding: 8px 0 8px 12px;
+                padding: 8px 0;
                 border-left: 2px solid var(--color-border);
                 border-radius: 0;
                 background: transparent;
                 white-space: normal;
-            }
-
-            .toc__link:hover {
-                padding-left: 15px;
             }
 
             .toc__link.is-active {
@@ -1198,7 +1189,6 @@
 
             .toc__link--sub {
                 display: block;
-                padding-left: 24px;
             }
         }
 
@@ -1581,97 +1571,59 @@
             }
         }
 
-        /* ============ 目录：深层标题逐级缩进 ============ */
-        .toc__link--h4 {
+        /* ============ 目录：标题层级逐级缩进 ============ */
+        .toc__link--h1 {
+            padding-left: 12px;
+        }
+
+        .toc__link--h2 {
+            padding-left: 24px;
+        }
+
+        .toc__link--h3 {
             padding-left: 36px;
+        }
+
+        .toc__link--h4 {
+            padding-left: 48px;
             font-size: 11.8px;
             color: var(--color-text-disabled);
         }
 
-        .toc__link--h4:hover {
-            padding-left: 39px;
-        }
-
         .toc__link--h5 {
-            padding-left: 48px;
+            padding-left: 60px;
             font-size: 11.5px;
             color: var(--color-text-disabled);
         }
 
-        .toc__link--h5:hover {
-            padding-left: 51px;
-        }
-
         .toc__link--h6 {
-            padding-left: 60px;
+            padding-left: 72px;
             font-size: 11.2px;
             color: var(--color-text-disabled);
         }
 
-        .toc__link--h6:hover {
+        .toc__link--h1:hover {
+            padding-left: 15px;
+        }
+
+        .toc__link--h2:hover {
+            padding-left: 27px;
+        }
+
+        .toc__link--h3:hover {
+            padding-left: 39px;
+        }
+
+        .toc__link--h4:hover {
+            padding-left: 51px;
+        }
+
+        .toc__link--h5:hover {
             padding-left: 63px;
         }
 
-        /* ---------- 正文 h4：短竖条 ---------- */
-        .article-body h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 24px 0 8px;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: .01em;
-            color: var(--color-text-primary);
-        }
-
-        .article-body h4::before {
-            content: "";
-            flex: 0 0 auto;
-            width: 3px;
-            height: 14px;
-            border-radius: 2px;
-            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
-        }
-
-        /* ---------- 正文 h5：短横线 ---------- */
-        .article-body h5 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 20px 0 6px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--color-text-primary);
-        }
-
-        .article-body h5::before {
-            content: "";
-            flex: 0 0 auto;
-            width: 8px;
-            height: 2px;
-            border-radius: 1px;
-            background: var(--color-primary);
-        }
-
-        /* ---------- 正文 h6：小圆点 + 弱化 ---------- */
-        .article-body h6 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 18px 0 6px;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: .02em;
-            color: var(--color-text-secondary);
-        }
-
-        .article-body h6::before {
-            content: "";
-            flex: 0 0 auto;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--color-blue-light);
+        .toc__link--h6:hover {
+            padding-left: 75px;
         }
 
         /* ============ 扩展 Markdown/HTML 语法样式 ============ */
