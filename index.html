@@ -4097,21 +4097,24 @@
   <script>
     /* ---------- 全局 Toast ---------- */
     function showToast(msg) {
-      var old = document.getElementById('__close_toast__');
+      var old = document.getElementById('__toast__');
       if (old) old.remove();
 
       var el = document.createElement('div');
-      el.id = '__close_toast__';
+      el.id = '__toast__';
       el.className = 'toast';
       el.textContent = msg;
       el.setAttribute('role', 'status');
       el.setAttribute('aria-live', 'polite');
       document.body.appendChild(el);
 
-      requestAnimationFrame(function () { el.classList.add('is-visible'); });
+      /* 关键：先提交初始态，再切可见态 */
+      void el.offsetWidth;
+      el.classList.add('is-visible');
+
       setTimeout(function () {
         el.classList.remove('is-visible');
-        setTimeout(function () { el.remove(); }, 300);
+        setTimeout(function () { el.remove(); }, 320);
       }, 1800);
     }
     window.showToast = showToast;
