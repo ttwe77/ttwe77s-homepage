@@ -2011,6 +2011,17 @@
 
             <h1 id="markdown-全样式示例文档">Markdown 全样式示例文档</h1>
 
+            <div class="callout callout--caution">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> CAUTION</div>
+                <div class="callout__body">
+            <p>这篇文章的目的是<strong>作为一份 Markdown 全样式示例文档</strong>，用来演示 我做的Python渲染器 所支持的语法和各种功能。</p>
+                </div>
+            </div>
+
+            <p>Markdown原文我放在<a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/docs/MDTest.md" target="_blank" rel="noopener noreferrer">Gitee</a>和<a href="https://github.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/docs/MDTest.md" target="_blank" rel="noopener noreferrer">Github</a>上了，渲染脚本在<a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/md2page.py" target="_blank" rel="noopener noreferrer">Gitee</a>和<a href="https://github.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/md2page.py" target="_blank" rel="noopener noreferrer">Github</a>，需要的自取。</p>
+
+            <p>若你在这个页面发现渲染问题，请前往<a href="https://gitee.com/ttwe77/ttwe77s-homepage/issues" target="_blank" rel="noopener noreferrer">Issues</a>页面提交反馈。</p>
+
             <blockquote>
             <p>说明：Markdown 有多种方言，本文覆盖 CommonMark、GFM 以及常见扩展。不同渲染器支持程度不同。</p>
             </blockquote>
@@ -2332,17 +2343,17 @@
 
             <h2 id="8-图片">8. 图片</h2>
 
-            <p><img src="https://100.99.88.77/src/head.avif" alt="替代文本" title="图片标题" loading="lazy"></p>
+            <p><img src="https://ttwe77.cn/src/head.avif" alt="替代文本" title="图片标题" loading="lazy"></p>
 
             <p>带链接的图片：</p>
 
-            <p><a class="img-link" href="https://example.com" target="_blank" rel="noopener noreferrer"><img src="https://100.99.88.77/src/head.avif" alt="替代文本" loading="lazy"></a></p>
+            <p><a class="img-link" href="https://example.com" target="_blank" rel="noopener noreferrer"><img src="https://ttwe77.cn/src/head.avif" alt="替代文本" loading="lazy"></a></p>
 
             <p>引用式图片：</p>
 
             <p>![Logo][logo]</p>
 
-            <p>[logo]: https://100.99.88.77/src/head.avif "Logo"</p>
+            <p>[logo]: https://ttwe77.cn/src/head.avif "Logo"</p>
 
             <h2 id="9-表格">9. 表格</h2>
 
@@ -2373,7 +2384,7 @@
               折叠内容。
             </details>
 
-            <p>我的世界<span class="hover-hint">显示的文字<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>是</p>
+            <p><span class="hover-hint">显示的文字<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span></p>
 
             <p>&lt;!-- HTML 注释不会显示 --&gt;</p>
 

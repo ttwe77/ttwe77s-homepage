@@ -15,6 +15,14 @@ updated: 2026-10-05
 
 # Markdown 全样式示例文档
 
+> [!caution]
+>
+> 这篇文章的目的是**作为一份 Markdown 全样式示例文档**，用来演示 我做的Python渲染器 所支持的语法和各种功能。
+
+Markdown原文我放在[Gitee](https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/docs/MDTest.md)和[Github](https://github.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/docs/MDTest.md)上了，渲染脚本在[Gitee](https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/md2page.py)和[Github](https://github.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/md2page.py)，需要的自取。
+
+若你在这个页面发现渲染问题，请前往[Issues](https://gitee.com/ttwe77/ttwe77s-homepage/issues)页面提交反馈。
+
 > 说明：Markdown 有多种方言，本文覆盖 CommonMark、GFM 以及常见扩展。不同渲染器支持程度不同。
 
 ## 目录
@@ -227,17 +235,17 @@ def hello(name: str) -> None:
 
 ## 8. 图片
 
-![替代文本](https://100.99.88.77/src/head.avif "图片标题")
+![替代文本](https://ttwe77.cn/src/head.avif "图片标题")
 
 带链接的图片：
 
-[![替代文本](https://100.99.88.77/src/head.avif)](https://example.com)
+[![替代文本](https://ttwe77.cn/src/head.avif)](https://example.com)
 
 引用式图片：
 
 ![Logo][logo]
 
-[logo]: https://100.99.88.77/src/head.avif "Logo"
+[logo]: https://ttwe77.cn/src/head.avif "Logo"
 
 ## 9. 表格
 
@@ -273,8 +281,7 @@ ___
   <summary>点击展开</summary>
   折叠内容。
 </details>
-
-我的世界<span class="hover-hint">显示的文字<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>是
+<span class="hover-hint">显示的文字<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>
 
 <!-- HTML 注释不会显示 -->
 
