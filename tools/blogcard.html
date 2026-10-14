@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#21a5e3">
   <title>文章清单生成器 · 七七的折腾笔记</title>
+  <link rel="icon" href="src/favicon.svg" type="image/svg+xml">
   <meta name="description" content="填写多个字段，实时预览文章卡片，一键生成并复制 index.ini 的一行内容。">
   <style>
     /* ============ 设计令牌 ============ */
@@ -1026,6 +1027,59 @@
         transform: none !important
       }
     }
+        /* ============ 拖放区 ============ */
+    .dropzone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 18px 14px;
+      margin-bottom: 16px;
+      text-align: center;
+      border: 1.5px dashed var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      background: #FCFDFF;
+      cursor: pointer;
+      transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .dropzone:hover {
+      border-color: var(--color-primary);
+      background: rgba(18, 138, 250, .04);
+    }
+
+    .dropzone:focus-visible {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(33, 165, 227, .22);
+    }
+
+    .dropzone.is-dragover {
+      border-color: var(--color-primary);
+      border-style: solid;
+      background: rgba(18, 138, 250, .08);
+      box-shadow: inset 0 0 0 3px rgba(33, 165, 227, .12);
+    }
+
+    .dropzone__icon {
+      width: 26px;
+      height: 26px;
+      display: block;
+      color: var(--color-primary);
+    }
+
+    .dropzone__title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .dropzone__sub {
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+    }
   </style>
 </head>
 
@@ -1065,7 +1119,18 @@
       <section class="pane pane--form card card--static reveal">
 
         <h2 class="section-title">编辑字段</h2>
-
+        <div class="dropzone" id="dropZone" role="button" tabindex="0"
+     aria-label="拖入或点击选择 Markdown 文件">
+  <svg class="dropzone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 16V4"/><path d="m7 9 5-5 5 5"/>
+    <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+  </svg>
+  <p class="dropzone__title">把 .md 文件拖到这里</p>
+  <p class="dropzone__sub">或点击选择文件 · 全程在浏览器本地解析，不会上传</p>
+  <input type="file" id="fileInput" hidden
+         accept=".md,.markdown,.txt,text/markdown,text/plain">
+</div>
         <div class="form-grid">
 
           <label class="field">
@@ -1120,6 +1185,7 @@
         </div>
 
         <div class="form-actions">
+          <button class="btn btn--secondary btn--sm" id="btn-clipboard" type="button">从剪贴板填入</button>
           <button class="btn btn--secondary btn--sm" id="btn-sample" type="button">填入示例</button>
           <button class="btn btn--secondary btn--sm" id="btn-reset" type="button">清空全部</button>
           <button class="btn btn--secondary btn--sm" id="btn-copy-fixed" type="button">复制悬停提示代码</button>
@@ -1699,6 +1765,214 @@
         el.file.focus();
         showToast('已清空全部字段');
       });
+
+      /* =========================================================
+       *  从剪贴板一键填写（解析 Markdown frontmatter）
+       * ---------------------------------------------------------
+       *  · 时间优先取 updated，没有才回退 date
+       *  · title / description / category / tags 直接映射
+       *  · 文件名：不再自动填写，保持用户手动输入
+       * =======================================================*/
+      var FIELD_KEYS = ['file', 'title', 'date', 'cat', 'tags', 'desc', 'svg'];
+
+      /* 解析 "--- ... ---" 之间的 key: value */
+      function parseFrontmatter(raw) {
+        var text = String(raw || '').replace(/\r\n?/g, '\n').trim();
+        if (!text) return null;
+
+        var block = text;
+        var m = text.match(/^---[ \t]*\n([\s\S]*?)\n---[ \t]*(?:\n|$)/);
+        if (m) block = m[1];
+
+        var data = {};
+        block.split('\n').forEach(function (line) {
+          if (!line.trim() || /^\s*#/.test(line)) return;
+
+          var idx = line.indexOf(':');
+          if (idx <= 0) return;
+
+          var key = line.slice(0, idx).trim().toLowerCase();
+          var val = line.slice(idx + 1).trim();
+
+          /* 去掉包裹的引号 */
+          if (val.length >= 2) {
+            var q = val.charAt(0);
+            if ((q === '"' || q === "'") && val.charAt(val.length - 1) === q) {
+              val = val.slice(1, -1);
+            }
+          }
+          if (key) data[key] = val;
+        });
+
+        return Object.keys(data).length ? data : null;
+      }
+
+      /* 标题 → 文件名 slug（已废弃，不再使用） */
+      function slugify(title) {
+        return String(title)
+          .trim()
+          .toLowerCase()
+          .replace(/[“”‘’"'《》〈〉「」『』【】（）()\[\]{}]/g, '')
+          .replace(/[\s:：;；,，.。、!！?？/\\|·•—–~`]+/g, '-')
+          .replace(/-{2,}/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+
+      /* 把 frontmatter 数据灌进表单，返回 { count } */
+      function fillFromData(data) {
+        var title = data.title || '';
+        var date  = data.updated || data.date || '';   /* ← 时间用 updated */
+        var cat   = data.category || data.cat || '';
+        var tags  = data.tags || '';
+        var desc  = data.description || data.desc || data.summary || '';
+
+        /* 先全部清空（含 SVG），再逐项写入，避免残留旧值 */
+        FIELD_KEYS.forEach(function (k) { el[k].value = ''; });
+
+        var count = 0;
+        [['title', title], ['date', date],
+         ['cat', cat], ['tags', tags], ['desc', desc]]
+          .forEach(function (pair) {
+            if (!pair[1]) return;
+            el[pair[0]].value = pair[1];
+            count++;
+          });
+
+        return { count: count };
+      }
+
+      /* 读剪贴板；不可用时退回手动粘贴 */
+      function promptPaste() {
+        var t = window.prompt('无法直接读取剪贴板，请把文章 frontmatter 粘贴到这里：');
+        return t && t.trim() ? Promise.resolve(t) : Promise.resolve(null);
+      }
+
+      function readClipboard() {
+        if (navigator.clipboard &&
+            typeof navigator.clipboard.readText === 'function' &&
+            window.isSecureContext) {
+          return navigator.clipboard.readText().catch(promptPaste);
+        }
+        return promptPaste();
+      }
+
+      document.getElementById('btn-clipboard').addEventListener('click', function () {
+        readClipboard().then(function (text) {
+          if (text == null) return;                 /* 用户取消，静默退出 */
+
+          var data = parseFrontmatter(text);
+          if (!data) {
+            showToast('没有识别到 frontmatter 字段\n请检查剪贴板内容');
+            return;
+          }
+
+          var res = fillFromData(data);
+          render();
+
+          showToast('已从剪贴板填入 ' + res.count + ' 个字段');
+        }).catch(function () {
+          showToast('无法读取剪贴板，请手动粘贴');
+        });
+      });
+
+            /* =========================================================
+       *  拖入 / 选择 .md 文件自动填入（纯本地读取，不上传）
+       * =======================================================*/
+      var dropZone  = document.getElementById('dropZone');
+      var fileInput = document.getElementById('fileInput');
+      var MD_EXT = /\.(md|markdown|txt)$/i;
+
+      function baseName(name) {
+        return String(name || '').replace(/^.*[\\/]/, '');
+      }
+
+      /* xxx.md → xxx.html（不想要这个推导就删掉这个函数和调用处） */
+      function htmlNameFromMd(name) {
+        return baseName(name).replace(/\.(md|markdown|txt)$/i, '') + '.html';
+      }
+
+      /* 解析 + 填入；fileName 可省略 */
+      function applySource(text, fileName) {
+        var data = parseFrontmatter(text);
+        if (!data) {
+          showToast('没有识别到 frontmatter 字段\n请检查文件开头是否有 --- 包裹的元信息');
+          return false;
+        }
+
+        var res = fillFromData(data);   /* 注意：内部会清空所有字段，含 file */
+
+        /* 文件名由 .md 推导，之后仍可手动改 */
+        if (fileName) el.file.value = htmlNameFromMd(fileName);
+
+        render();
+        showToast((fileName ? '已从 ' + baseName(fileName) + ' ' : '') +
+                  '填入 ' + res.count + ' 个字段');
+        return true;
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        if (!MD_EXT.test(file.name) && !/markdown|text/i.test(file.type || '')) {
+          showToast('只支持 .md / .markdown 文本文件');
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function () {
+          applySource(String(reader.result || ''), file.name);
+        };
+        reader.onerror = function () { showToast('文件读取失败，请重试'); };
+        reader.readAsText(file, 'utf-8');   /* 全程本地，不发请求 */
+      }
+
+      /* ---- 拖拽视觉反馈 ---- */
+      ['dragenter', 'dragover'].forEach(function (type) {
+        dropZone.addEventListener(type, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('is-dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(function (type) {
+        dropZone.addEventListener(type, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (type === 'dragleave' && dropZone.contains(e.relatedTarget)) return;
+          dropZone.classList.remove('is-dragover');
+        });
+      });
+
+      /* ---- 放下文件（也兼容拖进来一段文字） ---- */
+      dropZone.addEventListener('drop', function (e) {
+        var dt = e.dataTransfer;
+        if (!dt) return;
+
+        var file = dt.files && dt.files[0];
+        if (file) { handleFile(file); return; }
+
+        var text = dt.getData('text/plain');
+        if (text) applySource(text, '');
+      });
+
+      /* ---- 点击 / 键盘选择文件 ---- */
+      dropZone.addEventListener('click', function () { fileInput.click(); });
+
+      dropZone.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', function () {
+        var f = this.files && this.files[0];
+        if (f) handleFile(f);
+        this.value = '';   /* 允许再次选同一个文件 */
+      });
+
+      /* ---- 防止文件丢在页面别处时浏览器直接打开它 ---- */
+      window.addEventListener('dragover', function (e) { e.preventDefault(); });
+      window.addEventListener('drop', function (e) { e.preventDefault(); });
 
       /* =========================================================
        *  入场动画
