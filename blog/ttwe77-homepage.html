@@ -1937,6 +1937,102 @@
             color: var(--color-primary);
         }
 
+        /* ============ 滚动条美化 ============ */
+        :root {
+            --scrollbar-size: 10px;
+            --scrollbar-track: transparent;
+            --scrollbar-thumb: rgba(33, 165, 227, .32);
+            --scrollbar-thumb-hover: rgba(33, 165, 227, .55);
+            --scrollbar-thumb-active: rgba(33, 165, 227, .75);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+
+        /* WebKit / Chromium / Safari / Edge */
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-size);
+            height: var(--scrollbar-size);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-thumb-hover);
+        }
+
+        ::-webkit-scrollbar-thumb:active {
+            background-color: var(--scrollbar-thumb-active);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* 深色代码块：用偏白的滚动条，避免蓝色在深色底上太跳 */
+        .code-block pre {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .22) transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, .32);
+        }
+
+        /* 右侧目录：细一点、轻一点 */
+        .toc__list {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(33, 165, 227, .28) transparent;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background-color: rgba(33, 165, 227, .28);
+            border-radius: 999px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(33, 165, 227, .5);
+        }
+
+        /* 如果你以后真的做了深色模式，可以顺手覆盖变量 */
+        :root[data-theme="dark"] {
+            --scrollbar-thumb: rgba(171, 215, 255, .3);
+            --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
+            --scrollbar-thumb-active: rgba(171, 215, 255, .7);
+        }
+
     </style>
 </head>
 
@@ -2060,9 +2156,9 @@
 
             <h1 id="网站上线">网站上线</h1>
 
-            <p>收到邮件那晚，我直接说如果网站没上线我就不睡了。可结果实际上我睡觉的时间是 1:40（还有早八呢，可爽了呢~）。</p>
+            <p>收到邮件那晚，我直接说如果网站没上线我就不睡了。可结果实际上我睡觉的时间是 1:40（<em>还有早八呢，可爽了呢~</em>）。</p>
 
-            <p>上线占了 10%，配置服务器用了 90% 的时间。我差点被阿里云的 <strong><span class="hover-hint">边缘安全加速 ESA<span class="hover-hint__tooltip"><span class="hint-title">ESA</span>阿里云边缘安全加速服务，提供 CDN、WAF、SSL 等能力。</span></span></strong> 整破防了（强者抱怨环境；但我是弱者，我不仅抱怨环境，我还抱怨强者。）。设置了一堆东西，甚至这个功能还免费帮我从 <strong><span class="hover-hint">Let's Encrypt<span class="hover-hint__tooltip"><span class="hint-title">Let's Encrypt</span>免费、自动化的开放 CA，签发 SSL/TLS 证书。</span></span></strong> 那申请了<strong><span class="hover-hint">SSL证书<span class="hover-hint__tooltip"><span class="hint-title">SSL 证书</span>用于 HTTPS 加密的数字证书。</span></span></strong>用于ESA。就是有个缺点：SSL证书无法导出啊，我还得自己再申请。</p>
+            <p>上线用了 10%、配置服务器用了 90% 的时间。我差点被阿里云的 <strong><span class="hover-hint">边缘安全加速 ESA<span class="hover-hint__tooltip"><span class="hint-title">ESA</span>阿里云边缘安全加速服务，提供 CDN、WAF、SSL 等能力。</span></span></strong> 整破防了（<em>强者抱怨环境；但我是弱者，我不仅抱怨环境，我还抱怨强者。</em>）。设置了一堆东西，甚至这个功能还免费帮我从 <strong><span class="hover-hint">Let's Encrypt<span class="hover-hint__tooltip"><span class="hint-title">Let's Encrypt</span>免费、自动化的开放 CA，签发 SSL/TLS 证书。</span></span></strong> 那申请了<strong><span class="hover-hint">SSL证书<span class="hover-hint__tooltip"><span class="hint-title">SSL 证书</span>用于 HTTPS 加密的数字证书。</span></span></strong>用于ESA。就是有个缺点：SSL证书无法导出啊，我还得自己再申请。</p>
 
             <p>ESA 这东西，说好听点叫边缘安全加速，说难听点叫“我明明只想上线，你却让我重新学一遍网络”。域名接入、<span class="hover-hint">CNAME<span class="hover-hint__tooltip"><span class="hint-title">CNAME</span>DNS 记录类型，把一个域名指向另一个域名。</span></span>、回源、缓存、SSL/TLS、强制 HTTPS、<span class="hover-hint">HSTS<span class="hover-hint__tooltip"><span class="hint-title">HSTS</span>HTTP 严格传输安全，强制浏览器只用 HTTPS 访问。</span></span>……每一项看起来都能默认，每一项默认完都可能有惊喜。</p>
 

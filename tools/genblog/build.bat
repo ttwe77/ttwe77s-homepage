@@ -1,2 +1,2 @@
 split_page.py sample.html -o parts
-md2page.py MDTest.md
+md2page.py docs\MDTest.md
