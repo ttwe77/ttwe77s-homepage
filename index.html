@@ -1114,6 +1114,13 @@
       gap: 4px
     }
 
+    .footer__runtime {
+      font-variant-numeric: tabular-nums;
+      /* 数字等宽，秒跳动时不抖 */
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
     .footer__mark {
       display: inline-flex;
       align-items: center;
@@ -1371,6 +1378,7 @@
       .brand__mark {
         width: 50px;
       }
+
       .brand__name {
         font-size: 12px;
       }
@@ -2701,12 +2709,41 @@
     .pgp-key {
       border-radius: var(--radius-md);
       background: #f7fafc;
-      border: 1px solid var(--color-border);
+      border: 0 solid var(--color-border);
       overflow: hidden;
+
+      /* —— 展开 / 收起动画 —— */
+      max-height: 0;
+      margin-top: -12px;
+      /* 折叠时抵掉 .pgp-card 的 12px gap */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition:
+        max-height .4s cubic-bezier(.22, .61, .36, 1),
+        margin-top .4s cubic-bezier(.22, .61, .36, 1),
+        border-width .4s ease,
+        opacity .28s ease,
+        transform .4s cubic-bezier(.22, .61, .36, 1),
+        visibility 0s linear .4s;
     }
 
-    .pgp-key[hidden] {
-      display: none;
+    .pgp-key.is-open {
+      max-height: 320px;
+      margin-top: 0;
+      border-width: 1px;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+      transition:
+        max-height .4s cubic-bezier(.22, .61, .36, 1),
+        margin-top .4s cubic-bezier(.22, .61, .36, 1),
+        border-width .4s ease,
+        opacity .28s ease,
+        transform .4s cubic-bezier(.22, .61, .36, 1),
+        visibility 0s linear 0s;
     }
 
     .pgp-key__head {
@@ -3054,7 +3091,7 @@
                   <button class="pgp-btn" id="pgp-copy-btn" type="button">复制指纹</button>
                 </div>
 
-                <div class="pgp-key" id="pgp-key" hidden>
+                <div class="pgp-key" id="pgp-key">
                   <div class="pgp-key__head">
                     <span>ASCII Armor</span>
                     <button class="pgp-key__copy" id="pgp-copy-key" type="button">复制</button>
@@ -3085,7 +3122,7 @@
           <footer class="footer reveal" data-delay="140">
             <div class="footer__brand">
               <span class="footer__mark">七七的折腾笔记</span>
-              <span>© 2026 ttwe77</span>
+              <span>© 2026 ttwe77 · 本站已运行 <span class="footer__runtime" id="site-runtime">—</span></span>
               <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
               <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
                   rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
@@ -3458,7 +3495,7 @@
        *      #include page1.ini
        *      #include page2.ini
        *
-       *  · 一行一个分页文件，顺序即分页顺序
+       *  · 一行一个分页文件，文件从下往上读（越靠下的分页越先展示）
        *  · ";" / "#" 开头为注释，空行忽略
        *  · 若 index.ini 里没有任何 #include，则把它自己当作唯一分页
        *
@@ -3472,13 +3509,13 @@
           var name = m[1].replace(/^["']|["']$/g, '').trim();
           if (name) out.push(name);
         });
-        return out;
+        return out.reverse();
       }
 
       /* =========================================================
        *  分页文件解析
        *  ---------------------------------------------------------
-       *  每行一篇；"#" 或 ";" 开头为注释；空行忽略。
+       *  每行一篇，从下往上读；"#" 或 ";" 开头为注释；空行忽略。
        *  字段用 "|" 分隔（SVG 内部不要出现 "|"）：
        *
        *    文件名 | 标题 | 日期 | 分类 | 标签,标签 | 摘要 | <svg …/>
@@ -3514,7 +3551,7 @@
           });
         });
 
-        return list;   // 保持分页文件中的书写顺序
+        return list.reverse();   // 保持分页文件中的书写顺序
       }
 
       /* =========================================================
@@ -4864,7 +4901,7 @@
         expanded = true;
         viewBtn.textContent = '收起公钥';
         viewBtn.setAttribute('aria-expanded', 'true');
-        keyBox.hidden = false;
+        keyBox.classList.add('is-open');
 
         /* 已缓存直接渲染，不再请求 */
         if (ascCache) {
@@ -4891,7 +4928,7 @@
         expanded = false;
         viewBtn.textContent = '查看公钥';
         viewBtn.setAttribute('aria-expanded', 'false');
-        keyBox.hidden = true;
+        keyBox.classList.remove('is-open');
       }
 
       viewBtn.addEventListener('click', function () {
@@ -4924,6 +4961,71 @@
             });
         });
       }
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       站点运行时长（东八区 UTC+8）
+       ============================================================ */
+    (function () {
+      'use strict';
+
+      /* ★ 只需改这一行：站点上线时刻（毫秒时间戳）
+         例：1767168000000 === 东八区 2026-01-01 00:00:00 */
+      var START_TS = 1791649116000;
+
+      var BJ = 8 * 3600 * 1000;   // 东八区偏移
+
+      var el = document.getElementById('site-runtime');
+      if (!el) return;
+
+      /* 取时间戳在东八区的“墙上时间”字段 */
+      function parts(ts) {
+        var d = new Date(ts + BJ);
+        return {
+          y: d.getUTCFullYear(),
+          mo: d.getUTCMonth(),
+          d: d.getUTCDate(),
+          h: d.getUTCHours(),
+          mi: d.getUTCMinutes(),
+          s: d.getUTCSeconds()
+        };
+      }
+
+      /* (y, mo) 所在月的前一个月有多少天，用于借位 */
+      function prevMonthDays(y, mo) {
+        return new Date(Date.UTC(y, mo, 0)).getUTCDate();
+      }
+
+      function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+      function tick() {
+        var now = Date.now();
+        if (now < START_TS) { el.textContent = '尚未上线'; return; }
+
+        var a = parts(START_TS);
+        var b = parts(now);
+
+        var y = b.y - a.y;
+        var mo = b.mo - a.mo;
+        var d = b.d - a.d;
+        var h = b.h - a.h;
+        var mi = b.mi - a.mi;
+        var s = b.s - a.s;
+
+        if (s < 0) { s += 60; mi--; }
+        if (mi < 0) { mi += 60; h--; }
+        if (h < 0) { h += 24; d--; }
+        if (d < 0) { d += prevMonthDays(b.y, b.mo); mo--; }
+        if (mo < 0) { mo += 12; y--; }
+
+        el.textContent =
+          y + ' 年 ' + mo + ' 月 ' + d + ' 日 ' +
+          pad2(h) + ' 时 ' + pad2(mi) + ' 分 ' + pad2(s) + ' 秒';
+      }
+
+      tick();
+      setInterval(tick, 1000);
     })();
   </script>
 </body>
