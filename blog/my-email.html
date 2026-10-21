@@ -626,7 +626,7 @@
             overflow-x: auto;
             font-family: var(--font-mono);
             font-size: 12.8px;
-            line-height: 1.78;
+            line-height: 1.5;
             color: #DCE9F5;
             -webkit-overflow-scrolling: touch;
         }
@@ -1422,6 +1422,18 @@
                 font-size: 15px;
             }
 
+            .article-body h4 {
+                font-size: 14px;
+            }
+
+            .article-body h5 {
+                font-size: 13.5px;
+            }
+
+            .article-body h6 {
+                font-size: 13px;
+            }
+
             .code-block pre {
                 font-size: 12px;
                 padding: 14px 14px 16px;
@@ -2033,17 +2045,69 @@
             --scrollbar-thumb-active: rgba(171, 215, 255, .7);
         }
 
+        /* ============ h4 ~ h6 左侧标记 ============ */
+        .article-body h4,
+        .article-body h5,
+        .article-body h6 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 24px 0 8px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h4 {
+            font-size: 15px;
+        }
+
+        .article-body h5 {
+            font-size: 14px;
+        }
+
+        .article-body h6 {
+            font-size: 13.5px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 圆形小点，比 h3 的菱形更“轻”，层级递减 */
+        .article-body h4::before,
+        .article-body h5::before,
+        .article-body h6::before {
+            content: "";
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--color-blue-light);
+        }
+
+        .article-body h4::before {
+            width: 4px;
+            height: 4px;
+        }
+
+        .article-body h5::before {
+            width: 3.5px;
+            height: 3.5px;
+        }
+
+        .article-body h6::before {
+            width: 3px;
+            height: 3px;
+            background: var(--color-border-strong);
+        }
+
     </style>
 </head>
 
 <body>
 
 <header class="topbar">
-<picture class="topbar__avatar">
-    <source media="(max-width: 640px)" srcset="/src/ttwe77.avif" type="image/avif">
-    <source srcset="/src/bloglogo.avif" type="image/avif">
-    <img src="/src/bloglogo.avif" alt="Blog logo">
-</picture>
+        <picture class="topbar__avatar">
+            <source media="(max-width: 640px)" srcset="/src/ttwe77.avif" type="image/avif">
+            <source srcset="/src/bloglogo.avif" type="image/avif">
+            <img src="/src/bloglogo.avif" alt="Blog logo">
+        </picture>
         <div class="topbar__title">从零搭建私人邮件服务器：我撞了十几堵墙的全过程</div>
 
         <div class="topbar__spacer"></div>

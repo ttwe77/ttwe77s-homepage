@@ -1,0 +1,3098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#21a5e3">
+    <title>骗过3个Ai的代码 · 七七的折腾笔记</title>
+    <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
+    <meta name="description" content="通过一段混用 Python 与 C/Java 风格的代码，展示 Python 中分号、大括号被解析为集合等冷门语法，并记录三个 AI 的识别与实测过程。">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="七七的折腾笔记">
+    <meta property="og:title" content="骗过3个Ai的代码">
+    <meta property="og:description" content="通过一段混用 Python 与 C/Java 风格的代码，展示 Python 中分号、大括号被解析为集合等冷门语法，并记录三个 AI 的识别与实测过程。">
+    <meta property="og:locale" content="zh_CN">
+<style>
+/* ============ 设计令牌 ============ */
+        :root {
+            --color-primary: #21a5e3;
+            --color-primary-hover: #0E7AE0;
+            --color-primary-active: #0B6BC5;
+            --color-blue-light: #ABD7FF;
+            --color-periwinkle: #BEC0EC;
+            --color-orchid: #4454F8;
+
+            --color-bg-white: #FFFFFF;
+            --color-bg-light: #FAFAFA;
+            --color-bg-soft: #F5F5F5;
+            --color-border: #EDEDED;
+            --color-border-strong: #D4D4D4;
+
+            --color-text-primary: #1F1F1F;
+            --color-text-body: #404040;
+            --color-text-secondary: #737373;
+            --color-text-disabled: #A3A3A3;
+
+            --color-danger: #F21B28;
+            --color-success: #169B5B;
+            --color-warning: #FFD84D;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, .06);
+            --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
+            --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
+
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+            --topbar-h: 56px;
+            --btn-skew: -10deg;
+        }
+
+        /* ============ 基础 ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--topbar-h) + 16px);
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg-light);
+            color: var(--color-text-body);
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overscroll-behavior-y: none;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p,
+        figure {
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        /* 背景氛围 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 10% 4%, rgba(18, 138, 250, .12), transparent 42%),
+                radial-gradient(circle at 92% -4%, rgba(171, 215, 255, .42), transparent 46%),
+                radial-gradient(circle at 72% 96%, rgba(190, 192, 236, .22), transparent 46%);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(18, 138, 250, .035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 138, 250, .035) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* ============ 顶栏 ============ */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: var(--topbar-h);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #3f568c;
+            background: transparent;
+            transition: background .18s ease, transform .12s ease, color .18s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(63, 86, 140, .08);
+        }
+
+        /* ============ logo ============ */
+        .topbar__avatar {
+            display: block;
+            flex: 0 0 auto;
+            width: 115px;
+            height: 100%;
+            min-width: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .topbar__avatar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: inherit;
+        }
+
+        .topbar__title {
+            font-size: clamp(10px, 3vw, 16px);
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: .04em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topbar__spacer {
+            flex: 1 1 auto;
+        }
+
+        .topbar__crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .topbar__crumb:hover {
+            color: var(--color-text-disabled);
+        }
+
+        .topbar__crumb span {
+            color: var(--color-text-disabled);
+        }
+
+        /* 阅读进度条 */
+        .read-progress {
+            position: fixed;
+            top: var(--topbar-h);
+            left: 0;
+            right: 0;
+            height: 3px;
+            z-index: 201;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .read-progress__bar {
+            height: 100%;
+            width: 0;
+            border-radius: 0 3px 3px 0;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light));
+            box-shadow: 0 0 10px rgba(33, 165, 227, .5);
+            transition: width .12s linear;
+        }
+
+        .article-body progress {
+            width: 220px;
+            height: 10px;
+            vertical-align: middle;
+            accent-color: #21A5E3;
+        }
+
+        /* ============ 页面容器 ============ */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: calc(var(--topbar-h) + 30px) 20px 64px;
+        }
+
+        .article-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 218px;
+            gap: 34px;
+            align-items: start;
+        }
+
+        /* ============ 文章头部 ============ */
+        .article-head {
+            margin-bottom: 26px;
+        }
+
+        .article-head__title {
+            font-size: clamp(28px, 4.6vw, 42px);
+            line-height: 1.22;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            background: linear-gradient(118deg, #0889ca 0%, #21a5e3 42%, #39bef8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .article-head__desc {
+            margin-top: 16px;
+            max-width: 720px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .article-head__meta {
+            margin-top: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px 14px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .article-head__meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .article-head__meta span::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-blue-light);
+        }
+
+        .article-head__meta span:first-child::before {
+            background: var(--color-primary);
+        }
+
+        .article-head__tags {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 9px;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: rgba(18, 138, 250, .09);
+            transform: skewX(var(--btn-skew));
+            transform-origin: center;
+            transition: background .18s ease, transform .18s ease;
+        }
+
+        .chip:hover {
+            background: rgba(18, 138, 250, .16);
+            transform: skewX(var(--btn-skew)) translateY(-1px);
+        }
+
+        /* ============ 卡片 ============ */
+        .card {
+            position: relative;
+            background: var(--color-bg-white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ============ 正文 ============ */
+        .article-body {
+            padding: 30px 34px 36px;
+            font-size: 15px;
+            line-height: 1.92;
+            color: var(--color-text-body);
+            overflow-wrap: break-word;
+        }
+
+        .article-body> :first-child {
+            margin-top: 0;
+        }
+
+        .article-body> :last-child {
+            margin-bottom: 0;
+        }
+
+        .article-body p {
+            margin: 0 0 18px;
+        }
+
+        .article-body h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 40px 0 16px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h2::before {
+            content: "";
+            width: 4px;
+            height: 18px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .article-body h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 28px 0 10px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h3::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 5px;
+            height: 5px;
+            border-radius: 1px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .article-body ul,
+        .article-body ol {
+            margin: 0 0 18px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .article-body li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 6px;
+        }
+
+        .article-body ul>li::before {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: .82em;
+            width: 5px;
+            height: 5px;
+            border-radius: 1px;
+            background: var(--color-blue-light);
+            transform: rotate(45deg);
+        }
+
+        .article-body ol>li::before {
+            content: counter(list-item);
+            position: absolute;
+            left: 0;
+            top: .42em;
+            width: 16px;
+            height: 16px;
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #fff;
+            background: var(--color-primary);
+            line-height: 1;
+            text-align: center;
+        }
+
+        .article-body a:not(.chip) {
+            color: var(--color-primary);
+            font-weight: 600;
+            border-bottom: 1px dashed currentColor;
+            transition: color .18s ease, border-color .18s ease;
+        }
+
+        .article-body a:not(.chip):hover {
+            color: var(--color-primary-hover);
+            border-bottom-style: solid;
+        }
+
+        .article-body strong {
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .article-body del {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--color-text-disabled);
+        }
+
+        /* 引用块 */
+        .article-body blockquote {
+            position: relative;
+            margin: 24px 0;
+            padding: 14px 20px 14px 22px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(90deg, rgba(33, 165, 227, .10) 0%, rgba(33, 165, 227, .02) 100%);
+            font-size: 13.5px;
+            line-height: 1.85;
+            color: var(--color-text-secondary);
+            overflow: hidden;
+        }
+
+        .article-body blockquote::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .article-body blockquote::after {
+            content: "\201C";
+            position: absolute;
+            right: 12px;
+            top: -10px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1;
+            color: rgba(33, 165, 227, .13);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .article-body blockquote p {
+            margin: 0;
+        }
+
+        /* 行内代码 */
+        .article-body :not(pre)>code {
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: .87em;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: rgba(18, 138, 250, .08);
+            border: 1px solid rgba(18, 138, 250, .12);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        /* 代码块 */
+        .code-block {
+            margin: 22px 0;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: #22344C;
+            box-shadow: 0 8px 24px rgba(20, 40, 60, .18);
+            border: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .code-block__bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            background: rgba(255, 255, 255, .05);
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .code-block__dots {
+            display: flex;
+            gap: 5px;
+            flex: 0 0 auto;
+        }
+
+        .code-block__dots i {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .code-block__dots i:nth-child(1) {
+            background: #F4756A;
+        }
+
+        .code-block__dots i:nth-child(2) {
+            background: #FFD84D;
+        }
+
+        .code-block__dots i:nth-child(3) {
+            background: #4ED08A;
+        }
+
+        .code-block__lang {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #7A92AA;
+        }
+
+        .code-block__copy {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #A9CBE8;
+            background: rgba(255, 255, 255, .07);
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .code-block__copy:hover {
+            background: rgba(33, 165, 227, .28);
+            color: #fff;
+        }
+
+        .code-block__copy:active {
+            transform: scale(.94);
+        }
+
+        .code-block__copy.is-done {
+            color: #7EE7B0;
+            background: rgba(78, 208, 138, .18);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 16px 18px 18px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 12.8px;
+            line-height: 1.5;
+            color: #DCE9F5;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .16);
+            border-radius: 4px;
+        }
+
+        /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
+
+        /* 注释 */
+        .code-block pre code .c,
+        .code-block pre code .c1,
+        .code-block pre code .cm,
+        .code-block pre code .cs,
+        .code-block pre code .cd,
+        .code-block pre code .ch {
+            color: #6C8299;
+            font-style: italic;
+        }
+
+        /* 关键字 / 选择器 / 标签名 */
+        .code-block pre code .k,
+        .code-block pre code .kc,
+        .code-block pre code .kd,
+        .code-block pre code .kn,
+        .code-block pre code .kp,
+        .code-block pre code .kr,
+        .code-block pre code .kt,
+        .code-block pre code .nt,
+        .code-block pre code .nc,
+        .code-block pre code .nf,
+        .code-block pre code .nd,
+        .code-block pre code .ne {
+            color: #7FC4EA;
+        }
+
+        /* 属性名 / 内建 / 命名空间 / 变量 */
+        .code-block pre code .na,
+        .code-block pre code .nb,
+        .code-block pre code .bp,
+        .code-block pre code .nn,
+        .code-block pre code .nx,
+        .code-block pre code .nv,
+        .code-block pre code .py,
+        .code-block pre code .vc,
+        .code-block pre code .vg,
+        .code-block pre code .vi {
+            color: #7EE7B0;
+        }
+
+        /* 数字 / 常量 */
+        .code-block pre code .m,
+        .code-block pre code .mf,
+        .code-block pre code .mi,
+        .code-block pre code .mh,
+        .code-block pre code .mo,
+        .code-block pre code .il,
+        .code-block pre code .no {
+            color: #FFD84D;
+        }
+
+        /* 字符串 */
+        .code-block pre code .s,
+        .code-block pre code .s1,
+        .code-block pre code .s2,
+        .code-block pre code .sb,
+        .code-block pre code .sc,
+        .code-block pre code .sd,
+        .code-block pre code .se,
+        .code-block pre code .sh,
+        .code-block pre code .si,
+        .code-block pre code .sx,
+        .code-block pre code .sr,
+        .code-block pre code .ss,
+        .code-block pre code .sa,
+        .code-block pre code .dl {
+            color: #FFB4A2;
+        }
+
+        /* 运算符 / 标点 */
+        .code-block pre code .o,
+        .code-block pre code .ow,
+        .code-block pre code .p {
+            color: #A9CBE8;
+        }
+
+        /* 装饰器 / @ 规则 / 元信息 */
+        .code-block pre code .gh,
+        .code-block pre code .gu,
+        .code-block pre code .nd,
+        .code-block pre code .na+.nd {
+            color: #C4A7FF;
+        }
+
+        /* diff 用 */
+        .code-block pre code .gd {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gi {
+            color: #7EE7B0;
+        }
+
+        /* 错误 token（少用，出问题时一眼能看到） */
+        .code-block pre code .err {
+            color: #F4756A;
+            background: rgba(244, 117, 106, .12);
+            border-radius: 2px;
+        }
+
+        /* 空白 / 行号占位 */
+        .code-block pre code .w {
+            color: #5A7288;
+        }
+
+        .code-block pre code .gr {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gt {
+            color: #7FC4EA;
+        }
+
+        /* 表格 */
+        .table-wrap {
+            margin: 22px 0;
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: #fff;
+            box-shadow: var(--shadow-card);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .article-body table {
+            width: 100%;
+            min-width: 460px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .article-body thead th {
+            padding: 11px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            color: #fff;
+            background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+            white-space: nowrap;
+        }
+
+        .article-body tbody td {
+            padding: 11px 16px;
+            border-top: 1px solid var(--color-border);
+            color: var(--color-text-body);
+            vertical-align: top;
+        }
+
+        .article-body tbody tr:nth-child(even) {
+            background: #FBFDFF;
+        }
+
+        .article-body tbody td code {
+            white-space: nowrap;
+        }
+
+        /* ============ 提示框 (GFM Alerts & Callout) ============ */
+        .callout {
+            margin: 22px 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--callout-border);
+            background: var(--callout-bg);
+            border-left: 4px solid var(--callout-color);
+            /* 左侧粗边框，还原图片效果 */
+            overflow: hidden;
+        }
+
+        /* 不同的提示类型颜色变量 */
+        .callout--note {
+            --callout-color: var(--color-primary);
+            --callout-bg: rgba(33, 165, 227, .06);
+            --callout-border: rgba(33, 165, 227, .15);
+        }
+
+        .callout--tip {
+            --callout-color: var(--color-success);
+            --callout-bg: rgba(22, 155, 91, .06);
+            --callout-border: rgba(22, 155, 91, .15);
+        }
+
+        .callout--important {
+            --callout-color: var(--color-orchid);
+            --callout-bg: rgba(68, 84, 248, .06);
+            --callout-border: rgba(68, 84, 248, .15);
+        }
+
+        .callout--warning {
+            --callout-color: #D4A000;
+            --callout-bg: rgba(255, 216, 77, .12);
+            --callout-border: rgba(255, 216, 77, .3);
+        }
+
+        .callout--caution {
+            --callout-color: var(--color-danger);
+            --callout-bg: rgba(242, 27, 40, .06);
+            --callout-border: rgba(242, 27, 40, .15);
+        }
+
+        /* 提示框标题 */
+        .callout__title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 18px 0;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .05em;
+            color: var(--callout-color);
+            text-transform: uppercase;
+            background: transparent;
+        }
+
+        /* 提示框正文 */
+        .callout__body {
+            padding: 6px 18px 14px;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: var(--color-text-body);
+        }
+
+        .callout__body> :first-child {
+            margin-top: 0;
+        }
+
+        .callout__body> :last-child {
+            margin-bottom: 0;
+        }
+
+        .callout__body p {
+            margin: 0 0 12px;
+        }
+
+        /* 分隔线 */
+        .article-body hr {
+            height: 1px;
+            margin: 15px 0;
+            border: none;
+            background: linear-gradient(90deg, transparent, var(--color-border-strong), transparent);
+        }
+
+        /* ============ 文章尾部 ============ */
+        .article-foot {
+            margin-top: 34px;
+            padding-top: 24px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            color: var(--color-text-secondary);
+        }
+
+        .article-foot__license {
+            position: relative;
+            display: block;
+            flex: 1 1 auto;
+            min-width: 0;
+            padding-left: 16px;
+            line-height: 1.7;
+        }
+
+        .article-foot__license::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: .68em;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .article-foot__link {
+            color: var(--color-primary);
+            font-weight: 700;
+            border-bottom: 1px dashed currentColor;
+            white-space: nowrap;
+        }
+
+        .article-foot__link:hover {
+            border-bottom-style: solid;
+        }
+
+        /* ============ 侧栏目录 ============ */
+        .toc {
+            position: sticky;
+            top: calc(var(--topbar-h) + 22px);
+        }
+
+        .toc__card {
+            padding: 18px 16px;
+        }
+
+        .toc__head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--color-text-primary);
+        }
+
+        .toc__head::before {
+            content: "";
+            width: 4px;
+            height: 14px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .toc__list {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - var(--topbar-h) - 130px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background: rgba(33, 165, 227, .22);
+            border-radius: 2px;
+        }
+
+        .toc__link {
+            display: block;
+            padding: 7px 0 7px 12px;
+            border-left: 2px solid var(--color-border);
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: var(--color-text-secondary);
+            transition: color .18s ease, border-color .18s ease, padding-left .18s ease;
+        }
+
+        .toc__link:hover {
+            color: var(--color-primary);
+            border-left-color: var(--color-blue-light);
+            padding-left: 15px;
+        }
+
+        .toc__link.is-active {
+            color: var(--color-primary);
+            font-weight: 700;
+            border-left-color: var(--color-primary);
+        }
+
+        .toc__link--sub {
+            font-size: 12px;
+        }
+
+        /* ============ 页脚 ============ */
+        .footer {
+            margin-top: 42px;
+            padding-top: 22px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .footer__brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer__mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .footer__mark::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer__links a {
+            transition: color .2s ease;
+        }
+
+        .footer__links a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============ 回到顶部 ============ */
+        .to-top {
+            position: fixed;
+            right: 22px;
+            bottom: 26px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: var(--color-primary);
+            box-shadow: 0 6px 20px rgba(18, 138, 250, .35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity .25s ease, transform .3s cubic-bezier(.22, .61, .36, 1),
+                visibility .3s ease, background .18s ease;
+        }
+
+        .to-top.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .to-top:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .to-top:active {
+            transform: translateY(0) scale(.92);
+        }
+
+        /* 目录按钮 */
+        .toc-toggle {
+            position: fixed;
+            right: 22px;
+            bottom: 80px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: var(--color-primary);
+            box-shadow: 0 6px 20px rgba(18, 138, 250, .35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity .25s ease, transform .3s cubic-bezier(.22, .61, .36, 1),
+                visibility .3s ease, background .18s ease;
+        }
+
+        .toc-toggle.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .toc-toggle:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .toc-toggle:active {
+            transform: translateY(0) scale(.92);
+        }
+
+        /* PC 端折叠目录 */
+        .article-layout.toc-collapsed {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .article-layout.toc-collapsed .toc {
+            display: none;
+        }
+
+        @media (max-width: 980px) {
+            .toc {
+                position: fixed;
+                inset: 0;
+                z-index: 300;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(0, 0, 0, .45);
+                margin: 0;
+            }
+
+            .toc.is-open {
+                display: flex;
+            }
+
+            .toc__card {
+                width: min(92vw, 420px);
+                max-height: 80vh;
+                overflow-y: auto;
+                margin: 0;
+            }
+
+            .toc__list {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                gap: 0;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .toc__link {
+                padding: 8px 0;
+                border-left: 2px solid var(--color-border);
+                border-radius: 0;
+                background: transparent;
+                white-space: normal;
+            }
+
+            .toc__link.is-active {
+                color: var(--color-primary);
+                background: transparent;
+                border-left-color: var(--color-primary);
+            }
+
+            .toc__link--sub {
+                display: block;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .toc-toggle {
+                right: 14px;
+                bottom: 66px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* ============ Toast ============ */
+        .toast {
+            position: fixed;
+            left: 50%;
+            top: calc(var(--topbar-h) + 16px);
+            z-index: 99999;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            max-width: min(86vw, 360px);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card-hover);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            line-height: 1.5;
+            text-align: center;
+            word-break: break-word;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -10px);
+            transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+                transform .25s cubic-bezier(.22, .61, .36, 1);
+            white-space: pre-line;
+        }
+
+        .toast::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
+        }
+
+        .toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        /* ============ 悬停提示框 ============ */
+        .hover-hint {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dashed currentColor;
+            transition: border-color .2s ease;
+            white-space: nowrap;
+        }
+
+        .hover-hint:hover {
+            border-bottom-style: solid;
+        }
+
+        .hover-hint__tooltip {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            min-width: 200px;
+            max-width: 300px;
+            width: max-content;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+            border: 1px solid var(--color-border);
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.65;
+            color: var(--color-text-body);
+            text-align: left;
+            white-space: normal;
+            word-break: break-word;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(6px);
+            transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+                transform .25s cubic-bezier(.22, .61, .36, 1), visibility .25s ease;
+            z-index: 999999;
+        }
+
+        .hover-hint__tooltip.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .hover-hint__tooltip.is-below {
+            transform: translateY(-6px);
+        }
+
+        .hover-hint__tooltip.is-below.is-visible {
+            transform: translateY(0);
+        }
+
+        .hover-hint__tooltip::after,
+        .hover-hint__tooltip::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: solid transparent;
+            pointer-events: none;
+        }
+
+        .hover-hint__tooltip::before {
+            border-width: 8px;
+            border-top-color: var(--color-border);
+            margin-top: 1px;
+        }
+
+        .hover-hint__tooltip::after {
+            border-width: 7px;
+            border-top-color: #fff;
+        }
+
+        .hover-hint__tooltip.is-below::before,
+        .hover-hint__tooltip.is-below::after {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+        }
+
+        .hover-hint__tooltip.is-below::before {
+            border-top-color: transparent;
+            border-bottom-color: var(--color-border);
+            margin-bottom: 1px;
+        }
+
+        .hover-hint__tooltip.is-below::after {
+            border-top-color: transparent;
+            border-bottom-color: #fff;
+        }
+
+        .hover-hint__tooltip .hint-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 6px;
+            letter-spacing: .2px;
+        }
+
+        .hover-hint__tooltip .hint-title::before {
+            content: "";
+            width: 3px;
+            height: 14px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+            flex: 0 0 auto;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 980px) {
+            .article-layout {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0;
+            }
+
+            /* 让 main 和 article 不生成盒子，使其子元素成为 grid 项 */
+            main,
+            article {
+                display: contents;
+            }
+
+            .article-head {
+                order: 1;
+            }
+
+            .article-body {
+                order: 3;
+            }
+
+            .footer {
+                order: 4;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar {
+                padding: 0 12px;
+                gap: 10px;
+            }
+
+            .topbar__crumb {
+                display: none;
+            }
+
+            .wrap {
+                padding: calc(var(--topbar-h) + 18px) 12px 48px;
+            }
+
+            .article-head__eyebrow {
+                letter-spacing: .18em;
+                margin-bottom: 14px;
+            }
+
+            .article-head__eyebrow::before {
+                width: 22px;
+            }
+
+            .article-head__desc {
+                font-size: 13px;
+            }
+
+            .article-body {
+                padding: 20px 18px 24px;
+                font-size: 14.5px;
+                line-height: 1.88;
+            }
+
+            .article-body h2 {
+                margin: 32px 0 14px;
+                font-size: 19px;
+            }
+
+            .article-body h3 {
+                font-size: 15px;
+            }
+
+            .article-body h4 {
+                font-size: 14px;
+            }
+
+            .article-body h5 {
+                font-size: 13.5px;
+            }
+
+            .article-body h6 {
+                font-size: 13px;
+            }
+
+            .code-block pre {
+                font-size: 12px;
+                padding: 14px 14px 16px;
+            }
+
+            .post-nav {
+                grid-template-columns: 1fr;
+            }
+
+            .post-nav__item--next {
+                text-align: left;
+                align-items: flex-start;
+            }
+
+            .post-nav__item--next .post-nav__k {
+                flex-direction: row;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .to-top {
+                right: 14px;
+                bottom: 18px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .hover-hint__tooltip {
+                min-width: 170px;
+                max-width: 240px;
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .topbar__avatar {
+                width: 65px;
+                height: 100%;
+                min-width: 34px;
+                border-radius: 50%;
+            }
+
+            .topbar__avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+
+        /* ============ 超窄屏：隐藏分享按钮 + 缩小字体 ============ */
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 10px;
+                gap: 8px;
+            }
+
+            /* 隐藏“复制本页链接”按钮 */
+            #btn-share {
+                display: none;
+            }
+
+            /* 头像与图标按钮同步缩小，避免顶栏被撑满 */
+            .topbar__avatar {
+                width: 40px;
+                height: 100%;
+                min-width: 30px;
+                flex-shrink: 0;
+            }
+
+            .topbar__avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .icon-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* ============ 横屏矮屏：避免顶栏高度不足 ============ */
+        @media (max-width: 900px) and (max-height: 480px) {
+            .topbar__avatar {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ============ 自定义鼠标指针：仅桌面 / 精确指针设备 ============ */
+        @media (hover: hover) and (pointer: fine) {
+
+            html,
+            body {
+                cursor: url('/src/cursors/normal.cur'), auto;
+            }
+
+            a,
+            button,
+            .btn,
+            .icon-btn,
+            .chip,
+            .toc__link,
+            .post-nav__item,
+            .code-block__copy,
+            [role="button"] {
+                cursor: url('/src/cursors/link.cur'), pointer;
+            }
+
+            .hover-hint,
+            .article-body abbr[title] {
+                cursor: url('/src/cursors/help.cur'), help;
+            }
+
+            input,
+            textarea,
+            [contenteditable="true"] {
+                cursor: auto;
+            }
+        }
+
+        /* ============ 目录：标题层级逐级缩进 ============ */
+        .toc__link--h1 {
+            padding-left: 12px;
+        }
+
+        .toc__link--h2 {
+            padding-left: 24px;
+        }
+
+        .toc__link--h3 {
+            padding-left: 36px;
+        }
+
+        .toc__link--h4 {
+            padding-left: 48px;
+            font-size: 11.8px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h5 {
+            padding-left: 60px;
+            font-size: 11.5px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h6 {
+            padding-left: 72px;
+            font-size: 11.2px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h1:hover {
+            padding-left: 15px;
+        }
+
+        .toc__link--h2:hover {
+            padding-left: 27px;
+        }
+
+        .toc__link--h3:hover {
+            padding-left: 39px;
+        }
+
+        .toc__link--h4:hover {
+            padding-left: 51px;
+        }
+
+        .toc__link--h5:hover {
+            padding-left: 63px;
+        }
+
+        .toc__link--h6:hover {
+            padding-left: 75px;
+        }
+
+        /* ============ 扩展 Markdown/HTML 语法样式 ============ */
+
+        /* 下划线 / 插入下划线 */
+        .article-body u,
+        .article-body ins {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: var(--color-primary);
+        }
+
+        /* 高亮 */
+        .article-body mark {
+            padding: 0 4px;
+            border-radius: 3px;
+            background: var(--color-blue-light);
+            /* 保留黄色高亮背景 */
+        }
+
+        /* 上标 / 下标 */
+        .article-body sub,
+        .article-body sup {
+            font-size: 0.75em;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+        }
+
+        .article-body sup {
+            top: -0.5em;
+        }
+
+        .article-body sub {
+            bottom: -0.25em;
+        }
+
+        /* 小号文字 */
+        .article-body small {
+            font-size: 0.85em;
+            color: var(--color-text-secondary);
+        }
+
+        /* 缩写 / 引用作品名 */
+        .article-body abbr[title] {
+            text-decoration: none;
+            border-bottom: 1px dashed var(--color-text-secondary);
+        }
+
+        .article-body cite {
+            font-style: italic;
+            color: var(--color-text-secondary);
+        }
+
+        /* 键盘按键 */
+        .article-body kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.82em;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            border: 1px solid var(--color-border-strong);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 1px 0 var(--color-border-strong), 0 2px 0 rgba(0, 0, 0, 0.05);
+            margin: 0 2px;
+        }
+
+        /* 删除线 */
+        .article-body del {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--color-text-disabled);
+        }
+
+        /* 嵌套引用样式优化 */
+        .article-body blockquote blockquote {
+            margin: 12px 0 12px 8px;
+            padding: 8px 14px 8px 16px;
+            background: rgba(33, 165, 227, .03);
+            /* 内层背景更淡 */
+            border-left: 2px solid var(--color-blue-light);
+            /* 内层边框变细 */
+        }
+
+        /* 隐藏内层引用的装饰性大引号和渐变条，保持画面干净 */
+        .article-body blockquote blockquote::after {
+            display: none;
+        }
+
+        .article-body blockquote blockquote::before {
+            top: 8px;
+            bottom: 8px;
+            background: var(--color-blue-light);
+        }
+
+        /* 三级嵌套引用可以进一步弱化 */
+        .article-body blockquote blockquote blockquote {
+            background: rgba(33, 165, 227, .01);
+            border-left-color: var(--color-border-strong);
+        }
+
+        /* 提示框图标 */
+        .callout__icon {
+            flex: 0 0 auto;
+            margin-top: -1px;
+            /* 微调垂直对齐 */
+        }
+
+        /* ============ 任务列表 ============ */
+        .article-body li.task-list-item {
+            padding-left: 20px;
+            /* 和普通 li 保持一致 */
+            list-style: none;
+        }
+
+        /* 去掉 ul>li 默认的菱形前缀（复选框自己就充当标记了） */
+        .article-body ul>li.task-list-item::before {
+            display: none;
+        }
+
+        .article-body .task-checkbox {
+            width: 14px;
+            height: 14px;
+            margin: 0 7px 0 0;
+            vertical-align: -2px;
+            accent-color: var(--color-primary);
+            pointer-events: none;
+            /* disabled 之外的额外保险 */
+            cursor: default;
+        }
+
+        /* 嵌套列表稍微收一点，视觉上更紧凑 */
+        .article-body li.task-list-item>ul,
+        .article-body li.task-list-item>ol {
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* ============ 图片 ============ */
+        .article-body img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 22px auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-soft);
+            box-shadow: var(--shadow-card);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        /* 图片作为链接时：去掉下划线、hover 时轻微上浮 */
+        .article-body a.img-link {
+            display: block;
+            max-width: 100%;
+            border-bottom: none;
+            font-weight: 400;
+            color: inherit;
+        }
+
+        .article-body a.img-link:hover {
+            border-bottom: none;
+        }
+
+        .article-body a.img-link:hover img {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        /* ---------- 脚注 ---------- */
+        .footnote-ref a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--accent, #2563eb);
+        }
+
+        .footnote-ref a:hover {
+            text-decoration: underline;
+        }
+
+        .footnotes {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line, #e5e7eb);
+            font-size: .9em;
+            color: var(--muted, #6b7280);
+        }
+
+        .footnotes hr {
+            display: none;
+        }
+
+        /* 上面已经有 border-top，隐藏默认分隔线 */
+        .footnotes ol {
+            padding-left: 1.4em;
+            margin: 0;
+        }
+
+        /* 在 CSS 中让 li 相对定位 */
+        .footnotes li {
+            position: relative;
+            padding-right: 20px;
+            /* 留出空间给返回键 */
+        }
+
+        /* 让返回键绝对定位在右侧 */
+        .footnote-backref {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            /* 或者 top: 0 */
+            text-decoration: none;
+            opacity: 0.6;
+        }
+
+        .footnote-backref:hover {
+            opacity: 1;
+        }
+
+        /* ============ 公式 ============ */
+        .math-inline {
+            white-space: nowrap;
+        }
+
+        .math-block {
+            margin: 22px 0;
+            padding: 4px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            text-align: center;
+        }
+
+        .math-block::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .math-block::-webkit-scrollbar-thumb {
+            background: rgba(33, 165, 227, .22);
+            border-radius: 3px;
+        }
+
+        /* ============ Mermaid 图表 ============ */
+        .mermaid-wrap {
+            margin: 24px 0;
+            padding: 20px 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-white);
+            box-shadow: var(--shadow-card);
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        /* 未渲染时展示源码（JS 被禁用 / CDN 拉取失败时的兜底） */
+        .mermaid-wrap pre.mermaid {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.75;
+            color: var(--color-text-secondary);
+            text-align: left;
+            white-space: pre;
+        }
+
+        /* 渲染完成后 mermaid 会写入 data-processed="true" 并替换为 <svg> */
+        .mermaid-wrap pre.mermaid[data-processed="true"] {
+            white-space: normal;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        .mermaid-wrap svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+        }
+
+        /* 图表里的文字不要被正文的 li / p 规则带偏 */
+        .mermaid-wrap .nodeLabel,
+        .mermaid-wrap .edgeLabel,
+        .mermaid-wrap .messageText,
+        .mermaid-wrap .actor {
+            line-height: 1.4;
+        }
+
+        @media (max-width: 640px) {
+            .mermaid-wrap {
+                margin: 18px 0;
+                padding: 14px 8px;
+            }
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============ 滚动条美化 ============ */
+        :root {
+            --scrollbar-size: 10px;
+            --scrollbar-track: transparent;
+            --scrollbar-thumb: rgba(33, 165, 227, .32);
+            --scrollbar-thumb-hover: rgba(33, 165, 227, .55);
+            --scrollbar-thumb-active: rgba(33, 165, 227, .75);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+
+        /* WebKit / Chromium / Safari / Edge */
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-size);
+            height: var(--scrollbar-size);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-thumb-hover);
+        }
+
+        ::-webkit-scrollbar-thumb:active {
+            background-color: var(--scrollbar-thumb-active);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* 深色代码块：用偏白的滚动条，避免蓝色在深色底上太跳 */
+        .code-block pre {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .22) transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, .32);
+        }
+
+        /* 右侧目录：细一点、轻一点 */
+        .toc__list {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(33, 165, 227, .28) transparent;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background-color: rgba(33, 165, 227, .28);
+            border-radius: 999px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(33, 165, 227, .5);
+        }
+
+        /* 如果你以后真的做了深色模式，可以顺手覆盖变量 */
+        :root[data-theme="dark"] {
+            --scrollbar-thumb: rgba(171, 215, 255, .3);
+            --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
+            --scrollbar-thumb-active: rgba(171, 215, 255, .7);
+        }
+
+        /* ============ h4 ~ h6 左侧标记 ============ */
+        .article-body h4,
+        .article-body h5,
+        .article-body h6 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 24px 0 8px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h4 {
+            font-size: 15px;
+        }
+
+        .article-body h5 {
+            font-size: 14px;
+        }
+
+        .article-body h6 {
+            font-size: 13.5px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 圆形小点，比 h3 的菱形更“轻”，层级递减 */
+        .article-body h4::before,
+        .article-body h5::before,
+        .article-body h6::before {
+            content: "";
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--color-blue-light);
+        }
+
+        .article-body h4::before {
+            width: 4px;
+            height: 4px;
+        }
+
+        .article-body h5::before {
+            width: 3.5px;
+            height: 3.5px;
+        }
+
+        .article-body h6::before {
+            width: 3px;
+            height: 3px;
+            background: var(--color-border-strong);
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+        <picture class="topbar__avatar">
+            <source media="(max-width: 640px)" srcset="/src/ttwe77.avif" type="image/avif">
+            <source srcset="/src/bloglogo.avif" type="image/avif">
+            <img src="/src/bloglogo.avif" alt="Blog logo">
+        </picture>
+        <div class="topbar__title">骗过3个Ai的代码</div>
+
+        <div class="topbar__spacer"></div>
+
+        <button class="icon-btn" type="button" id="btn-share" aria-label="复制本页链接">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+            </svg>
+        </button>
+
+        <a class="icon-btn" href="/" aria-label="返回首页" title="返回首页">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M3 10.5L12 3l9 7.5"></path>
+                <path d="M5 9.5V21h14V9.5"></path>
+            </svg>
+        </a>
+    </header>
+
+<div class="read-progress" aria-hidden="true">
+        <div class="read-progress__bar" id="read-bar"></div>
+    </div>
+
+<div class="wrap">
+    <div class="article-layout">
+
+        <main>
+            <article>
+
+            <header class="article-head">
+                                    <h1 class="article-head__title">骗过3个Ai的代码</h1>
+
+                                    <p class="article-head__desc">
+                                        通过一段混用 Python 与 C/Java 风格的代码，展示 Python 中分号、大括号被解析为集合等冷门语法，并记录三个 AI 的识别与实测过程。
+                                    </p>
+
+                                    <div class="article-head__meta">
+                    <span>2026-10-20</span>
+                    <span>编程</span>
+                    <span>约 6 分钟</span>
+                    <span>ttwe77</span>
+                </div>
+
+                                    <div class="article-head__tags">
+                    <span class="chip">Python</span>
+                    <span class="chip">AI</span>
+                    <span class="chip">整活</span>
+                    <span class="chip">语法</span>
+                    <span class="chip">编程</span>
+                </div>
+                                </header>
+
+            <div class="card article-body" id="article-body">
+
+            <h1 id="骗过3个ai的代码">骗过3个Ai的代码</h1>
+
+            <h2 id="开头">开头</h2>
+
+            <p>最近我开始学习 <span class="hover-hint">Python<span class="hover-hint__tooltip"><span class="hint-title">Python（编程语言）</span>一种解释型、动态类型的高级编程语言。它用缩进表示代码块，语法相对简洁。</span></span> 然后发现有点“水土不服”</p>
+
+            <blockquote>
+            <p><em>你这个Python<span class="hover-hint">大括号<span class="hover-hint__tooltip"><span class="hint-title">大括号</span>在 C/Java 中常表示代码块；在 Python 中通常表示字典或集合，不表示代码块。本文正是利用了这个特点。</span></span>呢？句末不用写<span class="hover-hint">分号<span class="hover-hint__tooltip"><span class="hint-title">分号</span>在 Python 中可以作为“语句分隔符”，让一行写多条简单语句；它不是句末必须写的符号。放在 # 后面则会被当成注释内容。</span></span>的吗？？</em></p>
+            </blockquote>
+
+            <p>后来了解到Python用的<span class="hover-hint">缩进<span class="hover-hint__tooltip"><span class="hint-title">缩进</span>行首的空格或制表符。Python 用缩进来表示代码块的层级；缩进错了可能导致报错或逻辑改变。</span></span>来代替大括号。之前Java、C++写得多了有点不习惯。</p>
+
+            <blockquote>
+            <p><em>emmmm我就想如果我硬要上大括号和分号呢？</em></p>
+            </blockquote>
+
+            <p>于是我写了第一版代码来适应一下：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="c1">#斐波那契数列</span>
+<span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+
+<span class="k">while</span> <span class="n">a</span><span class="o">&lt;</span><span class="mi">150</span><span class="p">:</span><span class="c1">#{</span>
+    <span class="c1">#1+1=2,3+5=8 b=5,a=2</span>
+    <span class="n">c</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+
+    <span class="c1">#1+2=3,5+8=13 c=8</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">b</span><span class="p">;</span>
+    <span class="n">b</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="n">c</span><span class="p">;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+
+    <span class="c1">#2+3=5</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">b</span><span class="p">;</span>
+    <span class="n">b</span><span class="o">=</span><span class="n">c</span><span class="o">+</span><span class="n">b</span><span class="p">;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+<span class="c1">#}</span>
+</code></pre>
+            </div>
+
+            <p>第一次写的，很乱。我用“#”把大括号<span class="hover-hint">注释<span class="hover-hint__tooltip"><span class="hint-title">注释</span>从 # 到本行末尾的内容会被 Python 忽略，用来写说明，或临时“注释掉”一段代码。</span></span>掉，这样才有点适应。</p>
+
+            <p>然后我开始思考能不能把“#”去掉，于是我去B站上找到了一个很新奇的写法：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="k">elif</span> <span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=3&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="p">:{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;3&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+            </div>
+
+            <p>啊把条件用小括号括起来，然后就能用大括号了。嘿嘿嘿这样写还挺好玩的。</p>
+
+            <p>既然都写成这样了，那就贯彻到底咯~</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="nb">int</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+<span class="k">elif</span> <span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="p">:{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+</code></pre>
+            </div>
+
+            <p>OK啊现在我这个代码是3不像：既不像Python、又不像Java、又不像C++。</p>
+
+            <p>我本来想在print()后面添加分号的，但是这样做就会报错。</p>
+
+            <blockquote>
+            <p><em><span class="hover-hint">代码一定要能跑<span class="hover-hint__tooltip"><span class="hint-title">XX一定要XX（梗）</span>“XX一定要XX”这个梗，本质上是网络“<strong>将军梗</strong>”的核心句式，主要用来<strong>调侃或讽刺将理所当然的常识，包装成“重要指示”来说的“废话文学”</strong>。<br>它起源于中文互联网对朝鲜相关宣传视频的二次创作和解构。在这些视频里，“将军”经常在视察各行各业时作出“指导”，似乎对任何事情都了如指掌。网友们于是抓住这种“<strong>什么都懂、什么都要指导</strong>”的观感，创造了这个句式来调侃：仿佛“将军”对着任何事物，都能发表一番看似重要、实则无比正确的“指示”。<br>这个梗的用法非常简单，精髓在于<strong>用极其严肃的语气，说一句绝对正确但毫无信息量的废话</strong>。</span></span></em></p>
+            </blockquote>
+
+            <p>好那就这样了。然后我把这些统统发给Ai让他们辨别一下这是什么语言。</p>
+
+            <h3 id="实测记录">实测记录</h3>
+
+            <h4 id="deepseek">DeepSeek</h4>
+
+            <p>先来看看蓝色大肥鱼能不能辨认出来，结果它说我给的代码<strong>不属于任何主流的标准编程语言</strong>，更像是为了教学目的的<strong><span class="hover-hint">伪代码<span class="hover-hint__tooltip"><span class="hint-title">伪代码</span>用类似编程语言的方式描述逻辑，但不保证能真正运行。文中 AI 最初误以为这段代码是伪代码。</span></span></strong>。</p>
+
+            <p>然后我就截了个运行成功的图并挑衅地问它：<strong>那你给我解释一下为什么可以运行</strong></p>
+
+            <p>DeepSeek在思考14秒后直接滑跪，说：</p>
+
+            <blockquote>
+            <p>“非常抱歉，我之前的判断确实不够严谨。看到这张运行成功的截图……<strong>我必须承认：这是一段完全合法的 Python 代码（利用了 Python <span class="hover-hint">语法<span class="hover-hint__tooltip"><span class="hint-title">语法规则</span>一种编程语言允许的写法和结构。不符合规则时，解释器会报错。</span></span>的冷门特性/漏洞）</strong>。” “它之所以能运行，是因为 Python <span class="hover-hint">解释器<span class="hover-hint__tooltip"><span class="hint-title">解释器</span>负责读取并执行 Python 代码的程序。文中说“用 Python 跑一下”，就是让解释器执行代码。</span></span>并没有把 <code>{}</code> 当作像 C/Java 那样的<span class="hover-hint">代码块<span class="hover-hint__tooltip"><span class="hint-title">代码块</span>逻辑上归为一组、一起执行的语句。C、Java 常用 {} 表示代码块，Python 用缩进表示。</span></span>，而是把它当成了“<span class="hover-hint">集合<span class="hover-hint__tooltip"><span class="hint-title">集合(Set)</span>一种无序、元素不重复的容器，通常写成 {1, 2, 3}。空集合要写 set()，因为 {} 表示空字典。</span></span> (Set)”或“<span class="hover-hint">字典<span class="hover-hint__tooltip"><span class="hint-title">字典（dict）</span>一种“键值对”容器，写成 {"name": "Tom", "age": 18}。空字典写作 {}。</span></span> (Dict)”<span class="hover-hint">字面量<span class="hover-hint__tooltip"><span class="hint-title">字面量</span>直接写在代码里的值，例如数字 5、字符串 "&gt;3"、集合 {1, 2}、字典 {"a": 1}。</span></span>。”</p>
+            </blockquote>
+
+            <h4 id="豆包">豆包</h4>
+
+            <p>好的来看看下一位选手——<span class="hover-hint">逗包<span class="hover-hint__tooltip"><span class="hint-title">豆包（梗）</span>态度满分、能力随缘、道歉超快、下次还敢</span></span>。（豆包 2.1 Lite 中等级的思考强度）</p>
+
+            <p>我还是一样把代码发给豆包问它这是什么语言。它说这<strong>不是任何一种真实存在的编程语言</strong>，而是一段把 Python 和 C/Java 语法硬拼在一起的<span class="hover-hint">“缝合怪”代码<span class="hover-hint__tooltip"><span class="hint-title">“缝合怪”代码</span>非正式说法，指混用多种编程语言风格的代码。本文代码就是 Python 中混入 C/Java 风格符号的例子。</span></span>。</p>
+
+            <p>因为我开的是豆包工作模式嘛，这个模式可以执行命令，于是我说：<strong>你用 python 跑一下看看有没有报错</strong></p>
+
+            <p>豆包果然调用了云端环境去跑了我的代码，过了一会豆包的<span class="hover-hint">思维链<span class="hover-hint__tooltip"><span class="hint-title">AI思维链</span>AI 展示或记录的推理过程。文中指 AI 在尝试判断、运行、验证代码时的思考记录。</span></span>：</p>
+
+            <blockquote>
+            <p>居然<strong>跑通了，没有报错</strong>，输出 <code>&gt;3</code>，<span class="hover-hint">退出码<span class="hover-hint__tooltip"><span class="hint-title">退出码</span>程序结束后返回给系统的一个状态码。通常 0 表示成功，非 0 表示出现某种错误。</span></span> 0。</p>
+
+            <p>我刚才判断它会报 <span class="hover-hint">SyntaxError<span class="hover-hint__tooltip"><span class="hint-title">SyntaxError</span>Python 无法理解代码结构时抛出的错误，例如括号不配对、关键字位置不对等。</span></span> 是错的 ——Python 真的接受了这段代码。让我验证一下它到底是怎么被解析的，再测一下 <code>elif</code> 和 <code>else</code> 分支是不是也能正常走。</p>
+            </blockquote>
+
+            <blockquote>
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">shell</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="nb">cd</span><span class="w"> </span>/home/user/Doubao/chats/38448306594517762<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== 测试1: a=3 走 elif ===&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">a = 3</span>
+<span class="s2">if (a&gt;3):{</span>
+<span class="s2">    print(&#39;&gt;3&#39;)#;</span>
+<span class="s2">}</span>
+<span class="s2">elif (a==3):{</span>
+<span class="s2">    print(&#39;=3&#39;)#;</span>
+<span class="s2">}</span>
+<span class="s2">else:{</span>
+<span class="s2">    print(&#39;&lt;3&#39;)#;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== 测试2: a=2 走 else ===&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">a = 2</span>
+<span class="s2">if (a&gt;3):{</span>
+<span class="s2">    print(&#39;&gt;3&#39;)#;</span>
+<span class="s2">}</span>
+<span class="s2">elif (a==3):{</span>
+<span class="s2">    print(&#39;=3&#39;)#;</span>
+<span class="s2">}</span>
+<span class="s2">else:{</span>
+<span class="s2">    print(&#39;&lt;3&#39;)#;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== 测试3: 确认大括号被当成 set 字面量 ===&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">x = {print(&#39;hi&#39;)}</span>
+<span class="s2">print(type(x), x)</span>
+<span class="s2">&quot;</span>
+
+<span class="o">===</span><span class="w"> </span>测试1:<span class="w"> </span><span class="nv">a</span><span class="o">=</span><span class="m">3</span><span class="w"> </span>走<span class="w"> </span><span class="k">elif</span><span class="w"> </span><span class="o">===</span>
+<span class="o">=</span><span class="nv">3</span>
+<span class="o">===</span><span class="w"> </span>测试2:<span class="w"> </span><span class="nv">a</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>走<span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="o">===</span>
+&lt;<span class="nv">3</span>
+<span class="o">===</span><span class="w"> </span>测试3:<span class="w"> </span>确认大括号被当成<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">字面量</span><span class="w"> </span><span class="o">===</span>
+hi
+&lt;class<span class="w"> </span><span class="s1">&#39;set&#39;</span>&gt;<span class="w"> </span><span class="o">{</span>None<span class="o">}</span>
+</code></pre>
+            </div>
+            </blockquote>
+
+            <blockquote>
+            <p>实测结果：<strong>完全能跑，三个分支都正常工作。</strong></p>
+            </blockquote>
+
+            <p>哈哈哈看来理论再多，都不如让代码跑起来得实在。豆包这波光速打脸。</p>
+
+            <h4 id="某西方ai">某西方AI</h4>
+
+            <p>这个AI的名字在这里不方便说，我描述一下：</p>
+
+            <blockquote>
+            <p><em>免费版有知识截止，Plus能切模型、用插件、画图、读文件，后来还加了记忆和画布的那个对话产品。logo长得像<strong>鹦鹉螺壳</strong>（我的世界）</em></p>
+            </blockquote>
+
+            <p>好来看看西方Ai的实力。我依旧复制粘贴然后发送。它说：</p>
+
+            <blockquote>
+            <p>这段代码看起来像是 <strong>C 语言和 Python 的混血产物</strong>，但目前看不出它属于任何一种主流编程语言。它大概想同时享受两种语言的优点，<strong>最后把两种语言的语法规则给惹毛了。</strong></p>
+            </blockquote>
+
+            <p>我啊，微微一笑。给它发了相同的话：“<strong>你用python跑一下看看有没有报错</strong>”。</p>
+
+            <p>不到一分钟，它也败下阵来，说：</p>
+
+            <blockquote>
+            <p>我用 Python 实际运行了你给的代码，结果有点出乎意料：<strong>没有报错，正常输出了 <code>&gt;3</code></strong>。</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>&gt;3
+</code></pre>
+            </div>
+
+            <p>更离谱的是，它居然真的符合 Python 的语法规则。</p>
+            </blockquote>
+
+            <h2 id="解释">解释</h2>
+
+            <p>众所周知把知识教给别人学习最快，所以我尝试和蓝色大肥鱼一起跟你们解释一下。</p>
+
+            <p>先看代码：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="nb">int</span><span class="p">;</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+<span class="k">elif</span> <span class="p">(</span><span class="n">a</span><span class="o">==</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="p">:{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+</code></pre>
+            </div>
+
+            <h2 id="第一行-int">第一行 int</h2>
+
+            <p>首先来看第一行，这个<code>int; a = 5;</code>中的分号表示的是<strong>分割符</strong>，就相当于：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="nb">int</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mi">5</span>
+</code></pre>
+            </div>
+
+            <div class="callout callout--note">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> NOTE</div>
+                <div class="callout__body">
+            <p><strong>Python 看到 <code>int</code> 会去“查这个名字是谁”</strong>、<strong>查完算出一个结果</strong>、<strong>但脚本不会自动把结果打印出来</strong>。</p>
+                </div>
+            </div>
+
+            <p>单独执行 <code>int</code> 是这样的：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">int</span>
+<span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="err">&#39;</span><span class="nc">int</span><span class="s1">&#39;&gt;</span>
+</code></pre>
+            </div>
+
+            <p>简单的说就是Python在执行这个指令的时候，直接把返回的内容扔掉了（不是<code>print</code>或<span class="hover-hint">赋值<span class="hover-hint__tooltip"><span class="hint-title">赋值</span>把某个值绑定给变量，例如 a = 5 表示让变量 a 指向整数 5。</span></span>）。</p>
+
+            <p>然后就是</p>
+
+            <h2 id="第二行-if">第二行 if</h2>
+
+            <p>灵感来源： <a href="https://www.bilibili.com/video/BV1a84y1t7c5/" target="_blank" rel="noopener noreferrer">python迷惑行为：我有了花括号 { }</a></p>
+
+            <p>来看第二行：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">):{</span>
+</code></pre>
+            </div>
+
+            <p>这里的小括号就只是把 <code>a&gt;3</code> 包起来而已，没有特殊含义。</p>
+
+            <p>而这里的大括号：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">):{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+<span class="p">}</span>
+</code></pre>
+            </div>
+
+            <p>是将代码当成了集合，就像：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="p">{</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span> <span class="p">}</span>
+</code></pre>
+            </div>
+
+            <p>也可以加入更多内容：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="p">{</span> <span class="n">b</span><span class="o">&lt;</span><span class="n">span</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;hover-hint&quot;</span><span class="o">&gt;:=&lt;</span><span class="n">span</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;hover-hint__tooltip&quot;</span><span class="o">&gt;&lt;</span><span class="n">span</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;hint-title&quot;</span><span class="o">&gt;</span><span class="n">海象运算符</span> <span class="o">:=&lt;/</span><span class="n">span</span><span class="o">&gt;</span><span class="n">Python</span> <span class="mf">3.8</span> <span class="n">引入的</span><span class="err">“</span><span class="n">赋值表达式</span><span class="err">”，</span><span class="n">可以在表达式内部给变量赋值并返回该值</span><span class="err">，</span><span class="n">例如</span> <span class="n">b</span> <span class="o">:=</span> <span class="mi">5</span><span class="err">。</span><span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;&lt;/</span><span class="n">span</span><span class="o">&gt;</span><span class="mi">5</span> <span class="p">,</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span> <span class="p">,</span> <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="p">}</span>
+</code></pre>
+            </div>
+
+            <p>执行返回：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="o">&gt;&gt;&gt;</span> <span class="p">{</span> <span class="n">b</span><span class="o">:=</span><span class="mi">5</span> <span class="p">,</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span> <span class="p">,</span> <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="p">}</span>
+<span class="o">&gt;</span><span class="mi">3</span>
+<span class="mi">5</span>
+<span class="p">{</span><span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">}</span>
+</code></pre>
+            </div>
+
+            <div class="callout callout--note">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> NOTE</div>
+                <div class="callout__body">
+            <p>后者a=10要写成a:=10</p>
+
+            <p>赋值<span class="hover-hint">语句<span class="hover-hint__tooltip"><span class="hint-title">语句</span>执行某个动作的代码单位，例如赋值语句 a = 5、条件语句 if ...、函数调用 print(...)。</span></span>本身不能在集合内</p>
+
+            <p>​       ---<a href="https://space.bilibili.com/397069113" target="_blank" rel="noopener noreferrer">伊桑桑桑桑桑</a></p>
+                </div>
+            </div>
+
+            <h2 id="第三行">第三行 #;</h2>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;3&quot;</span><span class="p">)</span><span class="c1">#;</span>
+</code></pre>
+            </div>
+
+            <p>这里没啥好讲的。<code>#</code> 后面的内容是注释，会被Python忽略。</p>
+
+            <p>如前面的例子，也可以这么用：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="k">if</span> <span class="n">a</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span><span class="c1">#{</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;a=1&quot;</span><span class="p">)</span>
+<span class="c1">#}</span>
+</code></pre>
+            </div>
+
+            <h2 id="结语">结语</h2>
+
+            <p>哈哈哈这3个AI好逗，我这“三不像”代码成功地把AI迷住了。</p>
+
+            <p>主要是喜欢看AI“滑跪”。看它们一本正经地说非主流，而正在跑起来又没有报错。</p>
+
+            <p>这种<strong>反差感</strong>，比代码本身还好玩。</p>
+
+            <p>代码不一定要永远正经。偶尔把它当玩具，试试“如果硬要这样写会怎样”，然后看解释器和 AI 一起露出问号脸，本身就是学习里很有意思的一部分。<strong>失败了是实验，跑通了是节目效果。</strong></p>
+
+            <p><strong>代码一定要能跑，快乐一定要分享。</strong></p>
+
+            <div class="article-foot">
+                <span class="article-foot__license">
+                    本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
+                </span>
+                <span>最后更新于 2026-10-21</span>
+            </div>
+
+            </div>
+
+            </article>
+
+        <footer class="footer">
+                            <div class="footer__brand">
+                                <span class="footer__mark">七七的折腾笔记</span>
+                                <span>© 2026 ttwe77</span>
+                                <a href="https://beian.miit.gov.cn/" target="_blank"
+                                    rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+                            </div>
+                            <div class="footer__links">
+                                <a href="/">返回首页</a>
+                                <a href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
+                                <a href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
+                            </div>
+                        </footer>
+        </main>
+
+        <aside class="toc" aria-label="文章目录">
+                        <div class="card toc__card">
+                            <div class="toc__head">目录</div>
+                            <nav class="toc__list" id="toc-list">
+                                <a class="toc__link toc__link--h1" data-level="1" href="#骗过3个ai的代码">骗过3个Ai的代码</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#开头">开头</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#实测记录">实测记录</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#deepseek">DeepSeek</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#豆包">豆包</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#某西方ai">某西方AI</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#解释">解释</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第一行-int">第一行 int</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第二行-if">第二行 if</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第三行">第三行 #;</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#结语">结语</a>
+                            </nav>
+                        </div>
+                    </aside>
+
+    </div>
+</div>
+
+<button class="toc-toggle" id="toc-toggle" type="button" aria-label="目录" aria-expanded="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+    </button>
+
+<button class="to-top" id="to-top" type="button" aria-label="回到顶部">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+    </button>
+
+<script type="module">
+import { BAClickFX } from '/libs/ba-click-fx.js';
+        const fx = new BAClickFX();
+        fx.setCompositingReference({ hostCompositing: 'screen' });
+        fx.setThemeColor('#80c1ff');
+</script>
+
+<script>
+/* ============================================================
+           轻提示
+           ============================================================ */
+        function showToast(msg) {
+            var old = document.getElementById('__toast__');
+            if (old) old.remove();
+
+            var el = document.createElement('div');
+            el.id = '__toast__';
+            el.className = 'toast';
+            el.textContent = msg;
+            el.setAttribute('role', 'status');
+            el.setAttribute('aria-live', 'polite');
+            document.body.appendChild(el);
+
+            /* 关键：先提交初始态，再切可见态 */
+            void el.offsetWidth;
+            el.classList.add('is-visible');
+
+            setTimeout(function () {
+                el.classList.remove('is-visible');
+                setTimeout(function () { el.remove(); }, 320);
+            }, 1800);
+        }
+        window.showToast = showToast;
+</script>
+
+<script>
+/* ============================================================
+           阅读进度 / 目录高亮 / 回到顶部
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            var bar = document.getElementById('read-bar');
+            var toTop = document.getElementById('to-top');
+            var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc__link'));
+            var body = document.getElementById('article-body');
+            var tocToggle = document.getElementById('toc-toggle');
+            var tocTimer = null;
+            if (!body) return;
+
+            var headings = Array.prototype.slice.call(
+                body.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]')
+            );
+            var ticking = false;
+
+            /* 只保留指向真实标题的目录项 */
+            var validLinks = tocLinks.filter(function (a) {
+                var id = (a.getAttribute('href') || '').slice(1);
+                return id && document.getElementById(id);
+            });
+
+            function onScroll() {
+                var y = window.pageYOffset || document.documentElement.scrollTop;
+                var docH = document.documentElement.scrollHeight - window.innerHeight;
+                var pct = docH > 0 ? (y / docH) * 100 : 0;
+
+                if (bar) bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+                if (toTop) toTop.classList.toggle('is-visible', y > 420);
+                if (tocToggle) {
+                    if (y > 420 && !tocToggle.classList.contains('is-visible')) {
+                        clearTimeout(tocTimer);
+                        tocTimer = setTimeout(function () {
+                            tocToggle.classList.add('is-visible');
+                        }, 50);
+                    } else if (y <= 420 && tocToggle.classList.contains('is-visible')) {
+                        clearTimeout(tocTimer);
+                        tocTimer = setTimeout(function () {
+                            tocToggle.classList.remove('is-visible');
+                        }, 50);
+                    }
+                }
+
+                /* 目录高亮：取最后一个已滚过的标题 */
+                var activeId = null;
+                var offset = 160;
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].getBoundingClientRect().top <= offset) {
+                        activeId = headings[i].id;
+                    } else {
+                        break;
+                    }
+                }
+
+                validLinks.forEach(function (a) {
+                    a.classList.toggle('is-active', activeId && a.getAttribute('href') === '#' + activeId);
+                });
+
+                ticking = false;
+            }
+
+            function requestScroll() {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(onScroll);
+            }
+
+            window.addEventListener('scroll', requestScroll, { passive: true });
+            window.addEventListener('resize', requestScroll);
+            onScroll();
+
+            if (toTop) {
+                toTop.addEventListener('click', function () {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           代码块复制
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('[data-copy]') : null;
+                if (!btn) return;
+
+                var block = btn.closest('.code-block');
+                if (!block) return;
+
+                var code = block.querySelector('pre code');
+                if (!code) return;
+
+                var text = code.innerText || code.textContent || '';
+
+                function done() {
+                    var old = btn.innerHTML;
+                    btn.classList.add('is-done');
+                    btn.textContent = '已复制';
+                    setTimeout(function () {
+                        btn.classList.remove('is-done');
+                        btn.innerHTML = old;
+                    }, 1600);
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done).catch(function () {
+                        fallback(text, done);
+                    });
+                } else {
+                    fallback(text, done);
+                }
+            });
+
+            function fallback(text, done) {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    done();
+                } catch (err) {
+                    showToast('复制失败，请手动选中');
+                }
+                document.body.removeChild(ta);
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           分享：复制当前链接
+           ============================================================ */
+        (function () {
+            var btn = document.getElementById('btn-share');
+            if (!btn) return;
+
+            btn.addEventListener('click', function () {
+                var url = location.href;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url)
+                        .then(function () { showToast('链接已复制到剪贴板'); })
+                        .catch(function () { showToast(url); });
+                } else {
+                    showToast(url);
+                }
+            });
+        })();
+</script>
+
+<script>
+/* ============================================================
+           悬停提示框（事件委托）
+           ============================================================ */
+        (function () {
+            var active = null;
+            var activeHint = null;
+
+            function getTooltip(hint) {
+                if (!hint) return null;
+
+                var tooltip = hint.__tooltip;
+                if (tooltip && tooltip.parentNode) return tooltip;
+
+                tooltip = hint.querySelector('.hover-hint__tooltip');
+                if (!tooltip) return null;
+
+                hint.__tooltip = tooltip;
+                tooltip.__hint = hint;
+                document.body.appendChild(tooltip);
+                return tooltip;
+            }
+
+            function place(hint, tooltip) {
+                var pad = 8;
+                var gap = 10;
+
+                tooltip.style.left = '-9999px';
+                tooltip.style.top = '-9999px';
+
+                var r = hint.getBoundingClientRect();
+                var tw = tooltip.offsetWidth;
+                var th = tooltip.offsetHeight;
+
+                var cx = r.left + r.width / 2;
+                var left = cx - tw / 2;
+                if (left < pad) left = pad;
+                var maxLeft = window.innerWidth - tw - pad;
+                if (left > maxLeft) left = Math.max(pad, maxLeft);
+
+                var top = r.top - gap - th;
+                var below = false;
+                if (top < pad) {
+                    top = r.bottom + gap;
+                    below = true;
+                }
+
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = top + 'px';
+                tooltip.classList.toggle('is-below', below);
+            }
+
+            function show(hint) {
+                var tooltip = getTooltip(hint);
+                if (!tooltip) return;
+                if (active === tooltip) return;
+
+                if (active) active.classList.remove('is-visible');
+
+                active = tooltip;
+                activeHint = hint;
+
+                place(hint, tooltip);
+                requestAnimationFrame(function () {
+                    tooltip.classList.add('is-visible');
+                });
+            }
+
+            function hide(hint) {
+                var tooltip = hint
+                    ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
+                    : active;
+
+                if (!tooltip) return;
+                tooltip.classList.remove('is-visible');
+
+                if (active === tooltip) {
+                    active = null;
+                    activeHint = null;
+                }
+            }
+
+            document.addEventListener('mouseover', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                show(hint);
+            });
+
+            document.addEventListener('mouseout', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+
+                var related = e.relatedTarget;
+                if (related && hint.contains(related)) return;
+
+                hide(hint);
+            });
+
+            document.addEventListener('focusin', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                show(hint);
+            });
+
+            document.addEventListener('focusout', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                hide(hint);
+            });
+
+            window.addEventListener('scroll', function () {
+                if (active && activeHint) hide(activeHint);
+            }, true);
+
+            window.addEventListener('resize', function () {
+                if (active && activeHint) hide(activeHint);
+            });
+
+            document.addEventListener('touchstart', function () {
+                if (active && activeHint) hide(activeHint);
+            }, { passive: true });
+        })();
+</script>
+
+<script>
+(function () {
+            var btn = document.getElementById('toc-toggle');
+            var layout = document.querySelector('.article-layout');
+            var toc = document.querySelector('.toc');
+            if (!btn || !layout || !toc) return;
+
+            var mq = window.matchMedia('(max-width: 980px)');
+
+            function updateAria() {
+                var expanded = mq.matches
+                    ? toc.classList.contains('is-open')
+                    : !layout.classList.contains('toc-collapsed');
+                btn.setAttribute('aria-expanded', String(expanded));
+            }
+
+            btn.addEventListener('click', function () {
+                if (mq.matches) {
+                    toc.classList.toggle('is-open');
+                    document.body.style.overflow = toc.classList.contains('is-open') ? 'hidden' : '';
+                } else {
+                    layout.classList.toggle('toc-collapsed');
+                }
+                updateAria();
+            });
+
+            toc.addEventListener('click', function (e) {
+                if (!mq.matches) return;
+                var link = e.target.closest ? e.target.closest('.toc__link') : null;
+                if (e.target === toc || link) {
+                    toc.classList.remove('is-open');
+                    document.body.style.overflow = '';
+                    updateAria();
+                }
+            });
+
+            mq.addEventListener('change', function () {
+                toc.classList.remove('is-open');
+                layout.classList.remove('toc-collapsed');
+                document.body.style.overflow = '';
+                updateAria();
+            });
+
+            updateAria();
+        })();
+</script>
+
+</body>
+
+</html>
