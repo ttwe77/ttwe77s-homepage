@@ -1,0 +1,3360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#21a5e3">
+    <title>AI 锐评：我干活时喜欢听的歌 · 七七的折腾笔记</title>
+    <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
+    <meta name="description" content="用 AI 锐评网易云音乐“我喜欢的音乐”和哔哩哔哩音乐收藏夹，从歌单反推音乐偏好、情绪层次与私人精神世界，并附趣味评分和画像。">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="七七的折腾笔记">
+    <meta property="og:title" content="AI 锐评：我干活时喜欢听的歌">
+    <meta property="og:description" content="用 AI 锐评网易云音乐“我喜欢的音乐”和哔哩哔哩音乐收藏夹，从歌单反推音乐偏好、情绪层次与私人精神世界，并附趣味评分和画像。">
+    <meta property="og:locale" content="zh_CN">
+<style>
+/* ============ 设计令牌 ============ */
+        :root {
+            --color-primary: #21a5e3;
+            --color-primary-hover: #0E7AE0;
+            --color-primary-active: #0B6BC5;
+            --color-blue-light: #ABD7FF;
+            --color-periwinkle: #BEC0EC;
+            --color-orchid: #4454F8;
+
+            --color-bg-white: #FFFFFF;
+            --color-bg-light: #FAFAFA;
+            --color-bg-soft: #F5F5F5;
+            --color-border: #EDEDED;
+            --color-border-strong: #D4D4D4;
+
+            --color-text-primary: #1F1F1F;
+            --color-text-body: #404040;
+            --color-text-secondary: #737373;
+            --color-text-disabled: #A3A3A3;
+
+            --color-danger: #F21B28;
+            --color-success: #169B5B;
+            --color-warning: #FFD84D;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, .06);
+            --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
+            --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
+
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+            --topbar-h: 56px;
+            --btn-skew: -10deg;
+        }
+
+        /* ============ 基础 ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--topbar-h) + 16px);
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg-light);
+            color: var(--color-text-body);
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overscroll-behavior-y: none;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p,
+        figure {
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        /* 背景氛围 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 10% 4%, rgba(18, 138, 250, .12), transparent 42%),
+                radial-gradient(circle at 92% -4%, rgba(171, 215, 255, .42), transparent 46%),
+                radial-gradient(circle at 72% 96%, rgba(190, 192, 236, .22), transparent 46%);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(18, 138, 250, .035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 138, 250, .035) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* ============ 顶栏 ============ */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: var(--topbar-h);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #3f568c;
+            background: transparent;
+            transition: background .18s ease, transform .12s ease, color .18s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(63, 86, 140, .08);
+        }
+
+        /* ============ logo ============ */
+        .topbar__avatar {
+            display: block;
+            flex: 0 0 auto;
+            width: 115px;
+            height: 100%;
+            min-width: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .topbar__avatar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: inherit;
+        }
+
+        .topbar__title {
+            font-size: clamp(10px, 3vw, 16px);
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: .04em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topbar__spacer {
+            flex: 1 1 auto;
+        }
+
+        .topbar__crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .topbar__crumb:hover {
+            color: var(--color-text-disabled);
+        }
+
+        .topbar__crumb span {
+            color: var(--color-text-disabled);
+        }
+
+        /* 阅读进度条 */
+        .read-progress {
+            position: fixed;
+            top: var(--topbar-h);
+            left: 0;
+            right: 0;
+            height: 3px;
+            z-index: 201;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .read-progress__bar {
+            height: 100%;
+            width: 0;
+            border-radius: 0 3px 3px 0;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light));
+            box-shadow: 0 0 10px rgba(33, 165, 227, .5);
+            transition: width .12s linear;
+        }
+
+        .article-body progress {
+            width: 220px;
+            height: 10px;
+            vertical-align: middle;
+            accent-color: #21A5E3;
+        }
+
+        /* ============ 页面容器 ============ */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: calc(var(--topbar-h) + 30px) 20px 64px;
+        }
+
+        .article-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 218px;
+            gap: 34px;
+            align-items: start;
+        }
+
+        /* ============ 文章头部 ============ */
+        .article-head {
+            margin-bottom: 26px;
+        }
+
+        .article-head__title {
+            font-size: clamp(28px, 4.6vw, 42px);
+            line-height: 1.22;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            background: linear-gradient(118deg, #0889ca 0%, #21a5e3 42%, #39bef8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .article-head__desc {
+            margin-top: 16px;
+            max-width: 720px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .article-head__meta {
+            margin-top: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px 14px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .article-head__meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .article-head__meta span::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-blue-light);
+        }
+
+        .article-head__meta span:first-child::before {
+            background: var(--color-primary);
+        }
+
+        .article-head__tags {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 9px;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: rgba(18, 138, 250, .09);
+            transform: skewX(var(--btn-skew));
+            transform-origin: center;
+            transition: background .18s ease, transform .18s ease;
+        }
+
+        .chip:hover {
+            background: rgba(18, 138, 250, .16);
+            transform: skewX(var(--btn-skew)) translateY(-1px);
+        }
+
+        /* ============ 卡片 ============ */
+        .card {
+            position: relative;
+            background: var(--color-bg-white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ============ 正文 ============ */
+        .article-body {
+            padding: 30px 34px 36px;
+            font-size: 15px;
+            line-height: 1.92;
+            color: var(--color-text-body);
+            overflow-wrap: break-word;
+        }
+
+        .article-body> :first-child {
+            margin-top: 0;
+        }
+
+        .article-body> :last-child {
+            margin-bottom: 0;
+        }
+
+        .article-body p {
+            margin: 0 0 18px;
+        }
+
+        .article-body h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 40px 0 16px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h2::before {
+            content: "";
+            width: 4px;
+            height: 18px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .article-body h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 28px 0 10px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h3::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 5px;
+            height: 5px;
+            border-radius: 1px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .article-body ul,
+        .article-body ol {
+            margin: 0 0 18px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .article-body li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 6px;
+        }
+
+        .article-body ul>li::before {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: .82em;
+            width: 5px;
+            height: 5px;
+            border-radius: 1px;
+            background: var(--color-blue-light);
+            transform: rotate(45deg);
+        }
+
+        .article-body ol>li::before {
+            content: counter(list-item);
+            position: absolute;
+            left: 0;
+            top: .42em;
+            width: 16px;
+            height: 16px;
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #fff;
+            background: var(--color-primary);
+            line-height: 1;
+            text-align: center;
+        }
+
+        .article-body a:not(.chip) {
+            color: var(--color-primary);
+            font-weight: 600;
+            border-bottom: 1px dashed currentColor;
+            transition: color .18s ease, border-color .18s ease;
+        }
+
+        .article-body a:not(.chip):hover {
+            color: var(--color-primary-hover);
+            border-bottom-style: solid;
+        }
+
+        .article-body strong {
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .article-body del {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--color-text-disabled);
+        }
+
+        /* 引用块 */
+        .article-body blockquote {
+            position: relative;
+            margin: 24px 0;
+            padding: 14px 20px 14px 22px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(90deg, rgba(33, 165, 227, .10) 0%, rgba(33, 165, 227, .02) 100%);
+            font-size: 13.5px;
+            line-height: 1.85;
+            color: var(--color-text-secondary);
+            overflow: hidden;
+        }
+
+        .article-body blockquote::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .article-body blockquote::after {
+            content: "\201C";
+            position: absolute;
+            right: 12px;
+            top: -10px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1;
+            color: rgba(33, 165, 227, .13);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .article-body blockquote p {
+            margin: 0;
+        }
+
+        /* 行内代码 */
+        .article-body :not(pre)>code {
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: .87em;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: rgba(18, 138, 250, .08);
+            border: 1px solid rgba(18, 138, 250, .12);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        /* 代码块 */
+        .code-block {
+            margin: 22px 0;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: #22344C;
+            box-shadow: 0 8px 24px rgba(20, 40, 60, .18);
+            border: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .code-block__bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            background: rgba(255, 255, 255, .05);
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .code-block__dots {
+            display: flex;
+            gap: 5px;
+            flex: 0 0 auto;
+        }
+
+        .code-block__dots i {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .code-block__dots i:nth-child(1) {
+            background: #F4756A;
+        }
+
+        .code-block__dots i:nth-child(2) {
+            background: #FFD84D;
+        }
+
+        .code-block__dots i:nth-child(3) {
+            background: #4ED08A;
+        }
+
+        .code-block__lang {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #7A92AA;
+        }
+
+        .code-block__copy {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #A9CBE8;
+            background: rgba(255, 255, 255, .07);
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .code-block__copy:hover {
+            background: rgba(33, 165, 227, .28);
+            color: #fff;
+        }
+
+        .code-block__copy:active {
+            transform: scale(.94);
+        }
+
+        .code-block__copy.is-done {
+            color: #7EE7B0;
+            background: rgba(78, 208, 138, .18);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 16px 18px 18px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 12.8px;
+            line-height: 1.78;
+            color: #DCE9F5;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .16);
+            border-radius: 4px;
+        }
+
+        /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
+
+        /* 注释 */
+        .code-block pre code .c,
+        .code-block pre code .c1,
+        .code-block pre code .cm,
+        .code-block pre code .cs,
+        .code-block pre code .cd,
+        .code-block pre code .ch {
+            color: #6C8299;
+            font-style: italic;
+        }
+
+        /* 关键字 / 选择器 / 标签名 */
+        .code-block pre code .k,
+        .code-block pre code .kc,
+        .code-block pre code .kd,
+        .code-block pre code .kn,
+        .code-block pre code .kp,
+        .code-block pre code .kr,
+        .code-block pre code .kt,
+        .code-block pre code .nt,
+        .code-block pre code .nc,
+        .code-block pre code .nf,
+        .code-block pre code .nd,
+        .code-block pre code .ne {
+            color: #7FC4EA;
+        }
+
+        /* 属性名 / 内建 / 命名空间 / 变量 */
+        .code-block pre code .na,
+        .code-block pre code .nb,
+        .code-block pre code .bp,
+        .code-block pre code .nn,
+        .code-block pre code .nx,
+        .code-block pre code .nv,
+        .code-block pre code .py,
+        .code-block pre code .vc,
+        .code-block pre code .vg,
+        .code-block pre code .vi {
+            color: #7EE7B0;
+        }
+
+        /* 数字 / 常量 */
+        .code-block pre code .m,
+        .code-block pre code .mf,
+        .code-block pre code .mi,
+        .code-block pre code .mh,
+        .code-block pre code .mo,
+        .code-block pre code .il,
+        .code-block pre code .no {
+            color: #FFD84D;
+        }
+
+        /* 字符串 */
+        .code-block pre code .s,
+        .code-block pre code .s1,
+        .code-block pre code .s2,
+        .code-block pre code .sb,
+        .code-block pre code .sc,
+        .code-block pre code .sd,
+        .code-block pre code .se,
+        .code-block pre code .sh,
+        .code-block pre code .si,
+        .code-block pre code .sx,
+        .code-block pre code .sr,
+        .code-block pre code .ss,
+        .code-block pre code .sa,
+        .code-block pre code .dl {
+            color: #FFB4A2;
+        }
+
+        /* 运算符 / 标点 */
+        .code-block pre code .o,
+        .code-block pre code .ow,
+        .code-block pre code .p {
+            color: #A9CBE8;
+        }
+
+        /* 装饰器 / @ 规则 / 元信息 */
+        .code-block pre code .gh,
+        .code-block pre code .gu,
+        .code-block pre code .nd,
+        .code-block pre code .na+.nd {
+            color: #C4A7FF;
+        }
+
+        /* diff 用 */
+        .code-block pre code .gd {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gi {
+            color: #7EE7B0;
+        }
+
+        /* 错误 token（少用，出问题时一眼能看到） */
+        .code-block pre code .err {
+            color: #F4756A;
+            background: rgba(244, 117, 106, .12);
+            border-radius: 2px;
+        }
+
+        /* 空白 / 行号占位 */
+        .code-block pre code .w {
+            color: #5A7288;
+        }
+
+        .code-block pre code .gr {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gt {
+            color: #7FC4EA;
+        }
+
+        /* 表格 */
+        .table-wrap {
+            margin: 22px 0;
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: #fff;
+            box-shadow: var(--shadow-card);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .article-body table {
+            width: 100%;
+            min-width: 460px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .article-body thead th {
+            padding: 11px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            color: #fff;
+            background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+            white-space: nowrap;
+        }
+
+        .article-body tbody td {
+            padding: 11px 16px;
+            border-top: 1px solid var(--color-border);
+            color: var(--color-text-body);
+            vertical-align: top;
+        }
+
+        .article-body tbody tr:nth-child(even) {
+            background: #FBFDFF;
+        }
+
+        .article-body tbody td code {
+            white-space: nowrap;
+        }
+
+        /* ============ 提示框 (GFM Alerts & Callout) ============ */
+        .callout {
+            margin: 22px 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--callout-border);
+            background: var(--callout-bg);
+            border-left: 4px solid var(--callout-color);
+            /* 左侧粗边框，还原图片效果 */
+            overflow: hidden;
+        }
+
+        /* 不同的提示类型颜色变量 */
+        .callout--note {
+            --callout-color: var(--color-primary);
+            --callout-bg: rgba(33, 165, 227, .06);
+            --callout-border: rgba(33, 165, 227, .15);
+        }
+
+        .callout--tip {
+            --callout-color: var(--color-success);
+            --callout-bg: rgba(22, 155, 91, .06);
+            --callout-border: rgba(22, 155, 91, .15);
+        }
+
+        .callout--important {
+            --callout-color: var(--color-orchid);
+            --callout-bg: rgba(68, 84, 248, .06);
+            --callout-border: rgba(68, 84, 248, .15);
+        }
+
+        .callout--warning {
+            --callout-color: #D4A000;
+            --callout-bg: rgba(255, 216, 77, .12);
+            --callout-border: rgba(255, 216, 77, .3);
+        }
+
+        .callout--caution {
+            --callout-color: var(--color-danger);
+            --callout-bg: rgba(242, 27, 40, .06);
+            --callout-border: rgba(242, 27, 40, .15);
+        }
+
+        /* 提示框标题 */
+        .callout__title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 18px 0;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .05em;
+            color: var(--callout-color);
+            text-transform: uppercase;
+            background: transparent;
+        }
+
+        /* 提示框正文 */
+        .callout__body {
+            padding: 6px 18px 14px;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: var(--color-text-body);
+        }
+
+        .callout__body> :first-child {
+            margin-top: 0;
+        }
+
+        .callout__body> :last-child {
+            margin-bottom: 0;
+        }
+
+        .callout__body p {
+            margin: 0 0 12px;
+        }
+
+        /* 分隔线 */
+        .article-body hr {
+            height: 1px;
+            margin: 15px 0;
+            border: none;
+            background: linear-gradient(90deg, transparent, var(--color-border-strong), transparent);
+        }
+
+        /* ============ 文章尾部 ============ */
+        .article-foot {
+            margin-top: 34px;
+            padding-top: 24px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            color: var(--color-text-secondary);
+        }
+
+        .article-foot__license {
+            position: relative;
+            display: block;
+            flex: 1 1 auto;
+            min-width: 0;
+            padding-left: 16px;
+            line-height: 1.7;
+        }
+
+        .article-foot__license::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: .68em;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .article-foot__link {
+            color: var(--color-primary);
+            font-weight: 700;
+            border-bottom: 1px dashed currentColor;
+            white-space: nowrap;
+        }
+
+        .article-foot__link:hover {
+            border-bottom-style: solid;
+        }
+
+        /* ============ 侧栏目录 ============ */
+        .toc {
+            position: sticky;
+            top: calc(var(--topbar-h) + 22px);
+        }
+
+        .toc__card {
+            padding: 18px 16px;
+        }
+
+        .toc__head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--color-text-primary);
+        }
+
+        .toc__head::before {
+            content: "";
+            width: 4px;
+            height: 14px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .toc__list {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - var(--topbar-h) - 130px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background: rgba(33, 165, 227, .22);
+            border-radius: 2px;
+        }
+
+        .toc__link {
+            display: block;
+            padding: 7px 0 7px 12px;
+            border-left: 2px solid var(--color-border);
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: var(--color-text-secondary);
+            transition: color .18s ease, border-color .18s ease, padding-left .18s ease;
+        }
+
+        .toc__link:hover {
+            color: var(--color-primary);
+            border-left-color: var(--color-blue-light);
+            padding-left: 15px;
+        }
+
+        .toc__link.is-active {
+            color: var(--color-primary);
+            font-weight: 700;
+            border-left-color: var(--color-primary);
+        }
+
+        .toc__link--sub {
+            font-size: 12px;
+        }
+
+        /* ============ 页脚 ============ */
+        .footer {
+            margin-top: 42px;
+            padding-top: 22px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .footer__brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer__mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .footer__mark::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer__links a {
+            transition: color .2s ease;
+        }
+
+        .footer__links a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============ 回到顶部 ============ */
+        .to-top {
+            position: fixed;
+            right: 22px;
+            bottom: 26px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: var(--color-primary);
+            box-shadow: 0 6px 20px rgba(18, 138, 250, .35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity .25s ease, transform .3s cubic-bezier(.22, .61, .36, 1),
+                visibility .3s ease, background .18s ease;
+        }
+
+        .to-top.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .to-top:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .to-top:active {
+            transform: translateY(0) scale(.92);
+        }
+
+        /* 目录按钮 */
+        .toc-toggle {
+            position: fixed;
+            right: 22px;
+            bottom: 80px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: var(--color-primary);
+            box-shadow: 0 6px 20px rgba(18, 138, 250, .35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity .25s ease, transform .3s cubic-bezier(.22, .61, .36, 1),
+                visibility .3s ease, background .18s ease;
+        }
+
+        .toc-toggle.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .toc-toggle:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .toc-toggle:active {
+            transform: translateY(0) scale(.92);
+        }
+
+        /* PC 端折叠目录 */
+        .article-layout.toc-collapsed {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .article-layout.toc-collapsed .toc {
+            display: none;
+        }
+
+        @media (max-width: 980px) {
+            .toc {
+                position: fixed;
+                inset: 0;
+                z-index: 300;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(0, 0, 0, .45);
+                margin: 0;
+            }
+
+            .toc.is-open {
+                display: flex;
+            }
+
+            .toc__card {
+                width: min(92vw, 420px);
+                max-height: 80vh;
+                overflow-y: auto;
+                margin: 0;
+            }
+
+            .toc__list {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                gap: 0;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .toc__link {
+                padding: 8px 0;
+                border-left: 2px solid var(--color-border);
+                border-radius: 0;
+                background: transparent;
+                white-space: normal;
+            }
+
+            .toc__link.is-active {
+                color: var(--color-primary);
+                background: transparent;
+                border-left-color: var(--color-primary);
+            }
+
+            .toc__link--sub {
+                display: block;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .toc-toggle {
+                right: 14px;
+                bottom: 66px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* ============ Toast ============ */
+        .toast {
+            position: fixed;
+            left: 50%;
+            top: calc(var(--topbar-h) + 16px);
+            z-index: 99999;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            max-width: min(86vw, 360px);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card-hover);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            line-height: 1.5;
+            text-align: center;
+            word-break: break-word;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -10px);
+            transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+                transform .25s cubic-bezier(.22, .61, .36, 1);
+            white-space: pre-line;
+        }
+
+        .toast::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
+        }
+
+        .toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        /* ============ 悬停提示框 ============ */
+        .hover-hint {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dashed currentColor;
+            transition: border-color .2s ease;
+            white-space: nowrap;
+        }
+
+        .hover-hint:hover {
+            border-bottom-style: solid;
+        }
+
+        .hover-hint__tooltip {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            min-width: 200px;
+            max-width: 300px;
+            width: max-content;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+            border: 1px solid var(--color-border);
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.65;
+            color: var(--color-text-body);
+            text-align: left;
+            white-space: normal;
+            word-break: break-word;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(6px);
+            transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+                transform .25s cubic-bezier(.22, .61, .36, 1), visibility .25s ease;
+            z-index: 999999;
+        }
+
+        .hover-hint__tooltip.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .hover-hint__tooltip.is-below {
+            transform: translateY(-6px);
+        }
+
+        .hover-hint__tooltip.is-below.is-visible {
+            transform: translateY(0);
+        }
+
+        .hover-hint__tooltip::after,
+        .hover-hint__tooltip::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: solid transparent;
+            pointer-events: none;
+        }
+
+        .hover-hint__tooltip::before {
+            border-width: 8px;
+            border-top-color: var(--color-border);
+            margin-top: 1px;
+        }
+
+        .hover-hint__tooltip::after {
+            border-width: 7px;
+            border-top-color: #fff;
+        }
+
+        .hover-hint__tooltip.is-below::before,
+        .hover-hint__tooltip.is-below::after {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+        }
+
+        .hover-hint__tooltip.is-below::before {
+            border-top-color: transparent;
+            border-bottom-color: var(--color-border);
+            margin-bottom: 1px;
+        }
+
+        .hover-hint__tooltip.is-below::after {
+            border-top-color: transparent;
+            border-bottom-color: #fff;
+        }
+
+        .hover-hint__tooltip .hint-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 6px;
+            letter-spacing: .2px;
+        }
+
+        .hover-hint__tooltip .hint-title::before {
+            content: "";
+            width: 3px;
+            height: 14px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+            flex: 0 0 auto;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 980px) {
+            .article-layout {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0;
+            }
+
+            /* 让 main 和 article 不生成盒子，使其子元素成为 grid 项 */
+            main,
+            article {
+                display: contents;
+            }
+
+            .article-head {
+                order: 1;
+            }
+
+            .article-body {
+                order: 3;
+            }
+
+            .footer {
+                order: 4;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar {
+                padding: 0 12px;
+                gap: 10px;
+            }
+
+            .topbar__crumb {
+                display: none;
+            }
+
+            .wrap {
+                padding: calc(var(--topbar-h) + 18px) 12px 48px;
+            }
+
+            .article-head__eyebrow {
+                letter-spacing: .18em;
+                margin-bottom: 14px;
+            }
+
+            .article-head__eyebrow::before {
+                width: 22px;
+            }
+
+            .article-head__desc {
+                font-size: 13px;
+            }
+
+            .article-body {
+                padding: 20px 18px 24px;
+                font-size: 14.5px;
+                line-height: 1.88;
+            }
+
+            .article-body h2 {
+                margin: 32px 0 14px;
+                font-size: 19px;
+            }
+
+            .article-body h3 {
+                font-size: 15px;
+            }
+
+            .code-block pre {
+                font-size: 12px;
+                padding: 14px 14px 16px;
+            }
+
+            .post-nav {
+                grid-template-columns: 1fr;
+            }
+
+            .post-nav__item--next {
+                text-align: left;
+                align-items: flex-start;
+            }
+
+            .post-nav__item--next .post-nav__k {
+                flex-direction: row;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .to-top {
+                right: 14px;
+                bottom: 18px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .hover-hint__tooltip {
+                min-width: 170px;
+                max-width: 240px;
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .topbar__avatar {
+                width: 65px;
+                height: 100%;
+                min-width: 34px;
+                border-radius: 50%;
+            }
+
+            .topbar__avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+
+        /* ============ 超窄屏：隐藏分享按钮 + 缩小字体 ============ */
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 10px;
+                gap: 8px;
+            }
+
+            /* 隐藏“复制本页链接”按钮 */
+            #btn-share {
+                display: none;
+            }
+
+            /* 头像与图标按钮同步缩小，避免顶栏被撑满 */
+            .topbar__avatar {
+                width: 40px;
+                height: 100%;
+                min-width: 30px;
+                flex-shrink: 0;
+            }
+
+            .topbar__avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .icon-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* ============ 横屏矮屏：避免顶栏高度不足 ============ */
+        @media (max-width: 900px) and (max-height: 480px) {
+            .topbar__avatar {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ============ 自定义鼠标指针：仅桌面 / 精确指针设备 ============ */
+        @media (hover: hover) and (pointer: fine) {
+
+            html,
+            body {
+                cursor: url('/src/cursors/normal.cur'), auto;
+            }
+
+            a,
+            button,
+            .btn,
+            .icon-btn,
+            .chip,
+            .toc__link,
+            .post-nav__item,
+            .code-block__copy,
+            [role="button"] {
+                cursor: url('/src/cursors/link.cur'), pointer;
+            }
+
+            .hover-hint,
+            .article-body abbr[title] {
+                cursor: url('/src/cursors/help.cur'), help;
+            }
+
+            input,
+            textarea,
+            [contenteditable="true"] {
+                cursor: auto;
+            }
+        }
+
+        /* ============ 目录：标题层级逐级缩进 ============ */
+        .toc__link--h1 {
+            padding-left: 12px;
+        }
+
+        .toc__link--h2 {
+            padding-left: 24px;
+        }
+
+        .toc__link--h3 {
+            padding-left: 36px;
+        }
+
+        .toc__link--h4 {
+            padding-left: 48px;
+            font-size: 11.8px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h5 {
+            padding-left: 60px;
+            font-size: 11.5px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h6 {
+            padding-left: 72px;
+            font-size: 11.2px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h1:hover {
+            padding-left: 15px;
+        }
+
+        .toc__link--h2:hover {
+            padding-left: 27px;
+        }
+
+        .toc__link--h3:hover {
+            padding-left: 39px;
+        }
+
+        .toc__link--h4:hover {
+            padding-left: 51px;
+        }
+
+        .toc__link--h5:hover {
+            padding-left: 63px;
+        }
+
+        .toc__link--h6:hover {
+            padding-left: 75px;
+        }
+
+        /* ============ 扩展 Markdown/HTML 语法样式 ============ */
+
+        /* 下划线 / 插入下划线 */
+        .article-body u,
+        .article-body ins {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: var(--color-primary);
+        }
+
+        /* 高亮 */
+        .article-body mark {
+            padding: 0 4px;
+            border-radius: 3px;
+            background: var(--color-blue-light);
+            /* 保留黄色高亮背景 */
+        }
+
+        /* 上标 / 下标 */
+        .article-body sub,
+        .article-body sup {
+            font-size: 0.75em;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+        }
+
+        .article-body sup {
+            top: -0.5em;
+        }
+
+        .article-body sub {
+            bottom: -0.25em;
+        }
+
+        /* 小号文字 */
+        .article-body small {
+            font-size: 0.85em;
+            color: var(--color-text-secondary);
+        }
+
+        /* 缩写 / 引用作品名 */
+        .article-body abbr[title] {
+            text-decoration: none;
+            border-bottom: 1px dashed var(--color-text-secondary);
+        }
+
+        .article-body cite {
+            font-style: italic;
+            color: var(--color-text-secondary);
+        }
+
+        /* 键盘按键 */
+        .article-body kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.82em;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            border: 1px solid var(--color-border-strong);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 1px 0 var(--color-border-strong), 0 2px 0 rgba(0, 0, 0, 0.05);
+            margin: 0 2px;
+        }
+
+        /* 删除线 */
+        .article-body del {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--color-text-disabled);
+        }
+
+        /* 嵌套引用样式优化 */
+        .article-body blockquote blockquote {
+            margin: 12px 0 12px 8px;
+            padding: 8px 14px 8px 16px;
+            background: rgba(33, 165, 227, .03);
+            /* 内层背景更淡 */
+            border-left: 2px solid var(--color-blue-light);
+            /* 内层边框变细 */
+        }
+
+        /* 隐藏内层引用的装饰性大引号和渐变条，保持画面干净 */
+        .article-body blockquote blockquote::after {
+            display: none;
+        }
+
+        .article-body blockquote blockquote::before {
+            top: 8px;
+            bottom: 8px;
+            background: var(--color-blue-light);
+        }
+
+        /* 三级嵌套引用可以进一步弱化 */
+        .article-body blockquote blockquote blockquote {
+            background: rgba(33, 165, 227, .01);
+            border-left-color: var(--color-border-strong);
+        }
+
+        /* 提示框图标 */
+        .callout__icon {
+            flex: 0 0 auto;
+            margin-top: -1px;
+            /* 微调垂直对齐 */
+        }
+
+        /* ============ 任务列表 ============ */
+        .article-body li.task-list-item {
+            padding-left: 20px;
+            /* 和普通 li 保持一致 */
+            list-style: none;
+        }
+
+        /* 去掉 ul>li 默认的菱形前缀（复选框自己就充当标记了） */
+        .article-body ul>li.task-list-item::before {
+            display: none;
+        }
+
+        .article-body .task-checkbox {
+            width: 14px;
+            height: 14px;
+            margin: 0 7px 0 0;
+            vertical-align: -2px;
+            accent-color: var(--color-primary);
+            pointer-events: none;
+            /* disabled 之外的额外保险 */
+            cursor: default;
+        }
+
+        /* 嵌套列表稍微收一点，视觉上更紧凑 */
+        .article-body li.task-list-item>ul,
+        .article-body li.task-list-item>ol {
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* ============ 图片 ============ */
+        .article-body img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 22px auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-soft);
+            box-shadow: var(--shadow-card);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        /* 图片作为链接时：去掉下划线、hover 时轻微上浮 */
+        .article-body a.img-link {
+            display: block;
+            max-width: 100%;
+            border-bottom: none;
+            font-weight: 400;
+            color: inherit;
+        }
+
+        .article-body a.img-link:hover {
+            border-bottom: none;
+        }
+
+        .article-body a.img-link:hover img {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        /* ---------- 脚注 ---------- */
+        .footnote-ref a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--accent, #2563eb);
+        }
+
+        .footnote-ref a:hover {
+            text-decoration: underline;
+        }
+
+        .footnotes {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line, #e5e7eb);
+            font-size: .9em;
+            color: var(--muted, #6b7280);
+        }
+
+        .footnotes hr {
+            display: none;
+        }
+
+        /* 上面已经有 border-top，隐藏默认分隔线 */
+        .footnotes ol {
+            padding-left: 1.4em;
+            margin: 0;
+        }
+
+        /* 在 CSS 中让 li 相对定位 */
+        .footnotes li {
+            position: relative;
+            padding-right: 20px;
+            /* 留出空间给返回键 */
+        }
+
+        /* 让返回键绝对定位在右侧 */
+        .footnote-backref {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            /* 或者 top: 0 */
+            text-decoration: none;
+            opacity: 0.6;
+        }
+
+        .footnote-backref:hover {
+            opacity: 1;
+        }
+
+        /* ============ 公式 ============ */
+        .math-inline {
+            white-space: nowrap;
+        }
+
+        .math-block {
+            margin: 22px 0;
+            padding: 4px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            text-align: center;
+        }
+
+        .math-block::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .math-block::-webkit-scrollbar-thumb {
+            background: rgba(33, 165, 227, .22);
+            border-radius: 3px;
+        }
+
+        /* ============ Mermaid 图表 ============ */
+        .mermaid-wrap {
+            margin: 24px 0;
+            padding: 20px 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-white);
+            box-shadow: var(--shadow-card);
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        /* 未渲染时展示源码（JS 被禁用 / CDN 拉取失败时的兜底） */
+        .mermaid-wrap pre.mermaid {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.75;
+            color: var(--color-text-secondary);
+            text-align: left;
+            white-space: pre;
+        }
+
+        /* 渲染完成后 mermaid 会写入 data-processed="true" 并替换为 <svg> */
+        .mermaid-wrap pre.mermaid[data-processed="true"] {
+            white-space: normal;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        .mermaid-wrap svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+        }
+
+        /* 图表里的文字不要被正文的 li / p 规则带偏 */
+        .mermaid-wrap .nodeLabel,
+        .mermaid-wrap .edgeLabel,
+        .mermaid-wrap .messageText,
+        .mermaid-wrap .actor {
+            line-height: 1.4;
+        }
+
+        @media (max-width: 640px) {
+            .mermaid-wrap {
+                margin: 18px 0;
+                padding: 14px 8px;
+            }
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============ 滚动条美化 ============ */
+        :root {
+            --scrollbar-size: 10px;
+            --scrollbar-track: transparent;
+            --scrollbar-thumb: rgba(33, 165, 227, .32);
+            --scrollbar-thumb-hover: rgba(33, 165, 227, .55);
+            --scrollbar-thumb-active: rgba(33, 165, 227, .75);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+
+        /* WebKit / Chromium / Safari / Edge */
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-size);
+            height: var(--scrollbar-size);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-thumb-hover);
+        }
+
+        ::-webkit-scrollbar-thumb:active {
+            background-color: var(--scrollbar-thumb-active);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* 深色代码块：用偏白的滚动条，避免蓝色在深色底上太跳 */
+        .code-block pre {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .22) transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, .32);
+        }
+
+        /* 右侧目录：细一点、轻一点 */
+        .toc__list {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(33, 165, 227, .28) transparent;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background-color: rgba(33, 165, 227, .28);
+            border-radius: 999px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(33, 165, 227, .5);
+        }
+
+        /* 如果你以后真的做了深色模式，可以顺手覆盖变量 */
+        :root[data-theme="dark"] {
+            --scrollbar-thumb: rgba(171, 215, 255, .3);
+            --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
+            --scrollbar-thumb-active: rgba(171, 215, 255, .7);
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+<picture class="topbar__avatar">
+    <source media="(max-width: 640px)" srcset="/src/ttwe77.avif" type="image/avif">
+    <source srcset="/src/bloglogo.avif" type="image/avif">
+    <img src="/src/bloglogo.avif" alt="Blog logo">
+</picture>
+        <div class="topbar__title">AI 锐评：我干活时喜欢听的歌</div>
+
+        <div class="topbar__spacer"></div>
+
+        <button class="icon-btn" type="button" id="btn-share" aria-label="复制本页链接">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+            </svg>
+        </button>
+
+        <a class="icon-btn" href="/" aria-label="返回首页" title="返回首页">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M3 10.5L12 3l9 7.5"></path>
+                <path d="M5 9.5V21h14V9.5"></path>
+            </svg>
+        </a>
+    </header>
+
+<div class="read-progress" aria-hidden="true">
+        <div class="read-progress__bar" id="read-bar"></div>
+    </div>
+
+<div class="wrap">
+    <div class="article-layout">
+
+        <main>
+            <article>
+
+            <header class="article-head">
+                                    <h1 class="article-head__title">AI 锐评：我干活时喜欢听的歌</h1>
+
+                                    <p class="article-head__desc">
+                                        用 AI 锐评网易云音乐“我喜欢的音乐”和哔哩哔哩音乐收藏夹，从歌单反推音乐偏好、情绪层次与私人精神世界，并附趣味评分和画像。
+                                    </p>
+
+                                    <div class="article-head__meta">
+                    <span>2026-10-17</span>
+                    <span>随笔</span>
+                    <span>约 15 分钟</span>
+                    <span>ttwe77</span>
+                </div>
+
+                                    <div class="article-head__tags">
+                    <span class="chip">歌单分析</span>
+                    <span class="chip">音乐偏好</span>
+                    <span class="chip">AI锐评</span>
+                    <span class="chip">网易云音乐</span>
+                    <span class="chip">哔哩哔哩</span>
+                </div>
+                                </header>
+
+            <div class="card article-body" id="article-body">
+
+            <h1 id="ai-锐评我干活时喜欢听的歌">AI 锐评：我干活时喜欢听的歌</h1>
+
+            <div class="callout callout--caution">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> CAUTION</div>
+                <div class="callout__body">
+            <p>本文“AI 锐评”部分由 AI 根据歌单信息生成，<strong>属于主观趣味解读，不是事实判断或心理诊断</strong>，AI 可能出错。歌单和收藏夹数据为写作时快照，数量口径不同，后续可能变化。文中评分、坐标轴和画像仅为娱乐性表达。外部链接指向第三方平台，内容与隐私设置不由本文控制，请自行甄别。歌曲与视频版权归各自权利人所有。</p>
+                </div>
+            </div>
+
+            <h2 id="引言">引言</h2>
+
+            <p>我一般在电脑前干活（通常指编程、设计、剪辑、写作、数据录入、运营等长时间面对电脑的脑力或半脑力劳动）的时候都会点点歌听。我听歌的原因无非是：</p>
+
+            <ul>
+            <li>沉浸在赛博世界（也不是完全沉浸，我的<a href="https://gitee.com/ttwe77/Save-your-Peepers-20-20-20-Timer" target="_blank" rel="noopener noreferrer">20-20-20 定时器</a>还是会提醒我去休息的）</li>
+            <li>加快干活效率、提神</li>
+            <li>防止理性占据感性</li>
+            <li>宿舍里吵，带耳机听歌能让我听不见别的</li>
+            <li>让我不无聊</li>
+            <li><del>“一戴上耳机放歌就开始工作” 的条件反射</del></li>
+            </ul>
+
+            <p>然后我就有点好奇我平时都在听什么歌。因为干活的时候要保持专注，我在<span class="hover-hint">心流状态<span class="hover-hint__tooltip"><span class="hint-title">心流状态</span>心流是一种个体在全身心投入活动时产生的高度专注、忘我且充满满足感的心理状态。</span></span>时不会刻意关注听的是什么，只要好听就行。</p>
+
+            <h2 id="ai锐评-网易云音乐我喜欢的音乐">Ai锐评 网易云音乐"我喜欢的音乐"</h2>
+
+            <p>我的网易云喜欢的音乐：<a href="https://music.163.com/#/playlist?id=2961375084" target="_blank" rel="noopener noreferrer">【网页链接】</a></p>
+
+            <h3 id="开头总体印象">开头：总体印象</h3>
+
+            <p>正巧<span class="hover-hint">网易云音乐<span class="hover-hint__tooltip"><span class="hint-title">网易云音乐</span>中国主流在线音乐平台，以“音乐社区”和评论区文化著称，2013 年由网易推出。因评论区大量伤感、孤独风格的“矫情文学”被戏称“网抑云”，也以歌单文化、独立音乐人扶持和“云村”社区氛围闻名。</span></span>有个复制Ai锐评我喜欢的音乐的提示词，我就去试了试。结果：</p>
+
+            <blockquote>
+            <p>你这 100 首歌放在一起，给我的第一感觉不是“音乐口味很杂”，而是：</p>
+
+            <p><strong>你像是在用网易云音乐建立一个私人精神世界。</strong></p>
+
+            <p>而且这个精神世界有一个非常奇怪的规则：<strong>必须同时满足“有点中二、有点浪漫、有点孤独、有点游戏感，最好还能在月光下冒出一点东方幻想的雾气”，然后偶尔突然闯进来一个<a href="https://www.bilibili.com/video/BV1B8VBzWEbe/" target="_blank" rel="noopener noreferrer">《Dinero》</a>或者 <a href="https://www.bilibili.com/video/BV1hZgUzPEJs/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">bbno$<span class="hover-hint__tooltip"><span class="hint-title">bbno$</span>加拿大说唱歌手、词曲制作人，本名 Alexander Leon Gumuchian，艺名读作“baby no money”（宝贝没钱）。2019 年与 Y2K 合作的《Lalala》播放量超 9 亿次，风格融合自嘲、搞怪与夜店感。</span></span></a>，把正在吟诗的仙人一脚踹进夜店。</strong></p>
+
+            <p>这不是随机。你的歌单其实相当有结构。</p>
+            </blockquote>
+
+            <p><code>把正在吟诗的仙人一脚踹进夜店</code>这段<span class="hover-hint">xswl<span class="hover-hint__tooltip"><span class="hint-title">笑死我了</span>xswl是“笑死我了”的拼音首字母缩写，用于表达强烈的笑意或幽默反应。</span></span>。听它这么说，我感觉我听得很杂啊。</p>
+
+            <h3 id="核心偏好世界观场景与情绪叙事">核心偏好：世界观、场景与情绪叙事</h3>
+
+            <blockquote>
+            <blockquote>
+            <p><strong>你是一个高度依赖“世界观、场景和情绪叙事”来选择音乐的人。</strong></p>
+            </blockquote>
+
+            <p>你不是单纯在听旋律。</p>
+
+            <p>你在听：</p>
+
+            <p><strong>“这首歌让我进入哪个世界？”</strong></p>
+
+            <p>这点非常明显。</p>
+            </blockquote>
+
+            <p>我知道这一点出在哪了，是因为我平时收藏了很多<a href="https://music.163.com/#/artist?id=12487174" target="_blank" rel="noopener noreferrer"><span class="hover-hint">HOYO-MiX<span class="hover-hint__tooltip"><span class="hint-title">HOYO-MiX</span>米哈游（miHoYo）旗下原创音乐团队。拥有超百人全职音乐与音频团队，累计发行百余张游戏原声专辑。负责《原神》《崩坏：星穹铁道》《绝区零》《崩坏3》等全系游戏配乐，代表作包括《Rubia》《Starfall》《神女劈观·唤情》等。</span></span></a>的音乐，就导致Ai误认为我侧重世界观（但好像还挺有道理的。比如<span class="hover-hint">原神<span class="hover-hint__tooltip"><span class="hint-title">原神</span>米哈游自研的开放世界冒险RPG，2020年上线。舞台为“提瓦特”幻想世界，玩家扮演“旅行者”踏遍七国，每个国家以不同元素为主题并由对应神明管辖，以动漫风格开放世界、元素反应战斗和持续更新的区域音乐著称。</span></span>各个区域的音乐，风格各异）</p>
+
+            <blockquote>
+            <p>这已经不是“喜欢原神/崩坏/米哈游音乐”。</p>
+
+            <p>这是：</p>
+
+            <p><strong>“HOYO-MiX负责给我的脑内世界铺设环境音。”</strong></p>
+            </blockquote>
+
+            <h3 id="意象偏好">意象偏好</h3>
+
+            <p>Ai指出我比较喜欢<strong>意象</strong>，比如<code>月、夜、山、湖、林、崖、灯、归舟、遗迹</code></p>
+
+            <blockquote>
+            <p>你明显对一种审美特别敏感：</p>
+
+            <blockquote>
+            <p><strong>“人已经离开了，但世界还在那里。”</strong></p>
+            </blockquote>
+
+            <p>这是一种非常典型的<strong>废墟感 / 边境感 / 旅途感</strong>。</p>
+
+            <p>你喜欢的不是单纯的悲伤。</p>
+
+            <p>而是：</p>
+
+            <p><strong>“我站在一个已经发生过很多故事、但现在没有人在说话的地方。”</strong></p>
+            </blockquote>
+
+            <p>？？？原来我比较喜欢听悲伤类型的歌？？？不愧是<span class="hover-hint">网抑云<span class="hover-hint__tooltip"><span class="hint-title">网抑云</span>网易云音乐的戏称。源于该平台评论区大量出现的伤感、抑郁、孤独风格的“矫情文学”，部分被质疑为编造，引发旁观者不适与模仿二创，逐渐演变为网络热梗。也有用户认为“温暖树洞”才是网易云评论区的底色。</span></span>！</p>
+
+            <p>不过有些悲伤类型的听起来其实也还不错，比如：<a href="https://www.bilibili.com/video/BV1NMKr66E7v/" target="_blank" rel="noopener noreferrer">【原创音乐/合作】回忆桥</a> --- 小鱼/在虚无中永存</p>
+
+            <blockquote>
+            <p>实际上它们共享一个东西：</p>
+
+            <p><strong>世界很大，人很小。</strong></p>
+            </blockquote>
+
+            <p>因为我的歌单中也不是完全都是很平静的歌，有时还有一点快节奏的、振奋人心的歌。比如：<a href="https://www.bilibili.com/video/BV1B8VBzWEbe/" target="_blank" rel="noopener noreferrer">《Dinero》</a><a href="https://www.bilibili.com/video/BV1ak6kY1Esj/" target="_blank" rel="noopener noreferrer">《奶 奶 没 醉 ！！！》</a><a href="https://www.bilibili.com/video/BV1aL411n7tQ/" target="_blank" rel="noopener noreferrer">《ねぇねぇねぇ。》</a>，于是Ai锐评：</p>
+
+            <blockquote>
+            <p>你可以沉浸在：</p>
+
+            <blockquote>
+            <p>“月下孤舟，远山如黛，文明已经消逝……”</p>
+            </blockquote>
+
+            <p>然后突然：</p>
+
+            <blockquote>
+            <p><strong>“哈哈哈哈游戏时间到！”</strong></p>
+            </blockquote>
+
+            <p>你的脑子大概也确实需要这种东西。</p>
+
+            <p>因为如果整个歌单都维持《灯影之外》《愁绪谧息》《世界尽头酒馆》这种强烈氛围，人类的大脑迟早会把自己处理成一张哲学论文。</p>
+
+            <p>所以你会主动塞进去一些：</p>
+
+            <p><strong>傻、萌、疯、怪、魔性、电子、搞笑。</strong></p>
+
+            <p>这反而说明你的情绪审美不是单一的抑郁型。</p>
+            </blockquote>
+
+            <h3 id="东方幻想与古风审美">东方幻想与古风审美</h3>
+
+            <p>我还挺喜欢<span class="hover-hint">东方Project<span class="hover-hint__tooltip"><span class="hint-title">东方Project</span>日本同人游戏系列，由ZUN（太田顺也）主导的上海爱丽丝幻乐团制作。核心是弹幕射击游戏（STG），以华丽弹幕、个性鲜明的角色和宏大的同人音乐创作生态著称。标志性角色包括博丽灵梦、雾雨魔理沙，舞台为“幻想乡”，同人音乐二次创作数量极为庞大。</span></span>的歌的，然后Ai将其归类于“东方幻想”并举出了相似的标签：</p>
+
+            <ul>
+            <li>东方Project</li>
+            <li>同人音乐</li>
+            <li>古风</li>
+            <li>日系幻想</li>
+            <li>和风</li>
+            <li>神话意象</li>
+            <li>古典中国意象</li>
+            </ul>
+
+            <p>然后Ai根据这些标签给了我看不懂的组合：</p>
+
+            <blockquote>
+            <p>你会被一种非常具体的审美组合吸引：</p>
+
+            <blockquote>
+            <p><strong>古典意象 + 神秘感 + 少量悲伤 + 少量浪漫 + 非现实世界观</strong></p>
+            </blockquote>
+            </blockquote>
+
+            <p>于是我让Ai给我推荐这个组合的歌曲。给你们挑几个我觉得好听的：</p>
+
+            <ul>
+            <li><a href="https://www.bilibili.com/video/BV1ZL411i7YQ/" target="_blank" rel="noopener noreferrer">《牵丝戏》</a>---银临&amp; Aki阿杰</li>
+            <li><a href="https://www.bilibili.com/video/BV1QK4y1n7zS/" target="_blank" rel="noopener noreferrer">《云中客》</a>---Winky诗</li>
+            </ul>
+
+            <p><u><span class="hover-hint">牵丝戏<span class="hover-hint__tooltip"><span class="hint-title">牵丝戏</span>银临作曲、Vagary填词、灰原穷编曲的古风歌曲，银临与Aki阿杰原唱，2015年发行。讲述傀儡翁与木偶之间相伴、别离的凄美羁绊故事，是中文古风圈最具代表性的作品之一。</span></span>是我自小学起就喜欢上的古风歌</u>，这是否代表我喜欢类似风格的音乐呢？</p>
+
+            <p>然后问了蓝色大肥鱼才知道它俩不一样：</p>
+
+            <div class="table-wrap"><table><thead><tr><th></th><th><strong>牵丝戏</strong></th><th><strong><a href="https://www.bilibili.com/video/BV1kS4y1T7kK/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">神女劈观<span class="hover-hint__tooltip"><span class="hint-title">神女劈观</span>《原神》2.4版本剧情PV中的璃月戏，由HOYO-MiX谱曲、上海京剧院演员杨扬演唱，2022年随版本上线。以京剧唱腔演绎，故事借鉴东晋志怪小说《李寄斩蛇》，在游戏中由角色云堇创作演绎，曾因文化出海引发广泛关注。</span></span></a></strong></th></tr></thead><tbody><tr><td>核心定位</td><td>抒情</td><td>叙事</td></tr><tr><td>音乐融合</td><td>以流行为骨架</td><td>以戏曲为骨架</td></tr></tbody></table></div>
+
+            <p>其实还有一个也挺不错的，听哭过：<a href="https://www.bilibili.com/video/BV1a2421L7CM" target="_blank" rel="noopener noreferrer"><span class="hover-hint">《千岩无名》<span class="hover-hint__tooltip"><span class="hint-title">千岩无名</span>2024年《原神》新春会上的千岩军京歌，与《神女劈观》同为京歌风格，演唱者亦为杨扬。改编自游戏任务“千年千岩”与圣遗物“千岩牢固”的故事，讲述钟离远赴坎瑞亚后璃月夜叉与千岩军抵御魔兽入侵层岩巨渊的战争，献给无人纪念的英雄。</span></span></a></p>
+
+            <blockquote>
+            <p>也就是说，如果一首歌只是：</p>
+
+            <blockquote>
+            <p>“我爱你，你不爱我，我好痛苦。”</p>
+            </blockquote>
+
+            <p>你可能听几分钟就想关掉。</p>
+
+            <p>但如果它变成：</p>
+
+            <blockquote>
+            <p>“月落山隐，孤舟归晚，千年神社无人问，风吹旧铃……”</p>
+            </blockquote>
+
+            <p>你的脑子：</p>
+
+            <p><strong>“嗯，这个可以。”</strong></p>
+
+            <p>人类真是奇怪的动物。把“我有点难过”包装成古代神社、月亮、山水和几千年文明遗迹之后，情绪立刻高级了。</p>
+
+            <p><u>不过不得不说，确实好听。</u></p>
+            </blockquote>
+
+            <p>我的脑子：哎，<span class="hover-hint">这个好哎<span class="hover-hint__tooltip"><span class="hint-title">这个好哎（梗）</span>出自《哔哩哔哩拜年纪2021》的《今晚吃啥》中 七海Nana7mi 的一句台词</span></span>。你别说还真是，感觉还真有点。</p>
+
+            <h3 id="特定歌手偏好与低压力陪伴">特定歌手偏好与低压力陪伴</h3>
+
+            <p>然后Ai说我对“独立创作者”有明显偏好，大量歌手来自：</p>
+
+            <ul>
+            <li>同人社团</li>
+            <li>独立音乐人</li>
+            <li><span class="hover-hint">V家<span class="hover-hint__tooltip"><span class="hint-title">V家 / VOCALOID</span>VOCALOID语音合成引擎及相关虚拟歌手创作圈的总称，中文圈简称“V家”。2007年初音未来商业化后形成全球性亚文化，2012年洛天依声库发布，成为中国首位中文VOCALOID虚拟歌手。文化核心是创作者（P主）使用声库调校制作歌曲，常区分“日V”与“中V”。</span></span>创作者</li>
+            <li>游戏音乐团队</li>
+            <li>小型企划</li>
+            <li>网络音乐人</li>
+            </ul>
+
+            <blockquote>
+            <p>这说明你可能非常看重一种东西：</p>
+
+            <blockquote>
+            <p><strong>“这东西有没有自己的味道？”</strong></p>
+            </blockquote>
+
+            <p>而不是：</p>
+
+            <blockquote>
+            <p>“是不是大牌？”</p>
+            </blockquote>
+
+            <p>所以你的音乐审美有一个很明显的<strong>作者性偏好</strong>。</p>
+
+            <p>你喜欢能够让人感觉：</p>
+
+            <p><strong>“这首歌只能属于这个世界。”</strong></p>
+            </blockquote>
+
+            <p>然后它还发现了我收藏过很多虚拟歌手的歌，给我列了一个列表：</p>
+
+            <ul>
+            <li><span class="hover-hint">洛天依<span class="hover-hint__tooltip"><span class="hint-title">洛天依</span>中国首位中文VOCALOID虚拟歌手，Vsinger旗下，2012年7月12日声库发售。声源由山新、鹿乃担任，拥有治愈系声线。是中文V家文化的基础设施级角色，登上过央视《经典咏流传》、与郎朗合作全息音乐会等主流舞台。</span></span></li>
+            <li><span class="hover-hint">Hanser<span class="hover-hint__tooltip"><span class="hint-title">Hanser</span>中国内地配音演员、B站UP主、唱见、虚拟主播。2011年起在B站活跃，2019年拥有虚拟形象。配音与唱见双栖，以独特的声线和“憨色儿”“憨憨”等昵称在粉丝圈中具有高辨识度。</span></span></li>
+            <li><span class="hover-hint">多多poi<span class="hover-hint__tooltip"><span class="hint-title">多多poi</span>中国内地女性配音演员、歌手，B站知名UP主，隶属于奇响天外配音工作室。代表作包括《崩坏3》萝莎莉娅、《原神》派蒙、《战双帕弥什》丽芙等。2021年入选B站百大UP主。</span></span></li>
+            <li><span class="hover-hint">嘉然<span class="hover-hint__tooltip"><span class="hint-title">嘉然</span>乐华娱乐旗下虚拟偶像女团A-SOUL成员，队内“吃货担当”，设定为18岁大学生。2020年11月随组合公开，粉丝名为“嘉心糖”，代表作包括翻唱《猫中毒》及团体单曲《Quiet》等。</span></span></li>
+            <li><span class="hover-hint">乃琳<span class="hover-hint__tooltip"><span class="hint-title">乃琳</span>乐华娱乐旗下虚拟偶像女团A-SOUL成员，担任组合MC，以白色长发和御姐形象为特征，设定为19岁法学生。粉丝名为“奶淇琳”，代表作包括《Quiet》《超级敏感》《传说的世界》等团体单曲。</span></span></li>
+            <li><span class="hover-hint">花玲<span class="hover-hint__tooltip"><span class="hint-title">花玲</span>中国内地中日双语配音演员、歌手，本名林敏，奇响天外配音工作室创始成员，擅长少女及儿童角色。代表作包括《崩坏3》德丽莎、《原神》可莉/纳西妲、《英雄联盟》佐伊等。</span></span></li>
+            <li><span class="hover-hint">泠鸢yousa<span class="hover-hint__tooltip"><span class="hint-title">泠鸢yousa</span>中国大陆同人音乐创作者、虚拟主播、独立音乐人，居于成都。2008年起活跃于5sing等平台，音色空灵偏幼龄，国风古韵鲜明。代表作包括《新·九九八十一》《繁华唱遍》《爷爷的故乡》等，连续多年获评B站百大UP主。</span></span></li>
+            <li><span class="hover-hint">小缘<span class="hover-hint__tooltip"><span class="hint-title">小缘</span>中国网络歌手、B站唱见，2009年起涉足翻唱领域，B站2018百大UP主。以甜美与燃系无缝切换的嗓音著称，高音混声天赋出色。代表作包括《心做し》《unravel》《禁忌的边界线》等翻唱。</span></span></li>
+            <li><span class="hover-hint">茶理理<span class="hover-hint__tooltip"><span class="hint-title">茶理理</span>B站知名UP主、国人唱见，擅长英文及日文曲目，声线多变。是虚拟歌姬“星尘”的声源（中之人）。代表作包括《Reburn》等，以低调务实的风格和扎实唱功在唱见圈积累口碑。</span></span></li>
+            <li><span class="hover-hint">三无<span class="hover-hint__tooltip"><span class="hint-title">三无（三无Marblue）</span>B站知名唱见，国人翻唱歌手。声线辨识度高，风格飒爽利落，常被评价为“适合花木兰”的声线类型。与茶理理、祈Inory等同属国内较早一批活跃于B站和5sing的唱见。</span></span></li>
+            <li><span class="hover-hint">真白花音<span class="hover-hint__tooltip"><span class="hint-title">真白花音</span>日本虚拟主播，主要活跃于B站，粉丝数超214万，曾获B站2022虚拟UP主年终盛典“年度虚拟UP主”第三名。自称“高等精灵公主”，以长时间杂谈直播见长。2026年4月毕业后以“結川ユイナ”名义在YouTube重新出道。</span></span></li>
+            <li><span class="hover-hint">祈Inory<span class="hover-hint__tooltip"><span class="hint-title">祈Inory</span>中国网络歌手、唱见，活跃于B站、AcFun、5sing等平台。声音甜美、辨识度高，高音具有透明感，以元气少女声线著称。作品以动漫歌曲翻唱和同人原创为主，是国内唱见圈早期顶流之一。</span></span></li>
+            </ul>
+
+            <p>并说这类作品的共同点是<strong>声音本身就带有非常强烈的“人格存在感”</strong></p>
+
+            <blockquote>
+            <p>这和纯器乐 OST 不一样。</p>
+
+            <p>你既喜欢：</p>
+
+            <blockquote>
+            <p><strong>“没有人的世界。”</strong></p>
+            </blockquote>
+
+            <p>又喜欢：</p>
+
+            <blockquote>
+            <p><strong>“某个具体的人陪着我。”</strong></p>
+            </blockquote>
+
+            <p>这两个需求看起来矛盾，实际上非常统一。</p>
+
+            <p>你喜欢的是：</p>
+
+            <p><strong>低压力的陪伴。</strong></p>
+
+            <p>不是现实社交里的：</p>
+
+            <blockquote>
+            <p>“你最近怎么样？”</p>
+            </blockquote>
+
+            <blockquote>
+            <p>“你什么时候结婚？”</p>
+            </blockquote>
+
+            <blockquote>
+            <p>“工作怎么样？”</p>
+            </blockquote>
+
+            <blockquote>
+            <p>“工资多少？”</p>
+            </blockquote>
+
+            <p>而是：</p>
+
+            <blockquote>
+            <p>一个人坐在那里唱歌。</p>
+            </blockquote>
+
+            <p>不要求你回答。</p>
+
+            <p>这是一种非常舒服的关系。</p>
+            </blockquote>
+
+            <p>？？？不是你这是怎么分析出来的，说的还挺对。这很像我的内心世界。我在认真的时候其实不希望有人来打扰，但关系好的除外。有人来打扰意味着我要打断现在的思路，花费精力去回复信息。</p>
+
+            <h3 id="逃离现实与重建秩序">逃离现实与重建秩序</h3>
+
+            <blockquote>
+            <p>单从音乐偏好，我只能推测审美倾向。</p>
+
+            <p>但你的歌曲确实非常集中地指向：</p>
+
+            <blockquote>
+            <p><strong>一个人独处时，通过音乐构建环境。</strong></p>
+            </blockquote>
+
+            <p>......</p>
+
+            <p>这也是为什么你的歌单里：</p>
+
+            <p><strong>游戏 OST + 同人音乐 + 世界观音乐 + 环境感音乐</strong></p>
+
+            <p>占比这么高。</p>
+
+            <p>你可能并不需要音乐“刺激你”。</p>
+
+            <p>你更需要音乐：</p>
+
+            <p><strong>把现实的声音盖掉。</strong></p>
+            </blockquote>
+
+            <p>我又震惊了，这又是怎么分析出来的。和我前面写的大差不差。上了大学后就再也没有那么安静的环境了，所以我就戴上了耳机盖住现实中的声音。但注意是不让我觉得无聊，不让我的大脑闲下来（听歌还是有点占用的）</p>
+
+            <blockquote>
+            <p>现实世界的东西：</p>
+
+            <ul>
+            <li>爱情</li>
+            <li>工作</li>
+            <li>社会</li>
+            <li>日常生活</li>
+            </ul>
+
+            <p>在你的歌单里比例并不高。</p>
+
+            <p>但：</p>
+
+            <ul>
+            <li>神</li>
+            <li>月</li>
+            <li>山</li>
+            <li>湖</li>
+            <li>森林</li>
+            <li>遗迹</li>
+            <li>旅行</li>
+            <li>游戏</li>
+            <li>虚拟角色</li>
+            <li>异世界</li>
+            <li>古代</li>
+            <li>未来</li>
+            <li>世界尽头</li>
+            </ul>
+
+            <p>极多。</p>
+
+            <p>这意味着你对音乐的主要需求可能不是：</p>
+
+            <p><strong>“告诉我现实是什么。”</strong></p>
+
+            <p>而是：</p>
+
+            <p><strong>“让我暂时离开现实。”</strong></p>
+
+            <p>......</p>
+
+            <p>你不是特别喜欢纯粹逃避型音乐。</p>
+
+            <p>你喜欢的是：</p>
+
+            <blockquote>
+            <p><strong>一个比现实更有秩序、更有美感、更有故事的世界。</strong></p>
+            </blockquote>
+
+            <p>所以《The Rebel Path》和《千湖与月的秘径》竟然可以同时存在于你的收藏里。</p>
+
+            <p>一个是<span class="hover-hint">赛博朋克<span class="hover-hint__tooltip"><span class="hint-title">赛博朋克</span>科幻文学与亚文化流派，“Cybernetics（控制论）+ Punk（朋克）”的合成词。核心特征是“高科技，低生活”——高度发达的科技与崩坏的社会秩序并存，常涉及黑客、人工智能、大公司统治与反乌托邦叙事。视觉符号包括霓虹灯、义体改造、雨夜都市与全息广告。</span></span>。</p>
+
+            <p>一个像北境幻想。</p>
+
+            <p>但是两者都在告诉你：</p>
+
+            <p><strong>“这里有一个完整的世界，你可以进去走走。”</strong></p>
+            </blockquote>
+
+            <p>是的，进入赛博世界后就能短暂逃离现实。但这是真的吗？最近几乎每天都是从早干到晚，我看了下显示器右下角我放的电子钟，显示 <u>2026年10月17日 周六 1:14</u> 。哎呀又干到了这么晚，但是我觉得很舒服呀。</p>
+
+            <h3 id="情绪层次与心理坐标轴">情绪层次与心理坐标轴</h3>
+
+            <blockquote>
+            <p><strong>你的“情绪”其实没有歌单看起来那么悲伤</strong></p>
+
+            <p>如果只看：</p>
+
+            <p>《孤独月》</p>
+
+            <p>《愁绪谧息》</p>
+
+            <p>《残垣》</p>
+
+            <p>《为霜》</p>
+
+            <p>《镇命歌》</p>
+
+            <p>《灯影之外》</p>
+
+            <p>《世界尽头酒馆》</p>
+
+            <p>可能会觉得：</p>
+
+            <blockquote>
+            <p>“这个人是不是天天凌晨三点望着窗外思考宇宙终极意义？”</p>
+            </blockquote>
+
+            <p>然后再往下看：</p>
+
+            <p>《没醉！！！》</p>
+
+            <p>《祂说我超可爱》</p>
+
+            <p>《购物频道》</p>
+
+            <p>《欢笑合成乐》</p>
+
+            <p>《游戏时间到》</p>
+
+            <p>《Zombies on Your Lawn》</p>
+
+            <p>《1-800》</p>
+
+            <p>《Piranha Plants On Parade》</p>
+
+            <p>……</p>
+
+            <p>于是结论变成：</p>
+
+            <p><strong>不是。</strong></p>
+
+            <p>你更像是：</p>
+
+            <blockquote>
+            <p><strong>白天还能正常运行，晚上开始加载隐藏地图。</strong></p>
+            </blockquote>
+
+            <p>你的歌单不是悲伤。</p>
+
+            <p>是<strong>情绪层次很多</strong>。</p>
+
+            <p>你甚至会主动欣赏悲伤，但不一定沉溺于悲伤。</p>
+
+            <p>这两者差别很大。</p>
+            </blockquote>
+
+            <p>然后我的Ai甚至给我画了张心理坐标轴，说我明显集中在右上角：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>                 幻想
+                  ↑
+                  │
+       东方幻想    │   世界观型OST
+                  │
+       同人音乐    │   HOYO-MiX
+                  │
+──────────────────┼──────────────────→ 沉浸
+                  │
+       华语怀旧    │   欧美电子
+                  │
+       流行歌曲    │   游戏/网络文化
+                  │
+                  ↓
+                 现实
+</code></pre>
+            </div>
+
+            <p>放到这里布局可能会乱，我转为<span class="hover-hint">SVG<span class="hover-hint__tooltip"><span class="hint-title">SVG</span>可缩放矢量图形（Scalable Vector Graphics），基于XML的矢量图像格式，用于在网页中绘制图形。与位图不同，SVG放大不会失真，适合绘制坐标轴、图表、图标等。本文中作者将AI给出的“心理坐标轴”从文本转换为SVG以便正确展示布局。</span></span>给你们看：</p>
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="100%" height="100%"><!--定义全局样式--><style>.axis-line{stroke:#333;stroke-width:1.5}.axis-text{fill:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;font-size:22px;text-anchor:middle}.quadrant-text{fill:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;font-size:20px;text-anchor:middle}.arrow{fill:none;stroke:#333;stroke-width:1.5;stroke-linejoin:round}</style><!--背景（保持透明或白色）--><rect width="100%" height="100%" fill="#ffffff"/><!--坐标轴--><!--Y轴（垂直实线）--><line x1="400"y1="110"x2="400"y2="580"class="axis-line"/><!--X轴（水平实线）--><line x1="60"y1="350"x2="680"y2="350"class="axis-line"/><!--箭头--><!--顶部箭头（幻想）--><path d="M 393 110 L 400 95 L 407 110"class="arrow"/><!--底部箭头（现实）--><path d="M 393 580 L 400 595 L 407 580"class="arrow"/><!--右侧箭头（沉浸）--><path d="M 680 340 L 695 350 L 680 360"class="arrow"/><!--坐标轴标签--><text x="400"y="60"class="axis-text"font-size="24">幻想</text><!--“现实”稍微向上挪动--><text x="400"y="640"class="axis-text"font-size="24">现实</text><!--“沉浸”往右移--><text x="730"y="358"class="axis-text"font-size="24"text-anchor="start">沉浸</text><!--象限内容--><!--左上：幻想+同人--><text x="200"y="180"class="quadrant-text">东方幻想</text><text x="200"y="260"class="quadrant-text">同人音乐</text><!--右上：幻想+沉浸--><text x="600"y="180"class="quadrant-text">世界观型OST</text><text x="600"y="260"class="quadrant-text">HOYO-MiX</text><!--左下：现实+怀旧--><text x="200"y="450"class="quadrant-text">华语怀旧</text><text x="200"y="540"class="quadrant-text">流行歌曲</text><!--右下：现实+沉浸--><text x="600"y="450"class="quadrant-text">欧美电子</text><text x="600"y="540"class="quadrant-text">游戏/网络文化</text></svg>
+
+            <h3 id="意境化描写与评分">意境化描写与评分</h3>
+
+            <p>最有氛围感的地方来了，Ai尝试把我的内心世界拟人化，构建出了一个意境：</p>
+
+            <blockquote>
+            <p>深夜。</p>
+
+            <p>一个人坐在电脑前。</p>
+
+            <p>桌面上有一些没关掉的程序。</p>
+
+            <p>浏览器开着很多标签页。</p>
+
+            <p>游戏没有真正退出，只是挂在后台。</p>
+
+            <p>耳机里先是 HOYO-MiX。</p>
+
+            <p>远处像是有雪山、湖泊和旧文明遗迹。</p>
+
+            <p>走了一段之后，进入一家世界尽头的酒馆。</p>
+
+            <p>酒馆里有人唱东方同人曲。</p>
+
+            <p>墙上挂着不知道哪个世界的地图。</p>
+
+            <p>桌角还有一个 <span class="hover-hint">8-bit<span class="hover-hint__tooltip"><span class="hint-title">8-bit</span>8位元风格，原指早期家用电脑和游戏机（如红白机）的图形与声音技术限制。在音乐中，“8-bit音乐”指用芯片音源制作的电子音乐，音色清脆、颗粒感强；在视觉上则关联像素风游戏画面。常被用于怀旧、游戏感和复古电子审美。</span></span> 小游戏。</p>
+
+            <p>再往前走，突然遇到一个虚拟角色冲你挥手：</p>
+
+            <p>“欢迎回家。”</p>
+
+            <p>你坐下来。</p>
+
+            <p>什么都不用说。</p>
+
+            <p>音乐继续播放。</p>
+            </blockquote>
+
+            <p>然后是Ai给我的某些方面打分：</p>
+
+            <div class="callout callout--important">
+                <div class="callout__title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#8250df" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg> IMPORTANT</div>
+                <div class="callout__body">
+            <p>以下评分仅为 Ai 给出的评分，并非代表我的真实审美。</p>
+                </div>
+            </div>
+
+            <p>音乐审美完成度：<progress value="9" max="10"></progress></p>
+
+            <blockquote>
+            <p>不是因为你“听得高级”。恰恰相反，你听得非常杂。但杂得<strong>有自己的审美主轴</strong>。</p>
+            </blockquote>
+
+            <p>世界观依赖度：<progress value="10" max="10"></progress></p>
+
+            <blockquote>
+            <p>你甚至可能会因为一首歌的标题和氛围很对胃口，即使不知道歌词讲什么，也愿意收藏。</p>
+            </blockquote>
+
+            <p>怀旧属性：<progress value="8" max="10"></progress></p>
+
+            <blockquote>
+            <p>尤其是游戏、互联网、动漫、早期网络文化。</p>
+            </blockquote>
+
+            <p>二次元浓度：<progress value="95" max="100"></progress></p>
+
+            <blockquote>
+            <p>已经不是“涉猎”。是建立基础设施了。</p>
+            </blockquote>
+
+            <p>情绪复杂度：<progress value="85" max="100"></progress></p>
+
+            <blockquote>
+            <p>不是单纯开心/悲伤，而是很吃：<strong>惆怅、温柔、孤独、浪漫、探索、怀旧、治愈、荒凉、热闹、荒诞。</strong></p>
+            </blockquote>
+
+            <p>商业排行榜依赖度：<progress value="2" max="10"></progress></p>
+
+            <blockquote>
+            <p>你对“大家都在听什么”似乎没有太强兴趣。</p>
+            </blockquote>
+
+            <p>“这首歌有没有自己的世界”：<progress value="10" max="10"></progress></p>
+
+            <blockquote>
+            <p>这是你最重要的指标。</p>
+            </blockquote>
+
+            <h3 id="最终锐评与一句话总结">最终锐评与一句话总结</h3>
+
+            <p>最后就到了总结：</p>
+
+            <blockquote>
+            <p>如果让我用一句话锐评你的音乐品味：</p>
+
+            <blockquote>
+            <p><strong>你不是在听歌，你是在给自己的脑子建一个私人 <span class="hover-hint">Minecraft<span class="hover-hint__tooltip"><span class="hint-title">Minecraft / 我的世界</span>瑞典设计师马库斯·佩尔松（Notch）开创、Mojang Studios开发的沙盒游戏，2009年发布，2011年推出正式版。核心玩法围绕“破坏与放置方块”，玩家可在三维世界中自由建造、探索、生存与冒险，因其极高的自由度，常被比喻为“可以进入走走的私人世界”。</span></span> 世界，只不过建筑材料包括 HOYO-MiX、东方Project、V家、同人音乐、古风、赛博朋克、<span class="hover-hint">Mili<span class="hover-hint__tooltip"><span class="hint-title">Mili</span>以日本为据点的独立音乐团体，2012年成立，核心成员为加拿大籍主唱/填词人momocashew（Cassie Wei）与日本作曲编曲家Yamato Kasai（HAMO）。音乐风格融合电子、摇滚、古典与叙事性，常为游戏和动画供曲，代表作涉及《Deemo》《Cytus》《废墟图书馆》《明日方舟》《边狱巴士公司》《崩坏：星穹铁道》及动画《哥布林杀手》等。</span></span>、虚拟主播和一些突然出现的欧美抽象说唱。</strong></p>
+            </blockquote>
+
+            <p>而你的内心世界，我会概括成：</p>
+
+            <blockquote>
+            <p><strong>一个不太喜欢现实世界的粗糙质感，却非常喜欢世界本身的人。</strong></p>
+            </blockquote>
+            </blockquote>
+
+            <h2 id="ai锐评-哔哩哔哩-音乐收藏夹">Ai锐评 哔哩哔哩 音乐收藏夹</h2>
+
+            <p>我的<span class="hover-hint">哔哩哔哩<span class="hover-hint__tooltip"><span class="hint-title">哔哩哔哩 / B站</span>中国年轻世代高度聚集的视频弹幕网站，早期以ACG内容起家，现已扩展至生活、知识、游戏、音乐等全品类。弹幕文化、UP主生态和“一键三连”是其标志性符号，也是国内虚拟主播和唱见文化最重要的聚集地之一。</span></span>音乐专属收藏夹：<a href="https://space.bilibili.com/388842706/favlist?fid=1218497906" target="_blank" rel="noopener noreferrer">【网页链接】</a></p>
+
+            <h3 id="开头获取数据">开头：获取数据</h3>
+
+            <p>网易云Ai评价得真好，我又有点好奇我B站上的收藏夹Ai会怎么给我评价。</p>
+
+            <p>但是B站可没有导出最近收藏的100首歌，所以我就尝试自己实现~</p>
+
+            <blockquote>
+            <p><em>都是网页端了那就不必多说了吧</em></p>
+            </blockquote>
+
+            <p>OK啊，我也是直接<span class="hover-hint">Python<span class="hover-hint__tooltip"><span class="hint-title">Python</span>通用高级编程语言，由荷兰人吉多·范罗苏姆（Guido van Rossum）于1989年开始开发，设计哲学强调“优雅、明确、简单”，语法简洁易读。应用领域极广，包括网络爬虫、数据分析、人工智能、自动化脚本、Web开发等。</span></span>启动！！！写了一个将<span class="hover-hint">HTML<span class="hover-hint__tooltip"><span class="hint-title">HTML</span>超文本标记语言（HyperText Markup Language），用于构建网页结构和内容的标记语言。浏览器读取HTML后渲染出文字、图片、链接、表格等页面元素。本文中作者手动复制网页端的HTML块，再通过Python脚本解析成CSV数据。</span></span>块解析成<span class="hover-hint">CSV<span class="hover-hint__tooltip"><span class="hint-title">CSV</span>逗号分隔值（Comma-Separated Values）文件格式，以纯文本存储表格数据，每行一条记录，字段之间用逗号分隔。简单、通用，常用于不同电子表格软件之间的数据交换。</span></span>的脚本，手动复制粘贴HTML数据，直接把我约300份收藏的视频全导出来了。然后我直接复制粘贴发给Ai让它锐评。</p>
+
+            <h3 id="总体印象">总体印象</h3>
+
+            <blockquote>
+            <p>先说结论：<strong>你的听歌品味不是单纯的二次元，也不是单纯的古风，更不是所谓的“杂食”。你的核心偏好是有世界观、有画面感、有情绪叙事的音乐。</strong> 你听歌不只是为了旋律好听，更像是在给自己的精神世界收集场景、角色、回忆，以及偶尔用来对抗周一的精神武器。</p>
+
+            <p>我看了你这份包含 296 个条目的歌单。从<a href="https://www.bilibili.com/video/BV1es41127Fd/" target="_blank" rel="noopener noreferrer">《霜雪千年》</a><a href="https://www.bilibili.com/video/BV1Qs411k7Qv/" target="_blank" rel="noopener noreferrer">《世末歌者》</a>到《东方Project》《原神》<span class="hover-hint">《碧蓝档案》<span class="hover-hint__tooltip"><span class="hint-title">碧蓝档案</span>韩国NEXON Games旗下MX工作室开发、悠星网络发行的二次元RPG。舞台为学园都市“基沃托斯”，由数千所风格各异的学校组成，学生头顶光环并随身携带枪械。玩家扮演“老师”指挥学生作战，核心概念为“学园×青春×枪械”，以清新明快的色调和轻松日常感著称。</span></span>，从凯尔特民谣、<a href="https://www.bilibili.com/video/BV14F411R7No/" target="_blank" rel="noopener noreferrer">冰岛现场</a>到《Minecraft》、梗曲和儿童时代的旋律，你的音乐收藏简直像一座没有分类管理员的数字博物馆。馆藏很丰富，参观路线则由你的多巴胺临时决定。</p>
+            </blockquote>
+
+            <p>依旧是世界观和画面感。我发现收藏夹有些页面并不是排满的，总有几页空几个视频，应该之前被我当失效视频清理掉了？</p>
+
+            <blockquote>
+            <p>下面开始解剖。放心，不收挂号费。</p>
+            </blockquote>
+
+            <h3 id="我的音乐人格六大派系争夺大脑控制权">我的音乐人格：六大派系，争夺大脑控制权</h3>
+
+            <h4 id="古风与虚拟歌姬你的精神故乡">古风与虚拟歌姬：你的精神故乡</h4>
+
+            <blockquote>
+            <p>代表曲目：<a href="https://www.bilibili.com/video/BV1es41127Fd/" target="_blank" rel="noopener noreferrer">《霜雪千年》</a><a href="https://www.bilibili.com/video/BV1Qs411k7Qv/" target="_blank" rel="noopener noreferrer">《世末歌者》</a><a href="https://www.bilibili.com/video/BV1FwuyzAEsw/" target="_blank" rel="noopener noreferrer">《权御天下》</a><a href="https://www.bilibili.com/video/BV1XX4y1n7zm/" target="_blank" rel="noopener noreferrer">《月亮的价格是九镑十五便士》</a><a href="https://www.bilibili.com/video/BV1Z3411n7pz/" target="_blank" rel="noopener noreferrer">《梦与叶樱》</a></p>
+            </blockquote>
+
+            <p>Ai说我对这些虚拟歌手和古风歌作者有格外偏好，也指出我不是喜欢虚拟歌声，而是喜欢鲜明的意象。</p>
+
+            <p>emmmm其实我在干活的时候<strong>不怎么在意歌词，就是纯听旋律</strong></p>
+
+            <blockquote>
+            <p>锐评：别人听歌是耳朵在上班，你听歌是脑内美术组、编剧组、灯光组和世界观策划组同时加班。预算为零，渲染却开到最高画质。</p>
+            </blockquote>
+
+            <h4 id="游戏原声你真正的音乐主干">游戏原声：你真正的音乐主干</h4>
+
+            <blockquote>
+            <p>代表作品：《原神》<span class="hover-hint">《崩坏：星穹铁道》<span class="hover-hint__tooltip"><span class="hint-title">崩坏：星穹铁道</span>米哈游开发的银河冒险策略RPG，2023年公测，“崩坏”系列第五部作品。玩家作为“开拓者”登上星穹列车穿越银河，沿“星神”曾行之路造访不同世界。核心玩法为回合制策略战斗，世界观围绕“星神”“命途”“星核”等概念展开。</span></span>《碧蓝档案》<span class="hover-hint">《绝区零》<span class="hover-hint__tooltip"><span class="hint-title">绝区零</span>米哈游自研的都市幻想动作RPG，2024年公测。故事发生在被超自然灾害“空洞”侵袭的近未来都市“新艾利都”，玩家扮演“绳匠”，以三人小队进行高速动作战斗。以潮酷都市美学、流畅连招和快节奏战斗为特色。</span></span><span class="hover-hint">《鸣潮》<span class="hover-hint__tooltip"><span class="hint-title">鸣潮</span>广州库洛科技开发的开放世界动作游戏，2024年公测。玩家扮演在世界上苏醒的“漂泊者”，主打高自由度动作战斗与开放世界探索，支持高速移动、钩索、蹬墙跑酷等机动探索方式，以动作系统的连招与弹反手感为核心卖点。</span></span><span class="hover-hint">《明日方舟》<span class="hover-hint__tooltip"><span class="hint-title">明日方舟</span>上海鹰角网络开发的策略向即时战略塔防手游，2019年公测。舞台为“泰拉世界”，玩家作为“博士”与罗德岛领导人阿米娅一同带领干员，处理“源石”争端与矿石病带来的歧视与纷争。以塔防关卡制、干员养成和严肃叙事风格在二次元手游中独树一帜。</span></span></p>
+            </blockquote>
+
+            <p>Ai发现我的收藏夹中很多都是游戏的OST，以及交响现场和乐器改编。然后Ai指出我愿意把力气花在作品的环境、气氛和配乐上。</p>
+
+            <p>确实，原神的音乐就很能带来氛围感。比如：<a href="https://www.bilibili.com/video/BV1GU4y1C7yu/" target="_blank" rel="noopener noreferrer">《须弥》</a>，这首曲子播放时我脑子可以自动脑补画面——从<a href="https://baike.baidu.com/item/%E5%8C%96%E5%9F%8E%E9%83%AD/61718336" target="_blank" rel="noopener noreferrer"><span class="hover-hint">化城郭<span class="hover-hint__tooltip"><span class="hint-title">化城郭</span>《原神》须弥地区道成林范围内的聚落，巡林员聚集地，由提纳里领导，承担雨林生态维护职能，是从层岩巨渊前往须弥城的必经之地。</span></span></a>到<a href="https://baike.baidu.com/item/%E9%A1%BB%E5%BC%A5%E5%9F%8E/61763135" target="_blank" rel="noopener noreferrer"><span class="hover-hint">须弥城<span class="hover-hint__tooltip"><span class="hint-title">须弥城</span>《原神》须弥地区的主城，坐落在须弥东部雨林之内，围绕巨大的圣树建成，拥有上下多层结构，是“草与智慧的国度”须弥的首都，城市最底层为大巴扎集市区。</span></span></a></p>
+
+            <blockquote>
+            <p><strong>你收藏的不是单首歌，而是进入某个世界的入口。</strong></p>
+
+            <p>锐评：其他玩家打完副本就退出，你还要把副本 BGM 收进歌单，确保现实生活再怎么无聊，你依旧能在脑内启动开放世界。</p>
+            </blockquote>
+
+            <h4 id="东方-project-与同人音乐">东方 Project 与同人音乐</h4>
+
+            <p>嘿嘿嘿那时候我收藏了很多有关东方的BGM和基于原曲的二创，因为旋律太相似了所以Ai说：</p>
+
+            <blockquote>
+            <p>说明你未必只是在追一首熟悉的旋律。你也可能喜欢观察同一段音乐在不同编曲、节奏和情绪处理下呈现出来的面貌。</p>
+            </blockquote>
+
+            <blockquote>
+            <p>锐评：你可能不是每首东方曲的考据型专家，但你已经给自己的收藏系统部署了一套同人音乐索引。文件夹不一定整齐，精神依赖倒是非常稳定。</p>
+            </blockquote>
+
+            <p>我收藏了很多东方的BGM的原因是我很喜欢东方的旋律，这促使大数据给我推送了很多 相似的曲子。因为旋律嘛就点收藏了。</p>
+
+            <p>其实旋律相似的话，翻奏我觉得也不错，比如：<a href="https://www.bilibili.com/video/BV1ZCqaYWEQU/" target="_blank" rel="noopener noreferrer">【原神】还得是他！一人乐队还原「烟谜主」BGM</a></p>
+
+            <h4 id="凯尔特民谣与异域音乐你对陌生世界的好奇心">凯尔特、民谣与异域音乐：你对陌生世界的好奇心</h4>
+
+            <p>啊对对对，我对这种类型的音乐毫无抵抗力。</p>
+
+            <blockquote>
+            <p>代表曲目：《<a href="https://www.bilibili.com/video/BV1mbzUYREkH/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Life We Sow<span class="hover-hint__tooltip"><span class="hint-title">Life We Sow（播种生命）</span>Mili 的《Life We Sow》是一首为手机游戏 《魔法使的约束》（Promise of Wizard） 创作的五国印象曲之一，具体是其中“南之国”的印象曲。<br>从歌词来看，歌曲的主题围绕着农耕生活与简单的幸福。歌词描绘了在金色阳光下耕作、收获的场景，并反复吟唱着“Being happy means to eat, and grow, and sleep”（幸福意味着吃饭、成长和睡觉），传达出一种回归自然、在劳动与生命循环中找到内心满足的质朴理念。</span></span></a>》《<a href="https://www.bilibili.com/video/BV1Ld4y1V7dM/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Daily Growing<span class="hover-hint__tooltip"><span class="hint-title">Daily Growing</span>《Daily Growing》是一首传统的爱尔兰民谣，它最为人熟知的版本由爱尔兰乐队 Altan 演唱，收录于他们2002年的专辑《The Blue Idol》中。<br>这首歌的背景根植于中世纪贵族间通过童婚来联合家族财富与权势的普遍习俗，讲述了一位年长女子被迫嫁给一个年幼男孩，而男孩尚未长大便早逝的悲剧。</span></span></a>》《<a href="https://www.bilibili.com/video/BV1BXNoeaECy/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Wellerman<span class="hover-hint__tooltip"><span class="hint-title">Wellerman</span>新西兰捕鲸船歌（sea shanty），可追溯至1860—1870年代。“Wellerman”指Weller兄弟贸易公司的补给船，歌词讲述捕鲸船员等待补给船带来糖、茶和朗姆酒的故事。2020年代在TikTok上意外爆红，引发全球“船歌热潮”。</span></span></a>》《<a href="https://www.bilibili.com/video/BV1RX4y1T76B/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Five Hundred Miles<span class="hover-hint__tooltip"><span class="hint-title">Five Hundred Miles</span>美国民谣，由Hedy West创作于1961年，正值美国民谣复兴时期。歌词表达离乡漂泊、身无分文、羞于归家的复杂乡愁。后因电影《醉乡民谣》再度走红，被誉为世界经典民谣之一。</span></span></a>》《<a href="https://www.bilibili.com/video/BV1mf4y1a7Zi/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">斯卡布罗集市<span class="hover-hint__tooltip"><span class="hint-title">斯卡布罗集市</span>经典英语民谣，歌词形成可追溯至十三世纪北欧，旋律起源可能更早，相传由维京人与凯尔特人经数百年传唱融合而成。歌中反复出现欧芹、鼠尾草、迷迭香、百里香等意象，莎拉·布莱曼的演绎版本广为人知，与《500 Miles》《山鹰之歌》并称世界三大经典民谣。</span></span></a>》</p>
+
+            <p>你还收藏了俄罗斯民谣《<a href="https://www.bilibili.com/video/BV1VSBZBUEco/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Белая кошка<span class="hover-hint__tooltip"><span class="hint-title">Белая кошка</span>俄罗斯民谣乐队Мельница（“磨坊”）的代表作之一，收录于2006年专辑《Зов Крови》，中文常译“小白猫”。歌词以童话般意象描绘对爱与自由的追寻，带有凯尔特风格与俄语民谣的空灵叙事感。</span></span></a>》、标题标注凯尔特风格的《<a href="https://www.bilibili.com/video/BV1KhwHzbEmZ/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Девочка с Севера<span class="hover-hint__tooltip"><span class="hint-title">Девочка с Севера</span>俄罗斯音乐人polnalyubvi创作的俄语歌曲，中文译“北境之女”。融合凯尔特音乐元素与史诗氛围，整体风格空灵深邃，带有强烈的叙事感和民族风情，并非传统民谣或历史歌曲，而是现代创作。</span></span></a>》、爱尔兰民谣《Daily Growing》、海员歌《Wellerman》，以及中世纪风格民谣和莎拉·布莱曼演绎的《斯卡布罗集市》。</p>
+            </blockquote>
+
+            <p>简直就是不同文化的乱炖。我还是很喜欢西欧那边的音乐的，比如凯尔特风格的：<a href="https://www.bilibili.com/video/BV1uEVh6BEfc/" target="_blank" rel="noopener noreferrer">《原神》挪德卡莱篇OST</a></p>
+
+            <blockquote>
+            <p>锐评：别人旅游先做攻略，你先配 BGM。目的地可以不存在，预算可以是零，但精神上的海盗船、石板路和绿色山谷必须齐全。</p>
+            </blockquote>
+
+            <h4 id="氛围电子钢琴与爵士嘻哈你的精神散热系统">氛围电子、钢琴与爵士嘻哈：你的精神散热系统</h4>
+
+            <blockquote>
+            <p>代表作品：<a href="https://www.bilibili.com/video/BV1JwXbYSEKA/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Xomu<span class="hover-hint__tooltip"><span class="hint-title">Xomu</span>澳籍华裔电子音乐制作人，2017年起在YouTube发布作品，2018年《Lanterns》在中国网络走红。创作灵感融合EDM、游戏音乐、J-Pop/摇滚与亚洲民间元素，以“电子中国风”的旋律渲染力著称。</span></span></a>、<a href="https://space.bilibili.com/2036131" target="_blank" rel="noopener noreferrer"><span class="hover-hint">KiraraMagic<span class="hover-hint__tooltip"><span class="hint-title">KiraraMagic</span>中国电子音乐制作人，擅长Kawaii Bass及古风系列电子音乐。2018年起在网易云音乐活跃，以可爱旋律、欢快音色和“东方电子”风格在Future Bass/EDM圈中具有辨识度。</span></span></a>、<span class="hover-hint">TheFatRat<span class="hover-hint__tooltip"><span class="hint-title">TheFatRat</span>德国电子音乐制作人/DJ，本名Christian Friedrich Johannes Büttner，1979年生。以Epic Electronic、Glitch Hop风格著称，作品常带有游戏感和史诗感，在YouTube游戏音乐社区拥有极高播放量。</span></span>、<a href="https://www.bilibili.com/video/BV1u54y1J7bQ/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">DJ Okawari<span class="hover-hint__tooltip"><span class="hint-title">DJ Okawari</span>日本静冈县出身的爵士嘻哈（Jazz Hip Hop）制作人/DJ。“Okawari”在日语中意为“再来一碗”，中文圈昵称“碗叔”。标志性音色是明亮的钢琴（Grand Piano）与电鼓，保留爵士高叠和弦与Hip Hop反拍律动，曲风华丽优美、画面感极强。代表作《Flower》等广为流传。</span></span></a>、<a href="https://www.bilibili.com/video/BV13oDwBSEwr/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Nujabes<span class="hover-hint__tooltip"><span class="hint-title">Nujabes</span>日本爵士嘻哈制作人，本名瀬葉淳，被广泛视为Jazz Hip Hop领域的标杆人物之一，对日本及全球Chillhop/Lo-fi Hip Hop场景影响深远。以细腻的爵士采样和温柔律动著称，英年早逝，作品持续影响后世。代表作涉及《混沌武士》动画配乐等。</span></span></a>、<a href="https://www.bilibili.com/video/BV1tP4y1U7WK/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">FKJ<span class="hover-hint__tooltip"><span class="hint-title">FKJ</span>法国电子音乐人、多乐器演奏家，本名Vincent Fenton。以现场 looping、即兴演奏和松弛的House/Electronic风格著称，音乐空间感强、氛围舒适，常被形容为“氛围电台”式的存在。</span></span></a>、<a href="https://www.bilibili.com/video/BV14F411R7No/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Ólafur Arnalds<span class="hover-hint__tooltip"><span class="hint-title">Ólafur Arnalds</span>冰岛作曲家、音乐人，擅长将钢琴、弦乐与电子氛围融合，音乐冷冽、空灵、极具空间感与情感张力。冰岛现场演出常以极简舞台和沉浸式音景著称，是“冰岛音乐”审美的重要代表之一。</span></span></a>、《<a href="https://www.bilibili.com/video/BV1Px4y1X7RM/" target="_blank" rel="noopener noreferrer">River Flows In You</a>》</p>
+            </blockquote>
+
+            <p>这一部分很有层次。</p>
+
+            <div class="table-wrap"><table><thead><tr><th>歌手</th><th>对应</th></tr></thead><tbody><tr><td>Xomu、TheFatRat 和 KiraraMagic</td><td>有节奏动力的电子乐</td></tr><tr><td>DJ Okawari、Nujabes</td><td>爵士、嘻哈和旋律型器乐</td></tr><tr><td>FKJ（氛围电台）、Ólafur Arnalds（冰岛现场）</td><td>更松弛、空间感更强的音乐</td></tr></tbody></table></div>
+
+            <p>节奏快的音乐可以让我<strong>保持精神</strong>，而节奏慢的可以让我<strong>更专注</strong>。</p>
+
+            <blockquote>
+            <p>锐评：你的音乐播放器兼任 CPU 散热管理软件。现实任务负责制造负载，BGM 负责让系统不要因为人类的日常需求而直接蓝屏。</p>
+            </blockquote>
+
+            <h4 id="老动画游戏记忆与网络梗曲你的心理防火墙">老动画、游戏记忆与网络梗曲：你的心理防火墙</h4>
+
+            <blockquote>
+            <p>代表作品：<a href="https://www.bilibili.com/video/BV11A411q7ad/" target="_blank" rel="noopener noreferrer">《Minecraft》原声</a>、《<a href="https://www.bilibili.com/video/BV1KV411J7az/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">UNDERTALE<span class="hover-hint__tooltip"><span class="hint-title">UNDERTALE / 传说之下</span>由Toby Fox独立开发并于2015年发行的像素风角色扮演游戏（RPG）。玩家扮演坠入地下怪物世界的人类孩童，核心特色是“不杀”路线——可以选择与怪物战斗，也可以选择宽恕并与之交友，选择会深刻影响剧情走向。游戏以叙事深度、音乐和打破第四面墙的设计闻名，是独立游戏史上的里程碑作品。</span></span></a>》《<a href="https://www.bilibili.com/video/BV16t411D7Nj/?p=13" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Deltarune<span class="hover-hint__tooltip"><span class="hint-title">Deltarune / 三角符文</span>Toby Fox开发的章节式RPG，为《Undertale》的后续作品，2018年起不定期发布。玩家扮演人类少年Kris，与同学Susie及王子Ralsei一同在“黑暗世界”冒险。延续了《Undertale》的世界观线索但构建全新剧情，Toby Fox本人负责剧本与配乐。</span></span></a>》《<a href="https://www.bilibili.com/video/BV1zx411L78z/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">World of Goo<span class="hover-hint__tooltip"><span class="hint-title">World of Goo / 粘粘世界</span>美国独立游戏工作室2D Boy（核心成员Kyle Gabler与Ron Carmel）开发的物理学题材益智游戏，2008年发行。玩家操控具有粘性的“粘粘球”（Goo），搭建建筑框架将指定数量的粘粘球运送至管道口。以独特的物理玩法、氛围感画面和原创配乐著称，是独立游戏早期的代表作之一。</span></span></a>》、《<a href="https://www.bilibili.com/video/BV18x411U7pR/" target="_blank" rel="noopener noreferrer"><span class="hover-hint">Poly Bridge<span class="hover-hint__tooltip"><span class="hint-title">Poly Bridge</span>新西兰独立团队Dry Cactus开发、2016年在Steam发行的桥梁建造模拟解谜游戏。玩家在预算和材料限制下，运用物理原理设计桥梁让车辆通过，包含100多个关卡及沙盘模式。以“造桥鬼才”式的沙雕失败场面和物理引擎的不可预测性在玩家社群中广为传播，中文译名“保利桥”或“多边形造桥”。</span></span></a>》、《<a href="https://www.bilibili.com/video/BV12t411W7Cj/" target="_blank" rel="noopener noreferrer">桃花朵朵开</a>》《<a href="https://www.bilibili.com/video/BV1ft4y1Y7ou/" target="_blank" rel="noopener noreferrer">自由飞翔</a>》、各种网络梗曲</p>
+            </blockquote>
+
+            <p>我的童年啊~，很多都是之前收藏的。</p>
+
+            <blockquote>
+            <p>锐评：你的审美没有被流行文化绑架，因为你连审美本身都不肯长期服从。前一秒是艺术鉴赏，后一秒是精神撤硕，切换速度堪比快捷键。</p>
+            </blockquote>
+
+            <h3 id="审美核心">审美核心</h3>
+
+            <p>Ai指出我对有画面的音乐、怀旧和“宏大”与“温柔”有双重需求。</p>
+
+            <p>至于“宏大”与“温柔”...</p>
+
+            <p>一边是 《<a href="https://www.bilibili.com/video/BV17o4y1A7yt/" target="_blank" rel="noopener noreferrer">Wildfire</a>》《<a href="https://www.bilibili.com/video/BV13s411A74v/" target="_blank" rel="noopener noreferrer">The Phoenix</a>》...... 容易让人联想到力量、冲突、成长或爆发的作品。</p>
+
+            <p>另一边是 《<a href="https://www.bilibili.com/video/BV1Ag4y1b7pa/" target="_blank" rel="noopener noreferrer">温柔的回忆</a>》《<a href="https://www.bilibili.com/festival/genshin3rd?bvid=BV1Yj41187gS" target="_blank" rel="noopener noreferrer">别让我担心</a>》《<a href="https://www.bilibili.com/festival/zzz2025birthday?bvid=BV1U5TxzWE47" target="_blank" rel="noopener noreferrer">别忘记查收关心</a>》《<a href="https://www.bilibili.com/video/BV1Px4y1X7RM/" target="_blank" rel="noopener noreferrer">River Flows In You</a>》《<a href="https://www.bilibili.com/festival/genshin2023?bvid=BV1P24y1a7Lt" target="_blank" rel="noopener noreferrer">我不曾忘记</a>》《<a href="https://www.bilibili.com/video/BV1XmnhzVEby/" target="_blank" rel="noopener noreferrer">回家的路</a>》。</p>
+
+            <blockquote>
+            <p><strong>你不只想听音乐让自己振作，也允许音乐让自己暂时柔软下来。</strong></p>
+            </blockquote>
+
+            <h3 id="从歌单反推内心世界">从歌单反推内心世界</h3>
+
+            <p>Ai将我的内心世界归类为四个层面：</p>
+
+            <ul>
+            <li>第一层：理性的大脑，浪漫的后台进程</li>
+            <li>第二层：你可能很重视某些时刻留下的感觉</li>
+            <li>第三层：你需要独处，但不一定拒绝人与人的连接</li>
+            <li>第四层：你没有把“高级”当成收藏的硬性门槛</li>
+            </ul>
+
+            <h3 id="ai打分">Ai打分</h3>
+
+            <div class="callout callout--important">
+                <div class="callout__title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#8250df" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg> IMPORTANT</div>
+                <div class="callout__body">
+            <p>以下评分仅为 Ai 给出的评分，并非代表我的真实审美。</p>
+                </div>
+            </div>
+
+            <p>氛围与画面感：<progress value="95" max="100"></progress></p>
+
+            <blockquote>
+            <p>能够从大量游戏原声、氛围曲、古风和民谣中找到喜欢的作品，整体审美方向相当鲜明。</p>
+            </blockquote>
+
+            <p>曲风探索欲：<progress value="95" max="100"></progress></p>
+
+            <blockquote>
+            <p>从古典音乐到电子乐，从传统民谣到互联网文化，边界感很弱。这在这里是优点，不是系统故障</p>
+            </blockquote>
+
+            <p>情绪表现力：<progress value="90" max="100"></progress></p>
+
+            <blockquote>
+            <p>既有史诗、战斗、电子节奏，也有怀旧、温柔、告别和乡愁。你收藏的情绪范围相当宽。</p>
+            </blockquote>
+
+            <p>歌单秩序与分类：<progress value="60" max="100"></progress></p>
+
+            <blockquote>
+            <p>这份收藏更像不断扩建的档案馆，而不是经过精心编排的专辑。优点是丰富，缺点是你可能连自己下一首要听什么都无法预测。</p>
+            </blockquote>
+
+            <p>其实还有很多失效的视频我懒得移除</p>
+
+            <p>拒绝音乐鄙视链：<progress value="100" max="100"></progress></p>
+
+            <blockquote>
+            <p>能把交响乐、游戏原声和梗曲放进同一份收藏，说明你至少没有执着于靠曲库证明自己比别人有文化。</p>
+            </blockquote>
+
+            <h3 id="最终锐评与一句话总结-1">最终锐评与一句话总结</h3>
+
+            <p>Ai给我的最终画像是：</p>
+
+            <blockquote>
+            <p>表面上是一个需要专注、效率和秩序的人；音乐世界里却住着一个同时拥有古风审美、游戏世界观、同人文化记忆、异域旅行幻想，以及低门槛搞笑需求的收藏癖。</p>
+            </blockquote>
+
+            <p>最终锐评是：</p>
+
+            <blockquote>
+            <p>你的歌单不是一个人的情绪记录，而是一个人给自己建造的私人世界索引。</p>
+
+            <p>里面有史诗、有乡愁、有星空、有蝉鸣、有异国港口、有游戏里的最后一战，也有一些你不希望别人认真追问的奇妙音频。</p>
+
+            <p><strong>审美相当自由，情绪相当丰富，收藏欲相当危险。至于歌单管理能力，建议先别让它参与任何生产环境部署。</strong></p>
+            </blockquote>
+
+            <h1 id="最后">最后</h1>
+
+            <p>所以，我听得杂吗？<strong>杂</strong>！</p>
+
+            <p>Ai 锐评准不准另说，至少它帮我确认了一件事： <strong>我不是在听歌，我是在给脑子搭一个可以随时进去走走的私人世界。</strong></p>
+
+            <div class="article-foot">
+                <span class="article-foot__license">
+                    本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
+                </span>
+                <span>最后更新于 2026-10-21</span>
+            </div>
+
+            </div>
+
+            </article>
+
+        <footer class="footer">
+                            <div class="footer__brand">
+                                <span class="footer__mark">七七的折腾笔记</span>
+                                <span>© 2026 ttwe77</span>
+                                <a href="https://beian.miit.gov.cn/" target="_blank"
+                                    rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+                            </div>
+                            <div class="footer__links">
+                                <a href="/">返回首页</a>
+                                <a href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
+                                <a href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
+                            </div>
+                        </footer>
+        </main>
+
+        <aside class="toc" aria-label="文章目录">
+                        <div class="card toc__card">
+                            <div class="toc__head">目录</div>
+                            <nav class="toc__list" id="toc-list">
+                                <a class="toc__link toc__link--h1" data-level="1" href="#ai-锐评我干活时喜欢听的歌">AI 锐评：我干活时喜欢听的歌</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#引言">引言</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#ai锐评-网易云音乐我喜欢的音乐">Ai锐评 网易云音乐"我喜欢的音乐"</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#开头总体印象">开头：总体印象</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#核心偏好世界观场景与情绪叙事">核心偏好：世界观、场景与情绪叙事</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#意象偏好">意象偏好</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#东方幻想与古风审美">东方幻想与古风审美</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#特定歌手偏好与低压力陪伴">特定歌手偏好与低压力陪伴</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#逃离现实与重建秩序">逃离现实与重建秩序</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#情绪层次与心理坐标轴">情绪层次与心理坐标轴</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#意境化描写与评分">意境化描写与评分</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#最终锐评与一句话总结">最终锐评与一句话总结</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#ai锐评-哔哩哔哩-音乐收藏夹">Ai锐评 哔哩哔哩 音乐收藏夹</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#开头获取数据">开头：获取数据</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#总体印象">总体印象</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#我的音乐人格六大派系争夺大脑控制权">我的音乐人格：六大派系，争夺大脑控制权</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#古风与虚拟歌姬你的精神故乡">古风与虚拟歌姬：你的精神故乡</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#游戏原声你真正的音乐主干">游戏原声：你真正的音乐主干</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#东方-project-与同人音乐">东方 Project 与同人音乐</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#凯尔特民谣与异域音乐你对陌生世界的好奇心">凯尔特、民谣与异域音乐：你对陌生世界的好奇心</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#氛围电子钢琴与爵士嘻哈你的精神散热系统">氛围电子、钢琴与爵士嘻哈：你的精神散热系统</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#老动画游戏记忆与网络梗曲你的心理防火墙">老动画、游戏记忆与网络梗曲：你的心理防火墙</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#审美核心">审美核心</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#从歌单反推内心世界">从歌单反推内心世界</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#ai打分">Ai打分</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#最终锐评与一句话总结-1">最终锐评与一句话总结</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#最后">最后</a>
+                            </nav>
+                        </div>
+                    </aside>
+
+    </div>
+</div>
+
+<button class="toc-toggle" id="toc-toggle" type="button" aria-label="目录" aria-expanded="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+    </button>
+
+<button class="to-top" id="to-top" type="button" aria-label="回到顶部">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+    </button>
+
+<script type="module">
+import { BAClickFX } from '/libs/ba-click-fx.js';
+        const fx = new BAClickFX();
+        fx.setCompositingReference({ hostCompositing: 'screen' });
+        fx.setThemeColor('#80c1ff');
+</script>
+
+<script>
+/* ============================================================
+           轻提示
+           ============================================================ */
+        function showToast(msg) {
+            var old = document.getElementById('__toast__');
+            if (old) old.remove();
+
+            var el = document.createElement('div');
+            el.id = '__toast__';
+            el.className = 'toast';
+            el.textContent = msg;
+            el.setAttribute('role', 'status');
+            el.setAttribute('aria-live', 'polite');
+            document.body.appendChild(el);
+
+            /* 关键：先提交初始态，再切可见态 */
+            void el.offsetWidth;
+            el.classList.add('is-visible');
+
+            setTimeout(function () {
+                el.classList.remove('is-visible');
+                setTimeout(function () { el.remove(); }, 320);
+            }, 1800);
+        }
+        window.showToast = showToast;
+</script>
+
+<script>
+/* ============================================================
+           阅读进度 / 目录高亮 / 回到顶部
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            var bar = document.getElementById('read-bar');
+            var toTop = document.getElementById('to-top');
+            var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc__link'));
+            var body = document.getElementById('article-body');
+            var tocToggle = document.getElementById('toc-toggle');
+            var tocTimer = null;
+            if (!body) return;
+
+            var headings = Array.prototype.slice.call(
+                body.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]')
+            );
+            var ticking = false;
+
+            /* 只保留指向真实标题的目录项 */
+            var validLinks = tocLinks.filter(function (a) {
+                var id = (a.getAttribute('href') || '').slice(1);
+                return id && document.getElementById(id);
+            });
+
+            function onScroll() {
+                var y = window.pageYOffset || document.documentElement.scrollTop;
+                var docH = document.documentElement.scrollHeight - window.innerHeight;
+                var pct = docH > 0 ? (y / docH) * 100 : 0;
+
+                if (bar) bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+                if (toTop) toTop.classList.toggle('is-visible', y > 420);
+                if (tocToggle) {
+                    if (y > 420 && !tocToggle.classList.contains('is-visible')) {
+                        clearTimeout(tocTimer);
+                        tocTimer = setTimeout(function () {
+                            tocToggle.classList.add('is-visible');
+                        }, 50);
+                    } else if (y <= 420 && tocToggle.classList.contains('is-visible')) {
+                        clearTimeout(tocTimer);
+                        tocTimer = setTimeout(function () {
+                            tocToggle.classList.remove('is-visible');
+                        }, 50);
+                    }
+                }
+
+                /* 目录高亮：取最后一个已滚过的标题 */
+                var activeId = null;
+                var offset = 160;
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].getBoundingClientRect().top <= offset) {
+                        activeId = headings[i].id;
+                    } else {
+                        break;
+                    }
+                }
+
+                validLinks.forEach(function (a) {
+                    a.classList.toggle('is-active', activeId && a.getAttribute('href') === '#' + activeId);
+                });
+
+                ticking = false;
+            }
+
+            function requestScroll() {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(onScroll);
+            }
+
+            window.addEventListener('scroll', requestScroll, { passive: true });
+            window.addEventListener('resize', requestScroll);
+            onScroll();
+
+            if (toTop) {
+                toTop.addEventListener('click', function () {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           代码块复制
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('[data-copy]') : null;
+                if (!btn) return;
+
+                var block = btn.closest('.code-block');
+                if (!block) return;
+
+                var code = block.querySelector('pre code');
+                if (!code) return;
+
+                var text = code.innerText || code.textContent || '';
+
+                function done() {
+                    var old = btn.innerHTML;
+                    btn.classList.add('is-done');
+                    btn.textContent = '已复制';
+                    setTimeout(function () {
+                        btn.classList.remove('is-done');
+                        btn.innerHTML = old;
+                    }, 1600);
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done).catch(function () {
+                        fallback(text, done);
+                    });
+                } else {
+                    fallback(text, done);
+                }
+            });
+
+            function fallback(text, done) {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    done();
+                } catch (err) {
+                    showToast('复制失败，请手动选中');
+                }
+                document.body.removeChild(ta);
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           分享：复制当前链接
+           ============================================================ */
+        (function () {
+            var btn = document.getElementById('btn-share');
+            if (!btn) return;
+
+            btn.addEventListener('click', function () {
+                var url = location.href;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url)
+                        .then(function () { showToast('链接已复制到剪贴板'); })
+                        .catch(function () { showToast(url); });
+                } else {
+                    showToast(url);
+                }
+            });
+        })();
+</script>
+
+<script>
+/* ============================================================
+           悬停提示框（事件委托）
+           ============================================================ */
+        (function () {
+            var active = null;
+            var activeHint = null;
+
+            function getTooltip(hint) {
+                if (!hint) return null;
+
+                var tooltip = hint.__tooltip;
+                if (tooltip && tooltip.parentNode) return tooltip;
+
+                tooltip = hint.querySelector('.hover-hint__tooltip');
+                if (!tooltip) return null;
+
+                hint.__tooltip = tooltip;
+                tooltip.__hint = hint;
+                document.body.appendChild(tooltip);
+                return tooltip;
+            }
+
+            function place(hint, tooltip) {
+                var pad = 8;
+                var gap = 10;
+
+                tooltip.style.left = '-9999px';
+                tooltip.style.top = '-9999px';
+
+                var r = hint.getBoundingClientRect();
+                var tw = tooltip.offsetWidth;
+                var th = tooltip.offsetHeight;
+
+                var cx = r.left + r.width / 2;
+                var left = cx - tw / 2;
+                if (left < pad) left = pad;
+                var maxLeft = window.innerWidth - tw - pad;
+                if (left > maxLeft) left = Math.max(pad, maxLeft);
+
+                var top = r.top - gap - th;
+                var below = false;
+                if (top < pad) {
+                    top = r.bottom + gap;
+                    below = true;
+                }
+
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = top + 'px';
+                tooltip.classList.toggle('is-below', below);
+            }
+
+            function show(hint) {
+                var tooltip = getTooltip(hint);
+                if (!tooltip) return;
+                if (active === tooltip) return;
+
+                if (active) active.classList.remove('is-visible');
+
+                active = tooltip;
+                activeHint = hint;
+
+                place(hint, tooltip);
+                requestAnimationFrame(function () {
+                    tooltip.classList.add('is-visible');
+                });
+            }
+
+            function hide(hint) {
+                var tooltip = hint
+                    ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
+                    : active;
+
+                if (!tooltip) return;
+                tooltip.classList.remove('is-visible');
+
+                if (active === tooltip) {
+                    active = null;
+                    activeHint = null;
+                }
+            }
+
+            document.addEventListener('mouseover', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                show(hint);
+            });
+
+            document.addEventListener('mouseout', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+
+                var related = e.relatedTarget;
+                if (related && hint.contains(related)) return;
+
+                hide(hint);
+            });
+
+            document.addEventListener('focusin', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                show(hint);
+            });
+
+            document.addEventListener('focusout', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                hide(hint);
+            });
+
+            window.addEventListener('scroll', function () {
+                if (active && activeHint) hide(activeHint);
+            }, true);
+
+            window.addEventListener('resize', function () {
+                if (active && activeHint) hide(activeHint);
+            });
+
+            document.addEventListener('touchstart', function () {
+                if (active && activeHint) hide(activeHint);
+            }, { passive: true });
+        })();
+</script>
+
+<script>
+(function () {
+            var btn = document.getElementById('toc-toggle');
+            var layout = document.querySelector('.article-layout');
+            var toc = document.querySelector('.toc');
+            if (!btn || !layout || !toc) return;
+
+            var mq = window.matchMedia('(max-width: 980px)');
+
+            function updateAria() {
+                var expanded = mq.matches
+                    ? toc.classList.contains('is-open')
+                    : !layout.classList.contains('toc-collapsed');
+                btn.setAttribute('aria-expanded', String(expanded));
+            }
+
+            btn.addEventListener('click', function () {
+                if (mq.matches) {
+                    toc.classList.toggle('is-open');
+                    document.body.style.overflow = toc.classList.contains('is-open') ? 'hidden' : '';
+                } else {
+                    layout.classList.toggle('toc-collapsed');
+                }
+                updateAria();
+            });
+
+            toc.addEventListener('click', function (e) {
+                if (!mq.matches) return;
+                var link = e.target.closest ? e.target.closest('.toc__link') : null;
+                if (e.target === toc || link) {
+                    toc.classList.remove('is-open');
+                    document.body.style.overflow = '';
+                    updateAria();
+                }
+            });
+
+            mq.addEventListener('change', function () {
+                toc.classList.remove('is-open');
+                layout.classList.remove('toc-collapsed');
+                document.body.style.overflow = '';
+                updateAria();
+            });
+
+            updateAria();
+        })();
+</script>
+
+</body>
+
+</html>
