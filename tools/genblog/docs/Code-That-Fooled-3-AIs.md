@@ -5,7 +5,7 @@ date: 2026-10-20
 category: 编程
 readtime: 6
 author: ttwe77
-tags: Python, AI, 整活, 语法,, 编程
+tags: Python, AI, 整活, 语法, 编程
 license: CC BY-NC 4.0
 license_url: https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans
 updated: 2026-10-21

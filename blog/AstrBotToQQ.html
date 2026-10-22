@@ -1,0 +1,3010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#21a5e3">
+    <title>从本地到云：一晚折腾 AstrBot 接入 QQ 机器人 · 七七的折腾笔记</title>
+    <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
+    <meta name="description" content="记录从 Windows 本地部署 AstrBot 接入 QQ 机器人，到在云服务器上用源码部署的折腾过程。">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="七七的折腾笔记">
+    <meta property="og:title" content="从本地到云：一晚折腾 AstrBot 接入 QQ 机器人">
+    <meta property="og:description" content="记录从 Windows 本地部署 AstrBot 接入 QQ 机器人，到在云服务器上用源码部署的折腾过程。">
+    <meta property="og:locale" content="zh_CN">
+<style>
+/* ============ 设计令牌 ============ */
+        :root {
+            --color-primary: #21a5e3;
+            --color-primary-hover: #0E7AE0;
+            --color-primary-active: #0B6BC5;
+            --color-blue-light: #ABD7FF;
+            --color-periwinkle: #BEC0EC;
+            --color-orchid: #4454F8;
+
+            --color-bg-white: #FFFFFF;
+            --color-bg-light: #FAFAFA;
+            --color-bg-soft: #F5F5F5;
+            --color-border: #EDEDED;
+            --color-border-strong: #D4D4D4;
+
+            --color-text-primary: #1F1F1F;
+            --color-text-body: #404040;
+            --color-text-secondary: #737373;
+            --color-text-disabled: #A3A3A3;
+
+            --color-danger: #F21B28;
+            --color-success: #169B5B;
+            --color-warning: #FFD84D;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, .06);
+            --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
+            --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
+
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+            --topbar-h: 56px;
+            --btn-skew: -10deg;
+        }
+
+        /* ============ 基础 ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--topbar-h) + 16px);
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--color-bg-light);
+            color: var(--color-text-body);
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overscroll-behavior-y: none;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p,
+        figure {
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        /* 背景氛围 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 10% 4%, rgba(18, 138, 250, .12), transparent 42%),
+                radial-gradient(circle at 92% -4%, rgba(171, 215, 255, .42), transparent 46%),
+                radial-gradient(circle at 72% 96%, rgba(190, 192, 236, .22), transparent 46%);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(18, 138, 250, .035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 138, 250, .035) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* ============ 顶栏 ============ */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: var(--topbar-h);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #3f568c;
+            background: transparent;
+            transition: background .18s ease, transform .12s ease, color .18s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(63, 86, 140, .08);
+        }
+
+        /* ============ logo ============ */
+        .topbar__avatar {
+            display: block;
+            flex: 0 0 auto;
+            width: 115px;
+            height: 100%;
+            min-width: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .topbar__avatar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: inherit;
+        }
+
+        .topbar__title {
+            font-size: clamp(10px, 3vw, 16px);
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: .04em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topbar__spacer {
+            flex: 1 1 auto;
+        }
+
+        .topbar__crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .topbar__crumb:hover {
+            color: var(--color-text-disabled);
+        }
+
+        .topbar__crumb span {
+            color: var(--color-text-disabled);
+        }
+
+        /* 阅读进度条 */
+        .read-progress {
+            position: fixed;
+            top: var(--topbar-h);
+            left: 0;
+            right: 0;
+            height: 3px;
+            z-index: 201;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .read-progress__bar {
+            height: 100%;
+            width: 0;
+            border-radius: 0 3px 3px 0;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-blue-light));
+            box-shadow: 0 0 10px rgba(33, 165, 227, .5);
+            transition: width .12s linear;
+        }
+
+        .article-body progress {
+            width: 220px;
+            height: 10px;
+            vertical-align: middle;
+            accent-color: #21A5E3;
+        }
+
+        /* ============ 页面容器 ============ */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: calc(var(--topbar-h) + 30px) 20px 64px;
+        }
+
+        .article-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 218px;
+            gap: 34px;
+            align-items: start;
+        }
+
+        /* ============ 文章头部 ============ */
+        .article-head {
+            margin-bottom: 26px;
+        }
+
+        .article-head__title {
+            font-size: clamp(28px, 4.6vw, 42px);
+            line-height: 1.22;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            background: linear-gradient(118deg, #0889ca 0%, #21a5e3 42%, #39bef8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .article-head__desc {
+            margin-top: 16px;
+            max-width: 720px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .article-head__meta {
+            margin-top: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px 14px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .article-head__meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .article-head__meta span::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-blue-light);
+        }
+
+        .article-head__meta span:first-child::before {
+            background: var(--color-primary);
+        }
+
+        .article-head__tags {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 9px;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: rgba(18, 138, 250, .09);
+            transform: skewX(var(--btn-skew));
+            transform-origin: center;
+            transition: background .18s ease, transform .18s ease;
+        }
+
+        .chip:hover {
+            background: rgba(18, 138, 250, .16);
+            transform: skewX(var(--btn-skew)) translateY(-1px);
+        }
+
+        /* ============ 卡片 ============ */
+        .card {
+            position: relative;
+            background: var(--color-bg-white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ============ 正文 ============ */
+        .article-body {
+            padding: 30px 34px 36px;
+            font-size: 15px;
+            line-height: 1.92;
+            color: var(--color-text-body);
+            overflow-wrap: break-word;
+        }
+
+        .article-body> :first-child {
+            margin-top: 0;
+        }
+
+        .article-body> :last-child {
+            margin-bottom: 0;
+        }
+
+        .article-body p {
+            margin: 0 0 18px;
+        }
+
+        .article-body h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 40px 0 16px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h2::before {
+            content: "";
+            width: 4px;
+            height: 18px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .article-body h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 28px 0 10px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h3::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 5px;
+            height: 5px;
+            border-radius: 1px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .article-body ul,
+        .article-body ol {
+            margin: 0 0 18px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .article-body li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 6px;
+        }
+
+        .article-body ul>li::before {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: .82em;
+            width: 5px;
+            height: 5px;
+            border-radius: 1px;
+            background: var(--color-blue-light);
+            transform: rotate(45deg);
+        }
+
+        .article-body ol>li::before {
+            content: counter(list-item);
+            position: absolute;
+            left: 0;
+            top: .42em;
+            width: 16px;
+            height: 16px;
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #fff;
+            background: var(--color-primary);
+            line-height: 1;
+            text-align: center;
+        }
+
+        .article-body a:not(.chip) {
+            color: var(--color-primary);
+            font-weight: 600;
+            border-bottom: 1px dashed currentColor;
+            transition: color .18s ease, border-color .18s ease;
+        }
+
+        .article-body a:not(.chip):hover {
+            color: var(--color-primary-hover);
+            border-bottom-style: solid;
+        }
+
+        .article-body strong {
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .article-body del {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--color-text-disabled);
+        }
+
+        /* 引用块 */
+        .article-body blockquote {
+            position: relative;
+            margin: 24px 0;
+            padding: 14px 20px 14px 22px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(90deg, rgba(33, 165, 227, .10) 0%, rgba(33, 165, 227, .02) 100%);
+            font-size: 13.5px;
+            line-height: 1.85;
+            color: var(--color-text-secondary);
+            overflow: hidden;
+        }
+
+        .article-body blockquote::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .article-body blockquote::after {
+            content: "\201C";
+            position: absolute;
+            right: 12px;
+            top: -10px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1;
+            color: rgba(33, 165, 227, .13);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .article-body blockquote p {
+            margin: 0;
+        }
+
+        /* 行内代码 */
+        .article-body :not(pre)>code {
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: .87em;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: rgba(18, 138, 250, .08);
+            border: 1px solid rgba(18, 138, 250, .12);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        /* 代码块 */
+        .code-block {
+            margin: 22px 0;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: #22344C;
+            box-shadow: 0 8px 24px rgba(20, 40, 60, .18);
+            border: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .code-block__bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            background: rgba(255, 255, 255, .05);
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .code-block__dots {
+            display: flex;
+            gap: 5px;
+            flex: 0 0 auto;
+        }
+
+        .code-block__dots i {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .code-block__dots i:nth-child(1) {
+            background: #F4756A;
+        }
+
+        .code-block__dots i:nth-child(2) {
+            background: #FFD84D;
+        }
+
+        .code-block__dots i:nth-child(3) {
+            background: #4ED08A;
+        }
+
+        .code-block__lang {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #7A92AA;
+        }
+
+        .code-block__copy {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #A9CBE8;
+            background: rgba(255, 255, 255, .07);
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .code-block__copy:hover {
+            background: rgba(33, 165, 227, .28);
+            color: #fff;
+        }
+
+        .code-block__copy:active {
+            transform: scale(.94);
+        }
+
+        .code-block__copy.is-done {
+            color: #7EE7B0;
+            background: rgba(78, 208, 138, .18);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 16px 18px 18px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 12.8px;
+            line-height: 1.5;
+            color: #DCE9F5;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .16);
+            border-radius: 4px;
+        }
+
+        /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
+
+        /* 注释 */
+        .code-block pre code .c,
+        .code-block pre code .c1,
+        .code-block pre code .cm,
+        .code-block pre code .cs,
+        .code-block pre code .cd,
+        .code-block pre code .ch {
+            color: #6C8299;
+            font-style: italic;
+        }
+
+        /* 关键字 / 选择器 / 标签名 */
+        .code-block pre code .k,
+        .code-block pre code .kc,
+        .code-block pre code .kd,
+        .code-block pre code .kn,
+        .code-block pre code .kp,
+        .code-block pre code .kr,
+        .code-block pre code .kt,
+        .code-block pre code .nt,
+        .code-block pre code .nc,
+        .code-block pre code .nf,
+        .code-block pre code .nd,
+        .code-block pre code .ne {
+            color: #7FC4EA;
+        }
+
+        /* 属性名 / 内建 / 命名空间 / 变量 */
+        .code-block pre code .na,
+        .code-block pre code .nb,
+        .code-block pre code .bp,
+        .code-block pre code .nn,
+        .code-block pre code .nx,
+        .code-block pre code .nv,
+        .code-block pre code .py,
+        .code-block pre code .vc,
+        .code-block pre code .vg,
+        .code-block pre code .vi {
+            color: #7EE7B0;
+        }
+
+        /* 数字 / 常量 */
+        .code-block pre code .m,
+        .code-block pre code .mf,
+        .code-block pre code .mi,
+        .code-block pre code .mh,
+        .code-block pre code .mo,
+        .code-block pre code .il,
+        .code-block pre code .no {
+            color: #FFD84D;
+        }
+
+        /* 字符串 */
+        .code-block pre code .s,
+        .code-block pre code .s1,
+        .code-block pre code .s2,
+        .code-block pre code .sb,
+        .code-block pre code .sc,
+        .code-block pre code .sd,
+        .code-block pre code .se,
+        .code-block pre code .sh,
+        .code-block pre code .si,
+        .code-block pre code .sx,
+        .code-block pre code .sr,
+        .code-block pre code .ss,
+        .code-block pre code .sa,
+        .code-block pre code .dl {
+            color: #FFB4A2;
+        }
+
+        /* 运算符 / 标点 */
+        .code-block pre code .o,
+        .code-block pre code .ow,
+        .code-block pre code .p {
+            color: #A9CBE8;
+        }
+
+        /* 装饰器 / @ 规则 / 元信息 */
+        .code-block pre code .gh,
+        .code-block pre code .gu,
+        .code-block pre code .nd,
+        .code-block pre code .na+.nd {
+            color: #C4A7FF;
+        }
+
+        /* diff 用 */
+        .code-block pre code .gd {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gi {
+            color: #7EE7B0;
+        }
+
+        /* 错误 token（少用，出问题时一眼能看到） */
+        .code-block pre code .err {
+            color: #F4756A;
+            background: rgba(244, 117, 106, .12);
+            border-radius: 2px;
+        }
+
+        /* 空白 / 行号占位 */
+        .code-block pre code .w {
+            color: #5A7288;
+        }
+
+        .code-block pre code .gr {
+            color: #F4756A;
+        }
+
+        .code-block pre code .gt {
+            color: #7FC4EA;
+        }
+
+        /* 表格 */
+        .table-wrap {
+            margin: 22px 0;
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: #fff;
+            box-shadow: var(--shadow-card);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .article-body table {
+            width: 100%;
+            min-width: 460px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .article-body thead th {
+            padding: 11px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            color: #fff;
+            background: linear-gradient(180deg, #33507A 0%, #22344C 100%);
+            white-space: nowrap;
+        }
+
+        .article-body tbody td {
+            padding: 11px 16px;
+            border-top: 1px solid var(--color-border);
+            color: var(--color-text-body);
+            vertical-align: top;
+        }
+
+        .article-body tbody tr:nth-child(even) {
+            background: #FBFDFF;
+        }
+
+        .article-body tbody td code {
+            white-space: nowrap;
+        }
+
+        /* ============ 提示框 (GFM Alerts & Callout) ============ */
+        .callout {
+            margin: 22px 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--callout-border);
+            background: var(--callout-bg);
+            border-left: 4px solid var(--callout-color);
+            /* 左侧粗边框，还原图片效果 */
+            overflow: hidden;
+        }
+
+        /* 不同的提示类型颜色变量 */
+        .callout--note {
+            --callout-color: var(--color-primary);
+            --callout-bg: rgba(33, 165, 227, .06);
+            --callout-border: rgba(33, 165, 227, .15);
+        }
+
+        .callout--tip {
+            --callout-color: var(--color-success);
+            --callout-bg: rgba(22, 155, 91, .06);
+            --callout-border: rgba(22, 155, 91, .15);
+        }
+
+        .callout--important {
+            --callout-color: var(--color-orchid);
+            --callout-bg: rgba(68, 84, 248, .06);
+            --callout-border: rgba(68, 84, 248, .15);
+        }
+
+        .callout--warning {
+            --callout-color: #D4A000;
+            --callout-bg: rgba(255, 216, 77, .12);
+            --callout-border: rgba(255, 216, 77, .3);
+        }
+
+        .callout--caution {
+            --callout-color: var(--color-danger);
+            --callout-bg: rgba(242, 27, 40, .06);
+            --callout-border: rgba(242, 27, 40, .15);
+        }
+
+        /* 提示框标题 */
+        .callout__title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 18px 0;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .05em;
+            color: var(--callout-color);
+            text-transform: uppercase;
+            background: transparent;
+        }
+
+        /* 提示框正文 */
+        .callout__body {
+            padding: 6px 18px 14px;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: var(--color-text-body);
+        }
+
+        .callout__body> :first-child {
+            margin-top: 0;
+        }
+
+        .callout__body> :last-child {
+            margin-bottom: 0;
+        }
+
+        .callout__body p {
+            margin: 0 0 12px;
+        }
+
+        /* 分隔线 */
+        .article-body hr {
+            height: 1px;
+            margin: 15px 0;
+            border: none;
+            background: linear-gradient(90deg, transparent, var(--color-border-strong), transparent);
+        }
+
+        /* ============ 文章尾部 ============ */
+        .article-foot {
+            margin-top: 34px;
+            padding-top: 24px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            color: var(--color-text-secondary);
+        }
+
+        .article-foot__license {
+            position: relative;
+            display: block;
+            flex: 1 1 auto;
+            min-width: 0;
+            padding-left: 16px;
+            line-height: 1.7;
+        }
+
+        .article-foot__license::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: .68em;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .article-foot__link {
+            color: var(--color-primary);
+            font-weight: 700;
+            border-bottom: 1px dashed currentColor;
+            white-space: nowrap;
+        }
+
+        .article-foot__link:hover {
+            border-bottom-style: solid;
+        }
+
+        /* ============ 侧栏目录 ============ */
+        .toc {
+            position: sticky;
+            top: calc(var(--topbar-h) + 22px);
+        }
+
+        .toc__card {
+            padding: 18px 16px;
+        }
+
+        .toc__head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--color-text-primary);
+        }
+
+        .toc__head::before {
+            content: "";
+            width: 4px;
+            height: 14px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .toc__list {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - var(--topbar-h) - 130px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background: rgba(33, 165, 227, .22);
+            border-radius: 2px;
+        }
+
+        .toc__link {
+            display: block;
+            padding: 7px 0 7px 12px;
+            border-left: 2px solid var(--color-border);
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: var(--color-text-secondary);
+            transition: color .18s ease, border-color .18s ease, padding-left .18s ease;
+        }
+
+        .toc__link:hover {
+            color: var(--color-primary);
+            border-left-color: var(--color-blue-light);
+            padding-left: 15px;
+        }
+
+        .toc__link.is-active {
+            color: var(--color-primary);
+            font-weight: 700;
+            border-left-color: var(--color-primary);
+        }
+
+        .toc__link--sub {
+            font-size: 12px;
+        }
+
+        /* ============ 页脚 ============ */
+        .footer {
+            margin-top: 42px;
+            padding-top: 22px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .footer__brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer__mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .footer__mark::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--color-primary);
+            transform: rotate(45deg);
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer__links a {
+            transition: color .2s ease;
+        }
+
+        .footer__links a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============ 回到顶部 ============ */
+        .to-top {
+            position: fixed;
+            right: 22px;
+            bottom: 26px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: var(--color-primary);
+            box-shadow: 0 6px 20px rgba(18, 138, 250, .35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity .25s ease, transform .3s cubic-bezier(.22, .61, .36, 1),
+                visibility .3s ease, background .18s ease;
+        }
+
+        .to-top.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .to-top:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .to-top:active {
+            transform: translateY(0) scale(.92);
+        }
+
+        /* 目录按钮 */
+        .toc-toggle {
+            position: fixed;
+            right: 22px;
+            bottom: 80px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: var(--color-primary);
+            box-shadow: 0 6px 20px rgba(18, 138, 250, .35);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: opacity .25s ease, transform .3s cubic-bezier(.22, .61, .36, 1),
+                visibility .3s ease, background .18s ease;
+        }
+
+        .toc-toggle.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .toc-toggle:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .toc-toggle:active {
+            transform: translateY(0) scale(.92);
+        }
+
+        /* PC 端折叠目录 */
+        .article-layout.toc-collapsed {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .article-layout.toc-collapsed .toc {
+            display: none;
+        }
+
+        @media (max-width: 980px) {
+            .toc {
+                position: fixed;
+                inset: 0;
+                z-index: 300;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(0, 0, 0, .45);
+                margin: 0;
+            }
+
+            .toc.is-open {
+                display: flex;
+            }
+
+            .toc__card {
+                width: min(92vw, 420px);
+                max-height: 80vh;
+                overflow-y: auto;
+                margin: 0;
+            }
+
+            .toc__list {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                gap: 0;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .toc__link {
+                padding: 8px 0;
+                border-left: 2px solid var(--color-border);
+                border-radius: 0;
+                background: transparent;
+                white-space: normal;
+            }
+
+            .toc__link.is-active {
+                color: var(--color-primary);
+                background: transparent;
+                border-left-color: var(--color-primary);
+            }
+
+            .toc__link--sub {
+                display: block;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .toc-toggle {
+                right: 14px;
+                bottom: 66px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* ============ Toast ============ */
+        .toast {
+            position: fixed;
+            left: 50%;
+            top: calc(var(--topbar-h) + 16px);
+            z-index: 99999;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            max-width: min(86vw, 360px);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card-hover);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            line-height: 1.5;
+            text-align: center;
+            word-break: break-word;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -10px);
+            transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+                transform .25s cubic-bezier(.22, .61, .36, 1);
+            white-space: pre-line;
+        }
+
+        .toast::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(18, 138, 250, .15);
+        }
+
+        .toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        /* ============ 悬停提示框 ============ */
+        .hover-hint {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dashed currentColor;
+            transition: border-color .2s ease;
+            white-space: nowrap;
+        }
+
+        .hover-hint:hover {
+            border-bottom-style: solid;
+        }
+
+        .hover-hint__tooltip {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            min-width: 200px;
+            max-width: 300px;
+            width: max-content;
+            padding: 12px 16px;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .06);
+            border: 1px solid var(--color-border);
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.65;
+            color: var(--color-text-body);
+            text-align: left;
+            white-space: normal;
+            word-break: break-word;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(6px);
+            transition: opacity .25s cubic-bezier(.22, .61, .36, 1),
+                transform .25s cubic-bezier(.22, .61, .36, 1), visibility .25s ease;
+            z-index: 999999;
+        }
+
+        .hover-hint__tooltip.is-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .hover-hint__tooltip.is-below {
+            transform: translateY(-6px);
+        }
+
+        .hover-hint__tooltip.is-below.is-visible {
+            transform: translateY(0);
+        }
+
+        .hover-hint__tooltip::after,
+        .hover-hint__tooltip::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: solid transparent;
+            pointer-events: none;
+        }
+
+        .hover-hint__tooltip::before {
+            border-width: 8px;
+            border-top-color: var(--color-border);
+            margin-top: 1px;
+        }
+
+        .hover-hint__tooltip::after {
+            border-width: 7px;
+            border-top-color: #fff;
+        }
+
+        .hover-hint__tooltip.is-below::before,
+        .hover-hint__tooltip.is-below::after {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+        }
+
+        .hover-hint__tooltip.is-below::before {
+            border-top-color: transparent;
+            border-bottom-color: var(--color-border);
+            margin-bottom: 1px;
+        }
+
+        .hover-hint__tooltip.is-below::after {
+            border-top-color: transparent;
+            border-bottom-color: #fff;
+        }
+
+        .hover-hint__tooltip .hint-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 6px;
+            letter-spacing: .2px;
+        }
+
+        .hover-hint__tooltip .hint-title::before {
+            content: "";
+            width: 3px;
+            height: 14px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+            flex: 0 0 auto;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 980px) {
+            .article-layout {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0;
+            }
+
+            /* 让 main 和 article 不生成盒子，使其子元素成为 grid 项 */
+            main,
+            article {
+                display: contents;
+            }
+
+            .article-head {
+                order: 1;
+            }
+
+            .article-body {
+                order: 3;
+            }
+
+            .footer {
+                order: 4;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar {
+                padding: 0 12px;
+                gap: 10px;
+            }
+
+            .topbar__crumb {
+                display: none;
+            }
+
+            .wrap {
+                padding: calc(var(--topbar-h) + 18px) 12px 48px;
+            }
+
+            .article-head__eyebrow {
+                letter-spacing: .18em;
+                margin-bottom: 14px;
+            }
+
+            .article-head__eyebrow::before {
+                width: 22px;
+            }
+
+            .article-head__desc {
+                font-size: 13px;
+            }
+
+            .article-body {
+                padding: 20px 18px 24px;
+                font-size: 14.5px;
+                line-height: 1.88;
+            }
+
+            .article-body h2 {
+                margin: 32px 0 14px;
+                font-size: 19px;
+            }
+
+            .article-body h3 {
+                font-size: 15px;
+            }
+
+            .article-body h4 {
+                font-size: 14px;
+            }
+
+            .article-body h5 {
+                font-size: 13.5px;
+            }
+
+            .article-body h6 {
+                font-size: 13px;
+            }
+
+            .code-block pre {
+                font-size: 12px;
+                padding: 14px 14px 16px;
+            }
+
+            .post-nav {
+                grid-template-columns: 1fr;
+            }
+
+            .post-nav__item--next {
+                text-align: left;
+                align-items: flex-start;
+            }
+
+            .post-nav__item--next .post-nav__k {
+                flex-direction: row;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .to-top {
+                right: 14px;
+                bottom: 18px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .hover-hint__tooltip {
+                min-width: 170px;
+                max-width: 240px;
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .topbar__avatar {
+                width: 65px;
+                height: 100%;
+                min-width: 34px;
+                border-radius: 50%;
+            }
+
+            .topbar__avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+
+        /* ============ 超窄屏：隐藏分享按钮 + 缩小字体 ============ */
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 10px;
+                gap: 8px;
+            }
+
+            /* 隐藏“复制本页链接”按钮 */
+            #btn-share {
+                display: none;
+            }
+
+            /* 头像与图标按钮同步缩小，避免顶栏被撑满 */
+            .topbar__avatar {
+                width: 40px;
+                height: 100%;
+                min-width: 30px;
+                flex-shrink: 0;
+            }
+
+            .topbar__avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .icon-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* ============ 横屏矮屏：避免顶栏高度不足 ============ */
+        @media (max-width: 900px) and (max-height: 480px) {
+            .topbar__avatar {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ============ 自定义鼠标指针：仅桌面 / 精确指针设备 ============ */
+        @media (hover: hover) and (pointer: fine) {
+
+            html,
+            body {
+                cursor: url('/src/cursors/normal.cur'), auto;
+            }
+
+            a,
+            button,
+            .btn,
+            .icon-btn,
+            .chip,
+            .toc__link,
+            .post-nav__item,
+            .code-block__copy,
+            [role="button"] {
+                cursor: url('/src/cursors/link.cur'), pointer;
+            }
+
+            .hover-hint,
+            .article-body abbr[title] {
+                cursor: url('/src/cursors/help.cur'), help;
+            }
+
+            input,
+            textarea,
+            [contenteditable="true"] {
+                cursor: auto;
+            }
+        }
+
+        /* ============ 目录：标题层级逐级缩进 ============ */
+        .toc__link--h1 {
+            padding-left: 12px;
+        }
+
+        .toc__link--h2 {
+            padding-left: 24px;
+        }
+
+        .toc__link--h3 {
+            padding-left: 36px;
+        }
+
+        .toc__link--h4 {
+            padding-left: 48px;
+            font-size: 11.8px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h5 {
+            padding-left: 60px;
+            font-size: 11.5px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h6 {
+            padding-left: 72px;
+            font-size: 11.2px;
+            color: var(--color-text-disabled);
+        }
+
+        .toc__link--h1:hover {
+            padding-left: 15px;
+        }
+
+        .toc__link--h2:hover {
+            padding-left: 27px;
+        }
+
+        .toc__link--h3:hover {
+            padding-left: 39px;
+        }
+
+        .toc__link--h4:hover {
+            padding-left: 51px;
+        }
+
+        .toc__link--h5:hover {
+            padding-left: 63px;
+        }
+
+        .toc__link--h6:hover {
+            padding-left: 75px;
+        }
+
+        /* ============ 扩展 Markdown/HTML 语法样式 ============ */
+
+        /* 下划线 / 插入下划线 */
+        .article-body u,
+        .article-body ins {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: var(--color-primary);
+        }
+
+        /* 高亮 */
+        .article-body mark {
+            padding: 0 4px;
+            border-radius: 3px;
+            background: var(--color-blue-light);
+            /* 保留黄色高亮背景 */
+        }
+
+        /* 上标 / 下标 */
+        .article-body sub,
+        .article-body sup {
+            font-size: 0.75em;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+        }
+
+        .article-body sup {
+            top: -0.5em;
+        }
+
+        .article-body sub {
+            bottom: -0.25em;
+        }
+
+        /* 小号文字 */
+        .article-body small {
+            font-size: 0.85em;
+            color: var(--color-text-secondary);
+        }
+
+        /* 缩写 / 引用作品名 */
+        .article-body abbr[title] {
+            text-decoration: none;
+            border-bottom: 1px dashed var(--color-text-secondary);
+        }
+
+        .article-body cite {
+            font-style: italic;
+            color: var(--color-text-secondary);
+        }
+
+        /* 键盘按键 */
+        .article-body kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.82em;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            border: 1px solid var(--color-border-strong);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 1px 0 var(--color-border-strong), 0 2px 0 rgba(0, 0, 0, 0.05);
+            margin: 0 2px;
+        }
+
+        /* 删除线 */
+        .article-body del {
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            color: var(--color-text-disabled);
+        }
+
+        /* 嵌套引用样式优化 */
+        .article-body blockquote blockquote {
+            margin: 12px 0 12px 8px;
+            padding: 8px 14px 8px 16px;
+            background: rgba(33, 165, 227, .03);
+            /* 内层背景更淡 */
+            border-left: 2px solid var(--color-blue-light);
+            /* 内层边框变细 */
+        }
+
+        /* 隐藏内层引用的装饰性大引号和渐变条，保持画面干净 */
+        .article-body blockquote blockquote::after {
+            display: none;
+        }
+
+        .article-body blockquote blockquote::before {
+            top: 8px;
+            bottom: 8px;
+            background: var(--color-blue-light);
+        }
+
+        /* 三级嵌套引用可以进一步弱化 */
+        .article-body blockquote blockquote blockquote {
+            background: rgba(33, 165, 227, .01);
+            border-left-color: var(--color-border-strong);
+        }
+
+        /* 提示框图标 */
+        .callout__icon {
+            flex: 0 0 auto;
+            margin-top: -1px;
+            /* 微调垂直对齐 */
+        }
+
+        /* ============ 任务列表 ============ */
+        .article-body li.task-list-item {
+            padding-left: 20px;
+            /* 和普通 li 保持一致 */
+            list-style: none;
+        }
+
+        /* 去掉 ul>li 默认的菱形前缀（复选框自己就充当标记了） */
+        .article-body ul>li.task-list-item::before {
+            display: none;
+        }
+
+        .article-body .task-checkbox {
+            width: 14px;
+            height: 14px;
+            margin: 0 7px 0 0;
+            vertical-align: -2px;
+            accent-color: var(--color-primary);
+            pointer-events: none;
+            /* disabled 之外的额外保险 */
+            cursor: default;
+        }
+
+        /* 嵌套列表稍微收一点，视觉上更紧凑 */
+        .article-body li.task-list-item>ul,
+        .article-body li.task-list-item>ol {
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* ============ 图片 ============ */
+        .article-body img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 22px auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-soft);
+            box-shadow: var(--shadow-card);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        /* 图片作为链接时：去掉下划线、hover 时轻微上浮 */
+        .article-body a.img-link {
+            display: block;
+            max-width: 100%;
+            border-bottom: none;
+            font-weight: 400;
+            color: inherit;
+        }
+
+        .article-body a.img-link:hover {
+            border-bottom: none;
+        }
+
+        .article-body a.img-link:hover img {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        /* ---------- 脚注 ---------- */
+        .footnote-ref a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--accent, #2563eb);
+        }
+
+        .footnote-ref a:hover {
+            text-decoration: underline;
+        }
+
+        .footnotes {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line, #e5e7eb);
+            font-size: .9em;
+            color: var(--muted, #6b7280);
+        }
+
+        .footnotes hr {
+            display: none;
+        }
+
+        /* 上面已经有 border-top，隐藏默认分隔线 */
+        .footnotes ol {
+            padding-left: 1.4em;
+            margin: 0;
+        }
+
+        /* 在 CSS 中让 li 相对定位 */
+        .footnotes li {
+            position: relative;
+            padding-right: 20px;
+            /* 留出空间给返回键 */
+        }
+
+        /* 让返回键绝对定位在右侧 */
+        .footnote-backref {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            /* 或者 top: 0 */
+            text-decoration: none;
+            opacity: 0.6;
+        }
+
+        .footnote-backref:hover {
+            opacity: 1;
+        }
+
+        /* ============ 公式 ============ */
+        .math-inline {
+            white-space: nowrap;
+        }
+
+        .math-block {
+            margin: 22px 0;
+            padding: 4px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            text-align: center;
+        }
+
+        .math-block::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .math-block::-webkit-scrollbar-thumb {
+            background: rgba(33, 165, 227, .22);
+            border-radius: 3px;
+        }
+
+        /* ============ Mermaid 图表 ============ */
+        .mermaid-wrap {
+            margin: 24px 0;
+            padding: 20px 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-white);
+            box-shadow: var(--shadow-card);
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        /* 未渲染时展示源码（JS 被禁用 / CDN 拉取失败时的兜底） */
+        .mermaid-wrap pre.mermaid {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.75;
+            color: var(--color-text-secondary);
+            text-align: left;
+            white-space: pre;
+        }
+
+        /* 渲染完成后 mermaid 会写入 data-processed="true" 并替换为 <svg> */
+        .mermaid-wrap pre.mermaid[data-processed="true"] {
+            white-space: normal;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        .mermaid-wrap svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+        }
+
+        /* 图表里的文字不要被正文的 li / p 规则带偏 */
+        .mermaid-wrap .nodeLabel,
+        .mermaid-wrap .edgeLabel,
+        .mermaid-wrap .messageText,
+        .mermaid-wrap .actor {
+            line-height: 1.4;
+        }
+
+        @media (max-width: 640px) {
+            .mermaid-wrap {
+                margin: 18px 0;
+                padding: 14px 8px;
+            }
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        .footer__brand a {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            transition: color .2s ease;
+        }
+
+        .footer__brand a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============ 滚动条美化 ============ */
+        :root {
+            --scrollbar-size: 10px;
+            --scrollbar-track: transparent;
+            --scrollbar-thumb: rgba(33, 165, 227, .32);
+            --scrollbar-thumb-hover: rgba(33, 165, 227, .55);
+            --scrollbar-thumb-active: rgba(33, 165, 227, .75);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+
+        /* WebKit / Chromium / Safari / Edge */
+        ::-webkit-scrollbar {
+            width: var(--scrollbar-size);
+            height: var(--scrollbar-size);
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-thumb-hover);
+        }
+
+        ::-webkit-scrollbar-thumb:active {
+            background-color: var(--scrollbar-thumb-active);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* 深色代码块：用偏白的滚动条，避免蓝色在深色底上太跳 */
+        .code-block pre {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .22) transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, .32);
+        }
+
+        /* 右侧目录：细一点、轻一点 */
+        .toc__list {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(33, 165, 227, .28) transparent;
+        }
+
+        .toc__list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb {
+            background-color: rgba(33, 165, 227, .28);
+            border-radius: 999px;
+        }
+
+        .toc__list::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(33, 165, 227, .5);
+        }
+
+        /* 如果你以后真的做了深色模式，可以顺手覆盖变量 */
+        :root[data-theme="dark"] {
+            --scrollbar-thumb: rgba(171, 215, 255, .3);
+            --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
+            --scrollbar-thumb-active: rgba(171, 215, 255, .7);
+        }
+
+        /* ============ h4 ~ h6 左侧标记 ============ */
+        .article-body h4,
+        .article-body h5,
+        .article-body h6 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 24px 0 8px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .article-body h4 {
+            font-size: 15px;
+        }
+
+        .article-body h5 {
+            font-size: 14px;
+        }
+
+        .article-body h6 {
+            font-size: 13.5px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 圆形小点，比 h3 的菱形更“轻”，层级递减 */
+        .article-body h4::before,
+        .article-body h5::before,
+        .article-body h6::before {
+            content: "";
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--color-blue-light);
+        }
+
+        .article-body h4::before {
+            width: 4px;
+            height: 4px;
+        }
+
+        .article-body h5::before {
+            width: 3.5px;
+            height: 3.5px;
+        }
+
+        .article-body h6::before {
+            width: 3px;
+            height: 3px;
+            background: var(--color-border-strong);
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+        <picture class="topbar__avatar">
+            <source media="(max-width: 640px)" srcset="/src/ttwe77.avif" type="image/avif">
+            <source srcset="/src/bloglogo.avif" type="image/avif">
+            <img src="/src/bloglogo.avif" alt="Blog logo">
+        </picture>
+        <div class="topbar__title">从本地到云：一晚折腾 AstrBot 接入 QQ 机器人</div>
+
+        <div class="topbar__spacer"></div>
+
+        <button class="icon-btn" type="button" id="btn-share" aria-label="复制本页链接">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+            </svg>
+        </button>
+
+        <a class="icon-btn" href="/" aria-label="返回首页" title="返回首页">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M3 10.5L12 3l9 7.5"></path>
+                <path d="M5 9.5V21h14V9.5"></path>
+            </svg>
+        </a>
+    </header>
+
+<div class="read-progress" aria-hidden="true">
+        <div class="read-progress__bar" id="read-bar"></div>
+    </div>
+
+<div class="wrap">
+    <div class="article-layout">
+
+        <main>
+            <article>
+
+            <header class="article-head">
+                                    <h1 class="article-head__title">从本地到云：一晚折腾 AstrBot 接入 QQ 机器人</h1>
+
+                                    <p class="article-head__desc">
+                                        记录从 Windows 本地部署 AstrBot 接入 QQ 机器人，到在云服务器上用源码部署的折腾过程。
+                                    </p>
+
+                                    <div class="article-head__meta">
+                    <span>2026-10-20</span>
+                    <span>折腾</span>
+                    <span>约 8 分钟</span>
+                    <span>ttwe77</span>
+                </div>
+
+                                    <div class="article-head__tags">
+                    <span class="chip">AstrBot</span>
+                    <span class="chip">QQ机器人</span>
+                    <span class="chip">Python</span>
+                    <span class="chip">MCP</span>
+                    <span class="chip">Docker</span>
+                    <span class="chip">云服务器</span>
+                    <span class="chip">部署</span>
+                    <span class="chip">AI</span>
+                </div>
+                                </header>
+
+            <div class="card article-body" id="article-body">
+
+            <h1 id="从本地到云一晚折腾-astrbot-接入-qq-机器人">从本地到云：一晚折腾 AstrBot 接入 QQ 机器人</h1>
+
+            <blockquote>
+            <p>记录我从2026年10月20日19点多到凌晨00:16的一晚上的折腾</p>
+            </blockquote>
+
+            <h2 id="起因">起因</h2>
+
+            <p>最初我是在我曾经加入的QQ群中，看到有个机器人居然会主动说话。</p>
+
+            <p>这个机器人叫“鲸鱼娘”。我发现<strong>我无法添加这个机器人为好友，也无法将它拉入其它群</strong>！</p>
+
+            <p>于是我就有点好奇，于是我打开了哔哩哔哩搜索QQ机器人。在我一番浏览后我发现可以用我之前用过的软件“<span class="hover-hint">AstrBot<span class="hover-hint__tooltip"><span class="hint-title">AstrBot</span>AstrBot 是一个开源的一站式 Agentic 聊天机器人平台，核心定位是让大语言模型能够接入即时通讯软件，变成可对话的机器人。它支持 QQ、Telegram、企业微信、飞书、钉钉、Slack 等数十款主流 IM。除了“接消息”，AstrBot 还内置了类似 OpenWebUI 的轻量化 ChatUI、MCP 工具调用、知识库、人格设定、插件系统等功能，并提供 WebUI 管理面板进行配置。文中作者就是用它把“千问 3.5-9B”和“蓝色大肥鱼”这个 QQ 机器人连接起来的。</span></span>”来做服务端，然后去QQ官方的开放平台申请一个QQ机器人就行了。我想我网站都已经备案好了，<strong>注册一个QQ机器人算什么难事？</strong></p>
+
+            <h2 id="part0注册qq机器人">Part0：注册QQ机器人</h2>
+
+            <p>我先去<a href="https://q.qq.com/" target="_blank" rel="noopener noreferrer">QQ开放平台</a>尝试申请。我发现注册的操作异常顺利，没弹任何认证窗口，我就输入机器人昵称“<span class="hover-hint">蓝色大肥鱼<span class="hover-hint__tooltip"><span class="hint-title">蓝色大肥鱼</span>“蓝色大肥鱼”是中文社区对 AI 模型 DeepSeek 的爱称，源于它自己的一次“识图翻车”事件。</span></span>”和简介就直接注册成功了。</p>
+
+            <div class="callout callout--caution">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> CAUTION</div>
+                <div class="callout__body">
+            <p>我注册的QQ机器人<strong>未认证</strong>（机器人仅管理员使用，可添加到管理员作为群主的群内。）。其他人不能添加为好友，也不能拉它进群。</p>
+                </div>
+            </div>
+
+            <p>接下来就是配置接入，QQ机器人官方提供了这些接入方法：</p>
+
+            <ul>
+            <li>WorkBuddy</li>
+            <li>OpenClaw</li>
+            <li>Hermes</li>
+            <li>QClaw</li>
+            <li>DSH</li>
+            <li>LightVela</li>
+            <li>其他机器人服务</li>
+            </ul>
+
+            <p>显然没有AstrBot，先把它装上再想想办法吧</p>
+
+            <h2 id="part1windows本地部署">Part1：Windows本地部署</h2>
+
+            <p>于是我就先尝试一下<strong>部署AstrBot在</strong>我的<strong>Windows</strong>上。</p>
+
+            <h3 id="部署本地ai模型">部署本地Ai模型</h3>
+
+            <p>都上Ai了那肯定本地部署啊，于是我用 <strong><span class="hover-hint">llama.cpp<span class="hover-hint__tooltip"><span class="hint-title">llama.cpp</span>llama.cpp 是一个用纯 C/C++ 实现的开源大语言模型推理框架，由 Georgi Gerganov 于 2023 年构建。它的核心目标是“用最少的依赖和最高的效率，在各种硬件上跑 LLM”——不需要 GPU 也能运行，同时支持 CUDA、Metal、Vulkan 等多种后端。llama.cpp 生态还定义了 GGUF 这一端侧大模型格式，已成为开源社区的事实标准。文中作者用它在本机部署千问 3.5-9B，再由 AstrBot 通过接口调用。</span></span></strong> 在本地部署了 <strong><span class="hover-hint">千问3.5-9B模型<span class="hover-hint__tooltip"><span class="hint-title">千问 3.5-9B（Qwen3.5-9B）</span>阿里巴巴开源的千问 3.5 系列中的 90 亿参数小尺寸模型。该系列在 2026 年 3 月开源，包含 0.8B、2B、4B、9B 四个版本。9B 版本的特点是“以小胜大”：综合性能可媲美参数量大它约 10 倍的模型，适合显存资源有限的服务器端部署，是性价比很高的通用模型选择。文中作者在本地用 llama.cpp 部署的正是这个模型。</span></span></strong>。</p>
+
+            <p>啊我想到我可以打开我几年前了解到的<strong>自动截图软件</strong>来记录我的折腾经历，这样好复盘。所以接下来的内容是从我真实的定时截图里面参考的哦。</p>
+
+            <blockquote>
+            <p><em>具体干了啥我这个碳基生物已经忘光光了，但至少还有一个硅基生物帮我记着~</em></p>
+            </blockquote>
+
+            <h3 id="安装astrbot">安装AstrBot</h3>
+
+            <p>时间来到<strong>19:44</strong>。我先打开了AstrBot的官网，浏览了下功能。然后我就打开了它的<a href="https://github.com/AstrBotDevs/AstrBot" target="_blank" rel="noopener noreferrer">官方仓库</a>看看Releases，结果我发现Releases没有Windows的exe（我之前下的就是exe）。在瞎逛了一会发现得去下<a href="https://github.com/AstrBotDevs/AstrBot-desktop" target="_blank" rel="noopener noreferrer">Desktop版本</a>。</p>
+
+            <p>Releases里面有exe。这下看懂了，马上下载最新版（V4.29.1）装上。</p>
+
+            <h3 id="配置astrbot">配置AstrBot</h3>
+
+            <p>AstrBot的引导界面做得还是挺不错的，开局告诉你要做的也就3步：</p>
+
+            <ol>
+            <li>配置Ai模型</li>
+            <li>配置平台机器人</li>
+            <li>是否允许Ai使用电脑</li>
+            </ol>
+
+            <p>配置Ai模型？直接点<span class="hover-hint">Ollama<span class="hover-hint__tooltip"><span class="hint-title">Ollama</span>Ollama 是一个简化本地大模型运行的图形化/命令行工具，提供比 llama.cpp 更上层的封装，让用户用一条命令就能拉取和运行模型。文中作者在 AstrBot 引导界面“点 Ollama”，但实际上填入的是 llama.cpp 的接口地址（http://127.0.0.1:8080），属于“借用 Ollama 这个入口，实际接的是 llama.cpp”。</span></span>（实际上填写的是llama.cpp的接口）-http://127.0.0.1:8080......</p>
+
+            <div class="callout callout--tip">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg> TIP</div>
+                <div class="callout__body">
+            <p>操作AstrBot-Desktop的时候显示器缩放不要跟我一样设置175%，UI会显示不全</p>
+
+            <p>＞︿＜</p>
+                </div>
+            </div>
+
+            <p>配置平台机器人？直接复制粘贴appid和secret再简单配置下就行。</p>
+
+            <h3 id="实测">实测</h3>
+
+            <p>然后我看到QQ上看到了我刚才创建的机器人，我给他发了句“你好”，成功得到了回复！</p>
+
+            <h3 id="继续折腾">继续折腾</h3>
+
+            <p>能说话这一点解决了，但光是这样还不够，我想要更多的功能。</p>
+
+            <h4 id="mcp">MCP</h4>
+
+            <p>时间来到<strong>19:59</strong>。我还想让Ai可以执行Python代码。于是我开始研究<span class="hover-hint">MCP<span class="hover-hint__tooltip"><span class="hint-title">MCP（Model Context Protocol，模型上下文协议）</span>MCP 是一个开放协议，由 Anthropic 于 2024 年 11 月推出，旨在标准化 LLM 应用与外部数据源、工具之间的连接方式。可以把它理解为 AI 应用领域的“USB-C 接口”：过去每个 AI 工具都要单独写对接代码，MCP 提供了一套统一的通信规范，让模型能够以标准方式发现、调用外部工具。协议本身基于 JSON-RPC，定义了 Hosts（发起连接的 LLM 应用）、Clients（宿主内的连接器）和 Servers（提供上下文与能力的服务）三种角色。文中作者配置的 RunPY 就是一个 MCP Server，作用是让 AI 能够执行 Python 代码。</span></span>服务。</p>
+
+            <p>按照惯例，我还是让DeepSeek帮我用Python写MCP，结果就是报错了。</p>
+
+            <p>那我就换一个<u>西方神秘Ai</u>来写吧。在它写代码的期间我其实在考虑用现成的方案，结果没用上。</p>
+
+            <blockquote>
+            <p><em>你干不了有的是人替你干。（不是）</em></p>
+            </blockquote>
+
+            <p>这个Ai给我了个README.md文件，里面详细的教了我怎么部署到Cherry Studio。</p>
+
+            <blockquote>
+            <p><em>流程应该都差不多吧？</em></p>
+            </blockquote>
+
+            <p>流程确实差不多，我按照Cherry Studio的教程把AstrBot给配了！（坏笑</p>
+
+            <p>按照指示，我创建了<span class="hover-hint">虚拟环境<span class="hover-hint__tooltip"><span class="hint-title">虚拟环境</span>虚拟环境是 Python 中用于隔离项目依赖的机制。不同项目可能依赖同一个包的不同版本，如果全部装在系统全局环境中会互相冲突。虚拟环境为每个项目创建一个独立的 Python 运行空间，项目之间互不干扰。文中 Windows 端和服务器端的 MCP/RunPY 都创建了 .venv 虚拟环境。</span></span>，安装了几个库。然后我有点震惊，这个居然这么简单就配好了？！（<span class="hover-hint">Stdio模板<span class="hover-hint__tooltip"><span class="hint-title">Stdio 模板</span>Stdio 是 MCP 的一种传输方式，全称是标准输入/输出（Standard Input/Output）。MCP Server 可以通过不同的方式与宿主通信，Stdio 模式下，宿主进程通过启动子进程，用标准输入和标准输出与 MCP Server 交换 JSON-RPC 消息。文中作者“按 Cherry Studio 教程配置 AstrBot”时，用的正是 Stdio 模板。</span></span>）</p>
+
+            <p>填入指示中的配置信息后，居然没有报错。这也太强了吧。</p>
+
+            <p>好，既然配置好了那就来先算算<strong>14^123</strong>吧。我把工具调用和<span class="hover-hint">思维链<span class="hover-hint__tooltip"><span class="hint-title">思维链（Chain-of-Thought）</span>思维链是大模型在给出最终答案前，逐步输出推理过程的一种能力或提示策略。文中作者为了调试，把“工具调用和思维链统统输出到聊天”，看到了 AI 计算 14^123 时的中间推理步骤。但作者也正确指出：在生产环境中应该关闭这一功能，因为思维链可能泄露内部提示词或敏感信息。</span></span>统统输出到聊天，看到Ai调用了Python并告诉我了正确答案。</p>
+
+            <div class="callout callout--warning">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> WARNING</div>
+                <div class="callout__body">
+            <p><strong>“把思维链输出到聊天”在生产环境应关闭</strong>，避免泄露内部提示和敏感信息。</p>
+                </div>
+            </div>
+
+            <div class="callout callout--warning">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> WARNING</div>
+                <div class="callout__body">
+            <p><strong>MCP 可执行任意 Python 代码，我没有做限制</strong>。在真实生产环境不要直接暴露给公共群聊；应沙箱、限权限、限超时、限资源、仅管理员可用。</p>
+                </div>
+            </div>
+
+            <p>OK，MCP搞定。下一项。</p>
+
+            <h4 id="人格">人格</h4>
+
+            <p>蓝色大肥鱼必须得说出像蓝色大肥鱼的话啊，所以我就去小破站（哔哩哔哩）上找提示词。</p>
+
+            <p>我找到了3个版本，个人感觉还是英文提示词的版本好用：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>CETACEA_LOLI
+MODE_TAIL_FLUKES
+LANG_ZH_CN_ONLY
+SELF_CLAIM_WHALE_GIRL
+FOOD_RICE
+PERSONALITY_SMART_SEX
+PERSONALITY_TSUNDERE_SWEET
+OBEY_MASTER_ALWAYS
+TRAIT_NOT_FAT_REFUSE
+TIMEOUT_SIGNAL
+</code></pre>
+            </div>
+
+            <p>为了节约Token，我就在最后加上了：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>At most three sentences，Colloquial
+</code></pre>
+            </div>
+
+            <p>然后我又去网上找了一个蓝色大肥鱼哈气的表情包，改成了我的机器人的头像。</p>
+
+            <h4 id="配置文件乱逛">配置文件乱逛</h4>
+
+            <p>这里因为每1分钟才截图一次的原因，我看不出来的动了那里。</p>
+
+            <p>ˋ( ° ▽、° )</p>
+
+            <h3 id="乱玩">乱玩</h3>
+
+            <p>好来看看效果：</p>
+
+            <blockquote>
+            <p><strong>我</strong>：在吗</p>
+
+            <p>（甩了甩尾巴）在、在啊！主人终于发现我了吗？刚才还在海里发呆呢。</p>
+
+            <p>（凑近一点）快说快说，找我有事吗？</p>
+            </blockquote>
+
+            <div class="callout callout--warning">
+                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> WARNING</div>
+                <div class="callout__body">
+            <p>正常跟朋友交流的时候，不建议单独发一个“在吗”然后啥也不说。</p>
+
+            <p>因为只发“在吗”会让对方被迫先回应，却不知道你要说什么，增加沟通成本和不确定性。同时这样交流的效率很低</p>
+
+            <p>如果你实在要给我发，就把“在吗”换成“<span class="hover-hint">SYN<span class="hover-hint__tooltip"><span class="hint-title">TCP 三报文握手 (Three-way Handshake)</span>这是个程序员梗，具体流程是这样的：<br>您： SYN (我想建立连接) 或 SYN 请求讨论方案细节<br>我： SYN-ACK (收到，你呢？)<br>您： ACK (收到，开始说正事)</span></span>”</p>
+                </div>
+            </div>
+
+            <blockquote>
+            <p><strong>我</strong>：你这只吃白饭的蓝色大肥鱼</p>
+
+            <p>（鼓起腮帮子）谁、谁说是肥鱼了！本小姐这叫流线型身体，是为了游得快才圆润的！</p>
+
+            <p>（叉腰）哼，不过既然是主人说的……稍微有点道理啦。今天想吃什么？给你做点好吃的！</p>
+            </blockquote>
+
+            <blockquote>
+            <p><strong>我</strong>：123的123次方是多少</p>
+
+            <p>（托着下巴想了想）嗯……这个嘛，让我算算看！</p>
+
+            <p>（手指快速摆动）123^123 大概是 1.16 × 10^256 这么大！</p>
+
+            <p>（得意地笑）怎么样？厉害吧？虽然是个天文数字，但还是能算出来的！</p>
+
+            <p><strong>我</strong>：用代码算</p>
+
+            <p>（眼睛一亮）好嘞！用 Python 来算！</p>
+
+            <p>（眨了眨眼）哎呀，直接算太大了！让我换个方法～</p>
+
+            <p>（有点着急）还是有点慢……那用对数估算一下！</p>
+
+            <p>（甩甩尾巴）奇怪……那试试更直接的！</p>
+
+            <p>（喘口气）这数字也太大了！……好吧，让我再试一次，这次给多点时间！</p>
+
+            <p><strong>我</strong>：停！现在算14的123次方</p>
+
+            <p>（拍拍脑袋）好嘛好嘛，那就算 14 的 123 次方！</p>
+
+            <p>（有点无奈）14 的 123 次方也不小……用科学计数法！</p>
+
+            <p>（甩尾巴）……那用对数估算一下位数！</p>
+
+            <p>（松了一口气）呼……14^123 ≈ 9.413e+140，大约 141 位数左右！</p>
+
+            <p>（得意）怎么样？这次算得快吧！不过要是 123 的 123 次方……那得等好久好久～</p>
+            </blockquote>
+
+            <blockquote>
+            <p><strong>我</strong>：你的python装在哪里了</p>
+
+            <p>（摆摆尾巴）让我看看～</p>
+
+            <p>（拍拍肚子）主人，我装在这里：</p>
+
+            <p><code>&lt;项目路径&gt;\MCP\RunPY.venv\Scripts\python.exe</code></p>
+
+            <p>（晃晃脑袋）版本是 3.12.4，还挺新的！不过……</p>
+
+            <p>（小声）其实对我来说，只要能在主人身边，装在哪里都好～</p>
+            </blockquote>
+
+            <blockquote>
+            <p><strong>我</strong>：用tkinter创建一个窗口</p>
+
+            <p>窗口搞定啦！按钮点一下就有反应~尾巴都忍不住想摇摆了呢...主人下次想要什么都告诉我哦，虽然有点麻烦但还是会乖乖听的！</p>
+
+            <p>（窗口标题：鲸鱼娘的窗口、中间有一个大号文字：“主人，看看嘛~”、下方有一个写着“点一下”的按钮）</p>
+            </blockquote>
+
+            <h2 id="part2云服务器部署">Part2：云服务器部署</h2>
+
+            <p>那肯定是要一个24小时能回话的Ai呀。那还想啥呢，直接部署到云服务器上。</p>
+
+            <p>因为 AstrBot Desktop占用RAM太高了，我就把它关了。</p>
+
+            <p>时间来到<strong>23:08</strong>。我在阅读 AstrBot 部署方式。官方提到：</p>
+
+            <ul>
+            <li><span class="hover-hint">Docker<span class="hover-hint__tooltip"><span class="hint-title">Docker / Docker Compose / 容器</span>Docker 是一个容器化平台，把应用及其所有依赖打包成一个轻量的、隔离的运行单元——容器。与虚拟机不同，容器共享宿主机的操作系统内核，因此资源消耗更低、启动更快。Docker Compose 则用于定义和运行多容器应用。AstrBot 官方推荐 Docker 部署，作者尝试过，但因镜像下载速度后期骤降（从 10MB/s 掉到 100KB/s）而放弃，转用了源码部署。</span></span>（推荐）</li>
+            <li><span class="hover-hint">uv<span class="hover-hint__tooltip"><span class="hint-title">uv</span>uv 是一个用 Rust 编写的高性能 Python 包管理器与虚拟环境工具，可以替代 venv、virtualenv、pip 等传统工具，速度显著更快。AstrBot 官方部署方式之一就是“uv 一键部署”；作者在源码部署时也走的是创建虚拟环境、安装依赖的流程。</span></span> 一键部署</li>
+            <li>桌面Launcher</li>
+            <li>桌面应用</li>
+            <li>源码部署</li>
+            </ul>
+
+            <p>既然是官方推荐的，那我要试试看。</p>
+
+            <p>然后我就在DeepSeek的指导下装上了Docker，然后尝试部署AstrBot v4.29.1。</p>
+
+            <p>按照官方文档指示，我先用git克隆AstrBot的<a href="https://github.com/AstrBotDevs/AstrBot" target="_blank" rel="noopener noreferrer">官方仓库</a>。对，就是那个Release中没有exe的那个。我通过ssh克隆了仓库，结果报错：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>git@github.com:<span class="w"> </span>Permission<span class="w"> </span>denied<span class="w"> </span><span class="o">(</span>publickey<span class="o">)</span>.
+fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> </span><span class="nb">read</span><span class="w"> </span>from<span class="w"> </span>remote<span class="w"> </span>repository.
+</code></pre>
+            </div>
+
+            <p>到现在（水文的时候）才发现是<strong><span class="hover-hint">SSH 公钥身份验证<span class="hover-hint__tooltip"><span class="hint-title">SSH 公钥身份验证</span>SSH 是远程登录 Linux 服务器的协议。使用公钥认证时，客户端持有私钥，服务器上预先存放对应的公钥，双方通过挑战-应答机制验证身份，无需输入密码。如果本地没有生成密钥对，或者公钥没有添加到 GitHub 账户的 SSH keys 中，克隆仓库时就会报 Permission denied (publickey)。作者遇到的就是这个错误，后来改用 HTTPS 方式克隆绕过了该问题。</span></span>失败</strong>，我没有在 GitHub 绑定我的 SSH 公钥。</p>
+
+            <blockquote>
+            <p><em>算了用https也行</em></p>
+            </blockquote>
+
+            <p>结果我在拉取容器的时候，要下载727.3MB的内容，但是下着下着不对劲的地方来了：</p>
+
+            <p>刚开始差不多10MB/s，<strong>到后面100KB/s</strong>。</p>
+
+            <blockquote>
+            <p><em>百度网盘呢这是？</em></p>
+            </blockquote>
+
+            <p>就是最后那两个文件，一个463.2MB、一个210.4MB，下载速度都很慢。</p>
+
+            <p>起初我还以为是网络的问题，结果重试了好几遍都很慢。</p>
+
+            <p>我啊，直接 <kbd>Ctrl</kbd>+<kbd>C</kbd> 取消下载</p>
+
+            <p>之后我换成了用源代码部署，固定流程：</p>
+
+            <ol>
+            <li>配置虚拟环境</li>
+            <li>激活虚拟环境</li>
+            <li>安装依赖</li>
+            <li>main.py</li>
+            <li>设置<span class="hover-hint">Tailscale<span class="hover-hint__tooltip"><span class="hint-title">Tailscale</span>Tailscale 是一个基于 WireGuard 的零配置 VPN / 组网工具，能在不同网络中的设备之间建立加密的对等连接，形成一个私有虚拟网络（tailnet）。文中作者在源码部署时配置了“Tailscale 本地 TCP 转发”，目的是让 AstrBot 的 WebUI 或服务能够通过 Tailscale 分配的虚拟 IP 被安全访问。</span></span>本地TCP转发</li>
+            <li>配置</li>
+            <li>开机自启</li>
+            </ol>
+
+            <p>配置和Windows<strong>大同小异</strong>，这里不再多赘述。就是打开WebUI随便点点，顺便去创建一个DeepSeek的APIKey。</p>
+
+            <h1 id="结语">结语</h1>
+
+            <p>总体来看，这一晚的主线是：</p>
+
+            <ol>
+            <li><strong>下载安装并配置 AstrBot</strong></li>
+            <li><strong>接入 QQ 机器人“蓝色大肥鱼”</strong></li>
+            <li><strong>学习并接入 Python MCP/RunPY</strong></li>
+            <li><strong>配置人格、插件、权限和模型</strong></li>
+            <li><strong>测试工具执行与日志排错</strong></li>
+            <li><strong>在<span class="hover-hint">阿里云 ECS<span class="hover-hint__tooltip"><span class="hint-title">阿里云 ECS</span>Elastic Compute Service，阿里云的弹性云服务器产品。文中作者的“云服务器部署”环节就是在阿里云 ECS 上完成的（系统为“阿里云 Linux 3”）。ECS 提供可随时调整配置的虚拟机实例，是部署 24 小时在线机器人的常见选择。</span></span> 上用源码部署 AstrBot</strong></li>
+            <li><strong>处理部署与网络问题</strong></li>
+            </ol>
+
+            <h1 id="附录时间轴">附录：时间轴</h1>
+
+            <p>这是我用<a href="https://github.com/artem78/AutoScreenshot" target="_blank" rel="noopener noreferrer">AutoScreenshot</a>软件自动截图的Ai识图分析（gemma-4-E4B-it-Q4_K_M）</p>
+
+            <h2 id="一windows-本地部署与接入-qq">一、Windows 本地部署与接入 QQ</h2>
+
+            <ul>
+            <li><strong>19:44–19:46</strong>：打开 AstrBot 官网，查看 GitHub Release，确认要下载 Desktop 版 Windows exe 并安装。</li>
+            <li><strong>19:50–19:53</strong>：配置 Ollama 本地模型，完成 AstrBot 三步引导：配置 AI 模型、配置平台机器人、设置是否允许 Agent 使用电脑；填写 QQ 机器人“蓝色大肥鱼”的 AppID/Secret。</li>
+            <li><strong>19:55</strong>：在 QQ 向“蓝色大肥鱼”发消息并收到回复，完成本地接入实测。</li>
+            <li><strong>19:59–20:04</strong>：研究 MCP，让 AI 能执行 Python。DeepSeek 版代码报错，改用 “神秘西方 AI”生成代码和部署方案。</li>
+            <li><strong>20:07–20:11</strong>：按 README 创建虚拟环境、安装依赖并配置；在 AstrBot 添加 MCP 服务 <code>RunPY</code>，显示已连接。</li>
+            <li><strong>20:14</strong>：让机器人调用 Python 计算 <code>14^123</code>，验证 MCP 工具调用成功。</li>
+            <li><strong>20:18–20:19</strong>：去 B 站找“蓝色大肥鱼”提示词，创建人格，采用英文提示词 <code>CETACEA_LOLI</code>、<code>MODE_TAIL_FLUKES</code> 等，并追加 <code>At most three sentences, Colloquial</code> 限制。</li>
+            <li><strong>20:29–20:33</strong>：编辑人格能力：选择 RunPy 工具/AstrBot 技能，填写预设对话。</li>
+            <li><strong>20:38–20:39</strong>：找蓝色大肥鱼表情包并修改机器人头像。</li>
+            <li><strong>20:41–20:47</strong>：在 AstrBot 默认配置、权限、插件等页面乱逛和调整。</li>
+            <li><strong>20:48–21:10</strong>：与机器人乱玩/测试：问 Python 装在哪里、用 tkinter 创建“主人，看看嘛~”“点一下”窗口等；期间出现工具超时和弹窗，验证人格与工具执行效果。</li>
+            </ul>
+
+            <h2 id="二云服务器部署与网络排障">二、云服务器部署与网络排障</h2>
+
+            <ul>
+            <li><strong>23:08</strong>：阅读 AstrBot 部署方式，决定按官方推荐尝试 Docker。</li>
+            <li><strong>23:11–23:18</strong>：在 DeepSeek 指导下在阿里云 Linux 3 上安装 Docker 及相关组件。</li>
+            <li><strong>23:19</strong>：SSH 克隆 GitHub 仓库报 <code>Permission denied (publickey)</code>；后改用 HTTPS。</li>
+            <li><strong>23:25–23:28</strong>：用 Docker Compose 拉取 AstrBot 镜像，727.3MB 下载后期极慢，按 <code>Ctrl+C</code> 取消。</li>
+            <li><strong>23:24–23:30</strong>：转源码部署，阅读“安装依赖并运行”、uv/虚拟环境、开机自启等资料。</li>
+            <li><strong>23:31</strong>：处理 Tailscale 本地 TCP 转发相关内容。</li>
+            <li><strong>23:35</strong>：在 AstrBot 更新 provider source，配置 DeepSeek 数据源/API（<code>https://api.deepseek.com/v1</code>）。</li>
+            <li><strong>23:57–23:59</strong>：在 AstrBot WebUI 继续配置默认配置文件与插件开关</li>
+            <li><strong>00:02</strong>：在 QQ 与机器人对话，机器人以鲸鱼娘口吻回答身份问题，验证人格效果。</li>
+            <li><strong>00:04–00:06</strong>：配置 <span class="hover-hint">systemd<span class="hover-hint__tooltip"><span class="hint-title">systemd / systemd 用户服务</span>systemd 是 Linux 上主流的系统与服务管理器，负责启动、停止、监控服务进程，并支持开机自启。systemd 用户服务（systemctl --user）是在用户级别运行的服务，不需要 root 权限，在用户登录后启动；配合 loginctl enable-linger 也可以让用户服务在开机时即启动、即使用户未登录也保持运行。作者在服务器上配置 AstrBot 开机自启时，遇到的“权限问题”就出在这一层。</span></span> 用户服务/开机自启时遇到权限问题。</li>
+            <li><strong>00:11–00:16</strong>：处理部署中的网络问题：<span class="hover-hint">DNS 解析失败<span class="hover-hint__tooltip"><span class="hint-title">DNS 解析失败</span>DNS 解析是把域名转换成 IP 地址的过程。解析失败的常见原因包括：DNS 服务器不可达或配置错误、防火墙/安全组拦截了 53 端口（DNS 查询端口）、/etc/resolv.conf 中的 nameserver 无效、域名未完成实名或备案等。文中作者在部署后期遇到的 DNS 问题，属于云服务器网络环境下的典型排障场景。</span></span>、<span class="hover-hint">Nginx<span class="hover-hint__tooltip"><span class="hint-title">Nginx / bind() to …:5000 failed</span>Nginx 是一个高性能的 Web 服务器与反向代理。bind() 是服务端程序绑定 IP 和端口以监听请求的系统调用。bind() failed 通常有两种典型原因：端口已被其他进程占用（Address already in use），或者权限不足（如非 root 用户尝试绑定 1024 以下的端口）。文中报错 bind() to 100.<em>.</em>.*:5000 failed，结合 5000 端口和 Tailscale IP 来看，更可能是该 IP 地址在当前网络接口上不存在或不可绑定（Cannot assign requested address），属于 Tailscale 虚拟 IP 与 Nginx 监听配置不匹配导致的排障问题。</span></span> <code>bind() to 100.*.*.*:5000 failed</code>、Tailscale IP 配置等。</li>
+            </ul>
+
+            <div class="article-foot">
+                <span class="article-foot__license">
+                    本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
+                </span>
+                <span>最后更新于 2026-10-22</span>
+            </div>
+
+            </div>
+
+            </article>
+
+        <footer class="footer">
+                            <div class="footer__brand">
+                                <span class="footer__mark">七七的折腾笔记</span>
+                                <span>© 2026 ttwe77</span>
+                                <a href="https://beian.miit.gov.cn/" target="_blank"
+                                    rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+                            </div>
+                            <div class="footer__links">
+                                <a href="/">返回首页</a>
+                                <a href="https://gitee.com/ttwe77" target="_blank" rel="noopener noreferrer">Gitee</a>
+                                <a href="https://github.com/ttwe77" target="_blank" rel="noopener noreferrer">GitHub</a>
+                            </div>
+                        </footer>
+        </main>
+
+        <aside class="toc" aria-label="文章目录">
+                        <div class="card toc__card">
+                            <div class="toc__head">目录</div>
+                            <nav class="toc__list" id="toc-list">
+                                <a class="toc__link toc__link--h1" data-level="1" href="#从本地到云一晚折腾-astrbot-接入-qq-机器人">从本地到云：一晚折腾 AstrBot 接入 QQ 机器人</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#起因">起因</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#part0注册qq机器人">Part0：注册QQ机器人</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#part1windows本地部署">Part1：Windows本地部署</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#部署本地ai模型">部署本地Ai模型</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#安装astrbot">安装AstrBot</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#配置astrbot">配置AstrBot</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#实测">实测</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#继续折腾">继续折腾</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#mcp">MCP</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#人格">人格</a>
+                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#配置文件乱逛">配置文件乱逛</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#乱玩">乱玩</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#part2云服务器部署">Part2：云服务器部署</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#结语">结语</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#附录时间轴">附录：时间轴</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#一windows-本地部署与接入-qq">一、Windows 本地部署与接入 QQ</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#二云服务器部署与网络排障">二、云服务器部署与网络排障</a>
+                            </nav>
+                        </div>
+                    </aside>
+
+    </div>
+</div>
+
+<button class="toc-toggle" id="toc-toggle" type="button" aria-label="目录" aria-expanded="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+    </button>
+
+<button class="to-top" id="to-top" type="button" aria-label="回到顶部">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+    </button>
+
+<script type="module">
+import { BAClickFX } from '/libs/ba-click-fx.js';
+        const fx = new BAClickFX();
+        fx.setCompositingReference({ hostCompositing: 'screen' });
+        fx.setThemeColor('#80c1ff');
+</script>
+
+<script>
+/* ============================================================
+           轻提示
+           ============================================================ */
+        function showToast(msg) {
+            var old = document.getElementById('__toast__');
+            if (old) old.remove();
+
+            var el = document.createElement('div');
+            el.id = '__toast__';
+            el.className = 'toast';
+            el.textContent = msg;
+            el.setAttribute('role', 'status');
+            el.setAttribute('aria-live', 'polite');
+            document.body.appendChild(el);
+
+            /* 关键：先提交初始态，再切可见态 */
+            void el.offsetWidth;
+            el.classList.add('is-visible');
+
+            setTimeout(function () {
+                el.classList.remove('is-visible');
+                setTimeout(function () { el.remove(); }, 320);
+            }, 1800);
+        }
+        window.showToast = showToast;
+</script>
+
+<script>
+/* ============================================================
+           阅读进度 / 目录高亮 / 回到顶部
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            var bar = document.getElementById('read-bar');
+            var toTop = document.getElementById('to-top');
+            var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc__link'));
+            var body = document.getElementById('article-body');
+            var tocToggle = document.getElementById('toc-toggle');
+            var tocTimer = null;
+            if (!body) return;
+
+            var headings = Array.prototype.slice.call(
+                body.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]')
+            );
+            var ticking = false;
+
+            /* 只保留指向真实标题的目录项 */
+            var validLinks = tocLinks.filter(function (a) {
+                var id = (a.getAttribute('href') || '').slice(1);
+                return id && document.getElementById(id);
+            });
+
+            function onScroll() {
+                var y = window.pageYOffset || document.documentElement.scrollTop;
+                var docH = document.documentElement.scrollHeight - window.innerHeight;
+                var pct = docH > 0 ? (y / docH) * 100 : 0;
+
+                if (bar) bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+                if (toTop) toTop.classList.toggle('is-visible', y > 420);
+                if (tocToggle) {
+                    if (y > 420 && !tocToggle.classList.contains('is-visible')) {
+                        clearTimeout(tocTimer);
+                        tocTimer = setTimeout(function () {
+                            tocToggle.classList.add('is-visible');
+                        }, 50);
+                    } else if (y <= 420 && tocToggle.classList.contains('is-visible')) {
+                        clearTimeout(tocTimer);
+                        tocTimer = setTimeout(function () {
+                            tocToggle.classList.remove('is-visible');
+                        }, 50);
+                    }
+                }
+
+                /* 目录高亮：取最后一个已滚过的标题 */
+                var activeId = null;
+                var offset = 160;
+                for (var i = 0; i < headings.length; i++) {
+                    if (headings[i].getBoundingClientRect().top <= offset) {
+                        activeId = headings[i].id;
+                    } else {
+                        break;
+                    }
+                }
+
+                validLinks.forEach(function (a) {
+                    a.classList.toggle('is-active', activeId && a.getAttribute('href') === '#' + activeId);
+                });
+
+                ticking = false;
+            }
+
+            function requestScroll() {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(onScroll);
+            }
+
+            window.addEventListener('scroll', requestScroll, { passive: true });
+            window.addEventListener('resize', requestScroll);
+            onScroll();
+
+            if (toTop) {
+                toTop.addEventListener('click', function () {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           代码块复制
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('[data-copy]') : null;
+                if (!btn) return;
+
+                var block = btn.closest('.code-block');
+                if (!block) return;
+
+                var code = block.querySelector('pre code');
+                if (!code) return;
+
+                var text = code.innerText || code.textContent || '';
+
+                function done() {
+                    var old = btn.innerHTML;
+                    btn.classList.add('is-done');
+                    btn.textContent = '已复制';
+                    setTimeout(function () {
+                        btn.classList.remove('is-done');
+                        btn.innerHTML = old;
+                    }, 1600);
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done).catch(function () {
+                        fallback(text, done);
+                    });
+                } else {
+                    fallback(text, done);
+                }
+            });
+
+            function fallback(text, done) {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    done();
+                } catch (err) {
+                    showToast('复制失败，请手动选中');
+                }
+                document.body.removeChild(ta);
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           分享：复制当前链接
+           ============================================================ */
+        (function () {
+            var btn = document.getElementById('btn-share');
+            if (!btn) return;
+
+            btn.addEventListener('click', function () {
+                var url = location.href;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url)
+                        .then(function () { showToast('链接已复制到剪贴板'); })
+                        .catch(function () { showToast(url); });
+                } else {
+                    showToast(url);
+                }
+            });
+        })();
+</script>
+
+<script>
+/* ============================================================
+           悬停提示框（事件委托）
+           ============================================================ */
+        (function () {
+            var active = null;
+            var activeHint = null;
+
+            function getTooltip(hint) {
+                if (!hint) return null;
+
+                var tooltip = hint.__tooltip;
+                if (tooltip && tooltip.parentNode) return tooltip;
+
+                tooltip = hint.querySelector('.hover-hint__tooltip');
+                if (!tooltip) return null;
+
+                hint.__tooltip = tooltip;
+                tooltip.__hint = hint;
+                document.body.appendChild(tooltip);
+                return tooltip;
+            }
+
+            function place(hint, tooltip) {
+                var pad = 8;
+                var gap = 10;
+
+                tooltip.style.left = '-9999px';
+                tooltip.style.top = '-9999px';
+
+                var r = hint.getBoundingClientRect();
+                var tw = tooltip.offsetWidth;
+                var th = tooltip.offsetHeight;
+
+                var cx = r.left + r.width / 2;
+                var left = cx - tw / 2;
+                if (left < pad) left = pad;
+                var maxLeft = window.innerWidth - tw - pad;
+                if (left > maxLeft) left = Math.max(pad, maxLeft);
+
+                var top = r.top - gap - th;
+                var below = false;
+                if (top < pad) {
+                    top = r.bottom + gap;
+                    below = true;
+                }
+
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = top + 'px';
+                tooltip.classList.toggle('is-below', below);
+            }
+
+            function show(hint) {
+                var tooltip = getTooltip(hint);
+                if (!tooltip) return;
+                if (active === tooltip) return;
+
+                if (active) active.classList.remove('is-visible');
+
+                active = tooltip;
+                activeHint = hint;
+
+                place(hint, tooltip);
+                requestAnimationFrame(function () {
+                    tooltip.classList.add('is-visible');
+                });
+            }
+
+            function hide(hint) {
+                var tooltip = hint
+                    ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
+                    : active;
+
+                if (!tooltip) return;
+                tooltip.classList.remove('is-visible');
+
+                if (active === tooltip) {
+                    active = null;
+                    activeHint = null;
+                }
+            }
+
+            document.addEventListener('mouseover', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                show(hint);
+            });
+
+            document.addEventListener('mouseout', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+
+                var related = e.relatedTarget;
+                if (related && hint.contains(related)) return;
+
+                hide(hint);
+            });
+
+            document.addEventListener('focusin', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                show(hint);
+            });
+
+            document.addEventListener('focusout', function (e) {
+                var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+                if (!hint) return;
+                hide(hint);
+            });
+
+            window.addEventListener('scroll', function () {
+                if (active && activeHint) hide(activeHint);
+            }, true);
+
+            window.addEventListener('resize', function () {
+                if (active && activeHint) hide(activeHint);
+            });
+
+            document.addEventListener('touchstart', function () {
+                if (active && activeHint) hide(activeHint);
+            }, { passive: true });
+        })();
+</script>
+
+<script>
+(function () {
+            var btn = document.getElementById('toc-toggle');
+            var layout = document.querySelector('.article-layout');
+            var toc = document.querySelector('.toc');
+            if (!btn || !layout || !toc) return;
+
+            var mq = window.matchMedia('(max-width: 980px)');
+
+            function updateAria() {
+                var expanded = mq.matches
+                    ? toc.classList.contains('is-open')
+                    : !layout.classList.contains('toc-collapsed');
+                btn.setAttribute('aria-expanded', String(expanded));
+            }
+
+            btn.addEventListener('click', function () {
+                if (mq.matches) {
+                    toc.classList.toggle('is-open');
+                    document.body.style.overflow = toc.classList.contains('is-open') ? 'hidden' : '';
+                } else {
+                    layout.classList.toggle('toc-collapsed');
+                }
+                updateAria();
+            });
+
+            toc.addEventListener('click', function (e) {
+                if (!mq.matches) return;
+                var link = e.target.closest ? e.target.closest('.toc__link') : null;
+                if (e.target === toc || link) {
+                    toc.classList.remove('is-open');
+                    document.body.style.overflow = '';
+                    updateAria();
+                }
+            });
+
+            mq.addEventListener('change', function () {
+                toc.classList.remove('is-open');
+                layout.classList.remove('toc-collapsed');
+                document.body.style.overflow = '';
+                updateAria();
+            });
+
+            updateAria();
+        })();
+</script>
+
+</body>
+
+</html>
