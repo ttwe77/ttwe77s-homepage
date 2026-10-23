@@ -1,11 +1,14 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "friends": [
     {
       "name": "秋刀鱼的小站",
       "url": "https://example.com",
       "desc": "记录技术、折腾与生活的碎片",
-      "tags": ["技术", "生活"],
+      "tags": [
+        "技术",
+        "生活"
+      ],
       "avatar": "https://example.com/avatar-1.png",
       "initial": "秋",
       "c1": "#8AB4F8",
@@ -15,7 +18,10 @@
       "name": "星屑实验室",
       "url": "https://example.com",
       "desc": "一个喜欢折腾开源项目的高中生",
-      "tags": ["开源", "前端"],
+      "tags": [
+        "开源",
+        "前端"
+      ],
       "avatar": "https://example.com/avatar-2.png",
       "initial": "星",
       "c1": "#7FC4EA",
@@ -25,7 +31,10 @@
       "name": "猫窝",
       "url": "https://example.com",
       "desc": "一只猫的胡言乱语与深夜碎碎念",
-      "tags": ["随笔", "日常"],
+      "tags": [
+        "随笔",
+        "日常"
+      ],
       "avatar": "https://example.com/avatar-3.png",
       "initial": "猫",
       "c1": "#BEC0EC",
@@ -35,7 +44,10 @@
       "name": "云上小筑",
       "url": "https://example.com",
       "desc": "云原生、运维，以及摸鱼的一百种姿势",
-      "tags": ["运维", "Linux"],
+      "tags": [
+        "运维",
+        "Linux"
+      ],
       "avatar": "https://example.com/avatar-4.png",
       "initial": "云",
       "c1": "#7BE0B8",
@@ -45,7 +57,10 @@
       "name": "拾光笔记",
       "url": "https://example.com",
       "desc": "把时间存进文字里，偶尔拍点照片",
-      "tags": ["随笔", "摄影"],
+      "tags": [
+        "随笔",
+        "摄影"
+      ],
       "avatar": "https://example.com/avatar-5.png",
       "initial": "拾",
       "c1": "#E39BEA",
@@ -55,7 +70,10 @@
       "name": "木子の博客",
       "url": "https://example.com",
       "desc": "前端、设计，以及一点点二次元",
-      "tags": ["前端", "设计"],
+      "tags": [
+        "前端",
+        "设计"
+      ],
       "avatar": "https://example.com/avatar-6.png",
       "initial": "木",
       "c1": "#FFD84D",
@@ -65,7 +83,10 @@
       "name": "深夜代码",
       "url": "https://example.com",
       "desc": "夜深了，代码还没写完",
-      "tags": ["后端", "Python"],
+      "tags": [
+        "后端",
+        "Python"
+      ],
       "avatar": "https://example.com/avatar-7.png",
       "initial": "夜",
       "c1": "#9BA4B5",
@@ -75,7 +96,10 @@
       "name": "灯塔观测站",
       "url": "https://example.com",
       "desc": "关于网络安全与网络本身的一些观察",
-      "tags": ["安全", "网络"],
+      "tags": [
+        "安全",
+        "网络"
+      ],
       "avatar": "https://example.com/avatar-8.png",
       "initial": "灯",
       "c1": "#F4756A",
@@ -88,13 +112,18 @@
       "desc": "帮我排查了一个困扰三天的 bug",
       "avatar": "https://example.com/avatar.png",
       "url": "https://example.com",
-      "tags": ["debug 救星"],
+      "tags": [
+        "debug 救星"
+      ],
       "initial": "张"
     },
     {
       "name": "李四",
       "desc": "给了很多设计上的建议",
-      "tags": ["设计", "建议"]
+      "tags": [
+        "设计",
+        "建议"
+      ]
     }
   ]
 }

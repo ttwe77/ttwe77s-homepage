@@ -654,6 +654,10 @@
       transform: translate(2px, -2px);
     }
 
+    .friend.is-thanks .friend__go {
+      display: none;
+    }
+
     .stage__note {
       margin-top: 12px;
       text-align: center;
@@ -809,6 +813,44 @@
         transition-duration: .01ms !important;
       }
     }
+
+    /* ---------- 特别鸣谢开关 ---------- */
+    .check {
+      flex-direction: row;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 11px;
+      border: 1px dashed var(--color-border-strong);
+      border-radius: var(--radius-md);
+      background: var(--color-bg-light);
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    .check:hover {
+      border-color: var(--color-blue-light);
+      background: #fff;
+    }
+
+    .check input[type="checkbox"] {
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .check>span {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-body);
+    }
+
+    /* 特别鸣谢模式下，链接不再是必填，隐藏星号 */
+    .field.is-optional>span em {
+      display: none;
+    }
   </style>
 </head>
 
@@ -856,33 +898,38 @@
       <div class="panel__body">
         <div class="form__grid">
 
+          <label class="field field--full check">
+            <input type="checkbox" id="f-special">
+            <span>特别鸣谢模式 <i>勾选后站点链接变为可选项，卡片不再跳转</i></span>
+          </label>
+
           <label class="field" id="field-name">
-            <span>站点名称 <em>*</em></span>
-            <input id="f-name" type="text" placeholder="秋刀鱼的小站" spellcheck="false" autocomplete="off">
+            <span id="lb-name">站点名称 <em>*</em></span>
+            <input id="f-name" type="text" placeholder="七七的折腾笔记" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field" id="field-url">
-            <span>站点链接 <em>*</em></span>
-            <input id="f-url" type="text" placeholder="https://example.com" spellcheck="false" autocomplete="off">
+            <span id="lb-url">站点链接 <em>*</em></span>
+            <input id="f-url" type="text" placeholder="https://www.ttwe77.cn" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field field--full">
-            <span>站点描述</span>
-            <input id="f-desc" type="text" placeholder="记录技术、折腾与生活的碎片" spellcheck="false" autocomplete="off">
+            <span id="lb-desc">站点描述</span>
+            <input id="f-desc" type="text" placeholder="学计算机的，最大的爱好就是闲着没事瞎折腾" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field field--full">
-            <span>标签 <i>用逗号分隔，最多显示几个就行</i></span>
-            <input id="f-tags" type="text" placeholder="技术, 生活" spellcheck="false" autocomplete="off">
+            <span id="lb-initial">标签 <i>可留空，用逗号分隔</i></span>
+            <input id="f-tags" type="text" placeholder="技术, 日常" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field">
             <span>首字母 <i>留空则取名称首字</i></span>
-            <input id="f-initial" type="text" maxlength="2" placeholder="秋" spellcheck="false" autocomplete="off">
+            <input id="f-initial" type="text" maxlength="2" placeholder="七" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field">
-            <span>头像地址 <i>可留空</i></span>
+            <span id="lb-avatar">头像地址 <i>可留空</i></span>
             <input id="f-avatar" type="text" placeholder="https://…/avatar.png" spellcheck="false" autocomplete="off">
           </label>
 
@@ -891,13 +938,11 @@
             <div class="colors">
               <span class="color-field">
                 <input type="color" id="f-c1-pick" value="#8ab4f8" aria-label="主色">
-                <input type="text" id="f-c1" maxlength="7" placeholder="#8AB4F8" spellcheck="false"
-                  autocomplete="off">
+                <input type="text" id="f-c1" maxlength="7" placeholder="#8AB4F8" spellcheck="false" autocomplete="off">
               </span>
               <span class="color-field">
                 <input type="color" id="f-c2-pick" value="#5e8bff" aria-label="辅色">
-                <input type="text" id="f-c2" maxlength="7" placeholder="#5E8BFF" spellcheck="false"
-                  autocomplete="off">
+                <input type="text" id="f-c2" maxlength="7" placeholder="#5E8BFF" spellcheck="false" autocomplete="off">
               </span>
               <button class="mini" id="btn-random-color" type="button">🎲 随机配色</button>
             </div>
@@ -947,7 +992,7 @@
             </span>
           </a>
         </div>
-        <p class="stage__note">名称或链接为空时，卡片会显示为虚线占位状态</p>
+                <p class="stage__note" id="stage-note">名称或链接为空时，卡片会显示为虚线占位状态</p>
 
         <h3 class="json-head">JSON 片段</h3>
         <pre class="json" id="json-out">{}</pre>
@@ -980,12 +1025,12 @@
       var DEFAULT_COLOR = PALETTE[0];
 
       var SAMPLE = {
-        name: '秋刀鱼的小站',
-        url: 'https://example.com',
-        desc: '记录技术、折腾与生活的碎片',
-        tags: ['技术', '生活'],
-        avatar: 'https://example.com/avatar-1.png',
-        initial: '秋',
+        name: '七七的折腾笔记',
+        url: 'https://www.ttwe77.cn',
+        desc: '学计算机的，最大的爱好就是闲着没事瞎折腾',
+        tags: ['技术', '日常'],
+        avatar: 'https://www.ttwe77.cn/src/head.avif',
+        initial: '七',
         c1: '#8AB4F8',
         c2: '#5E8BFF'
       };
@@ -1037,7 +1082,8 @@
          ============================================================ */
       var state = {
         name: '', url: '', desc: '', tags: [],
-        avatar: '', initial: '', c1: DEFAULT_COLOR[0], c2: DEFAULT_COLOR[1]
+        avatar: '', initial: '', c1: DEFAULT_COLOR[0], c2: DEFAULT_COLOR[1],
+        special: false
       };
 
       function setState(data) {
@@ -1049,7 +1095,8 @@
           avatar: data.avatar == null ? '' : String(data.avatar),
           initial: data.initial == null ? '' : String(data.initial),
           c1: data.c1 == null ? DEFAULT_COLOR[0] : String(data.c1),
-          c2: data.c2 == null ? DEFAULT_COLOR[1] : String(data.c2)
+          c2: data.c2 == null ? DEFAULT_COLOR[1] : String(data.c2),
+          special: !!data.special
         };
       }
 
@@ -1060,6 +1107,7 @@
         if (state.initial) o.initial = state.initial;
         if (state.c1) o.c1 = state.c1;
         if (state.c2) o.c2 = state.c2;
+        if (state.special) o.special = true;
         return o;
       }
 
@@ -1127,7 +1175,8 @@
         c1: $('f-c1'),
         c2: $('f-c2'),
         c1Pick: $('f-c1-pick'),
-        c2Pick: $('f-c2-pick')
+        c2Pick: $('f-c2-pick'),
+        special: $('f-special')
       };
 
       function fillForm() {
@@ -1141,6 +1190,7 @@
         els.c2.value = state.c2;
         els.c1Pick.value = safeColor(state.c1, DEFAULT_COLOR[0]).toLowerCase();
         els.c2Pick.value = safeColor(state.c2, DEFAULT_COLOR[1]).toLowerCase();
+        els.special.checked = state.special;
       }
 
       /* ============================================================
@@ -1157,6 +1207,44 @@
         cardImg.hidden = true;
       });
 
+            /* ============================================================
+         渲染：字段文案（普通模式 / 特别鸣谢模式）
+         ============================================================ */
+      var LABELS = {
+        normal: {
+          name: '站点名称 <em>*</em>',
+          url: '站点链接 <em>*</em>',
+          desc: '站点描述',
+          initial: '标签 <i>可留空，用逗号分隔</i>',
+          avatar: '头像地址 <i>可留空</i>',
+          phName: '七七的折腾笔记',
+          phDesc: '学计算机的，最大的爱好就是闲着没事瞎折腾',
+          note: '名称或链接为空时，卡片会显示为虚线占位状态'
+        },
+        special: {
+          name: '昵称 <em>*</em>',
+          url: '个人主页链接 <i>可留空</i>',
+          desc: '一句话介绍',
+          initial: '标签 <i>可留空，用逗号分隔</i>',
+          avatar: '头像 <i>可留空</i>',
+          phName: '七七',
+          phDesc: '技术宅一枚，沉迷计算机与网络，爱折腾软硬件',
+          note: '特别鸣谢模式下，仅昵称为空时才会显示虚线占位'
+        }
+      };
+
+      function renderLabels() {
+        var L = state.special ? LABELS.special : LABELS.normal;
+        $('lb-name').innerHTML = L.name;
+        $('lb-url').innerHTML = L.url;
+        $('lb-desc').innerHTML = L.desc;
+        $('lb-initial').innerHTML = L.initial;
+        $('lb-avatar').innerHTML = L.avatar;
+        els.name.placeholder = L.phName;
+        els.desc.placeholder = L.phDesc;
+        $('stage-note').textContent = L.note;
+      }
+
       function renderCard() {
         var f = state;
         var c1 = safeColor(f.c1, DEFAULT_COLOR[0]);
@@ -1166,13 +1254,16 @@
         card.style.setProperty('--c2', c2);
 
         var hasUrl = !!String(f.url).trim();
+        var isThanks = !!f.special;
         card.setAttribute('href', hasUrl ? f.url : '#');
         if (hasUrl) {
           card.removeAttribute('data-empty');
         } else {
           card.setAttribute('data-empty', '1');
         }
-        card.classList.toggle('is-empty', !hasUrl || !String(f.name).trim());
+        // 特别鸣谢模式下允许没有链接，此时不算“空卡片”
+        card.classList.toggle('is-empty', !String(f.name).trim() || (!hasUrl && !isThanks));
+        card.classList.toggle('is-thanks', isThanks && !hasUrl);
 
         // 头像
         var avatar = String(f.avatar).trim();
@@ -1188,7 +1279,7 @@
         cardInitial.textContent = initialOf(f);
 
         // 名称
-        cardName.textContent = String(f.name).trim() || '未命名';
+        cardName.textContent = String(f.name).trim() || (f.special ? '待填写昵称' : '未命名');
 
         // 描述
         var desc = String(f.desc).trim();
@@ -1222,10 +1313,11 @@
          ============================================================ */
       function renderStatus() {
         var nameOk = !!String(state.name).trim();
-        var urlOk = !!String(state.url).trim();
+        var urlOk = !!state.special || !!String(state.url).trim();
 
         $('field-name').classList.toggle('is-invalid', !nameOk);
         $('field-url').classList.toggle('is-invalid', !urlOk);
+        $('field-url').classList.toggle('is-optional', !!state.special);
 
         var el = $('status-text');
         if (!nameOk && !urlOk) {
@@ -1234,6 +1326,8 @@
           el.textContent = '还差站点名称';
         } else if (!urlOk) {
           el.textContent = '还差站点链接';
+        } else if (state.special && !String(state.url).trim()) {
+          el.textContent = '特别鸣谢模式 · 可以复制了';
         } else {
           el.textContent = '已完成，可以复制了';
         }
@@ -1257,6 +1351,7 @@
         renderCard();
         renderJSON();
         renderStatus();
+        renderLabels();
         save();
       }
 
@@ -1276,6 +1371,12 @@
       bindText(els.initial, 'initial');
       bindText(els.avatar, 'avatar');
       bindText(els.tags, 'tags', toTags);
+
+      // 特别鸣谢模式
+      els.special.addEventListener('change', function () {
+        state.special = els.special.checked;
+        update();
+      });
 
       // 颜色文本输入
       ['c1', 'c2'].forEach(function (key) {
@@ -1351,7 +1452,8 @@
         setState({
           name: '', url: '', desc: '', tags: [],
           avatar: '', initial: '',
-          c1: DEFAULT_COLOR[0], c2: DEFAULT_COLOR[1]
+          c1: DEFAULT_COLOR[0], c2: DEFAULT_COLOR[1],
+          special: false
         });
         fillForm();
         update();
@@ -1396,9 +1498,11 @@
         var f = state;
         var c1 = safeColor(f.c1, DEFAULT_COLOR[0]);
         var c2 = safeColor(f.c2, DEFAULT_COLOR[1]);
-        var name = String(f.name).trim() || '未命名';
+        var name = String(f.name).trim() || (f.special ? '待填写昵称' : '未命名');
         var desc = String(f.desc).trim();
         var avatar = String(f.avatar).trim();
+        var url = String(f.url).trim();
+        var isLink = !!url;
 
         var img = avatar
           ? '<img src="' + esc(avatar) + '" alt="" width="50" height="50" ' +
@@ -1409,8 +1513,19 @@
           return '<span class="chip">' + esc(t) + '</span>';
         }).join('');
 
-        return '<a class="friend" href="' + esc(f.url) + '" target="_blank" rel="noopener noreferrer"\n' +
-          '        style="--c1:' + c1 + ';--c2:' + c2 + ';--i:0">\n' +
+        var style = ' style="--c1:' + c1 + ';--c2:' + c2 + ';--i:0"';
+
+        // 无链接（特别鸣谢）时用 span，避免出现无效跳转
+        var open = isLink
+          ? '<a class="friend" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer"' + style + '>'
+          : '<span class="friend is-thanks"' + style + '>';
+        var close = isLink ? '</a>' : '</span>';
+
+        var go = isLink
+          ? '        <span class="friend__go" aria-hidden="true">' + GO_SVG + '</span>\n'
+          : '';
+
+        return open + '\n' +
           '        <span class="friend__avatar">' + img +
           '<span>' + esc(initialOf(f)) + '</span></span>\n' +
           '        <span class="friend__main">\n' +
@@ -1420,8 +1535,8 @@
           '          <span class="friend__desc">' + esc(desc) + '</span>\n' +
           '          <span class="friend__tags">' + tags + '</span>\n' +
           '        </span>\n' +
-          '        <span class="friend__go" aria-hidden="true">' + GO_SVG + '</span>\n' +
-          '      </a>';
+          go +
+          close;
       }
 
       /* ============================================================
