@@ -225,6 +225,7 @@
       background: #2d4070;
       color: #ffffff;
     }
+
     /* ==================== 分页导航（右侧圆点） ==================== */
     .pager-nav {
       position: fixed;
@@ -3292,7 +3293,7 @@
       }
     }
 
-        /* 右侧动作按钮（深蓝图标） */
+    /* 右侧动作按钮（深蓝图标） */
     .icon-btn--action {
       color: #3f568c;
     }
@@ -3305,7 +3306,7 @@
       transform: scale(.94);
     }
 
-        @media (hover: none) {
+    @media (hover: none) {
       .icon-btn:not(.icon-btn--back):hover {
         background: transparent;
       }
@@ -3317,28 +3318,30 @@
 
   <!-- ==================== 顶部栏 ==================== -->
   <header class="topbar">
-  <!-- 返回按钮（深蓝色圆形） -->
-  <button class="icon-btn icon-btn--back" aria-label="返回" onclick="closeTab()">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-      stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 12H5M12 19l-7-7 7-7" />
-    </svg>
-  </button>
+    <!-- 返回按钮（深蓝色圆形） -->
+    <button class="icon-btn icon-btn--back" aria-label="返回" onclick="closeTab()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
 
-  <!-- 标题 -->
-  <div class="topbar__title">关于 ttwe77</div>
+    <!-- 标题 -->
+    <div class="topbar__title">关于 ttwe77</div>
 
-      <div class="topbar__spacer"></div>
+    <div class="topbar__spacer"></div>
 
     <!-- 右侧跳转按钮 -->
-    <a class="icon-btn icon-btn--action"
-       href="/ttwe77old.html"
-       aria-label="访问旧版"
-       title="访问旧版">
-      <svg t="1791041914741" fill="currentColor" width="22" height="22" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8463"><path d="M708.388571 121.904762L902.095238 320.804571V828.952381a73.142857 73.142857 0 0 1-73.142857 73.142857H195.047619a73.142857 73.142857 0 0 1-73.142857-73.142857V195.047619a73.142857 73.142857 0 0 1 73.142857-73.142857h513.340952zM292.571429 195.023238L195.047619 195.047619v633.904762l97.52381-0.024381V536.380952h438.857142v292.547048L828.952381 828.952381V350.549333l-97.52381-100.156952V365.714286H292.571429V195.023238zM658.285714 609.52381H365.714286v219.40419h292.571428V609.52381z m-48.761904 73.142857v73.142857h-195.04762v-73.142857h195.04762z m48.761904-487.619048H365.714286v97.52381h292.571428V195.047619z" p-id="8464"></path></svg>
-      </a>
+    <a class="icon-btn icon-btn--action" href="/ttwe77old.html" aria-label="访问旧版" title="访问旧版">
+      <svg t="1791041914741" fill="currentColor" width="22" height="22" class="icon" viewBox="0 0 1024 1024"
+        version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8463">
+        <path
+          d="M708.388571 121.904762L902.095238 320.804571V828.952381a73.142857 73.142857 0 0 1-73.142857 73.142857H195.047619a73.142857 73.142857 0 0 1-73.142857-73.142857V195.047619a73.142857 73.142857 0 0 1 73.142857-73.142857h513.340952zM292.571429 195.023238L195.047619 195.047619v633.904762l97.52381-0.024381V536.380952h438.857142v292.547048L828.952381 828.952381V350.549333l-97.52381-100.156952V365.714286H292.571429V195.023238zM658.285714 609.52381H365.714286v219.40419h292.571428V609.52381z m-48.761904 73.142857v73.142857h-195.04762v-73.142857h195.04762z m48.761904-487.619048H365.714286v97.52381h292.571428V195.047619z"
+          p-id="8464"></path>
+      </svg>
+    </a>
   </header>
-</header>
+  </header>
 
   <!-- ==================== 右侧分页导航 ==================== -->
   <nav class="pager-nav" id="pager-nav" aria-label="页面导航">
@@ -3385,11 +3388,7 @@
             <!-- ---------- 左：立绘 + 名牌 ---------- -->
             <div class="profile__visual reveal">
               <div class="profile__art">
-                <img class="profile__art-img" src="src/kei/kei.avif" alt="我推立绘" loading="lazy" onerror="
-    if (this.dataset.fb === '1') { this.src = 'src/kei/kei.webp'; this.dataset.fb = '2'; }
-    else if (this.dataset.fb === '2') { this.src = 'src/kei/kei.png'; this.dataset.fb = '3'; }
-    else { this.onerror = null; }
-  " data-fb="1">
+                <img class="profile__art-img" src="src/kei/kei.avif" alt="我推立绘" loading="lazy">
               </div>
 
               <div class="profile__namecard">
@@ -3435,7 +3434,8 @@
                             class="hint-title">喜欢的音乐类型</span>交响、摇滚、二次元、古风、纯音乐、国风、欧美流行、嘻哈说唱、西欧、HOYO-MiX重度依赖</span></span>、游戏、心理学、密码学、Ai
                     </li>
                     <li>性格标签：<span class="hover-hint">INTJ-A和ENTJ-T<span class="hover-hint__tooltip"><span
-                            class="hint-title">INTJ-A/ENTJ-T</span>我是场景型 NTJ。在我一个人专注的时候像 INTJ-A，在与人合作的时候像 ENTJ-T。<br>我习惯独立判断，不太容易被外界带跑；我对结果和反馈比较敏感，对自己标准高。</span></span>、有点社恐、理性客观</li>
+                            class="hint-title">INTJ-A/ENTJ-T</span>我是场景型 NTJ。在我一个人专注的时候像 INTJ-A，在与人合作的时候像
+                          ENTJ-T。<br>我习惯独立判断，不太容易被外界带跑；我对结果和反馈比较敏感，对自己标准高。</span></span>、有点社恐、理性客观</li>
                   </ul>
                   <p>现在是个 Sensei、旅行者、开拓者、舰长、绳匠</p>
                 </div>
@@ -3675,29 +3675,29 @@
             <div class="footer__meta">
               <p>备案号：<a style="color:#666" target="_blank" rel="noopener"
                   href="http://beian.miit.gov.cn/">桂ICP备2026023217号-1</a>
-                  <!--<a style="color:#666;margin-left: 20px;"
+                <!--<a style="color:#666;margin-left: 20px;"
                   target="_blank" rel="noopener"
                   href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123"> X公网安备
                   01234567890123号</a> </p>-->
-              <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
-                  rel="noopener noreferrer">ba-click-fx</a>（<a
-                  href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
-                  rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
-                  href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
-                  rel="noopener noreferrer">BlueArchive-Cursors</a>（<a
-                  href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
-                  rel="noopener noreferrer">MIT License</a>）。</span>
-              <span>角色立绘来自<span class="hover-hint">B站<span class="hover-hint__tooltip"><span
-                      class="hint-title">哔哩哔哩</span><del>全球最大同性交友网站(不是)</del>哔哩哔哩是中国一个以视频弹幕为特色的综合视频平台，总部在上海。它最早以
-                    ACG（动画、漫画、游戏）内容起家，后来扩展到番剧、游戏、音乐、舞蹈、科技、知识、生活、鬼畜、直播等多个领域。</span></span>UP主 <a
-                  href="https://space.bilibili.com/522341749" target="_blank" rel="noopener noreferrer">女仆优香</a> 的 <a
-                  href="https://www.bilibili.com/opus/1214489311059116040" target="_blank"
-                  rel="noopener noreferrer">冬装凯伊差分立绘</a> 视频立绘。建站使用到的工具：<a href="https://imagemagick.org/"
-                  target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/"
-                  target="_blank" rel="noopener noreferrer">Git</a>。</span>
-              <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
-                  href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
-                  rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
+                <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
+                    rel="noopener noreferrer">ba-click-fx</a>（<a
+                    href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
+                    rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
+                    href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
+                    rel="noopener noreferrer">BlueArchive-Cursors</a>（<a
+                    href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
+                    rel="noopener noreferrer">MIT License</a>）。</span>
+                <span>角色立绘来自<span class="hover-hint">B站<span class="hover-hint__tooltip"><span
+                        class="hint-title">哔哩哔哩</span><del>全球最大同性交友网站(不是)</del>哔哩哔哩是中国一个以视频弹幕为特色的综合视频平台，总部在上海。它最早以
+                      ACG（动画、漫画、游戏）内容起家，后来扩展到番剧、游戏、音乐、舞蹈、科技、知识、生活、鬼畜、直播等多个领域。</span></span>UP主 <a
+                    href="https://space.bilibili.com/522341749" target="_blank" rel="noopener noreferrer">女仆优香</a> 的 <a
+                    href="https://www.bilibili.com/opus/1214489311059116040" target="_blank"
+                    rel="noopener noreferrer">冬装凯伊差分立绘</a> 视频立绘。建站使用到的工具：<a href="https://imagemagick.org/"
+                    target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/"
+                    target="_blank" rel="noopener noreferrer">Git</a>。</span>
+                <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
+                    href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
+                    rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
             </div>
           </footer>
         </div>
@@ -3940,9 +3940,9 @@
   <script>
     /* ============================================================
        点击立绘 → 切换立绘 + 播放语音 + 显示对话气泡
-       - art / voice 填【不带扩展名】的基础路径即可，自动回退：
-         图片：.avif → .webp → .png
-         语音：.ogg
+- art / voice 填【不带扩展名】的基础路径即可：
+-     图片：.avif（不回退）
+-     语音：.opus / .ogg
        - 语音播放期间暂停眨眼；播放结束（或失败）后切回默认立绘
        ============================================================ */
     (function () {
@@ -3985,7 +3985,7 @@
       ];
       /* ================================================= */
 
-      var EXTS_IMG = ['avif', 'webp', 'png'];
+      var EXTS_IMG = ['avif'];
       var EXTS_AUDIO = ['opus', 'ogg'];
       var MIME_AUDIO = {
         opus: 'audio/ogg; codecs=opus',
@@ -4813,13 +4813,11 @@
       }
 
       var raw = img.getAttribute('src') || 'src/kei/kei.avif';
-      var base = raw.replace(/kei_close/i, 'kei').replace(/\.(avif|webp|png)$/i, '');
+      var base = raw.replace(/kei_close/i, 'kei').replace(/\.avif$/i, '');
       var dir = base.replace(/[^/]*$/, '');
       var name = base.replace(/^.*\//, '');
-      var EXTS = ['avif', 'webp', 'png'];
-
-      var OPEN = EXTS.map(function (e) { return dir + name + '.' + e; });
-      var CLOSE = EXTS.map(function (e) { return dir + name + '_close.' + e; });
+      var OPEN = [dir + name + '.avif'];
+      var CLOSE = [dir + name + '_close.avif'];
 
       var openUrl = null;
       var closeUrl = null;
