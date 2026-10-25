@@ -905,32 +905,32 @@
 
           <label class="field" id="field-name">
             <span id="lb-name">站点名称 <em>*</em></span>
-            <input id="f-name" type="text" placeholder="七七的折腾笔记" spellcheck="false" autocomplete="off">
+            <input id="f-name" type="text" placeholder="例如：七七的折腾笔记" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field" id="field-url">
             <span id="lb-url">站点链接 <em>*</em></span>
-            <input id="f-url" type="text" placeholder="https://www.ttwe77.cn" spellcheck="false" autocomplete="off">
+            <input id="f-url" type="text" placeholder="例如：https://www.ttwe77.cn" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field field--full">
             <span id="lb-desc">站点描述</span>
-            <input id="f-desc" type="text" placeholder="学计算机的，最大的爱好就是闲着没事瞎折腾" spellcheck="false" autocomplete="off">
+            <input id="f-desc" type="text" placeholder="例如：学计算机的，最大的爱好就是闲着没事瞎折腾" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field field--full">
             <span id="lb-initial">标签 <i>可留空，用逗号分隔</i></span>
-            <input id="f-tags" type="text" placeholder="技术, 日常" spellcheck="false" autocomplete="off">
+            <input id="f-tags" type="text" placeholder="例如：技术, 日常" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field">
             <span>首字母 <i>留空则取名称首字</i></span>
-            <input id="f-initial" type="text" maxlength="2" placeholder="七" spellcheck="false" autocomplete="off">
+            <input id="f-initial" type="text" maxlength="2" placeholder="例如：七" spellcheck="false" autocomplete="off">
           </label>
 
           <label class="field">
             <span id="lb-avatar">头像地址 <i>可留空</i></span>
-            <input id="f-avatar" type="text" placeholder="https://…/avatar.png" spellcheck="false" autocomplete="off">
+            <input id="f-avatar" type="text" placeholder="例如：https://ttwe77.cn/src/head.avif" spellcheck="false" autocomplete="off">
           </label>
 
           <div class="field field--full">
@@ -938,11 +938,11 @@
             <div class="colors">
               <span class="color-field">
                 <input type="color" id="f-c1-pick" value="#8ab4f8" aria-label="主色">
-                <input type="text" id="f-c1" maxlength="7" placeholder="#8AB4F8" spellcheck="false" autocomplete="off">
+                <input type="text" id="f-c1" maxlength="7" placeholder="例如#8AB4F8" spellcheck="false" autocomplete="off">
               </span>
               <span class="color-field">
                 <input type="color" id="f-c2-pick" value="#5e8bff" aria-label="辅色">
-                <input type="text" id="f-c2" maxlength="7" placeholder="#5E8BFF" spellcheck="false" autocomplete="off">
+                <input type="text" id="f-c2" maxlength="7" placeholder="例如#5E8BFF" spellcheck="false" autocomplete="off">
               </span>
               <button class="mini" id="btn-random-color" type="button">🎲 随机配色</button>
             </div>
@@ -956,9 +956,9 @@
       </div>
 
       <div class="panel__foot">
-        <button class="btn btn--ghost" id="btn-copy-json" type="button">复制 JSON</button>
+        <button class="btn btn--primary" id="btn-copy-json" type="button">复制 JSON</button>
         <button class="btn btn--ghost" id="btn-copy-html" type="button">复制卡片 HTML</button>
-        <button class="btn btn--primary" id="btn-download" type="button">下载 friend.json</button>
+        <button class="btn btn--ghost" id="btn-download" type="button">下载 JSON</button>
       </div>
     </section>
 
@@ -1034,6 +1034,16 @@
         c1: '#8AB4F8',
         c2: '#5E8BFF'
       };
+
+            // 新增：一条空友链（颜色保留默认值，其它全空）
+      function emptyData() {
+        return {
+          name: '', url: '', desc: '', tags: [],
+          avatar: '', initial: '',
+          c1: DEFAULT_COLOR[0], c2: DEFAULT_COLOR[1],
+          special: false
+        };
+      }
 
       /* ============================================================
          工具
@@ -1240,8 +1250,8 @@
         $('lb-desc').innerHTML = L.desc;
         $('lb-initial').innerHTML = L.initial;
         $('lb-avatar').innerHTML = L.avatar;
-        els.name.placeholder = L.phName;
-        els.desc.placeholder = L.phDesc;
+        //els.name.placeholder = L.phName;
+        //els.desc.placeholder = L.phDesc;
         $('stage-note').textContent = L.note;
       }
 
@@ -1319,13 +1329,17 @@
         $('field-url').classList.toggle('is-invalid', !urlOk);
         $('field-url').classList.toggle('is-optional', !!state.special);
 
+        // 根据是否特别鸣谢模式，切换提示用的名词
+        var nameWord = state.special ? '昵称' : '站点名称';
+        var urlWord = state.special ? '个人主页链接' : '站点链接';
+
         var el = $('status-text');
         if (!nameOk && !urlOk) {
-          el.textContent = '待填写名称和链接';
+          el.textContent = '待填写' + nameWord + '和' + urlWord;
         } else if (!nameOk) {
-          el.textContent = '还差站点名称';
+          el.textContent = '还差' + nameWord;
         } else if (!urlOk) {
-          el.textContent = '还差站点链接';
+          el.textContent = '还差' + urlWord;
         } else if (state.special && !String(state.url).trim()) {
           el.textContent = '特别鸣谢模式 · 可以复制了';
         } else {
@@ -1449,12 +1463,7 @@
 
       $('btn-clear').addEventListener('click', function () {
         if (!confirm('确定要清空当前所有内容吗？')) return;
-        setState({
-          name: '', url: '', desc: '', tags: [],
-          avatar: '', initial: '',
-          c1: DEFAULT_COLOR[0], c2: DEFAULT_COLOR[1],
-          special: false
-        });
+        setState(emptyData());   // ← 替换原来那一大段对象
         fillForm();
         update();
         toast('已清空');
@@ -1478,13 +1487,13 @@
 
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'friend.json';
+        a.download = 'links.json';
         document.body.appendChild(a);
         a.click();
         a.remove();
 
         setTimeout(function () { URL.revokeObjectURL(url); }, 1200);
-        toast('已下载 friend.json');
+        toast('已下载 links.json');
       });
 
       /* ============================================================
@@ -1556,7 +1565,8 @@
           if (raw) data = JSON.parse(raw);
         } catch (e) { data = null; }
 
-        if (!data || typeof data !== 'object') data = SAMPLE;
+        // 原来：if (!data || typeof data !== 'object') data = SAMPLE;
+        if (!data || typeof data !== 'object') data = emptyData();
 
         setState(data);
         fillForm();
