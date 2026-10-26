@@ -441,6 +441,12 @@ class SectionEditor(QWidget):
         empty_lbl.setAlignment(Qt.AlignCenter)
         empty_lbl.setStyleSheet("color:#8b949e; font-size:13px;")
         ev.addWidget(empty_lbl)
+
+        self.btn_paste_empty = QPushButton("📋 从剪贴板新建")
+        self.btn_paste_empty.setMinimumHeight(32)
+        self.btn_paste_empty.clicked.connect(self.fill_from_clipboard)
+        ev.addWidget(self.btn_paste_empty, 0, Qt.AlignHCenter)
+
         ev.addStretch(1)
 
         # 表单页
@@ -449,9 +455,22 @@ class SectionEditor(QWidget):
         fv.setContentsMargins(4, 4, 12, 4)
         fv.setSpacing(10)
 
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(8)
+
         form_title = QLabel(f"{self.title}信息")
         form_title.setStyleSheet("font-weight:600; color:#57606a;")
-        fv.addWidget(form_title)
+        title_row.addWidget(form_title)
+        title_row.addStretch(1)
+
+        self.btn_paste = QPushButton("📋 从剪贴板填充")
+        self.btn_paste.setToolTip("读取剪贴板中的 JSON 片段，填充到当前条目；没有选中条目时新建一条")
+        self.btn_paste.setStyleSheet("padding: 5px 10px;")
+        self.btn_paste.clicked.connect(self.fill_from_clipboard)
+        title_row.addWidget(self.btn_paste)
+
+        fv.addLayout(title_row)
 
         form_widget = QWidget()
         self.form = QFormLayout(form_widget)
@@ -511,6 +530,110 @@ class SectionEditor(QWidget):
             w.setClearButtonEnabled(True)
             w.textEdited.connect(lambda text, k=key: self._set_value(k, text))
         return w
+
+    # ---------------- 从剪贴板填充 ----------------
+    @staticmethod
+    def _parse_clipboard_json(text):
+        """尽量宽容地从文本中解析出一个 JSON 对象（支持代码块、尾部被截断）。"""
+        if not text:
+            return None
+        t = text.strip()
+
+        # 去掉 ```json ... ``` 包裹
+        m = re.search(r"```(?:json)?\s*(.*?)```", t, re.S)
+        if m:
+            t = m.group(1).strip()
+
+        # 从第一个 { 开始截取（跳过「剪贴板里的 JSON：」之类的前缀）
+        start = t.find("{")
+        if start < 0:
+            return None
+        t = t[start:]
+
+        def _try(s):
+            try:
+                v = json.loads(s)
+                return v if isinstance(v, dict) else None
+            except Exception:
+                return None
+
+        # 1) 直接解析
+        v = _try(t)
+        if v is not None:
+            return v
+
+        # 2) 补上缺失的右括号
+        for extra in ("}", "}\n}", '"}', "]}", "}]}"):
+            v = _try(t + extra)
+            if v is not None:
+                return v
+
+        # 3) 从尾部逐个砍掉不完整的键值对，直到能解析
+        cut = t.rfind(",")
+        while cut > 0:
+            v = _try(t[:cut].rstrip() + "\n}")
+            if v is not None:
+                return v
+            cut = t.rfind(",", 0, cut)
+
+        return None
+
+    def fill_from_clipboard(self):
+        """读取剪贴板 JSON，填充到当前条目；无选中条目时新建一条。"""
+        text = QApplication.clipboard().text()
+        obj = self._parse_clipboard_json(text)
+        if not obj:
+            QMessageBox.warning(
+                self, "无法识别",
+                "剪贴板里没有找到可解析的 JSON 对象。\n"
+                "请先复制形如 {\"name\": \"...\", \"url\": \"...\"} 的内容。")
+            return
+
+        data = {}
+        for f in self.fields:
+            key = f["key"]
+            if key not in obj:
+                continue
+            val = obj[key]
+            if f["type"] == "tags":
+                if isinstance(val, str):
+                    val = [p for p in re.split(r"[,，;；\s]+", val) if p]
+                elif isinstance(val, list):
+                    val = [str(x).strip() for x in val if str(x).strip()]
+                else:
+                    val = []
+            elif f["type"] == "color":
+                s = str(val) if val else ""
+                val = s if QColor(s).isValid() else self._default_for(key)
+            else:
+                val = "" if val is None else str(val)
+            data[key] = val
+
+        if not data:
+            QMessageBox.warning(
+                self, "字段不匹配",
+                "剪贴板 JSON 里的字段与当前编辑区（%s）不匹配。" % self.title)
+            return
+
+        if 0 <= self.current < len(self.items):
+            self.items[self.current].update(data)
+            self.load_form(self.current)
+            self._refresh_current_row()
+            action = "已填充到当前条目"
+        else:
+            item = json.loads(json.dumps(self.defaults))
+            item.update(data)
+            self.items.append(item)
+            self.current = len(self.items) - 1
+            self.refresh_list(select=self.current)
+            action = "已新建条目"
+
+        self.changed.emit()
+
+        win = self.window()
+        if hasattr(win, "statusBar"):
+            win.statusBar().showMessage(
+                f"{action}：{self._row_text(self.items[self.current])}", 4000)
 
     # ---------------- 列表 ----------------
     @staticmethod
