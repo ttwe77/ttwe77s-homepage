@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#21a5e3">
   <title>友链卡片编辑器 · 七七的折腾笔记</title>
+  <link rel="icon" href="/src/favicon.svg">
+  <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
+  <meta name="description"
+    content="在线友链卡片编辑器：填写站点名称、链接、描述、标签与配色，实时预览友链卡片效果，一键复制 JSON 片段或卡片 HTML，并可下载 links.json，支持特别鸣谢模式。">
+  <script type="module">
+    import { BAClickFX } from '/libs/ba-click-fx.js';
+    const fx = new BAClickFX();
+    fx.updateConfig({ trailAlways: true });
+    fx.setCompositingReference({ hostCompositing: 'screen' });
+    fx.setThemeColor('#80c1ff');
+  </script>
 
   <style>
     /* ============ 设计令牌 ============ */
@@ -930,7 +941,8 @@
 
           <label class="field">
             <span id="lb-avatar">头像地址 <i>可留空</i></span>
-            <input id="f-avatar" type="text" placeholder="例如：https://ttwe77.cn/src/head.avif" spellcheck="false" autocomplete="off">
+            <input id="f-avatar" type="text" placeholder="例如：https://ttwe77.cn/src/head.avif" spellcheck="false"
+              autocomplete="off">
           </label>
 
           <div class="field field--full">
@@ -938,11 +950,13 @@
             <div class="colors">
               <span class="color-field">
                 <input type="color" id="f-c1-pick" value="#8ab4f8" aria-label="主色">
-                <input type="text" id="f-c1" maxlength="7" placeholder="例如#8AB4F8" spellcheck="false" autocomplete="off">
+                <input type="text" id="f-c1" maxlength="7" placeholder="例如#8AB4F8" spellcheck="false"
+                  autocomplete="off">
               </span>
               <span class="color-field">
                 <input type="color" id="f-c2-pick" value="#5e8bff" aria-label="辅色">
-                <input type="text" id="f-c2" maxlength="7" placeholder="例如#5E8BFF" spellcheck="false" autocomplete="off">
+                <input type="text" id="f-c2" maxlength="7" placeholder="例如#5E8BFF" spellcheck="false"
+                  autocomplete="off">
               </span>
               <button class="mini" id="btn-random-color" type="button">🎲 随机配色</button>
             </div>
@@ -992,7 +1006,7 @@
             </span>
           </a>
         </div>
-                <p class="stage__note" id="stage-note">名称或链接为空时，卡片会显示为虚线占位状态</p>
+        <p class="stage__note" id="stage-note">名称或链接为空时，卡片会显示为虚线占位状态</p>
 
         <h3 class="json-head">JSON 片段</h3>
         <pre class="json" id="json-out">{}</pre>
@@ -1019,7 +1033,13 @@
         ['#E39BEA', '#A97CE6'],
         ['#FFD84D', '#FB7B44'],
         ['#9BA4B5', '#6C7A9F'],
-        ['#F4756A', '#EA3462']
+        ['#F4756A', '#EA3462'],
+        ['#5AD1C8', '#2196A8'],
+        ['#FFB86B', '#F97316'],
+        ['#A3E635', '#4D9E2B'],
+        ['#C084FC', '#7C3AED'],
+        ['#FF9EC4', '#E8437F'],
+        ['#94A3B8', '#475569']
       ];
 
       var DEFAULT_COLOR = PALETTE[0];
@@ -1035,7 +1055,7 @@
         c2: '#5E8BFF'
       };
 
-            // 新增：一条空友链（颜色保留默认值，其它全空）
+      // 新增：一条空友链（颜色保留默认值，其它全空）
       function emptyData() {
         return {
           name: '', url: '', desc: '', tags: [],
@@ -1216,9 +1236,9 @@
         cardImg.hidden = true;
       });
 
-            /* ============================================================
-         渲染：字段文案（普通模式 / 特别鸣谢模式）
-         ============================================================ */
+      /* ============================================================
+   渲染：字段文案（普通模式 / 特别鸣谢模式）
+   ============================================================ */
       var LABELS = {
         normal: {
           name: '站点名称 <em>*</em>',
