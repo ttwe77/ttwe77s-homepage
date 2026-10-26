@@ -1151,6 +1151,44 @@
       color: var(--color-primary)
     }
 
+        .footer__links a:hover {
+      color: var(--color-primary)
+    }
+
+    /* 正规 ICP 备案：放大、加粗，作为正式备案信息突出显示 */
+    .footer__icp {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: .02em;
+      text-decoration-thickness: 2px;
+    }
+
+    .footer__icp:hover {
+      color: var(--color-primary);
+    }
+
+    /* 萌ICP备：刻意做小、做淡，不抢视线（仍可点击） */
+    .footer__moeicp {
+      align-self: flex-start;
+      margin-top: -2px;
+      font-size: 9px;
+      font-weight: 400;
+      line-height: 1.2;
+      letter-spacing: 0;
+      color: rgba(115, 115, 115, .42);
+      text-decoration: none;
+      opacity: .6;
+      transition: opacity .2s ease, color .2s ease;
+    }
+
+    /* 鼠标真要点它时才稍微显形 */
+    .footer__moeicp:hover {
+      opacity: 1;
+      color: var(--color-text-secondary);
+      text-decoration: underline;
+    }
+
     /* ============ 响应式 ============ */
     @media(min-width:861px) {
       .posts-sidebar {
@@ -3120,11 +3158,12 @@
             <div class="footer__brand">
               <span class="footer__mark">七七的折腾笔记</span>
               <span>© 2026 ttwe77 · 本站已运行 <span class="footer__runtime" id="site-runtime">—</span></span>
-              <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+              <a class="footer__icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
               <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
                   rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
                   href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
                   仓库</a> 查阅。</span>
+              <a class="footer__moeicp" href="https://icp.gov.moe/?keyword=20267770" target="_blank" rel="noopener noreferrer">萌ICP备20267770号</a>
             </div>
             <!--<div class="footer__links">
               <a href="#">RSS 订阅</a>
