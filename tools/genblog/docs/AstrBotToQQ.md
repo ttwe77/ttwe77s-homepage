@@ -8,7 +8,7 @@ author: ttwe77
 tags: AstrBot, QQ机器人, Python, MCP, Docker, 云服务器, 部署, AI
 license: CC BY-NC 4.0
 license_url: https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans
-updated: 2026-10-22 00:16:11
+updated: 2026-10-28 20:41:58
 ---
 
 # 从本地到云：一晚折腾 AstrBot 接入 QQ 机器人
@@ -293,7 +293,447 @@ fatal: Could not read from remote repository.
 
 ## Part3：功能扩展
 
-之后我就想把我的QQ机器人弄得更全能一点
+之后我就想把我的QQ机器人弄得更全能一点，于是我就开始研究**<span class="hover-hint">插件<span class="hover-hint__tooltip"><span class="hint-title">插件（Plugin）</span>为 AstrBot 增加功能的扩展程序。安装后可以让机器人支持新指令、接入外部服务或为 AI 提供新工具，而无需修改 AstrBot 本体代码。</span></span>**页面的东西，有：
+
+- 插件
+- <span class="hover-hint">技能<span class="hover-hint__tooltip"><span class="hint-title">技能（Skill）</span>给 Agent 使用的“任务操作手册”，把完成某类任务的步骤、规则、模板和参考资料打包在一个文件夹中，核心文件是 SKILL.md。AstrBot 从 v4.13.0 起支持这种 Agent Skills 形式。</span></span>（Skill）
+- MCP
+
+### 禁言和消息撤回
+
+**AstrBot区分信息平台类别**（比如<span class="hover-hint">QQ官方机器人<span class="hover-hint__tooltip"><span class="hint-title">QQ官方机器人</span>AstrBot 区分的两类 QQ 接入方式。QQ 官方机器人走腾讯机器人开放平台的 API 与 WebSocket 网关</span></span>和<span class="hover-hint">OneBot<span class="hover-hint__tooltip"><span class="hint-title">OneBot</span>AstrBot 区分的两类 QQ 接入方式。OneBot 是面向 QQ 机器人的开放协议标准，为 go-cqhttp、Mirai、NapCat 等实现提供统一接口。</span></span>），所以找这种类型的插件要先看支持的平台。
+
+在DeepSeek的推荐下，我最先使用“[QQ官方群管](https://github.com/Zhalslar/astrbot_plugin_qqadmin_official)”做禁言。
+
+> *@鲸鱼娘 你这只吃白饭的蓝色大肥鱼！*
+>
+> 你被管理员**蓝色大肥鱼**禁言59秒。
+>
+> *（尾鳍一拍）叫你乱喊！谁肥了，我这叫标准的鲸鱼流线型，你已经被我禁言一分钟，好好反省。下次再看见“肥”字配我的名字，我可不止罚一分钟哦。*
+
+然后就是消息撤回了。我去插件商城上找了几点插件，发现要么没有作用、要么配置太复杂了、要么不适配QQ官方机器人。所以我**果断放弃**！
+
+### @昵称修复
+
+<u>我发现我在“@”某人的时候，机器人实际看到的是“@”+乱码</u>，导致机器人不能区分@了谁。研究了下发现QQ官方机器人的Websocket返回的群聊消息原始内容是“@”+乱码。我最先找到了这个插件：[AstrNa](https://github.com/Sisyphbaous-DT-Project/astrbot_plugin_AstrNa)。它的Web配置UI做得很不错。但是在我使用后发现这个插件并没有起作用，研究了一下发现**它不支持QQ官方机器人**。DeepSeek推荐我去自制插件，*那我就照做吧*。
+
+我先在[官方最小实例](https://github.com/Soulter/helloworld)上作为模板Fork了仓库，然后我就开始让AI发挥了：
+
+```python
+import re
+from astrbot.api.event import filter
+from astrbot.api.star import Star
+from astrbot.api import logger
+
+
+class AtNicknameFixer(Star):
+    """在LLM请求前，用mentions字段中的username替换content中的<@OpenID>标记"""
+
+    @filter.on_llm_request()
+    async def fix_at_nickname(self, event, req):
+        logger.debug("[AtNicknameFixer] ===== 开始处理 LLM 请求中的 @ 昵称 =====")
+        try:
+            # 1. 安全地获取 raw_message，避免 UnboundLocalError
+            logger.debug("[AtNicknameFixer] [步骤1] 尝试获取 event.message_obj")
+            message_obj = getattr(event, 'message_obj', None)
+            if message_obj is None:
+                logger.warning("[AtNicknameFixer] event.message_obj 为 None，跳过处理")
+                return
+            logger.debug(
+                f"[AtNicknameFixer] 获取到 message_obj，类型: {type(message_obj).__name__}"
+            )
+
+            raw_msg = getattr(message_obj, 'raw_message', None)
+            if raw_msg is None:
+                logger.warning("[AtNicknameFixer] raw_message 为 None，跳过处理")
+                return
+            logger.debug(
+                f"[AtNicknameFixer] 获取到 raw_message，类型: {type(raw_msg).__name__}"
+            )
+
+            # 2. 安全地获取 mentions 列表
+            # botpy 的 GroupMessage 在 __slots__ 中定义了 mentions
+            logger.debug("[AtNicknameFixer] [步骤2] 尝试获取 mentions 列表")
+            mentions = getattr(raw_msg, 'mentions', None)
+            if not mentions:
+                logger.info("[AtNicknameFixer] 消息中没有 mentions 字段或为空，无需处理")
+                return
+            logger.debug(
+                f"[AtNicknameFixer] 获取到 mentions 列表，数量: {len(mentions)}"
+            )
+
+            # 3. 安全地获取 content
+            logger.debug("[AtNicknameFixer] [步骤3] 尝试获取 content")
+            content = getattr(raw_msg, 'content', '')
+            if not content:
+                logger.info("[AtNicknameFixer] 消息 content 为空，无需处理")
+                return
+            logger.debug(f"[AtNicknameFixer] 原始 content: {content!r}")
+
+            # 4. 构建 OpenID -> username 映射
+            logger.debug("[AtNicknameFixer] [步骤4] 开始构建 OpenID -> username 映射")
+            id_to_name = {}
+            for idx, user in enumerate(mentions):
+                # botpy 的 mentions 列表元素通常是 _User 对象
+                # 优先使用 member_openid（群聊场景），其次 id
+                openid = (
+                    getattr(user, 'member_openid', None)
+                    or getattr(user, 'id', None)
+                )
+                # 获取昵称字段 username
+                username = getattr(user, 'username', None)
+
+                logger.debug(
+                    f"[AtNicknameFixer] 解析 mentions[{idx}]: "
+                    f"类型={type(user).__name__}, openid={openid!r}, username={username!r}"
+                )
+
+                if openid and username:
+                    id_to_name[openid] = username
+                else:
+                    logger.debug(
+                        f"[AtNicknameFixer] mentions[{idx}] 缺少 openid 或 username，已跳过"
+                    )
+
+            if not id_to_name:
+                logger.warning(
+                    "[AtNicknameFixer] 未能从 mentions 中解析出有效的 OpenID -> username 映射"
+                )
+                return
+            logger.debug(f"[AtNicknameFixer] 映射构建完成: {id_to_name}")
+
+            # 5. 替换 <@OpenID> 为 @username
+            logger.debug("[AtNicknameFixer] [步骤5] 开始执行 <@OpenID> 替换")
+            matched_records = []  # 记录每个匹配到的 OpenID 及替换结果
+
+            def replace_mention(match):
+                openid = match.group(1)
+                hit = openid in id_to_name
+                name = id_to_name.get(openid, openid)
+                matched_records.append((openid, name, hit))
+                return f"@{name}"
+
+            new_content = re.sub(r'<@([A-Za-z0-9]+)>', replace_mention, content)
+
+            if matched_records:
+                for i, (openid, name, hit) in enumerate(matched_records):
+                    logger.debug(
+                        f"[AtNicknameFixer] 匹配[{i}]: openid={openid!r} -> "
+                        f"@{name} (命中映射: {hit})"
+                    )
+            else:
+                logger.debug(
+                    "[AtNicknameFixer] 正则未匹配到任何 <@OpenID> 标记"
+                )
+
+            if new_content == content:
+                logger.info("[AtNicknameFixer] 替换前后内容相同，无需修改")
+                return
+
+            # 6. 将修改后的文本写回，供 LLM 读取
+            logger.debug("[AtNicknameFixer] [步骤6] 将修改后的文本写回 message_obj.message_str")
+            req.prompt = new_content
+            logger.info(f"[AtNicknameFixer] 替换成功，新 prompt: {req.prompt}")
+            logger.debug("[AtNicknameFixer] ===== 处理完成 =====")
+
+        except Exception as e:
+            logger.error(
+                f"[AtNicknameFixer] 处理 @ 昵称时发生未预期错误: {e}",
+                exc_info=True,
+            )
+```
+
+之后遇到的问题就是不认得消息是谁发的和不知道历史聊天是谁发的。不过处理起来更简单，只要开配置文件里面的**<span class="hover-hint">用户识别<span class="hover-hint__tooltip"><span class="hint-title">用户识别</span>AstrBot 的一项配置，开启后机器人能够区分消息的发送者身份，让 LLM 在对话中知道“谁在说话”。</span></span>**和**<span class="hover-hint">持久化群聊消息记录<span class="hover-hint__tooltip"><span class="hint-title">持久化群聊消息记录</span>AstrBot v4.27.0 新增的能力，可将群消息历史持久化存储，并提供工具供 LLM 搜索和读取当前群的历史消息。</span></span>**就好了。
+
+### 表情包
+
+> *不能说话和发表情的鱼还是鱼吗？*
+
+我还是从插件入手，在B站上被安利了[表情包管理器](https://github.com/anka-afk/astrbot_plugin_meme_manager)。它的配置界面看起来复杂，实则一点也不简单。我也就简单地下了社区二创的大肥鱼的表情包并用<span class="hover-hint">辅助模型分类标签发图<span class="hover-hint__tooltip"><span class="hint-title">辅助模型分类标签发图</span>辅助模型根据回复选择分类，再从分类中随机取图。</span></span>
+
+这样机器人就可以在聊天的时候按照特定概率并由模型自主决定要发什么类型的表情包了。
+
+### 语音
+
+AstrBot是可以配置语音输出的，我选择的模型是<span class="hover-hint">阿里云百炼<span class="hover-hint__tooltip"><span class="hint-title">阿里云百炼</span>阿里云的大模型服务平台，提供 Qwen 系列模型（含 TTS）的 API 调用服务。</span></span>的<span class="hover-hint">qwen-audio-3.1-tts-flash<span class="hover-hint__tooltip"><span class="hint-title">qwen-audio-3.1-tts-flash(AI模型）</span>阿里云百炼平台上的高性能语音合成大模型，面向实时交互场景优化，支持多语言、方言、流式合成，以及通过指令控制情绪、语气、语速等表达方式。</span></span>。但是问题来了，在AstrBot的模型供应商添加的文字转语音模型页面，虽然能添加阿里云百炼模型，但是我真正把配置输入进去的时候又把我拒之门外。我之后问了DeepSeek，又试了找添加自定义模型的办法，但我都失败了。于是我转头看向插件。
+
+我直接在插件市场以关键词搜索”百炼“”阿里云“，搜到了个“[阿里云TTS助手](https://github.com/Shennoter/astrbot_plugin_qwen_audio_tts)”，我配置了下，还真能用。
+
+### 查询余额
+
+> *要吃饭的嘛*
+
+我为了让大肥鱼知道自己还有多少白饭可吃，就做了一个查询余额的MCP服务器。
+
+我先去找了找有没有获取余额的API，如果没有的话就去爬开放平台的API。欸还真给我找到了，就在[官方文档](https://api-docs.deepseek.com/zh-cn/api/get-user-balance/)里面。
+
+有个缺点，这个API查不到今日消费，如果要查今日消费的话......
+
+> *哎呀太麻烦了，下次一定！*
+
+我依旧是用Stdio接入：
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""MCP stdio 服务：向 AI 暴露 DeepSeek 账户余额查询能力。
+
+对应接口：
+  GET https://api.deepseek.com/user/balance
+  Header: Accept: application/json
+          Authorization: Bearer <TOKEN>
+
+返回结构（已在接口侧归一化）：
+  {
+    "is_available": true,
+    "balance_infos": [
+      {"currency": "CNY", "total_balance": "1.00",
+       "granted_balance": "0.00", "topped_up_balance": "1.00"}
+    ]
+  }
+
+依赖：mcp requests
+
+环境变量：
+  DEEPSEEK_API_TOKEN    API Key（必填；也兼容 DEEPSEEK_API_KEY，
+                        可带 "Bearer " 前缀，会自动去掉）
+  DEEPSEEK_BALANCE_URL  余额接口地址（默认 https://api.deepseek.com/user/balance）
+  BALANCE_TIMEOUT       请求超时秒数（默认 10）
+"""
+
+import json
+import os
+import sys
+import logging
+from datetime import datetime
+
+import requests
+from mcp.server.fastmcp import FastMCP
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    stream=sys.stderr,
+)
+
+
+DEFAULT_URL = "https://api.deepseek.com/user/balance"
+
+URL = os.environ.get("DEEPSEEK_BALANCE_URL", "").strip() or DEFAULT_URL
+TOKEN = (
+    os.environ.get("DEEPSEEK_API_TOKEN", "").strip()
+    or os.environ.get("DEEPSEEK_API_KEY", "").strip()
+)
+
+
+def _env_int(name, default):
+    try:
+        return int(os.environ.get(name, str(default)))
+    except ValueError:
+        return default
+
+
+TIMEOUT = _env_int("BALANCE_TIMEOUT", 10)
+
+
+mcp = FastMCP("balance-server")
+
+
+# --------------------------------------------------------------------------- #
+# 辅助
+# --------------------------------------------------------------------------- #
+
+def _err(code, message):
+    return json.dumps({"error": code, "message": message}, ensure_ascii=False)
+
+
+def _as_bool(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "y")
+    return bool(value)
+
+
+def _as_str(value):
+    return "" if value is None else str(value)
+
+
+def _auth_header():
+    token = TOKEN
+    if token.lower().startswith("bearer "):
+        token = token[7:].strip()
+    return "Bearer %s" % token
+
+
+def _normalize(raw):
+    """把接口原始 JSON 归一化成稳定结构，缺字段补空串。"""
+    if not isinstance(raw, dict):
+        raise ValueError("返回内容不是 JSON 对象")
+
+    infos = []
+    for item in raw.get("balance_infos") or []:
+        if not isinstance(item, dict):
+            continue
+        infos.append({
+            "currency": _as_str(item.get("currency")),
+            "total_balance": _as_str(item.get("total_balance")),
+            "granted_balance": _as_str(item.get("granted_balance")),
+            "topped_up_balance": _as_str(item.get("topped_up_balance")),
+        })
+
+    return {
+        "is_available": _as_bool(raw.get("is_available")),
+        "balance_infos": infos,
+    }
+
+
+def _fetch_balance():
+    """拉取余额（每次都实时请求）；成功返回 (data, None)，失败返回 (None, error_json)。"""
+    if not TOKEN:
+        return None, _err("config_error", "DEEPSEEK_API_TOKEN 未配置")
+
+    headers = {
+        "Accept": "application/json",
+        "Authorization": _auth_header(),
+    }
+
+    try:
+        resp = requests.get(URL, headers=headers, timeout=TIMEOUT)
+        resp.raise_for_status()
+    except requests.HTTPError as exc:
+        status = getattr(exc.response, "status_code", None)
+        if status == 401:
+            return None, _err(
+                "auth_failed",
+                "401 Unauthorized：API Key 无效或已过期，请检查 DEEPSEEK_API_TOKEN",
+            )
+        if status == 403:
+            return None, _err("forbidden", "403 Forbidden：该 Key 无权访问余额接口")
+        if status == 429:
+            return None, _err("rate_limited", "429 Too Many Requests：请求过于频繁，请稍后再试")
+        return None, _err("http_error", "HTTP %s: %s" % (status, exc))
+    except requests.RequestException as exc:
+        return None, _err("network_error", str(exc))
+
+    try:
+        raw = resp.json()
+    except ValueError:
+        return None, _err("invalid_response", "返回内容不是合法 JSON")
+
+    try:
+        data = _normalize(raw)
+    except ValueError as exc:
+        return None, _err("invalid_response", str(exc))
+
+    return data, None
+
+
+# --------------------------------------------------------------------------- #
+# 工具
+# --------------------------------------------------------------------------- #
+
+@mcp.tool()
+def get_balance() -> str:
+    """查询你的账户余额（API余额）。返回 JSON，total_balance是余额。"""
+    data, err = _fetch_balance()
+    if err:
+        return err
+
+    return json.dumps({
+        "now": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "is_available": data["is_available"],
+        "balance_infos": data["balance_infos"],
+    }, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    logging.info("账户余额 MCP 服务启动")
+    logging.info("Python 路径：%s", sys.executable)
+    logging.info("余额接口：%s", URL)
+    logging.info("API Key 已配置：%s", bool(TOKEN))
+
+    if not TOKEN:
+        logging.warning("DEEPSEEK_API_TOKEN 未配置，工具调用将返回 config_error")
+
+    try:
+        mcp.run(transport="stdio")
+    except Exception:
+        logging.exception("账户余额 MCP 服务异常退出")
+        raise
+```
+
+### 远程开机和查询我的状态
+
+因为我买了<span class="hover-hint">软路由<span class="hover-hint__tooltip"><span class="hint-title">软路由</span>运行路由软件（如 OpenWrt）的通用计算机或设备，承担路由器功能，通常具备比普通家用路由器更强的可定制性和扩展能力。文中用它执行 WOL 魔术包发送。</span></span>，<span class="hover-hint">WOL<span class="hover-hint__tooltip"><span class="hint-title">WOL（Wake-on-LAN，网络唤醒）</span>一种以太网规范，允许处于关机或休眠状态的计算机通过局域网中另一台设备发送“魔术包”（magic packet）来远程开机或唤醒。</span></span>也变得方便了。但是机器人运行在远程服务器上，如果要WOL的话还得控制我的软路由。于是我想到我可以：
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant AB as AstrBot
+    participant M as MCP owner-server
+    participant TS as Tailscale
+    participant R as 软路由
+    participant PC as ttwe77的电脑
+
+    U->>AB: 唤醒电脑
+    AB->>M: 调用 wake_owner_pc()
+    M->>M: 校验 SSH 配置
+    M->>TS: SSH 连接（软路由 Tailscale IP:22）
+    TS->>R: 加密隧道转发
+    R-->>TS: SSH 握手成功
+    TS-->>M: 连接建立
+    M->>R: exec ~/wake.sh
+    R->>R: 检查 etherwake / 接口
+    R->>PC: etherwake -i lan1 MAC（WOL 魔术包）
+    PC-->>PC: 开机
+    R-->>M: 返回 exit_code / stdout / stderr
+    M-->>AB: 返回 success JSON
+    AB-->>U: 回复“唤醒成功/失败原因”
+```
+
+获取我的状态也挺简单的：
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant AB as AstrBot
+    participant M as MCP owner-server
+    participant API as 状态接口
+    participant PC as ttwe77的电脑
+
+    PC->>API: 定期上报状态
+    U->>AB: 77在干嘛？
+    AB->>M: 调用 get_owner_status()
+    M->>M: 生成时间戳参数 _=ms（防缓存）
+    M->>API: GET device-01.json?_=ts
+    API-->>M: 返回 JSON 状态
+    M->>M: 校验 + 字段归一化（缺字段补空串）
+    M-->>AB: 返回状态 JSON
+    AB-->>U: 回复：名称/状态/当前程序/更新时间等
+```
+
+### 获取课表
+
+这个也挺简单的，之前做的课表网站也派上用场了（折腾过程以后发）。因为要接入我的iPhone，所以我写了个Python来生成ICS文件。服务端只要响应GET就好了，而LLM和Python要考虑的可就多了。
+
+```mermaid
+sequenceDiagram
+    actor U as 我
+    participant A as AstrBot
+    participant M as MCP服务
+    participant N as Nginx(ICS源)
+
+    U->>A: “下节课在哪？”
+    A->>M: 调用 get_next_class
+    M->>N: 拉取课表（缓存未命中时）
+    N-->>M: ICS
+    M-->>A: 课程 JSON
+    A-->>U: “14:00 高等数学 @ A101”
+```
+
 
 # 结语
 
@@ -304,7 +744,7 @@ fatal: Could not read from remote repository.
 3. **学习并接入 Python MCP/RunPY**
 4. **配置人格、插件、权限和模型**
 5. **测试工具执行与日志排错**
-6. **在<span class="hover-hint">阿里云 ECS<span class="hover-hint__tooltip"><span class="hint-title">阿里云 ECS</span>Elastic Compute Service，阿里云的弹性云服务器产品。文中作者的“云服务器部署”环节就是在阿里云 ECS 上完成的（系统为“阿里云 Linux 3”）。ECS 提供可随时调整配置的虚拟机实例，是部署 24 小时在线机器人的常见选择。</span></span> 上用源码部署 AstrBot**
+6. **在<span class="hover-hint">阿里云 ECS<span class="hover-hint__tooltip"><span class="hint-title">阿里云 ECS</span>Elastic Compute Service，阿里云的弹性云服务器产品。文中作者的“云服务器部署”环节就是在阿里云 ECS上完成的（系统为“阿里云 Linux 3”）。ECS 提供可随时调整配置的虚拟机实例，是部署 24 小时在线机器人的常见选择。</span></span> 上用源码部署 AstrBot**
 7. **处理部署与网络问题**
 
 # 附录：时间轴

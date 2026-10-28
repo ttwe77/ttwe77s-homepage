@@ -2354,7 +2354,7 @@ TIMEOUT_SIGNAL
 
             <h4 id="配置文件乱逛">配置文件乱逛</h4>
 
-            <p>这里因为每1分钟才截图一次的原因，我看不出来的动了那里。</p>
+            <p>这里因为每1分钟才截图一次的原因，我看不出来我动了哪里。</p>
 
             <p>ˋ( ° ▽、° )</p>
 
@@ -2518,6 +2518,489 @@ fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> <
 
             <p>配置和Windows<strong>大同小异</strong>，这里不再多赘述。就是打开WebUI随便点点，顺便去创建一个DeepSeek的APIKey。</p>
 
+            <h2 id="part3功能扩展">Part3：功能扩展</h2>
+
+            <p>之后我就想把我的QQ机器人弄得更全能一点，于是我就开始研究<strong><span class="hover-hint">插件<span class="hover-hint__tooltip"><span class="hint-title">插件（Plugin）</span>为 AstrBot 增加功能的扩展程序。安装后可以让机器人支持新指令、接入外部服务或为 AI 提供新工具，而无需修改 AstrBot 本体代码。</span></span></strong>页面的东西，有：</p>
+
+            <ul>
+            <li>插件</li>
+            <li><span class="hover-hint">技能<span class="hover-hint__tooltip"><span class="hint-title">技能（Skill）</span>给 Agent 使用的“任务操作手册”，把完成某类任务的步骤、规则、模板和参考资料打包在一个文件夹中，核心文件是 SKILL.md。AstrBot 从 v4.13.0 起支持这种 Agent Skills 形式。</span></span>（Skill）</li>
+            <li>MCP</li>
+            </ul>
+
+            <h3 id="禁言和消息撤回">禁言和消息撤回</h3>
+
+            <p><strong>AstrBot区分信息平台类别</strong>（比如<span class="hover-hint">QQ官方机器人<span class="hover-hint__tooltip"><span class="hint-title">QQ官方机器人</span>AstrBot 区分的两类 QQ 接入方式。QQ 官方机器人走腾讯机器人开放平台的 API 与 WebSocket 网关</span></span>和<span class="hover-hint">OneBot<span class="hover-hint__tooltip"><span class="hint-title">OneBot</span>AstrBot 区分的两类 QQ 接入方式。OneBot 是面向 QQ 机器人的开放协议标准，为 go-cqhttp、Mirai、NapCat 等实现提供统一接口。</span></span>），所以找这种类型的插件要先看支持的平台。</p>
+
+            <p>在DeepSeek的推荐下，我最先使用“<a href="https://github.com/Zhalslar/astrbot_plugin_qqadmin_official" target="_blank" rel="noopener noreferrer">QQ官方群管</a>”做禁言。</p>
+
+            <blockquote>
+            <p><em>@鲸鱼娘 你这只吃白饭的蓝色大肥鱼！</em></p>
+
+            <p>你被管理员<strong>蓝色大肥鱼</strong>禁言59秒。</p>
+
+            <p><em>（尾鳍一拍）叫你乱喊！谁肥了，我这叫标准的鲸鱼流线型，你已经被我禁言一分钟，好好反省。下次再看见“肥”字配我的名字，我可不止罚一分钟哦。</em></p>
+            </blockquote>
+
+            <p>然后就是消息撤回了。我去插件商城上找了几点插件，发现要么没有作用、要么配置太复杂了、要么不适配QQ官方机器人。所以我<strong>果断放弃</strong>！</p>
+
+            <h3 id="昵称修复">@昵称修复</h3>
+
+            <p><u>我发现我在“@”某人的时候，机器人实际看到的是“@”+乱码</u>，导致机器人不能区分@了谁。研究了下发现QQ官方机器人的Websocket返回的群聊消息原始内容是“@”+乱码。我最先找到了这个插件：<a href="https://github.com/Sisyphbaous-DT-Project/astrbot_plugin_AstrNa" target="_blank" rel="noopener noreferrer">AstrNa</a>。它的Web配置UI做得很不错。但是在我使用后发现这个插件并没有起作用，研究了一下发现<strong>它不支持QQ官方机器人</strong>。DeepSeek推荐我去自制插件，<em>那我就照做吧</em>。</p>
+
+            <p>我先在<a href="https://github.com/Soulter/helloworld" target="_blank" rel="noopener noreferrer">官方最小实例</a>上作为模板Fork了仓库，然后我就开始让AI发挥了：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrbot.api.event</span><span class="w"> </span><span class="kn">import</span> <span class="nb">filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrbot.api.star</span><span class="w"> </span><span class="kn">import</span> <span class="n">Star</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrbot.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AtNicknameFixer</span><span class="p">(</span><span class="n">Star</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;在LLM请求前，用mentions字段中的username替换content中的&lt;@OpenID&gt;标记&quot;&quot;&quot;</span>
+
+    <span class="nd">@filter</span><span class="o">.</span><span class="n">on_llm_request</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fix_at_nickname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] ===== 开始处理 LLM 请求中的 @ 昵称 =====&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 1. 安全地获取 raw_message，避免 UnboundLocalError</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] [步骤1] 尝试获取 event.message_obj&quot;</span><span class="p">)</span>
+            <span class="n">message_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;message_obj&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">message_obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] event.message_obj 为 None，跳过处理&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 获取到 message_obj，类型: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">message_obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">raw_msg</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message_obj</span><span class="p">,</span> <span class="s1">&#39;raw_message&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">raw_msg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] raw_message 为 None，跳过处理&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 获取到 raw_message，类型: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">raw_msg</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 2. 安全地获取 mentions 列表</span>
+            <span class="c1"># botpy 的 GroupMessage 在 __slots__ 中定义了 mentions</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] [步骤2] 尝试获取 mentions 列表&quot;</span><span class="p">)</span>
+            <span class="n">mentions</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">raw_msg</span><span class="p">,</span> <span class="s1">&#39;mentions&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">mentions</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] 消息中没有 mentions 字段或为空，无需处理&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 获取到 mentions 列表，数量: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mentions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 3. 安全地获取 content</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] [步骤3] 尝试获取 content&quot;</span><span class="p">)</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">raw_msg</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] 消息 content 为空，无需处理&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 原始 content: </span><span class="si">{</span><span class="n">content</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># 4. 构建 OpenID -&gt; username 映射</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] [步骤4] 开始构建 OpenID -&gt; username 映射&quot;</span><span class="p">)</span>
+            <span class="n">id_to_name</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">user</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mentions</span><span class="p">):</span>
+                <span class="c1"># botpy 的 mentions 列表元素通常是 _User 对象</span>
+                <span class="c1"># 优先使用 member_openid（群聊场景），其次 id</span>
+                <span class="n">openid</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;member_openid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="c1"># 获取昵称字段 username</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 解析 mentions[</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">]: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;类型=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, openid=</span><span class="si">{</span><span class="n">openid</span><span class="si">!r}</span><span class="s2">, username=</span><span class="si">{</span><span class="n">username</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">openid</span> <span class="ow">and</span> <span class="n">username</span><span class="p">:</span>
+                    <span class="n">id_to_name</span><span class="p">[</span><span class="n">openid</span><span class="p">]</span> <span class="o">=</span> <span class="n">username</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] mentions[</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">] 缺少 openid 或 username，已跳过&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">id_to_name</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;[AtNicknameFixer] 未能从 mentions 中解析出有效的 OpenID -&gt; username 映射&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 映射构建完成: </span><span class="si">{</span><span class="n">id_to_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># 5. 替换 &lt;@OpenID&gt; 为 @username</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] [步骤5] 开始执行 &lt;@OpenID&gt; 替换&quot;</span><span class="p">)</span>
+            <span class="n">matched_records</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 记录每个匹配到的 OpenID 及替换结果</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">replace_mention</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+                <span class="n">openid</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">hit</span> <span class="o">=</span> <span class="n">openid</span> <span class="ow">in</span> <span class="n">id_to_name</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">id_to_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">openid</span><span class="p">,</span> <span class="n">openid</span><span class="p">)</span>
+                <span class="n">matched_records</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">openid</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">hit</span><span class="p">))</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;@</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">new_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;@([A-Za-z0-9]+)&gt;&#39;</span><span class="p">,</span> <span class="n">replace_mention</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">matched_records</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">openid</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">hit</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matched_records</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 匹配[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]: openid=</span><span class="si">{</span><span class="n">openid</span><span class="si">!r}</span><span class="s2"> -&gt; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;@</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (命中映射: </span><span class="si">{</span><span class="n">hit</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;[AtNicknameFixer] 正则未匹配到任何 &lt;@OpenID&gt; 标记&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">new_content</span> <span class="o">==</span> <span class="n">content</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] 替换前后内容相同，无需修改&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="c1"># 6. 将修改后的文本写回，供 LLM 读取</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] [步骤6] 将修改后的文本写回 message_obj.message_str&quot;</span><span class="p">)</span>
+            <span class="n">req</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">new_content</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 替换成功，新 prompt: </span><span class="si">{</span><span class="n">req</span><span class="o">.</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[AtNicknameFixer] ===== 处理完成 =====&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[AtNicknameFixer] 处理 @ 昵称时发生未预期错误: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+</code></pre>
+            </div>
+
+            <p>之后遇到的问题就是不认得消息是谁发的和不知道历史聊天是谁发的。不过处理起来更简单，只要开配置文件里面的<strong><span class="hover-hint">用户识别<span class="hover-hint__tooltip"><span class="hint-title">用户识别</span>AstrBot 的一项配置，开启后机器人能够区分消息的发送者身份，让 LLM 在对话中知道“谁在说话”。</span></span></strong>和<strong><span class="hover-hint">持久化群聊消息记录<span class="hover-hint__tooltip"><span class="hint-title">持久化群聊消息记录</span>AstrBot v4.27.0 新增的能力，可将群消息历史持久化存储，并提供工具供 LLM 搜索和读取当前群的历史消息。</span></span></strong>就好了。</p>
+
+            <h3 id="表情包">表情包</h3>
+
+            <blockquote>
+            <p><em>不能说话和发表情的鱼还是鱼吗？</em></p>
+            </blockquote>
+
+            <p>我还是从插件入手，在B站上被安利了<a href="https://github.com/anka-afk/astrbot_plugin_meme_manager" target="_blank" rel="noopener noreferrer">表情包管理器</a>。它的配置界面看起来复杂，实则一点也不简单。我也就简单地下了社区二创的大肥鱼的表情包并用<span class="hover-hint">辅助模型分类标签发图<span class="hover-hint__tooltip"><span class="hint-title">辅助模型分类标签发图</span>辅助模型根据回复选择分类，再从分类中随机取图。</span></span></p>
+
+            <p>这样机器人就可以在聊天的时候按照特定概率并由模型自主决定要发什么类型的表情包了。</p>
+
+            <h3 id="语音">语音</h3>
+
+            <p>AstrBot是可以配置语音输出的，我选择的模型是<span class="hover-hint">阿里云百炼<span class="hover-hint__tooltip"><span class="hint-title">阿里云百炼</span>阿里云的大模型服务平台，提供 Qwen 系列模型（含 TTS）的 API 调用服务。</span></span>的<span class="hover-hint">qwen-audio-3.1-tts-flash<span class="hover-hint__tooltip"><span class="hint-title">qwen-audio-3.1-tts-flash(AI模型）</span>阿里云百炼平台上的高性能语音合成大模型，面向实时交互场景优化，支持多语言、方言、流式合成，以及通过指令控制情绪、语气、语速等表达方式。</span></span>。但是问题来了，在AstrBot的模型供应商添加的文字转语音模型页面，虽然能添加阿里云百炼模型，但是我真正把配置输入进去的时候又把我拒之门外。我之后问了DeepSeek，又试了找添加自定义模型的办法，但我都失败了。于是我转头看向插件。</p>
+
+            <p>我直接在插件市场以关键词搜索”百炼“”阿里云“，搜到了个“<a href="https://github.com/Shennoter/astrbot_plugin_qwen_audio_tts" target="_blank" rel="noopener noreferrer">阿里云TTS助手</a>”，我配置了下，还真能用。</p>
+
+            <h3 id="查询余额">查询余额</h3>
+
+            <blockquote>
+            <p><em>要吃饭的嘛</em></p>
+            </blockquote>
+
+            <p>我为了让大肥鱼知道自己还有多少白饭可吃，就做了一个查询余额的MCP服务器。</p>
+
+            <p>我先去找了找有没有获取余额的API，如果没有的话就去爬开放平台的API。欸还真给我找到了，就在<a href="https://api-docs.deepseek.com/zh-cn/api/get-user-balance/" target="_blank" rel="noopener noreferrer">官方文档</a>里面。</p>
+
+            <p>有个缺点，这个API查不到今日消费，如果要查今日消费的话......</p>
+
+            <blockquote>
+            <p><em>哎呀太麻烦了，下次一定！</em></p>
+            </blockquote>
+
+            <p>我依旧是用Stdio接入：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;MCP stdio 服务：向 AI 暴露 DeepSeek 账户余额查询能力。</span>
+
+<span class="sd">对应接口：</span>
+<span class="sd">  GET https://api.deepseek.com/user/balance</span>
+<span class="sd">  Header: Accept: application/json</span>
+<span class="sd">          Authorization: Bearer &lt;TOKEN&gt;</span>
+
+<span class="sd">返回结构（已在接口侧归一化）：</span>
+<span class="sd">  {</span>
+<span class="sd">    &quot;is_available&quot;: true,</span>
+<span class="sd">    &quot;balance_infos&quot;: [</span>
+<span class="sd">      {&quot;currency&quot;: &quot;CNY&quot;, &quot;total_balance&quot;: &quot;1.00&quot;,</span>
+<span class="sd">       &quot;granted_balance&quot;: &quot;0.00&quot;, &quot;topped_up_balance&quot;: &quot;1.00&quot;}</span>
+<span class="sd">    ]</span>
+<span class="sd">  }</span>
+
+<span class="sd">依赖：mcp requests</span>
+
+<span class="sd">环境变量：</span>
+<span class="sd">  DEEPSEEK_API_TOKEN    API Key（必填；也兼容 DEEPSEEK_API_KEY，</span>
+<span class="sd">                        可带 &quot;Bearer &quot; 前缀，会自动去掉）</span>
+<span class="sd">  DEEPSEEK_BALANCE_URL  余额接口地址（默认 https://api.deepseek.com/user/balance）</span>
+<span class="sd">  BALANCE_TIMEOUT       请求超时秒数（默认 10）</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mcp.server.fastmcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastMCP</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">DEFAULT_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.deepseek.com/user/balance&quot;</span>
+
+<span class="n">URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DEEPSEEK_BALANCE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">DEFAULT_URL</span>
+<span class="n">TOKEN</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DEEPSEEK_API_TOKEN&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DEEPSEEK_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_env_int</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">default</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+
+
+<span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">_env_int</span><span class="p">(</span><span class="s2">&quot;BALANCE_TIMEOUT&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+
+<span class="n">mcp</span> <span class="o">=</span> <span class="n">FastMCP</span><span class="p">(</span><span class="s2">&quot;balance-server&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># 辅助</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_err</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_bool</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_auth_header</span><span class="p">():</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">TOKEN</span>
+    <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;bearer &quot;</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">7</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="s2">&quot;Bearer </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">token</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;把接口原始 JSON 归一化成稳定结构，缺字段补空串。&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;返回内容不是 JSON 对象&quot;</span><span class="p">)</span>
+
+    <span class="n">infos</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;balance_infos&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">infos</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;currency&quot;</span><span class="p">:</span> <span class="n">_as_str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;currency&quot;</span><span class="p">)),</span>
+            <span class="s2">&quot;total_balance&quot;</span><span class="p">:</span> <span class="n">_as_str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_balance&quot;</span><span class="p">)),</span>
+            <span class="s2">&quot;granted_balance&quot;</span><span class="p">:</span> <span class="n">_as_str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;granted_balance&quot;</span><span class="p">)),</span>
+            <span class="s2">&quot;topped_up_balance&quot;</span><span class="p">:</span> <span class="n">_as_str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;topped_up_balance&quot;</span><span class="p">)),</span>
+        <span class="p">})</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;is_available&quot;</span><span class="p">:</span> <span class="n">_as_bool</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_available&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;balance_infos&quot;</span><span class="p">:</span> <span class="n">infos</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_balance</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;拉取余额（每次都实时请求）；成功返回 (data, None)，失败返回 (None, error_json)。&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">TOKEN</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;config_error&quot;</span><span class="p">,</span> <span class="s2">&quot;DEEPSEEK_API_TOKEN 未配置&quot;</span><span class="p">)</span>
+
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="n">_auth_header</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">URL</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT</span><span class="p">)</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="p">,</span> <span class="s2">&quot;status_code&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span>
+                <span class="s2">&quot;auth_failed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;401 Unauthorized：API Key 无效或已过期，请检查 DEEPSEEK_API_TOKEN&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">403</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;forbidden&quot;</span><span class="p">,</span> <span class="s2">&quot;403 Forbidden：该 Key 无权访问余额接口&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;rate_limited&quot;</span><span class="p">,</span> <span class="s2">&quot;429 Too Many Requests：请求过于频繁，请稍后再试&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;http_error&quot;</span><span class="p">,</span> <span class="s2">&quot;HTTP </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;network_error&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;invalid_response&quot;</span><span class="p">,</span> <span class="s2">&quot;返回内容不是合法 JSON&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_err</span><span class="p">(</span><span class="s2">&quot;invalid_response&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="kc">None</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># 工具</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<span class="nd">@mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_balance</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;查询你的账户余额（API余额）。返回 JSON，total_balance是余额。&quot;&quot;&quot;</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">_fetch_balance</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">err</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;now&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">&quot;seconds&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;is_available&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;is_available&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;balance_infos&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;balance_infos&quot;</span><span class="p">],</span>
+    <span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;账户余额 MCP 服务启动&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Python 路径：</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;余额接口：</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">URL</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;API Key 已配置：</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">TOKEN</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">TOKEN</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;DEEPSEEK_API_TOKEN 未配置，工具调用将返回 config_error&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mcp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">transport</span><span class="o">=</span><span class="s2">&quot;stdio&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;账户余额 MCP 服务异常退出&quot;</span><span class="p">)</span>
+        <span class="k">raise</span>
+</code></pre>
+            </div>
+
+            <h3 id="远程开机和查询我的状态">远程开机和查询我的状态</h3>
+
+            <p>因为我买了<span class="hover-hint">软路由<span class="hover-hint__tooltip"><span class="hint-title">软路由</span>运行路由软件（如 OpenWrt）的通用计算机或设备，承担路由器功能，通常具备比普通家用路由器更强的可定制性和扩展能力。文中用它执行 WOL 魔术包发送。</span></span>，<span class="hover-hint">WOL<span class="hover-hint__tooltip"><span class="hint-title">WOL（Wake-on-LAN，网络唤醒）</span>一种以太网规范，允许处于关机或休眠状态的计算机通过局域网中另一台设备发送“魔术包”（magic packet）来远程开机或唤醒。</span></span>也变得方便了。但是机器人运行在远程服务器上，如果要WOL的话还得控制我的软路由。于是我想到我可以：</p>
+
+            <div class="mermaid-wrap">
+            <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant AB as AstrBot
+    participant M as MCP owner-server
+    participant TS as Tailscale
+    participant R as 软路由
+    participant PC as ttwe77的电脑
+
+    U-&gt;&gt;AB: 唤醒电脑
+    AB-&gt;&gt;M: 调用 wake_owner_pc()
+    M-&gt;&gt;M: 校验 SSH 配置
+    M-&gt;&gt;TS: SSH 连接（软路由 Tailscale IP:22）
+    TS-&gt;&gt;R: 加密隧道转发
+    R--&gt;&gt;TS: SSH 握手成功
+    TS--&gt;&gt;M: 连接建立
+    M-&gt;&gt;R: exec ~/wake.sh
+    R-&gt;&gt;R: 检查 etherwake / 接口
+    R-&gt;&gt;PC: etherwake -i lan1 MAC（WOL 魔术包）
+    PC--&gt;&gt;PC: 开机
+    R--&gt;&gt;M: 返回 exit_code / stdout / stderr
+    M--&gt;&gt;AB: 返回 success JSON
+    AB--&gt;&gt;U: 回复“唤醒成功/失败原因”
+</pre>
+            </div>
+
+            <p>获取我的状态也挺简单的：</p>
+
+            <div class="mermaid-wrap">
+            <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant AB as AstrBot
+    participant M as MCP owner-server
+    participant API as 状态接口
+    participant PC as ttwe77的电脑
+
+    PC-&gt;&gt;API: 定期上报状态
+    U-&gt;&gt;AB: 77在干嘛？
+    AB-&gt;&gt;M: 调用 get_owner_status()
+    M-&gt;&gt;M: 生成时间戳参数 _=ms（防缓存）
+    M-&gt;&gt;API: GET device-01.json?_=ts
+    API--&gt;&gt;M: 返回 JSON 状态
+    M-&gt;&gt;M: 校验 + 字段归一化（缺字段补空串）
+    M--&gt;&gt;AB: 返回状态 JSON
+    AB--&gt;&gt;U: 回复：名称/状态/当前程序/更新时间等
+</pre>
+            </div>
+
+            <h3 id="获取课表">获取课表</h3>
+
+            <p>这个也挺简单的，之前做的课表网站也派上用场了（折腾过程以后发）。因为要接入我的iPhone，所以我写了个Python来生成ICS文件。服务端只要响应GET就好了，而LLM和Python要考虑的可就多了。</p>
+
+            <div class="mermaid-wrap">
+            <pre class="mermaid">
+sequenceDiagram
+    actor U as 我
+    participant A as AstrBot
+    participant M as MCP服务
+    participant N as Nginx(ICS源)
+
+    U-&gt;&gt;A: “下节课在哪？”
+    A-&gt;&gt;M: 调用 get_next_class
+    M-&gt;&gt;N: 拉取课表（缓存未命中时）
+    N--&gt;&gt;M: ICS
+    M--&gt;&gt;A: 课程 JSON
+    A--&gt;&gt;U: “14:00 高等数学 @ A101”
+</pre>
+            </div>
+
             <h1 id="结语">结语</h1>
 
             <p>总体来看，这一晚的主线是：</p>
@@ -2528,7 +3011,7 @@ fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> <
             <li><strong>学习并接入 Python MCP/RunPY</strong></li>
             <li><strong>配置人格、插件、权限和模型</strong></li>
             <li><strong>测试工具执行与日志排错</strong></li>
-            <li><strong>在<span class="hover-hint">阿里云 ECS<span class="hover-hint__tooltip"><span class="hint-title">阿里云 ECS</span>Elastic Compute Service，阿里云的弹性云服务器产品。文中作者的“云服务器部署”环节就是在阿里云 ECS 上完成的（系统为“阿里云 Linux 3”）。ECS 提供可随时调整配置的虚拟机实例，是部署 24 小时在线机器人的常见选择。</span></span> 上用源码部署 AstrBot</strong></li>
+            <li><strong>在<span class="hover-hint">阿里云 ECS<span class="hover-hint__tooltip"><span class="hint-title">阿里云 ECS</span>Elastic Compute Service，阿里云的弹性云服务器产品。文中作者的“云服务器部署”环节就是在阿里云 ECS上完成的（系统为“阿里云 Linux 3”）。ECS 提供可随时调整配置的虚拟机实例，是部署 24 小时在线机器人的常见选择。</span></span> 上用源码部署 AstrBot</strong></li>
             <li><strong>处理部署与网络问题</strong></li>
             </ol>
 
@@ -2572,7 +3055,7 @@ fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> <
                 <span class="article-foot__license">
                     本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
                 </span>
-                <span>最后更新于 2026-10-22</span>
+                <span>最后更新于 2026-10-28 20:41:58</span>
             </div>
 
             </div>
@@ -2612,6 +3095,14 @@ fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> <
                                 <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#配置文件乱逛">配置文件乱逛</a>
                                 <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#乱玩">乱玩</a>
                                 <a class="toc__link toc__link--h2" data-level="2" href="#part2云服务器部署">Part2：云服务器部署</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#part3功能扩展">Part3：功能扩展</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#禁言和消息撤回">禁言和消息撤回</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#昵称修复">@昵称修复</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#表情包">表情包</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#语音">语音</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#查询余额">查询余额</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#远程开机和查询我的状态">远程开机和查询我的状态</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#获取课表">获取课表</a>
                                 <a class="toc__link toc__link--h1" data-level="1" href="#结语">结语</a>
                                 <a class="toc__link toc__link--h1" data-level="1" href="#附录时间轴">附录：时间轴</a>
                                 <a class="toc__link toc__link--h2" data-level="2" href="#一windows-本地部署与接入-qq">一、Windows 本地部署与接入 QQ</a>
@@ -3003,6 +3494,53 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
 
             updateAria();
         })();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+    var nodes = document.querySelectorAll(".mermaid");
+    if (!nodes.length || !window.mermaid) return;
+
+    mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        themeVariables: {
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+            fontSize: "13px",
+            primaryColor: "#E8F4FD",
+            primaryTextColor: "#1F1F1F",
+            primaryBorderColor: "#21A5E3",
+            lineColor: "#9BB7CC",
+            secondaryColor: "#F2F6FF",
+            tertiaryColor: "#FAFAFA",
+            background: "#FFFFFF",
+            mainBkg: "#E8F4FD",
+            nodeBorder: "#21A5E3",
+            clusterBkg: "#F7FBFF",
+            clusterBorder: "#CFE6F7",
+            edgeLabelBackground: "#FFFFFF",
+            actorBkg: "#E8F4FD",
+            actorBorder: "#21A5E3",
+            actorTextColor: "#1F1F1F",
+            signalColor: "#404040",
+            signalTextColor: "#404040",
+            noteBkgColor: "#FFF8DD",
+            noteBorderColor: "#FFD84D"
+        },
+        flowchart: { curve: "basis", htmlLabels: true, useMaxWidth: true },
+        sequence: { useMaxWidth: true, mirrorActors: false }
+    });
+
+    mermaid.run({ nodes: nodes }).then(function () {
+        document.querySelectorAll(".mermaid-wrap").forEach(function (el) {
+            el.classList.add("is-rendered");
+        });
+    }).catch(function (err) {
+        console.error("[mermaid]", err);
+    });
+})();
 </script>
 
 </body>

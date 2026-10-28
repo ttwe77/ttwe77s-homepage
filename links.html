@@ -15,6 +15,13 @@
   <meta property="og:description" content="互联网很大，一个人折腾有点孤单。这里放一些我常去逛的小站。">
   <meta property="og:locale" content="zh_CN">
   <link rel="canonical" href="https://www.ttwe77.cn/friends/">
+  <script type="module">
+    import { BAClickFX } from '/libs/ba-click-fx.js';
+    const fx = new BAClickFX();
+    fx.updateConfig({ trailAlways: true });
+    fx.setCompositingReference({ hostCompositing: 'screen' });
+    fx.setThemeColor('#80c1ff');
+  </script>
 
   <style>
     /* ============ 设计令牌 ============ */
@@ -425,9 +432,9 @@
     }
 
     .btn--primary {
-      height: 48px;
-      padding: 0 24px;
-      font-size: 15px;
+      height: 42px;
+      padding: 0 20px;
+      font-size: 13.5px;
       color: #fff;
       background: var(--color-primary);
       box-shadow: 0 4px 14px rgba(18, 138, 250, .28);
@@ -698,6 +705,52 @@
       font-size: 13.5px;
       line-height: 1.85;
       color: var(--color-text-body);
+    }
+
+    /* ---------- 引言引用块 ---------- */
+    .apply__body blockquote {
+      position: relative;
+      margin: 0 0 20px;
+      padding: 13px 18px 13px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(33, 165, 227, .10) 0%, rgba(33, 165, 227, .02) 100%);
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--color-text-secondary);
+      overflow: hidden;
+    }
+
+    /* 左侧渐变竖条 */
+    .apply__body blockquote::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+    }
+
+    /* 右上角装饰引号 */
+    .apply__body blockquote::after {
+      content: "\201C";
+      position: absolute;
+      right: 12px;
+      top: -10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1;
+      color: rgba(33, 165, 227, .13);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .apply__body blockquote p {
+      margin: 0;
+      position: relative;
+      z-index: 1;
     }
 
     .apply__sub {
@@ -1263,6 +1316,88 @@
         cursor: auto;
       }
     }
+
+    /* 引用块内的外链 */
+    .apply__body blockquote a {
+      color: var(--color-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed currentColor;
+      transition: color .18s ease, border-color .18s ease;
+    }
+
+    .apply__body blockquote a:hover {
+      color: var(--color-primary-hover);
+      border-bottom-style: solid;
+    }
+
+    .apply__body blockquote a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* 外链箭头 */
+    .apply__body blockquote a::after {
+      content: "\2197";
+      /* ↗ */
+      display: inline-block;
+      margin-left: 2px;
+      font-size: .9em;
+      transition: transform .18s ease;
+    }
+
+    .apply__body blockquote a:hover::after {
+      transform: translate(2px, -2px);
+    }
+
+    /* 署名行 */
+    .apply__body blockquote .apply__quote-src {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--color-text-disabled);
+    }
+
+    .apply__body blockquote .apply__quote-src {
+      display: block;
+      margin-top: 8px;
+      text-align: right;
+      font-size: 12px;
+      color: var(--color-text-disabled);
+    }
+
+    /* 申请区正文中的外链 */
+    .apply__lead a {
+      color: var(--color-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed currentColor;
+      transition: color .18s ease, border-color .18s ease;
+    }
+
+    .apply__lead a:hover {
+      color: var(--color-primary-hover);
+      border-bottom-style: solid;
+    }
+
+    .apply__lead a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* 外链箭头 */
+    .apply__lead a::after {
+      content: "\2197";
+      /* ↗ */
+      display: inline-block;
+      margin-left: 2px;
+      font-size: .9em;
+      transition: transform .18s ease;
+    }
+
+    .apply__lead a:hover::after {
+      transform: translate(2px, -2px);
+    }
   </style>
 </head>
 
@@ -1279,8 +1414,7 @@
 
     <picture class="topbar__logo">
       <source srcset="/src/bloglogo.avif" type="image/avif">
-      <img src="/src/bloglogo.avif" alt="七七的折腾笔记"
-        onerror="this.closest('picture').style.display='none'">
+      <img src="/src/bloglogo.avif" alt="七七的折腾笔记" onerror="this.closest('picture').style.display='none'">
     </picture>
 
     <div class="topbar__title">友情链接</div>
@@ -1302,14 +1436,13 @@
     <section class="page-head reveal">
       <p class="page-head__eyebrow">FRIEND LINKS</p>
       <h1 class="page-head__title">友情链接</h1>
-      <p class="page-head__desc">
+      <!--<p class="page-head__desc">
         互联网很大，一个人折腾难免有点孤单。这里放一些我常去逛的小站——有写代码的，有记录生活的，
         也有只是单纯喜欢在夜里更新博客的。点进去看看，说不定能遇到有趣的人。
-      </p>
+      </p>-->
       <div class="page-head__meta">
         <span>共 <b id="friend-total">0</b> 位朋友</span>
-        <span>持续更新中</span>
-        <span>最后更新 2026-10-22</span>
+        <span>最后更新 <time id="friend-updated">2026-10-99</time></span>
       </div>
     </section>
 
@@ -1321,8 +1454,7 @@
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.2-3.2" />
         </svg>
-        <input id="friend-search" type="search" placeholder="搜索名称 / 描述 / 标签" autocomplete="off"
-          aria-label="搜索友链">
+        <input id="friend-search" type="search" placeholder="搜索名称 / 描述 / 标签" autocomplete="off" aria-label="搜索友链">
         <button class="search__clear" id="friend-clear" type="button" aria-label="清空搜索" hidden>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1345,222 +1477,9 @@
     </div>
 
     <!-- ============ 友链列表 ============ -->
-    <!--
-      替换说明：
-      · href          站点地址
-      · --c1 / --c2   头像与左侧色条的渐变色
-      · --i           入场动画的错峰序号
-      · img 的 src    头像地址；加载失败会自动移除，露出下面的首字
-    -->
     <section class="friends" id="friends" aria-label="友情链接列表">
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#8AB4F8;--c2:#5E8BFF;--i:0">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-1.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>秋</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">秋刀鱼的小站</span>
-          </span>
-          <span class="friend__desc">记录技术、折腾与生活的碎片</span>
-          <span class="friend__tags">
-            <span class="chip">技术</span>
-            <span class="chip">生活</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#7FC4EA;--c2:#21a5e3;--i:1">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-2.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>星</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">星屑实验室</span>
-          </span>
-          <span class="friend__desc">一个喜欢折腾开源项目的高中生</span>
-          <span class="friend__tags">
-            <span class="chip">开源</span>
-            <span class="chip">前端</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#BEC0EC;--c2:#4454F8;--i:2">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-3.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>猫</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">猫窝</span>
-          </span>
-          <span class="friend__desc">一只猫的胡言乱语与深夜碎碎念</span>
-          <span class="friend__tags">
-            <span class="chip">随笔</span>
-            <span class="chip">日常</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#7BE0B8;--c2:#34C79F;--i:3">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-4.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>云</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">云上小筑</span>
-          </span>
-          <span class="friend__desc">云原生、运维，以及摸鱼的一百种姿势</span>
-          <span class="friend__tags">
-            <span class="chip">运维</span>
-            <span class="chip">Linux</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#E39BEA;--c2:#A97CE6;--i:4">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-5.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>拾</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">拾光笔记</span>
-          </span>
-          <span class="friend__desc">把时间存进文字里，偶尔拍点照片</span>
-          <span class="friend__tags">
-            <span class="chip">随笔</span>
-            <span class="chip">摄影</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#FFD84D;--c2:#FB7B44;--i:5">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-6.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>木</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">木子の博客</span>
-          </span>
-          <span class="friend__desc">前端、设计，以及一点点二次元</span>
-          <span class="friend__tags">
-            <span class="chip">前端</span>
-            <span class="chip">设计</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#9BA4B5;--c2:#6C7A9F;--i:6">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-7.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>夜</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">深夜代码</span>
-          </span>
-          <span class="friend__desc">夜深了，代码还没写完</span>
-          <span class="friend__tags">
-            <span class="chip">后端</span>
-            <span class="chip">Python</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
-
-      <a class="friend" href="https://example.com" target="_blank" rel="noopener noreferrer"
-        style="--c1:#F4756A;--c2:#EA3462;--i:7">
-        <span class="friend__avatar">
-          <img src="https://example.com/avatar-8.png" alt="" width="50" height="50" loading="lazy"
-            onerror="this.remove()">
-          <span>灯</span>
-        </span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">灯塔观测站</span>
-          </span>
-          <span class="friend__desc">关于网络安全与网络本身的一些观察</span>
-          <span class="friend__tags">
-            <span class="chip">安全</span>
-            <span class="chip">网络</span>
-          </span>
-        </span>
-        <span class="friend__go" aria-hidden="true">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg>
-        </span>
-      </a>
+      <!-- FRIENDS:START -->
+      <!-- FRIENDS:END -->
 
       <!-- 搜索无结果时的空状态 -->
       <div class="friends-empty" id="friends-empty" hidden>
@@ -1570,15 +1489,48 @@
 
     </section>
 
+    <!-- ============ 特别鸣谢 ============ -->
+    <section class="page-head reveal" id="thanks-head" style="margin-top:42px">
+      <p class="page-head__eyebrow">SPECIAL THANKS</p>
+      <h2 class="page-head__title">特别鸣谢</h2>
+      <!--<p class="page-head__desc">
+        这一页留给那些帮过我的人：提过 issue 的、帮忙 debug 的、给过建议的，
+        还有只是在我卡住时说了一句“别急”的。谢谢你们。
+      </p>-->
+      <div class="page-head__meta">
+        <span>共 <b id="thanks-total">0</b> 位</span>
+        <span>按时间倒序</span>
+      </div>
+    </section>
+
+    <section class="friends reveal" id="thanks" aria-label="特别鸣谢列表">
+      <!-- THANKS:START -->
+      <!-- THANKS:END -->
+    </section>
+
     <!-- ============ 申请友链 ============ -->
     <section class="apply reveal" id="apply">
       <h2 class="apply__title">申请友链</h2>
       <div class="apply__body">
 
-        <p class="apply__lead">
-          如果你想和我交换友链，欢迎直接发邮件。把自己的站点信息按下面的格式附上就行，
-          我一般会在两三天内回复并加上。
+        <blockquote>
+          <p>
+            和
+            Medium、简书之类的写作平台不同，每一个独立博客都是一个信息孤岛。我们没有类似「你可能喜欢其他人写的这些文章」的推荐机制，所以除了搜索引擎、社交网络引荐之外，我们应该还需要通过某种方法将这些信息孤岛连接起来：<br>
+            交换友情链接就是一种很棒的架桥方式。<br>
+            <span class="apply__quote-src">—— 来自 <a href="https://printempw.github.io/friends/" target="_blank"
+                rel="noopener noreferrer">PRIN BLOG</a></span>
+          </p>
+        </blockquote>
+
+        <p class="apply__lead" style="font-size: 1.2rem;font-weight: bold;">
+          来交个朋友吧！
         </p>
+        <p class="apply__lead">
+          交换友链的话，我没有特别的要求，你只需要符合申请条件，我就会添加到我的友链中。
+        </p>
+        <p class="apply__lead">当然你也可以使用我的在线友链卡片编辑器直观地编辑预览 <a href="https://www.ttwe77.cn/tools/linkseditor.html"
+            target="_blank" rel="noopener noreferrer">点击跳转</a></p>
 
         <h3 class="apply__sub">本站信息</h3>
         <div class="apply__info">
@@ -1590,8 +1542,7 @@
           <div class="apply__row">
             <span class="apply__k">站点描述</span>
             <span class="apply__v">学计算机的，最大的爱好就是闲着没事瞎折腾</span>
-            <button class="copy" type="button"
-              data-copy="学计算机的，最大的爱好就是闲着没事瞎折腾">复制</button>
+            <button class="copy" type="button" data-copy="学计算机的，最大的爱好就是闲着没事瞎折腾">复制</button>
           </div>
           <div class="apply__row">
             <span class="apply__k">站点链接</span>
@@ -1600,39 +1551,64 @@
           </div>
           <div class="apply__row">
             <span class="apply__k">头像地址</span>
-            <span class="apply__v">https://www.ttwe77.cn/src/head.png</span>
-            <button class="copy" type="button"
-              data-copy="https://www.ttwe77.cn/src/head.png">复制</button>
+            <span class="apply__v"><span class="hover-hint">https://www.ttwe77.cn/src/head.avif<span
+                  class="hover-hint__tooltip"><span class="hint-title">我的头像地址</span>也可以试试
+                  https://www.ttwe77.cn/src/head<b>.jpg</b>（更模糊）</span></span></span>
+            <button class="copy" type="button" data-copy="https://www.ttwe77.cn/src/head.avif">复制</button>
+          </div>
+          <div class="apply__row">
+            <span class="apply__k">订阅地址</span>
+            <span class="apply__v">https://www.ttwe77.cn/rss.xml</span>
+            <button class="copy" type="button" data-copy="https://www.ttwe77.cn/rss.xml">复制</button>
           </div>
         </div>
 
-        <h3 class="apply__sub">申请条件</h3>
+        <h3 class="apply__sub">友情链接申请条件</h3>
         <ul class="apply__rules">
+          <li>主体是一个网站</li>
           <li>站点可正常访问，内容以原创为主，长期不更新或已无法访问的站点会定期清理。</li>
           <li>不接受<span class="hover-hint">采集站<span class="hover-hint__tooltip"><span
-                  class="hint-title">采集站</span>指用程序批量抓取他人站点内容、只换个域名就上线的站点。这类站点通常没有自己的原创内容，因此不在友链范围内。</span></span>、纯资源下载站、以及大量广告的站点。</li>
+                  class="hint-title">采集站</span>指用程序批量抓取他人站点内容、只换个域名就上线的站点。这类站点通常没有自己的原创内容，因此不在友链范围内。</span></span>、纯资源下载站、以及大量广告的站点。
+          </li>
           <li>优先欢迎个人博客、技术笔记、设计或生活记录类站点。</li>
-          <li>请先把本站加入你的友链，再发送申请——互相添加，才算真的朋友。</li>
-          <li>如果之后需要撤下友链，发个邮件说一声就好，不用不好意思。</li>
+          <li>请在发送申请邮件后的两个星期内，把本站加入你的友链——互相添加，才算真的朋友。</li>
+          <li>如果之后需要更改友链，发个邮件说一声就好，不用不好意思。</li>
         </ul>
 
-        <h3 class="apply__sub">怎么联系我</h3>
+        <h3 class="apply__sub">特别鸣谢申请条件</h3>
+        <p class="apply__lead">
+          通常是我主动找你的，你不需要主动申请。
+        </p>
+        <ul class="apply__rules">
+          <li>主体是人</li>
+          <li><b>懂得尊重人</b></li>
+          <li><span class="hover-hint">好感度<span class="hover-hint__tooltip">
+                <span class="hint-title">好感度</span>
+                大致按互动频率、聊天的深度和你的聊天能力估算，
+                只是我私下的一个叫法，没有公开的量化标准。
+              </span>
+            </span>达到3级</li>
+          <li>和我有共同的兴趣或经历</li>
+        </ul>
+
+        <h3 class="apply__sub">联系方式</h3>
         <ul class="apply__rules">
           <li>邮箱：<span class="hover-hint">ttwe77@yeah.net<span class="hover-hint__tooltip"><span
-                  class="hint-title">我的邮箱地址</span>也可以试试 ttwe77@outlook.com，不过不保证它不会被扔进垃圾邮件里。</span></span></li>
-          <li>邮件标题建议写成「友链申请 - 你的站点名称」，方便我一眼认出来。</li>
+                  class="hint-title">我的邮箱地址</span>也可以试试 ttwe77@outlook.com 或
+                ttwe77@ttwe77.cn，不过不保证它不会被扔进垃圾邮件里。</span></span></li>
+          <li>邮件标题建议加上「友链申请」，方便我一眼认出来。</li>
         </ul>
 
         <div class="apply__actions">
           <a class="btn btn--primary" href="mailto:ttwe77@yeah.net?subject=%E5%8F%8B%E9%93%BE%E7%94%B3%E8%AF%B7">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="M2 7l10 6 10-6" />
             </svg>
-            发送申请邮件
+            发送邮件
           </a>
-          <a class="btn btn--secondary" href="/">返回首页</a>
+          <button class="btn btn--secondary" type="button" id="btn-back-home">返回首页</button>
         </div>
 
       </div>
@@ -1748,7 +1724,7 @@
       var clearBtn = document.getElementById('friend-clear');
       var emptyEl = document.getElementById('friends-empty');
       var totalEl = document.getElementById('friend-total');
-      var cards = Array.prototype.slice.call(document.querySelectorAll('.friend'));
+      var cards = Array.prototype.slice.call(document.querySelectorAll('#friends .friend'));
 
       /* 预先把可见文本缓存下来，搜索时不用反复读 DOM */
       cards.forEach(function (card) {
@@ -1848,19 +1824,21 @@
 
       onScroll();
 
-      /* ============================================================
-         返回按钮：能退则退，否则回首页
+            /* ============================================================
+         返回按钮：能退则退，否则回首页（顶栏返回键 + 申请区「返回首页」共用）
          ============================================================ */
-      var backBtn = document.getElementById('btn-back');
-      if (backBtn) {
-        backBtn.addEventListener('click', function () {
-          if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            location.href = '/';
-          }
-        });
+      function goBackOrHome() {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          location.href = '/';
+        }
       }
+
+      ['btn-back', 'btn-back-home'].forEach(function (id) {
+        var btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', goBackOrHome);
+      });
 
       /* ============================================================
          入场动画
