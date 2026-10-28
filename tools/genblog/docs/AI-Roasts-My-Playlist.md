@@ -8,7 +8,7 @@ author: ttwe77
 tags: 歌单分析,音乐偏好,AI锐评,网易云音乐,哔哩哔哩
 license: CC BY-NC 4.0
 license_url: "https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans"
-updated: 2026-10-21
+updated: 2026-10-21 19:55:17
 ---
 
 # AI 锐评：我干活时喜欢听的歌

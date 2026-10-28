@@ -8,7 +8,7 @@ author: ttwe77
 tags: Python, AI, 整活, 语法, 编程
 license: CC BY-NC 4.0
 license_url: https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans
-updated: 2026-10-21
+updated: 2026-10-21 23:42:23
 ---
 
 # 骗过3个Ai的代码

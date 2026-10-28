@@ -8,7 +8,7 @@ author: ttwe77
 tags: 虚拟定位, MuMu模拟器, KernelSU, LSPosed, LocationSpoofer, HMA-OSS, 踩坑
 license: CC BY-NC 4.0
 license_url: "https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans"
-updated: 2026-10-16
+updated: 2026-10-16 20:06:56
 ---
 
 # 虚拟定位折腾记

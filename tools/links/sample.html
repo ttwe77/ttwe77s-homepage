@@ -707,6 +707,52 @@
       color: var(--color-text-body);
     }
 
+    /* ---------- 引言引用块 ---------- */
+    .apply__body blockquote {
+      position: relative;
+      margin: 0 0 20px;
+      padding: 13px 18px 13px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(33, 165, 227, .10) 0%, rgba(33, 165, 227, .02) 100%);
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--color-text-secondary);
+      overflow: hidden;
+    }
+
+    /* 左侧渐变竖条 */
+    .apply__body blockquote::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+    }
+
+    /* 右上角装饰引号 */
+    .apply__body blockquote::after {
+      content: "\201C";
+      position: absolute;
+      right: 12px;
+      top: -10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1;
+      color: rgba(33, 165, 227, .13);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .apply__body blockquote p {
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
     .apply__sub {
       display: flex;
       align-items: center;
@@ -1270,6 +1316,88 @@
         cursor: auto;
       }
     }
+
+    /* 引用块内的外链 */
+    .apply__body blockquote a {
+      color: var(--color-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed currentColor;
+      transition: color .18s ease, border-color .18s ease;
+    }
+
+    .apply__body blockquote a:hover {
+      color: var(--color-primary-hover);
+      border-bottom-style: solid;
+    }
+
+    .apply__body blockquote a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* 外链箭头 */
+    .apply__body blockquote a::after {
+      content: "\2197";
+      /* ↗ */
+      display: inline-block;
+      margin-left: 2px;
+      font-size: .9em;
+      transition: transform .18s ease;
+    }
+
+    .apply__body blockquote a:hover::after {
+      transform: translate(2px, -2px);
+    }
+
+    /* 署名行 */
+    .apply__body blockquote .apply__quote-src {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--color-text-disabled);
+    }
+
+    .apply__body blockquote .apply__quote-src {
+      display: block;
+      margin-top: 8px;
+      text-align: right;
+      font-size: 12px;
+      color: var(--color-text-disabled);
+    }
+
+    /* 申请区正文中的外链 */
+    .apply__lead a {
+      color: var(--color-primary);
+      font-weight: 600;
+      border-bottom: 1px dashed currentColor;
+      transition: color .18s ease, border-color .18s ease;
+    }
+
+    .apply__lead a:hover {
+      color: var(--color-primary-hover);
+      border-bottom-style: solid;
+    }
+
+    .apply__lead a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* 外链箭头 */
+    .apply__lead a::after {
+      content: "\2197";
+      /* ↗ */
+      display: inline-block;
+      margin-left: 2px;
+      font-size: .9em;
+      transition: transform .18s ease;
+    }
+
+    .apply__lead a:hover::after {
+      transform: translate(2px, -2px);
+    }
   </style>
 </head>
 
@@ -1308,14 +1436,13 @@
     <section class="page-head reveal">
       <p class="page-head__eyebrow">FRIEND LINKS</p>
       <h1 class="page-head__title">友情链接</h1>
-      <p class="page-head__desc">
+      <!--<p class="page-head__desc">
         互联网很大，一个人折腾难免有点孤单。这里放一些我常去逛的小站——有写代码的，有记录生活的，
         也有只是单纯喜欢在夜里更新博客的。点进去看看，说不定能遇到有趣的人。
-      </p>
+      </p>-->
       <div class="page-head__meta">
         <span>共 <b id="friend-total">0</b> 位朋友</span>
-        <span>持续更新中</span>
-        <span>最后更新 <time id="friend-updated">2026-10-22</time></span>
+        <span>最后更新 <time id="friend-updated">2026-10-23</time></span>
       </div>
     </section>
 
@@ -1367,14 +1494,13 @@
     <section class="page-head reveal" id="thanks-head" style="margin-top:42px">
       <p class="page-head__eyebrow">SPECIAL THANKS</p>
       <h2 class="page-head__title">特别鸣谢</h2>
-      <p class="page-head__desc">
+      <!--<p class="page-head__desc">
         这一页留给那些帮过我的人：提过 issue 的、帮忙 debug 的、给过建议的，
         还有只是在我卡住时说了一句“别急”的。谢谢你们。
-      </p>
+      </p>-->
       <div class="page-head__meta">
         <span>共 <b id="thanks-total">0</b> 位</span>
         <span>按时间倒序</span>
-        <span>最后更新 <time id="thanks-updated">2026-10-22</time></span>
       </div>
     </section>
 
@@ -1389,10 +1515,24 @@
       <h2 class="apply__title">申请友链</h2>
       <div class="apply__body">
 
-        <p class="apply__lead">
-          如果你想和我交换友链，欢迎直接发邮件。把自己的站点信息按下面的格式附上就行，
-          我一般会在两三天内回复并加上。
+        <blockquote>
+          <p>
+            和
+            Medium、简书之类的写作平台不同，每一个独立博客都是一个信息孤岛。我们没有类似「你可能喜欢其他人写的这些文章」的推荐机制，所以除了搜索引擎、社交网络引荐之外，我们应该还需要通过某种方法将这些信息孤岛连接起来：<br>
+            交换友情链接就是一种很棒的架桥方式。<br>
+            <span class="apply__quote-src">—— 来自 <a href="https://printempw.github.io/friends/" target="_blank"
+                rel="noopener noreferrer">PRIN BLOG</a></span>
+          </p>
+        </blockquote>
+
+        <p class="apply__lead" style="font-size: 1.2rem;font-weight: bold;">
+          来交个朋友吧！
         </p>
+        <p class="apply__lead">
+          交换友链的话，我没有特别的要求，你只需要符合申请条件，我就会添加到我的友链中。
+        </p>
+        <p class="apply__lead">当然你也可以使用我的在线友链卡片编辑器直观地编辑预览 <a href="https://www.ttwe77.cn/tools/linkseditor.html"
+            target="_blank" rel="noopener noreferrer">点击跳转</a></p>
 
         <h3 class="apply__sub">本站信息</h3>
         <div class="apply__info">
@@ -1413,27 +1553,52 @@
           </div>
           <div class="apply__row">
             <span class="apply__k">头像地址</span>
-            <span class="apply__v">https://www.ttwe77.cn/src/head.png</span>
-            <button class="copy" type="button" data-copy="https://www.ttwe77.cn/src/head.png">复制</button>
+            <span class="apply__v"><span class="hover-hint">https://www.ttwe77.cn/src/head.avif<span
+                  class="hover-hint__tooltip"><span class="hint-title">我的头像地址</span>也可以试试
+                  https://www.ttwe77.cn/src/head<b>.jpg</b>（更模糊）</span></span></span>
+            <button class="copy" type="button" data-copy="https://www.ttwe77.cn/src/head.avif">复制</button>
+          </div>
+          <div class="apply__row">
+            <span class="apply__k">订阅地址</span>
+            <span class="apply__v">https://www.ttwe77.cn/rss.xml</span>
+            <button class="copy" type="button" data-copy="https://www.ttwe77.cn/rss.xml">复制</button>
           </div>
         </div>
 
-        <h3 class="apply__sub">申请条件</h3>
+        <h3 class="apply__sub">友情链接申请条件</h3>
         <ul class="apply__rules">
+          <li>主体是一个网站</li>
           <li>站点可正常访问，内容以原创为主，长期不更新或已无法访问的站点会定期清理。</li>
           <li>不接受<span class="hover-hint">采集站<span class="hover-hint__tooltip"><span
                   class="hint-title">采集站</span>指用程序批量抓取他人站点内容、只换个域名就上线的站点。这类站点通常没有自己的原创内容，因此不在友链范围内。</span></span>、纯资源下载站、以及大量广告的站点。
           </li>
           <li>优先欢迎个人博客、技术笔记、设计或生活记录类站点。</li>
-          <li>请先把本站加入你的友链，再发送申请——互相添加，才算真的朋友。</li>
-          <li>如果之后需要撤下友链，发个邮件说一声就好，不用不好意思。</li>
+          <li>请在发送申请邮件后的两个星期内，把本站加入你的友链——互相添加，才算真的朋友。</li>
+          <li>如果之后需要更改友链，发个邮件说一声就好，不用不好意思。</li>
         </ul>
 
-        <h3 class="apply__sub">怎么联系我</h3>
+        <h3 class="apply__sub">特别鸣谢申请条件</h3>
+        <p class="apply__lead">
+          通常是我主动找你的，你不需要主动申请。
+        </p>
+        <ul class="apply__rules">
+          <li>主体是人</li>
+          <li><b>懂得尊重人</b></li>
+          <li><span class="hover-hint">好感度<span class="hover-hint__tooltip">
+                <span class="hint-title">好感度</span>
+                大致按互动频率、聊天的深度和你的聊天能力估算，
+                只是我私下的一个叫法，没有公开的量化标准。
+              </span>
+            </span>达到3级</li>
+          <li>和我有共同的兴趣或经历</li>
+        </ul>
+
+        <h3 class="apply__sub">联系方式</h3>
         <ul class="apply__rules">
           <li>邮箱：<span class="hover-hint">ttwe77@yeah.net<span class="hover-hint__tooltip"><span
-                  class="hint-title">我的邮箱地址</span>也可以试试 ttwe77@outlook.com，不过不保证它不会被扔进垃圾邮件里。</span></span></li>
-          <li>邮件标题建议写成「友链申请 - 你的站点名称」，方便我一眼认出来。</li>
+                  class="hint-title">我的邮箱地址</span>也可以试试 ttwe77@outlook.com 或
+                ttwe77@ttwe77.cn，不过不保证它不会被扔进垃圾邮件里。</span></span></li>
+          <li>邮件标题建议加上「友链申请」，方便我一眼认出来。</li>
         </ul>
 
         <div class="apply__actions">

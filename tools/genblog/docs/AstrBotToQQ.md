@@ -8,7 +8,7 @@ author: ttwe77
 tags: AstrBot, QQ机器人, Python, MCP, Docker, 云服务器, 部署, AI
 license: CC BY-NC 4.0
 license_url: https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans
-updated: 2026-10-22
+updated: 2026-10-22 00:16:11
 ---
 
 # 从本地到云：一晚折腾 AstrBot 接入 QQ 机器人
@@ -148,7 +148,7 @@ At most three sentences，Colloquial
 
 #### 配置文件乱逛
 
-这里因为每1分钟才截图一次的原因，我看不出来的动了那里。
+这里因为每1分钟才截图一次的原因，我看不出来我动了哪里。
 
 ˋ( ° ▽、° ) 
 
@@ -290,6 +290,10 @@ fatal: Could not read from remote repository.
 7. 开机自启
 
 配置和Windows**大同小异**，这里不再多赘述。就是打开WebUI随便点点，顺便去创建一个DeepSeek的APIKey。
+
+## Part3：功能扩展
+
+之后我就想把我的QQ机器人弄得更全能一点
 
 # 结语
 
