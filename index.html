@@ -755,16 +755,43 @@
       /* 避免内边距影响 */
     }
 
-    .sidebar-avatar picture,
-    .sidebar-avatar img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      /* 铺满并裁切，不变形 */
-      border-radius: 50%;
-      /* 图片本身也裁成圆 */
-    }
+.sidebar-avatar picture,
+.sidebar-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ===== 头像悬停：360° 旋转 ===== */
+.sidebar-avatar img {
+  transform-origin: center;
+  transition: transform .9s cubic-bezier(.22, .61, .36, 1);
+  will-change: transform;
+}
+
+.sidebar-avatar:hover img {
+  transform: rotate(360deg);
+}
+
+/* 触屏设备没有真正的 hover，避免点一下卡在旋转态 */
+@media (hover: none) {
+  .sidebar-avatar:hover img {
+    transform: none;
+  }
+}
+
+/* 尊重系统「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-avatar img {
+    transition: none;
+  }
+
+  .sidebar-avatar:hover img {
+    transform: none;
+  }
+}
 
     .sidebar-name {
       font-size: 17px;
@@ -1083,18 +1110,73 @@
     }
 
     /* ============ 页脚 ============ */
-    .footer {
-      margin-top: 28px;
-      padding-top: 20px;
-      border-top: 1px solid var(--color-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      font-size: 12px;
-      color: var(--color-text-secondary);
-    }
+.footer {
+  position: relative;           /* 新增：供关闭按钮定位 */
+  margin-top: 28px;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 255, 255, .65);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, .55);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow:
+    0 6px 24px rgba(18, 138, 250, .08),
+    inset 0 1px 0 rgba(255, 255, 255, .7);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* 页脚右上角关闭按钮 */
+.footer__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  background: transparent;
+  opacity: .5;
+  transition: opacity .2s ease, background .2s ease, color .2s ease, transform .15s ease;
+}
+
+.footer__close:hover {
+  opacity: 1;
+  color: var(--color-primary);
+  background: rgba(33, 165, 227, .12);
+}
+
+.footer__close:active {
+  transform: scale(.88);
+}
+
+.footer__close:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 窄屏 footer 变纵向排列，给内容右侧留点空，避免和按钮重叠 */
+@media (max-width: 640px) {
+  .footer__brand {
+    padding-right: 26px;
+  }
+}
+
+/* 不支持 backdrop-filter 的浏览器（老版本）降级为接近不透明 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .footer {
+    background: rgba(255, 255, 255, .92);
+  }
+}
 
     .footer a {
       text-decoration: underline;
@@ -1168,26 +1250,19 @@
       color: var(--color-primary);
     }
 
-    /* 萌ICP备：刻意做小、做淡，不抢视线（仍可点击） */
-    .footer__moeicp {
-      align-self: flex-start;
-      margin-top: -2px;
-      font-size: 9px;
-      font-weight: 400;
-      line-height: 1.2;
-      letter-spacing: 0;
-      color: rgba(115, 115, 115, .42);
-      text-decoration: none;
-      opacity: .6;
-      transition: opacity .2s ease, color .2s ease;
-    }
-
-    /* 鼠标真要点它时才稍微显形 */
-    .footer__moeicp:hover {
-      opacity: 1;
-      color: var(--color-text-secondary);
-      text-decoration: underline;
-    }
+/* 萌ICP备 */
+.footer__moeicp {
+  align-self: flex-start;
+  margin-top: -2px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+    color: var(--color-text-secondary);
+  text-decoration: none;
+  opacity: 1;
+  text-decoration: underline;
+  transition: opacity .2s ease, color .2s ease;
+}
 
     /* ============ 响应式 ============ */
     @media(min-width:861px) {
@@ -2864,6 +2939,19 @@
         padding: 0 10px;
       }
     }
+    /* ICP 备案行：图标 + 备案号横向并排 */
+.footer__icp-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer__icp-row img {
+  display: block;
+  height: 16px;      /* 按需调整；不限制的话图片可能过大 */
+  width: auto;
+  flex: 0 0 auto;
+}
   </style>
 </head>
 
@@ -3154,23 +3242,34 @@
 
           </div>
 
-          <footer class="footer reveal" data-delay="140">
-            <div class="footer__brand">
-              <span class="footer__mark">七七的折腾笔记</span>
-              <span>© 2026 ttwe77 · 本站已运行 <span class="footer__runtime" id="site-runtime">—</span></span>
-              <a class="footer__icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
-              <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
-                  rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
-                  href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
-                  仓库</a> 查阅。</span>
-              <a class="footer__moeicp" href="https://icp.gov.moe/?keyword=20267770" target="_blank" rel="noopener noreferrer">萌ICP备20267770号</a>
-            </div>
-            <!--<div class="footer__links">
-              <a href="#">RSS 订阅</a>
-              <a href="#">GitHub</a>
-              <a href="#">邮件联系</a>
-            </div>-->
-          </footer>
+<footer class="footer reveal" data-delay="140">
+  <button class="footer__close" id="footer-close" type="button" aria-label="关闭页脚">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  </button>
+
+  <!-- 左栏：品牌 + 版权 + 备案 + 开源协议 -->
+  <div class="footer__brand">
+    <span class="footer__mark">七七的折腾笔记</span>
+<span class="footer__icp-row">
+  <img src="/src/icp.avif" alt="icp">
+  <a class="footer__icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+</span>
+    <span>© 2026 ttwe77 · 本站已运行 <span class="footer__runtime" id="site-runtime">—</span></span>
+    <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
+        rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
+        href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
+        仓库</a> 查阅。</span>
+  </div>
+
+  <!-- 右栏：萌ICP备（悬挂） -->
+  <div class="footer__right">
+    <a class="footer__moeicp" href="https://icp.gov.moe/?keyword=20267770" target="_blank"
+       rel="noopener noreferrer" title="萌ICP备20267770号">萌ICP备20267770号</a>
+  </div>
+</footer>
 
         </div>
       </section>
@@ -5067,6 +5166,72 @@
       setInterval(tick, 1000);
     })();
   </script>
+  <script>
+  /* ============================================================
+     页脚关闭：从真实高度收起到 0，再彻底移出布局
+     ============================================================ */
+  (function () {
+    'use strict';
+
+    var footer = document.querySelector('.footer');
+    var btn = document.getElementById('footer-close');
+    if (!footer || !btn) return;
+
+    var closing = false;
+
+    btn.addEventListener('click', function () {
+      if (closing) return;
+      closing = true;
+
+      /* 1) 先把当前真实高度钉成 max-height，才能做「高度 → 0」过渡 */
+      footer.style.maxHeight = footer.offsetHeight + 'px';
+      footer.style.overflow = 'hidden';
+
+      /* 2) 内联 transition：优先级最高，不会被 .reveal.is-settled 的 transition:none 吃掉 */
+      footer.style.transition =
+        'max-height .46s cubic-bezier(.65,.05,.36,1),' +
+        'opacity .3s ease,' +
+        'transform .3s ease,' +
+        'padding-top .46s cubic-bezier(.65,.05,.36,1),' +
+        'padding-bottom .46s cubic-bezier(.65,.05,.36,1),' +
+        'margin-top .46s cubic-bezier(.65,.05,.36,1),' +
+        'border-width .46s ease';
+
+      /* 3) 强制回流，让上面的初始值先生效，再改目标值 */
+      void footer.offsetHeight;
+
+      /* 4) 触发隐藏：淡出 + 轻微下沉 + 收起高度/内边距/外边距/边框 */
+      footer.style.opacity = '0';
+      footer.style.transform = 'translateY(10px) scale(.98)';
+      footer.style.paddingTop = '0px';
+      footer.style.paddingBottom = '0px';
+      footer.style.marginTop = '0px';
+      footer.style.borderWidth = '0px';
+      footer.style.maxHeight = '0px';
+      footer.style.pointerEvents = 'none';
+
+      /* 5) 动画结束彻底移出布局，避免残留空白 */
+      var finished = false;
+      function finish() {
+        if (finished) return;
+        finished = true;
+        footer.style.display = 'none';
+        footer.style.maxHeight = '';
+        footer.style.overflow = '';
+        footer.style.transition = '';
+        if (window.showToast) window.showToast('页脚已隐藏，刷新页面可恢复');
+      }
+
+      footer.addEventListener('transitionend', function onEnd(e) {
+        if (e.target !== footer || e.propertyName !== 'max-height') return;
+        footer.removeEventListener('transitionend', onEnd);
+        finish();
+      });
+
+      setTimeout(finish, 800);   // 兜底：prefers-reduced-motion 等情况下没有 transitionend
+    });
+  })();
+</script>
 </body>
 
 </html>
