@@ -432,9 +432,9 @@
     }
 
     .btn--primary {
-      height: 42px;
-      padding: 0 20px;
-      font-size: 13.5px;
+      height: 48px;
+      padding: 0 24px;
+      font-size: 15px;
       color: #fff;
       background: var(--color-primary);
       box-shadow: 0 4px 14px rgba(18, 138, 250, .28);
@@ -1442,7 +1442,7 @@
       </p>-->
       <div class="page-head__meta">
         <span>共 <b id="friend-total">0</b> 位朋友</span>
-        <span>最后更新 <time id="friend-updated">2026-10-99</time></span>
+        <span>最后更新 <time id="friend-updated">2026-10-28</time></span>
       </div>
     </section>
 
@@ -1498,13 +1498,24 @@
         还有只是在我卡住时说了一句“别急”的。谢谢你们。
       </p>-->
       <div class="page-head__meta">
-        <span>共 <b id="thanks-total">0</b> 位</span>
+        <span>共 <b id="thanks-total">1</b> 位</span>
         <span>按时间倒序</span>
       </div>
     </section>
 
     <section class="friends reveal" id="thanks" aria-label="特别鸣谢列表">
       <!-- THANKS:START -->
+      <a class="friend" href="https://space.bilibili.com/1530325561" target="_blank" rel="noopener noreferrer" style="--c1:#8AB4F8;--c2:#5E8BFF;--i:0">
+              <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/tempting.avif" alt="" width="50" height="50" loading="lazy" onerror="this.remove()"><span>T</span></span>
+              <span class="friend__main">
+                <span class="friend__top">
+                  <span class="friend__name">Tempting</span>
+                </span>
+                <span class="friend__desc">学工程的，土木工程计算机工程铁道工程...啥工程都会</span>
+                <span class="friend__tags"><span class="chip">非男同</span><span class="chip">技术党</span><span class="chip">冲浪</span></span>
+              </span>
+              <span class="friend__go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+            </a>
       <!-- THANKS:END -->
     </section>
 
@@ -1596,19 +1607,19 @@
           <li>邮箱：<span class="hover-hint">ttwe77@yeah.net<span class="hover-hint__tooltip"><span
                   class="hint-title">我的邮箱地址</span>也可以试试 ttwe77@outlook.com 或
                 ttwe77@ttwe77.cn，不过不保证它不会被扔进垃圾邮件里。</span></span></li>
-          <li>邮件标题建议加上「友链申请」或「特别鸣谢申请」，方便我一眼认出来。</li>
+          <li>邮件标题建议加上「友链申请」，方便我一眼认出来。</li>
         </ul>
 
         <div class="apply__actions">
-          <a class="btn btn--primary" href="mailto:ttwe77@yeah.net">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          <a class="btn btn--primary" href="mailto:ttwe77@yeah.net?subject=%E5%8F%8B%E9%93%BE%E7%94%B3%E8%AF%B7">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="M2 7l10 6 10-6" />
             </svg>
-            发送邮件
+            发送申请邮件
           </a>
-          <button class="btn btn--secondary" type="button" id="btn-back-home">返回首页</button>
+          <a class="btn btn--secondary" href="/">返回首页</a>
         </div>
 
       </div>
@@ -1824,21 +1835,19 @@
 
       onScroll();
 
-            /* ============================================================
-         返回按钮：能退则退，否则回首页（顶栏返回键 + 申请区「返回首页」共用）
+      /* ============================================================
+         返回按钮：能退则退，否则回首页
          ============================================================ */
-      function goBackOrHome() {
-        if (window.history.length > 1) {
-          window.history.back();
-        } else {
-          location.href = '/';
-        }
+      var backBtn = document.getElementById('btn-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function () {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            location.href = '/';
+          }
+        });
       }
-
-      ['btn-back', 'btn-back-home'].forEach(function (id) {
-        var btn = document.getElementById(id);
-        if (btn) btn.addEventListener('click', goBackOrHome);
-      });
 
       /* ============================================================
          入场动画

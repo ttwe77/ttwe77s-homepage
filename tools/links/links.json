@@ -1,5 +1,18 @@
 {
-  "updated": "2026-10-99",
+  "updated": "2026-10-28",
   "friends": [],
-  "thanks": []
+  "thanks": [
+    {
+      "name": "Tempting",
+      "desc": "学工程的，土木工程计算机工程铁道工程...啥工程都会",
+      "tags": [
+        "非男同",
+        "技术党",
+        "冲浪"
+      ],
+      "avatar": "https://www.ttwe77.cn/src/links/tempting.avif",
+      "url": "https://space.bilibili.com/1530325561",
+      "initial": "T"
+    }
+  ]
 }
