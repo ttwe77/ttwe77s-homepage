@@ -733,6 +733,14 @@ def render_code_block(code: str, lang: str) -> str:
         "        </button>\n"
         "    </div>\n"
         f"    <pre><code>{hl}</code></pre>\n"
+        '    <button class="code-block__expand" type="button" data-expand aria-expanded="false">\n'
+        '        <span class="code-block__expand-text">展开全部</span>\n'
+        '        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" '
+        'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
+        'stroke-linejoin="round" aria-hidden="true">\n'
+        '            <path d="M6 9l6 6 6-6" />\n'
+        '        </svg>\n'
+        "    </button>\n"
         "</div>"
     )
 
