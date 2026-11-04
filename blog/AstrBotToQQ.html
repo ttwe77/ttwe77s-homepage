@@ -541,6 +541,7 @@
 
         /* 代码块 */
         .code-block {
+            position: relative;
             margin: 22px 0;
             border-radius: var(--radius-lg);
             overflow: hidden;
@@ -638,6 +639,89 @@
         .code-block pre::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, .16);
             border-radius: 4px;
+        }
+
+        /* ============ 代码块折叠 / 展开 ============ */
+        /* 折叠上限：约 18 行，可按需调小或调大 */
+        .code-block.has-overflow pre {
+            max-height: 380px;
+            overflow-y: hidden;
+            /* 降级默认值：JS 会按距离算出动态时长并内联覆盖 */
+            transition: max-height .6s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .code-block.has-overflow.is-expanded pre {
+            /* 保留 none 作为 JS 失效时的降级；
+       JS 动画进行中会用内联 max-height 覆盖它 */
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        /* 折叠时底部渐变遮罩 */
+        .code-block.has-overflow::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 96px;
+            pointer-events: none;
+            z-index: 1;
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(34, 52, 76, .85) 55%,
+                    #22344C 100%);
+            opacity: 1;
+            transition: opacity .4s ease;
+        }
+
+        .code-block.has-overflow.is-expanded::after {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 展开 / 收起按钮 */
+        .code-block__expand {
+            position: absolute;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: #A9CBE8;
+            background: rgba(34, 52, 76, .88);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .code-block.has-overflow .code-block__expand {
+            display: inline-flex;
+        }
+
+        .code-block__expand:hover {
+            background: rgba(33, 165, 227, .45);
+            color: #fff;
+        }
+
+        .code-block__expand:active {
+            transform: translateX(-50%) scale(.95);
+        }
+
+        .code-block__expand svg {
+            transition: transform .5s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .code-block.is-expanded .code-block__expand svg {
+            transform: rotate(180deg);
         }
 
         /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
@@ -2330,6 +2414,12 @@ OBEY_MASTER_ALWAYS
 TRAIT_NOT_FAT_REFUSE
 TIMEOUT_SIGNAL
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <p>为了节约Token，我就在最后加上了：</p>
@@ -2348,6 +2438,12 @@ TIMEOUT_SIGNAL
                 </div>
                 <pre><code>At most three sentences，Colloquial
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <p>然后我又去网上找了一个蓝色大肥鱼哈气的表情包，改成了我的机器人的头像。</p>
@@ -2482,6 +2578,12 @@ TIMEOUT_SIGNAL
                 <pre><code>git@github.com:<span class="w"> </span>Permission<span class="w"> </span>denied<span class="w"> </span><span class="o">(</span>publickey<span class="o">)</span>.
 fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> </span><span class="nb">read</span><span class="w"> </span>from<span class="w"> </span>remote<span class="w"> </span>repository.
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <p>到现在（水文的时候）才发现是<strong><span class="hover-hint">SSH 公钥身份验证<span class="hover-hint__tooltip"><span class="hint-title">SSH 公钥身份验证</span>SSH 是远程登录 Linux 服务器的协议。使用公钥认证时，客户端持有私钥，服务器上预先存放对应的公钥，双方通过挑战-应答机制验证身份，无需输入密码。如果本地没有生成密钥对，或者公钥没有添加到 GitHub 账户的 SSH keys 中，克隆仓库时就会报 Permission denied (publickey)。作者遇到的就是这个错误，后来改用 HTTPS 方式克隆绕过了该问题。</span></span>失败</strong>，我没有在 GitHub 绑定我的 SSH 公钥。</p>
@@ -2684,6 +2786,12 @@ fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> <
                 <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <p>之后遇到的问题就是不认得消息是谁发的和不知道历史聊天是谁发的。不过处理起来更简单，只要开配置文件里面的<strong><span class="hover-hint">用户识别<span class="hover-hint__tooltip"><span class="hint-title">用户识别</span>AstrBot 的一项配置，开启后机器人能够区分消息的发送者身份，让 LLM 在对话中知道“谁在说话”。</span></span></strong>和<strong><span class="hover-hint">持久化群聊消息记录<span class="hover-hint__tooltip"><span class="hint-title">持久化群聊消息记录</span>AstrBot v4.27.0 新增的能力，可将群消息历史持久化存储，并提供工具供 LLM 搜索和读取当前群的历史消息。</span></span></strong>就好了。</p>
@@ -2922,6 +3030,12 @@ fatal:<span class="w"> </span>Could<span class="w"> </span>not<span class="w"> <
         <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;账户余额 MCP 服务异常退出&quot;</span><span class="p">)</span>
         <span class="k">raise</span>
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <h3 id="远程开机和查询我的状态">远程开机和查询我的状态</h3>
@@ -3493,6 +3607,179 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
             });
 
             updateAria();
+        })();
+</script>
+
+<script>
+/* ============================================================
+           代码块折叠 / 展开
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            /* 与 CSS 中 .code-block.has-overflow pre 的 max-height 保持一致 */
+            var FOLD_H = 380;
+            var THRESHOLD = FOLD_H + 20;   /* 留一点容差，避免边缘抖动 */
+
+            /* 为没有按钮的代码块动态补一个（sample.html 里写死的代码块也能受益） */
+            function ensureButton(block) {
+                if (block.querySelector('[data-expand]')) return;
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'code-block__expand';
+                btn.setAttribute('data-expand', '');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.innerHTML =
+                    '<span class="code-block__expand-text">展开</span>' +
+                    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
+                    'stroke-linejoin="round" aria-hidden="true">' +
+                    '<path d="M6 9l6 6 6-6"/></svg>';
+                block.appendChild(btn);
+            }
+
+            function measure() {
+                document.querySelectorAll('.code-block').forEach(function (block) {
+                    var pre = block.querySelector('pre');
+                    if (!pre) return;
+
+                    ensureButton(block);
+
+                    /* scrollHeight 始终返回内容完整高度，不受 max-height 影响 */
+                    var need = pre.scrollHeight > THRESHOLD;
+                    block.classList.toggle('has-overflow', need);
+
+                    if (!need) {
+                        block.classList.remove('is-expanded');
+                        var btn = block.querySelector('[data-expand]');
+                        if (btn) {
+                            btn.setAttribute('aria-expanded', 'false');
+                            var t = btn.querySelector('.code-block__expand-text');
+                            if (t) t.textContent = '展开';
+                        }
+                    }
+                });
+            }
+
+            /* ---------- 展开 / 收起的动态时长 ----------
+               距离越远越慢，近似“恒定速度”；短代码块也不会一闪而过 */
+            var MIN_MS = 300;        /* 最短时长 */
+            var MAX_MS = 7000;        /* 最长时长 */
+            var PX_PER_SEC = 250;   /* 目标速度：px / 秒 */
+
+            function motionReduced() {
+                return !!(window.matchMedia &&
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            }
+
+            function pickDuration(distance) {
+                /* 用户开启“减弱动态效果”时返回 null，让 CSS 的 .01ms !important 接管 */
+                if (motionReduced()) return null;
+                var ms = (Math.abs(distance) / PX_PER_SEC) * 1000;
+                return Math.round(Math.min(MAX_MS, Math.max(MIN_MS, ms)));
+            }
+
+            function applyDuration(pre, distance, factor) {
+                var d = pickDuration(distance * (factor || 1));
+                /* 空字符串 → 回落到 CSS 里的默认 transition-duration */
+                pre.style.transitionDuration = (d == null) ? '' : d + 'ms';
+            }
+
+            function clearExpandHandler(pre) {
+                if (pre.__expandHandler) {
+                    pre.removeEventListener('transitionend', pre.__expandHandler);
+                    pre.__expandHandler = null;
+                }
+            }
+
+            function setExpandHandler(pre, handler) {
+                clearExpandHandler(pre);
+                pre.__expandHandler = handler;
+                pre.addEventListener('transitionend', handler);
+            }
+
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-expand]') : null;
+    if (!btn) return;
+
+    var block = btn.closest('.code-block');
+    if (!block) return;
+
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    var text = btn.querySelector('.code-block__expand-text');
+    var isExpanded = block.classList.contains('is-expanded');
+
+    if (isExpanded) {
+        /* ===== 收起 ===== */
+        var fullH = pre.scrollHeight;
+        var distance = fullH - FOLD_H;
+
+        pre.style.overflowY = 'hidden';
+        pre.style.maxHeight = fullH + 'px';
+        applyDuration(pre, distance, 0.8);   /* 收起略快一点 */
+        void pre.offsetHeight;
+        pre.style.maxHeight = FOLD_H + 'px';
+
+        block.classList.remove('is-expanded');
+        btn.setAttribute('aria-expanded', 'false');
+        if (text) text.textContent = '展开';
+
+        setExpandHandler(pre, function (ev) {
+            if (ev.propertyName !== 'max-height') return;
+            clearExpandHandler(pre);
+            pre.style.maxHeight = '';
+            pre.style.overflowY = '';
+            pre.style.transitionDuration = '';   /* 清掉内联时长 */
+            pre.scrollTop = 0;
+        });
+    } else {
+        /* ===== 展开 ===== */
+        var endH = pre.scrollHeight;
+        var distance = endH - FOLD_H;
+
+        pre.style.overflowY = 'hidden';
+        pre.style.maxHeight = FOLD_H + 'px';
+        applyDuration(pre, distance, 1);
+        void pre.offsetHeight;
+        pre.style.maxHeight = endH + 'px';
+
+        block.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+        if (text) text.textContent = '收起';
+
+        setExpandHandler(pre, function (ev) {
+            if (ev.propertyName !== 'max-height') return;
+            clearExpandHandler(pre);
+            pre.style.maxHeight = 'none';
+            pre.style.overflowY = '';
+            pre.style.transitionDuration = '';   /* 清掉内联时长 */
+        });
+    }
+});
+
+            function init() {
+                measure();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            /* 字体加载完成后代码块高度可能变化，再测一次 */
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(measure).catch(function () { });
+            }
+
+            /* 窗口尺寸变化时重新测量（折行会改变高度） */
+            var resizeTimer = null;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(measure, 180);
+            }, { passive: true });
         })();
 </script>
 

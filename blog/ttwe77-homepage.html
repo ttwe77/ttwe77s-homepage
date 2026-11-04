@@ -541,6 +541,7 @@
 
         /* 代码块 */
         .code-block {
+            position: relative;
             margin: 22px 0;
             border-radius: var(--radius-lg);
             overflow: hidden;
@@ -638,6 +639,89 @@
         .code-block pre::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, .16);
             border-radius: 4px;
+        }
+
+        /* ============ 代码块折叠 / 展开 ============ */
+        /* 折叠上限：约 18 行，可按需调小或调大 */
+        .code-block.has-overflow pre {
+            max-height: 380px;
+            overflow-y: hidden;
+            /* 降级默认值：JS 会按距离算出动态时长并内联覆盖 */
+            transition: max-height .6s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .code-block.has-overflow.is-expanded pre {
+            /* 保留 none 作为 JS 失效时的降级；
+       JS 动画进行中会用内联 max-height 覆盖它 */
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        /* 折叠时底部渐变遮罩 */
+        .code-block.has-overflow::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 96px;
+            pointer-events: none;
+            z-index: 1;
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(34, 52, 76, .85) 55%,
+                    #22344C 100%);
+            opacity: 1;
+            transition: opacity .4s ease;
+        }
+
+        .code-block.has-overflow.is-expanded::after {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 展开 / 收起按钮 */
+        .code-block__expand {
+            position: absolute;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: #A9CBE8;
+            background: rgba(34, 52, 76, .88);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .code-block.has-overflow .code-block__expand {
+            display: inline-flex;
+        }
+
+        .code-block__expand:hover {
+            background: rgba(33, 165, 227, .45);
+            color: #fff;
+        }
+
+        .code-block__expand:active {
+            transform: translateX(-50%) scale(.95);
+        }
+
+        .code-block__expand svg {
+            transition: transform .5s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .code-block.is-expanded .code-block__expand svg {
+            transform: rotate(180deg);
         }
 
         /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
@@ -2241,7 +2325,7 @@
                 <span class="article-foot__license">
                     本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
                 </span>
-                <span>最后更新于 2026-10-13</span>
+                <span>最后更新于 2026-10-13 14:54:41</span>
             </div>
 
             </div>
@@ -2665,6 +2749,179 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
             });
 
             updateAria();
+        })();
+</script>
+
+<script>
+/* ============================================================
+           代码块折叠 / 展开
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            /* 与 CSS 中 .code-block.has-overflow pre 的 max-height 保持一致 */
+            var FOLD_H = 380;
+            var THRESHOLD = FOLD_H + 20;   /* 留一点容差，避免边缘抖动 */
+
+            /* 为没有按钮的代码块动态补一个（sample.html 里写死的代码块也能受益） */
+            function ensureButton(block) {
+                if (block.querySelector('[data-expand]')) return;
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'code-block__expand';
+                btn.setAttribute('data-expand', '');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.innerHTML =
+                    '<span class="code-block__expand-text">展开</span>' +
+                    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
+                    'stroke-linejoin="round" aria-hidden="true">' +
+                    '<path d="M6 9l6 6 6-6"/></svg>';
+                block.appendChild(btn);
+            }
+
+            function measure() {
+                document.querySelectorAll('.code-block').forEach(function (block) {
+                    var pre = block.querySelector('pre');
+                    if (!pre) return;
+
+                    ensureButton(block);
+
+                    /* scrollHeight 始终返回内容完整高度，不受 max-height 影响 */
+                    var need = pre.scrollHeight > THRESHOLD;
+                    block.classList.toggle('has-overflow', need);
+
+                    if (!need) {
+                        block.classList.remove('is-expanded');
+                        var btn = block.querySelector('[data-expand]');
+                        if (btn) {
+                            btn.setAttribute('aria-expanded', 'false');
+                            var t = btn.querySelector('.code-block__expand-text');
+                            if (t) t.textContent = '展开';
+                        }
+                    }
+                });
+            }
+
+            /* ---------- 展开 / 收起的动态时长 ----------
+               距离越远越慢，近似“恒定速度”；短代码块也不会一闪而过 */
+            var MIN_MS = 300;        /* 最短时长 */
+            var MAX_MS = 7000;        /* 最长时长 */
+            var PX_PER_SEC = 250;   /* 目标速度：px / 秒 */
+
+            function motionReduced() {
+                return !!(window.matchMedia &&
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            }
+
+            function pickDuration(distance) {
+                /* 用户开启“减弱动态效果”时返回 null，让 CSS 的 .01ms !important 接管 */
+                if (motionReduced()) return null;
+                var ms = (Math.abs(distance) / PX_PER_SEC) * 1000;
+                return Math.round(Math.min(MAX_MS, Math.max(MIN_MS, ms)));
+            }
+
+            function applyDuration(pre, distance, factor) {
+                var d = pickDuration(distance * (factor || 1));
+                /* 空字符串 → 回落到 CSS 里的默认 transition-duration */
+                pre.style.transitionDuration = (d == null) ? '' : d + 'ms';
+            }
+
+            function clearExpandHandler(pre) {
+                if (pre.__expandHandler) {
+                    pre.removeEventListener('transitionend', pre.__expandHandler);
+                    pre.__expandHandler = null;
+                }
+            }
+
+            function setExpandHandler(pre, handler) {
+                clearExpandHandler(pre);
+                pre.__expandHandler = handler;
+                pre.addEventListener('transitionend', handler);
+            }
+
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-expand]') : null;
+    if (!btn) return;
+
+    var block = btn.closest('.code-block');
+    if (!block) return;
+
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    var text = btn.querySelector('.code-block__expand-text');
+    var isExpanded = block.classList.contains('is-expanded');
+
+    if (isExpanded) {
+        /* ===== 收起 ===== */
+        var fullH = pre.scrollHeight;
+        var distance = fullH - FOLD_H;
+
+        pre.style.overflowY = 'hidden';
+        pre.style.maxHeight = fullH + 'px';
+        applyDuration(pre, distance, 0.8);   /* 收起略快一点 */
+        void pre.offsetHeight;
+        pre.style.maxHeight = FOLD_H + 'px';
+
+        block.classList.remove('is-expanded');
+        btn.setAttribute('aria-expanded', 'false');
+        if (text) text.textContent = '展开';
+
+        setExpandHandler(pre, function (ev) {
+            if (ev.propertyName !== 'max-height') return;
+            clearExpandHandler(pre);
+            pre.style.maxHeight = '';
+            pre.style.overflowY = '';
+            pre.style.transitionDuration = '';   /* 清掉内联时长 */
+            pre.scrollTop = 0;
+        });
+    } else {
+        /* ===== 展开 ===== */
+        var endH = pre.scrollHeight;
+        var distance = endH - FOLD_H;
+
+        pre.style.overflowY = 'hidden';
+        pre.style.maxHeight = FOLD_H + 'px';
+        applyDuration(pre, distance, 1);
+        void pre.offsetHeight;
+        pre.style.maxHeight = endH + 'px';
+
+        block.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+        if (text) text.textContent = '收起';
+
+        setExpandHandler(pre, function (ev) {
+            if (ev.propertyName !== 'max-height') return;
+            clearExpandHandler(pre);
+            pre.style.maxHeight = 'none';
+            pre.style.overflowY = '';
+            pre.style.transitionDuration = '';   /* 清掉内联时长 */
+        });
+    }
+});
+
+            function init() {
+                measure();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            /* 字体加载完成后代码块高度可能变化，再测一次 */
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(measure).catch(function () { });
+            }
+
+            /* 窗口尺寸变化时重新测量（折行会改变高度） */
+            var resizeTimer = null;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(measure, 180);
+            }, { passive: true });
         })();
 </script>
 

@@ -541,6 +541,7 @@
 
         /* 代码块 */
         .code-block {
+            position: relative;
             margin: 22px 0;
             border-radius: var(--radius-lg);
             overflow: hidden;
@@ -638,6 +639,89 @@
         .code-block pre::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, .16);
             border-radius: 4px;
+        }
+
+        /* ============ 代码块折叠 / 展开 ============ */
+        /* 折叠上限：约 18 行，可按需调小或调大 */
+        .code-block.has-overflow pre {
+            max-height: 380px;
+            overflow-y: hidden;
+            /* 降级默认值：JS 会按距离算出动态时长并内联覆盖 */
+            transition: max-height .6s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .code-block.has-overflow.is-expanded pre {
+            /* 保留 none 作为 JS 失效时的降级；
+       JS 动画进行中会用内联 max-height 覆盖它 */
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        /* 折叠时底部渐变遮罩 */
+        .code-block.has-overflow::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 96px;
+            pointer-events: none;
+            z-index: 1;
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(34, 52, 76, .85) 55%,
+                    #22344C 100%);
+            opacity: 1;
+            transition: opacity .4s ease;
+        }
+
+        .code-block.has-overflow.is-expanded::after {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 展开 / 收起按钮 */
+        .code-block__expand {
+            position: absolute;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: #A9CBE8;
+            background: rgba(34, 52, 76, .88);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .code-block.has-overflow .code-block__expand {
+            display: inline-flex;
+        }
+
+        .code-block__expand:hover {
+            background: rgba(33, 165, 227, .45);
+            color: #fff;
+        }
+
+        .code-block__expand:active {
+            transform: translateX(-50%) scale(.95);
+        }
+
+        .code-block__expand svg {
+            transition: transform .5s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .code-block.is-expanded .code-block__expand svg {
+            transform: rotate(180deg);
         }
 
         /* ============ Pygments 语法着色（适配 #22344C 深色底） ============ */
@@ -2400,6 +2484,12 @@
   console.log(&quot;Hello&quot;);
 }
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <p>围栏代码块：</p>
@@ -2420,6 +2510,12 @@
 <span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <div class="code-block">
@@ -2437,6 +2533,12 @@
                 <pre><code><span class="k">def</span><span class="w"> </span><span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <div class="code-block">
@@ -2460,7 +2562,28 @@
 <span class="gi">+ 新增行</span>
 <span class="gd">- 删除行</span>
 <span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
+<span class="gi">+ 新增行</span>
+<span class="gd">- 删除行</span>
+<span class="gs">! 注意行</span>
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <div class="code-block">
@@ -2478,6 +2601,401 @@
                 <pre><code>纯文本代码块。
 这里不能直接包含三个反引号，否则会提前结束代码块。
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>很长的代码</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">python</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">minify_html.py —— 压缩 HTML，并同时压缩内联的 &lt;style&gt; / &lt;script&gt;</span>
+
+<span class="sd">依赖：</span>
+<span class="sd">    pip install htmlmin2 rcssmin rjsmin</span>
+
+<span class="sd">用法：</span>
+<span class="sd">    python minify_html.py index.html             # 就地覆盖（会先询问确认）</span>
+<span class="sd">    python minify_html.py index.html -y          # 就地覆盖，不再询问</span>
+<span class="sd">    python minify_html.py index.html -o out.html # 输出到指定文件</span>
+<span class="sd">    python minify_html.py index.html -o -        # 输出到 stdout</span>
+<span class="sd">    cat index.html | python minify_html.py       # 从 stdin 读，写到 stdout</span>
+<span class="sd">    python minify_html.py ./public -y            # 递归压缩目录下所有 HTML（就地覆盖）</span>
+<span class="sd">    python minify_html.py index.html --no-inline # 只压缩 HTML 结构</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">htmlmin</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">rcssmin</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">rjsmin</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;缺少依赖：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">请先安装：pip install htmlmin2 rcssmin rjsmin&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># 内联标签处理</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<span class="n">_STYLE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(&lt;style\b[^&gt;]*&gt;)(.*?)(&lt;/style\s*&gt;)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+<span class="n">_SCRIPT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(&lt;script\b(?P&lt;attrs&gt;[^&gt;]*)&gt;)(?P&lt;body&gt;.*?)(&lt;/script\s*&gt;)&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_TYPE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;\btype\s*=\s*(?:&quot;([^&quot;]*)&quot;|&#39;([^&#39;]*)&#39;|([^\s&gt;]+))&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+
+<span class="c1">#: 这些 type 的 &lt;script&gt; 内容才是 JS，可以交给 rjsmin</span>
+<span class="n">_JS_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;module&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text/javascript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;application/javascript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text/ecmascript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;application/ecmascript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text/jscript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text/livescript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text/x-javascript&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;application/x-javascript&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_js_script</span><span class="p">(</span><span class="n">attrs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;判断 &lt;script ...&gt; 的内容是不是 JavaScript（JSON-LD / importmap 等要跳过）。&quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_TYPE_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># 没写 type，默认就是 JS</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_JS_TYPES</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_minify_style_tags</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;压缩所有 &lt;style&gt; 标签里的 CSS。&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">opening</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">closing</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">opening</span> <span class="o">+</span> <span class="n">closing</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">opening</span> <span class="o">+</span> <span class="n">rcssmin</span><span class="o">.</span><span class="n">cssmin</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">+</span> <span class="n">closing</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] CSS 压缩失败，已跳过：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_STYLE_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_replace</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_minify_script_tags</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;压缩所有内联 &lt;script&gt; 里的 JS（带 src 或非 JS 类型的会跳过）。&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">opening</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;attrs&quot;</span><span class="p">)</span>
+        <span class="n">body</span><span class="p">,</span> <span class="n">closing</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_is_js_script</span><span class="p">(</span><span class="n">attrs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">opening</span> <span class="o">+</span> <span class="n">rjsmin</span><span class="o">.</span><span class="n">jsmin</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">+</span> <span class="n">closing</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] JS 压缩失败，已跳过：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_SCRIPT_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_replace</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># 主压缩函数</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_filter_supported_kwargs</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;把 kwargs 里当前版本 htmlmin.minify 不认识的键剔除掉。</span>
+
+<span class="sd">    htmlmin 与 htmlmin2 的参数集不一样（例如 htmlmin2 去掉了 minify_css /</span>
+<span class="sd">    minify_js），直接传过去会抛 TypeError。这里用签名自省做一层过滤，</span>
+<span class="sd">    既兼容旧版也兼容新版。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="c1"># 如果函数带 **kwargs，就全部保留</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">minify_html_string</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;压缩 HTML 字符串。</span>
+
+<span class="sd">    :param inline: 是否压缩内联的 &lt;style&gt; / &lt;script&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inline</span><span class="p">:</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">_minify_style_tags</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">_minify_script_tags</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;remove_comments&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                 <span class="c1"># 去掉 HTML 注释</span>
+        <span class="s2">&quot;remove_empty_space&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>              <span class="c1"># 去掉标签间多余空白</span>
+        <span class="s2">&quot;remove_all_empty_space&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;reduce_boolean_attributes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>       <span class="c1"># checked=&quot;checked&quot; -&gt; checked</span>
+        <span class="s2">&quot;remove_optional_attribute_quotes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;keep_pre&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                        <span class="c1"># 保留 &lt;pre&gt; 内格式</span>
+        <span class="s2">&quot;pre_tags&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;pre&quot;</span><span class="p">,</span> <span class="s2">&quot;textarea&quot;</span><span class="p">),</span>
+        <span class="c1"># 下面两项只有旧版 htmlmin 支持；htmlmin2 已移除。</span>
+        <span class="c1"># 内联内容在上面已经手动压过，这里关掉即可。不支持的版本会自动忽略。</span>
+        <span class="s2">&quot;minify_css&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;minify_js&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">supported</span> <span class="o">=</span> <span class="n">_filter_supported_kwargs</span><span class="p">(</span><span class="n">htmlmin</span><span class="o">.</span><span class="n">minify</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">dropped</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">supported</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">dropped</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[info] 当前 htmlmin 版本不支持参数：</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dropped</span><span class="p">)</span><span class="si">}</span><span class="s2">，已自动忽略&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">htmlmin</span><span class="o">.</span><span class="n">minify</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="o">**</span><span class="n">supported</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] HTML 压缩失败，返回内联压缩后的结果：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">html</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># 文件 / 目录辅助</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<span class="n">_HTML_EXTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.htm&quot;</span><span class="p">,</span> <span class="s2">&quot;.xhtml&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_confirm</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assume_yes</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;询问用户是否继续。assume_yes 为 True 时直接放行。</span>
+
+<span class="sd">    提示写到 stderr，避免污染 stdout（例如 `&gt; out.html` 重定向时）。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">assume_yes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2"> [y/N] &quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">answer</span><span class="p">:</span>  <span class="c1"># EOF（例如 stdin 被重定向且没有输入）</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_print_stats</span><span class="p">(</span><span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">before</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">after</span> <span class="o">/</span> <span class="n">before</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">before</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: &quot;</span> <span class="k">if</span> <span class="n">label</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">before</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">after</span><span class="si">}</span><span class="s2"> bytes  (-</span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_html_files</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;递归收集目录下所有 HTML 文件（跳过以 . 开头的隐藏目录）。&quot;&quot;&quot;</span>
+    <span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+        <span class="n">dirnames</span><span class="p">[:]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirnames</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_HTML_EXTS</span><span class="p">:</span>
+                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">found</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_directory</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inline</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">assume_yes</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;递归压缩目录下的所有 HTML（就地覆盖）。&quot;&quot;&quot;</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">_collect_html_files</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[info] </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> 下没有找到 HTML 文件&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_confirm</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;将就地压缩 </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> 下的 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个 HTML 文件（会覆盖原文件），是否继续？&quot;</span><span class="p">,</span>
+        <span class="n">assume_yes</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;已取消，未修改任何文件。&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">total_before</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_after</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">failed</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] 读取失败，已跳过 </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">failed</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">minify_html_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] 写入失败，已跳过 </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">failed</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="n">before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">total_before</span> <span class="o">+=</span> <span class="n">before</span>
+        <span class="n">total_after</span> <span class="o">+=</span> <span class="n">after</span>
+        <span class="n">ok</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="n">_print_stats</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">total_after</span> <span class="o">/</span> <span class="n">total_before</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">total_before</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">tail</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;，</span><span class="si">{</span><span class="n">failed</span><span class="si">}</span><span class="s2"> 个失败&quot;</span> <span class="k">if</span> <span class="n">failed</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;完成：</span><span class="si">{</span><span class="n">ok</span><span class="si">}</span><span class="s2"> 个文件，</span><span class="si">{</span><span class="n">total_before</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">total_after</span><span class="si">}</span><span class="s2"> bytes  (-</span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)</span><span class="si">{</span><span class="n">tail</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">failed</span> <span class="k">else</span> <span class="mi">0</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># 命令行</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;压缩 HTML，并同时压缩其中的内联 CSS / JavaScript。&quot;</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;输入 HTML 文件或目录（省略或用 - 表示从 stdin 读取）&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;输出文件；省略时覆盖原文件，用 - 表示写到 stdout（目录输入时不可用）&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;--yes&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;覆盖原文件时不再询问确认&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-inline&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;不压缩内联的 &lt;style&gt;/&lt;script&gt;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;不打印统计信息&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="n">inline</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_inline</span>
+
+    <span class="c1"># ---------- 1) 从 stdin 读取，写到 stdout ----------</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">input</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">):</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">minify_html_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+            <span class="n">_print_stats</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error] 找不到路径：</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="c1"># ---------- 2) 目录：递归就地压缩 ----------</span>
+    <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;[error] 输入是目录时不能使用 -o/--output；目录模式会就地覆盖原文件。&quot;</span><span class="p">,</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">_process_directory</span><span class="p">(</span>
+            <span class="n">target</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">,</span> <span class="n">assume_yes</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">yes</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ---------- 3) 单个文件 ----------</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># 未指定输出 -&gt; 就地覆盖，需要确认</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_confirm</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;是否覆盖原文件 </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">？&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">yes</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;已取消，未修改任何文件。&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="n">out_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">target</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># 写 stdout</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error] 读取失败 </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">minify_html_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">out_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error] 写入失败 </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+        <span class="n">_print_stats</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <h2 id="7-链接">7. 链接</h2>
@@ -2590,6 +3108,12 @@
                 </div>
                 <pre><code><span class="kd">const</span><span class="w"> </span><span class="nx">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$9.9&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// 代码块里的 $ 不会被当公式</span>
 </code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
             <ul>
@@ -2704,7 +3228,7 @@ sequenceDiagram
                 <span class="article-foot__license">
                     本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
                 </span>
-                <span>最后更新于 2026-10-05</span>
+                <span>最后更新于 2026-10-05 14:56:36</span>
             </div>
 
             </div>
@@ -3151,6 +3675,179 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
             });
 
             updateAria();
+        })();
+</script>
+
+<script>
+/* ============================================================
+           代码块折叠 / 展开
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            /* 与 CSS 中 .code-block.has-overflow pre 的 max-height 保持一致 */
+            var FOLD_H = 380;
+            var THRESHOLD = FOLD_H + 20;   /* 留一点容差，避免边缘抖动 */
+
+            /* 为没有按钮的代码块动态补一个（sample.html 里写死的代码块也能受益） */
+            function ensureButton(block) {
+                if (block.querySelector('[data-expand]')) return;
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'code-block__expand';
+                btn.setAttribute('data-expand', '');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.innerHTML =
+                    '<span class="code-block__expand-text">展开</span>' +
+                    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
+                    'stroke-linejoin="round" aria-hidden="true">' +
+                    '<path d="M6 9l6 6 6-6"/></svg>';
+                block.appendChild(btn);
+            }
+
+            function measure() {
+                document.querySelectorAll('.code-block').forEach(function (block) {
+                    var pre = block.querySelector('pre');
+                    if (!pre) return;
+
+                    ensureButton(block);
+
+                    /* scrollHeight 始终返回内容完整高度，不受 max-height 影响 */
+                    var need = pre.scrollHeight > THRESHOLD;
+                    block.classList.toggle('has-overflow', need);
+
+                    if (!need) {
+                        block.classList.remove('is-expanded');
+                        var btn = block.querySelector('[data-expand]');
+                        if (btn) {
+                            btn.setAttribute('aria-expanded', 'false');
+                            var t = btn.querySelector('.code-block__expand-text');
+                            if (t) t.textContent = '展开';
+                        }
+                    }
+                });
+            }
+
+            /* ---------- 展开 / 收起的动态时长 ----------
+               距离越远越慢，近似“恒定速度”；短代码块也不会一闪而过 */
+            var MIN_MS = 300;        /* 最短时长 */
+            var MAX_MS = 7000;        /* 最长时长 */
+            var PX_PER_SEC = 250;   /* 目标速度：px / 秒 */
+
+            function motionReduced() {
+                return !!(window.matchMedia &&
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+            }
+
+            function pickDuration(distance) {
+                /* 用户开启“减弱动态效果”时返回 null，让 CSS 的 .01ms !important 接管 */
+                if (motionReduced()) return null;
+                var ms = (Math.abs(distance) / PX_PER_SEC) * 1000;
+                return Math.round(Math.min(MAX_MS, Math.max(MIN_MS, ms)));
+            }
+
+            function applyDuration(pre, distance, factor) {
+                var d = pickDuration(distance * (factor || 1));
+                /* 空字符串 → 回落到 CSS 里的默认 transition-duration */
+                pre.style.transitionDuration = (d == null) ? '' : d + 'ms';
+            }
+
+            function clearExpandHandler(pre) {
+                if (pre.__expandHandler) {
+                    pre.removeEventListener('transitionend', pre.__expandHandler);
+                    pre.__expandHandler = null;
+                }
+            }
+
+            function setExpandHandler(pre, handler) {
+                clearExpandHandler(pre);
+                pre.__expandHandler = handler;
+                pre.addEventListener('transitionend', handler);
+            }
+
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-expand]') : null;
+    if (!btn) return;
+
+    var block = btn.closest('.code-block');
+    if (!block) return;
+
+    var pre = block.querySelector('pre');
+    if (!pre) return;
+
+    var text = btn.querySelector('.code-block__expand-text');
+    var isExpanded = block.classList.contains('is-expanded');
+
+    if (isExpanded) {
+        /* ===== 收起 ===== */
+        var fullH = pre.scrollHeight;
+        var distance = fullH - FOLD_H;
+
+        pre.style.overflowY = 'hidden';
+        pre.style.maxHeight = fullH + 'px';
+        applyDuration(pre, distance, 0.8);   /* 收起略快一点 */
+        void pre.offsetHeight;
+        pre.style.maxHeight = FOLD_H + 'px';
+
+        block.classList.remove('is-expanded');
+        btn.setAttribute('aria-expanded', 'false');
+        if (text) text.textContent = '展开';
+
+        setExpandHandler(pre, function (ev) {
+            if (ev.propertyName !== 'max-height') return;
+            clearExpandHandler(pre);
+            pre.style.maxHeight = '';
+            pre.style.overflowY = '';
+            pre.style.transitionDuration = '';   /* 清掉内联时长 */
+            pre.scrollTop = 0;
+        });
+    } else {
+        /* ===== 展开 ===== */
+        var endH = pre.scrollHeight;
+        var distance = endH - FOLD_H;
+
+        pre.style.overflowY = 'hidden';
+        pre.style.maxHeight = FOLD_H + 'px';
+        applyDuration(pre, distance, 1);
+        void pre.offsetHeight;
+        pre.style.maxHeight = endH + 'px';
+
+        block.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+        if (text) text.textContent = '收起';
+
+        setExpandHandler(pre, function (ev) {
+            if (ev.propertyName !== 'max-height') return;
+            clearExpandHandler(pre);
+            pre.style.maxHeight = 'none';
+            pre.style.overflowY = '';
+            pre.style.transitionDuration = '';   /* 清掉内联时长 */
+        });
+    }
+});
+
+            function init() {
+                measure();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            /* 字体加载完成后代码块高度可能变化，再测一次 */
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(measure).catch(function () { });
+            }
+
+            /* 窗口尺寸变化时重新测量（折行会改变高度） */
+            var resizeTimer = null;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(measure, 180);
+            }, { passive: true });
         })();
 </script>
 
