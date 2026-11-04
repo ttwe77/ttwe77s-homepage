@@ -14,14 +14,89 @@ from PyQt5.QtWidgets import (
     QLineEdit, QLabel, QPushButton, QPlainTextEdit, QMessageBox,
     QFileDialog, QSizePolicy
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QTextCursor
+from PyQt5.QtCore import Qt, QRect, QSize
+from PyQt5.QtGui import QFont, QTextCursor, QPainter, QColor
 
 class ClickSelectAllLineEdit(QLineEdit):
     """点击时自动全选内容"""
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         self.selectAll()
+
+class LineNumberArea(QWidget):
+    """编辑器左侧的行号栏，由 CodeEditor 负责绘制。"""
+    def __init__(self, editor):
+        super().__init__(editor)
+        self.code_editor = editor
+
+    def sizeHint(self):
+        return QSize(self.code_editor.line_number_area_width(), 0)
+
+    def paintEvent(self, event):
+        self.code_editor.line_number_area_paint_event(event)
+
+
+class CodeEditor(QPlainTextEdit):
+    """带行号显示的 QPlainTextEdit。"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.line_number_area = LineNumberArea(self)
+
+        self.blockCountChanged.connect(self.update_line_number_area_width)
+        self.updateRequest.connect(self.update_line_number_area)
+        self.update_line_number_area_width(0)
+
+    def line_number_area_width(self):
+        digits = 1
+        max_num = max(1, self.blockCount())
+        while max_num >= 10:
+            max_num //= 10
+            digits += 1
+        return 12 + self.fontMetrics().width('9') * digits
+
+    def update_line_number_area_width(self, _=0):
+        self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
+
+    def update_line_number_area(self, rect, dy):
+        if dy:
+            self.line_number_area.scroll(0, dy)
+        else:
+            self.line_number_area.update(
+                0, rect.y(), self.line_number_area.width(), rect.height()
+            )
+        if rect.contains(self.viewport().rect()):
+            self.update_line_number_area_width(0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        cr = self.contentsRect()
+        self.line_number_area.setGeometry(
+            QRect(cr.left(), cr.top(),
+                  self.line_number_area_width(), cr.height())
+        )
+
+    def line_number_area_paint_event(self, event):
+        painter = QPainter(self.line_number_area)
+        painter.fillRect(event.rect(), QColor(245, 245, 245))
+        painter.setPen(QColor(140, 140, 140))
+
+        block = self.firstVisibleBlock()
+        block_number = block.blockNumber()
+        top = self.blockBoundingGeometry(block).translated(self.contentOffset()).top()
+        bottom = top + self.blockBoundingRect(block).height()
+
+        while block.isValid() and top <= event.rect().bottom():
+            if block.isVisible() and bottom >= event.rect().top():
+                painter.drawText(
+                    0, int(top),
+                    self.line_number_area.width() - 6,
+                    self.fontMetrics().height(),
+                    Qt.AlignRight, str(block_number + 1)
+                )
+            block = block.next()
+            top = bottom
+            bottom = top + self.blockBoundingRect(block).height()
+            block_number += 1
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -96,10 +171,12 @@ class MainWindow(QMainWindow):
         root.addLayout(btns)
 
         # ---------- 大编辑器 ----------
-        self.editor = QPlainTextEdit()
+        self.editor = CodeEditor()
         font = QFont("Consolas", 11)
         font.setStyleHint(QFont.Monospace)
         self.editor.setFont(font)
+        self.editor.line_number_area.setFont(font)      # 行号字体与正文一致
+        self.editor.update_line_number_area_width(0)    # 字体变了，重算行号栏宽度
         self.editor.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         root.addWidget(self.editor, 1)
 
