@@ -693,6 +693,60 @@
       margin-top: 2px
     }
 
+/* ===== 文章卡片右上角 X ===== */
+.work__close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, .85);
+  border: 1px solid var(--color-border);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(.85);
+  transition: opacity .2s ease, visibility .2s ease,
+              background .16s ease, color .16s ease,
+              border-color .16s ease, transform .16s ease;
+  cursor: url('src/cursors/link.cur'), pointer;
+}
+
+/* 桌面端：hover / 键盘聚焦时显示 */
+.work:hover .work__close,
+.work:focus-within .work__close {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.work__close:hover {
+  color: #fff;
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+}
+.work__close:active {
+  transform: scale(.88);
+}
+.work__close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 触屏设备没有 hover，直接常显，避免用户找不到 */
+@media (hover: none) {
+  .work__close {
+    opacity: .85;
+    visibility: visible;
+    transform: scale(1);
+  }
+}
+
     .chip {
       display: inline-flex;
       align-items: center;
@@ -3872,6 +3926,15 @@
           return '' +
             '<article class="card work" data-href="' + esc(POST_BASE + item.file) + '"' +
             ' tabindex="0" role="link" aria-label="' + esc(title.text) + '">' +
+
+  /* 右上角 X 按钮 */
+  '<button class="work__close" type="button" aria-label="移除这篇文章">' +
+    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+         'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M18 6L6 18M6 6l12 12"/>' +
+    '</svg>' +
+  '</button>' +
+
             '<div class="work__thumb" style="--c1:' + c[0] + ';--c2:' + c[1] + '">' +
             icon +
             '</div>' +
@@ -4289,15 +4352,38 @@
       /* =========================================================
        *  文章卡片点击（事件委托，兼容动态渲染）
        * =======================================================*/
-      worksEl.addEventListener('click', function (e) {
-        var card = e.target.closest && e.target.closest('.work[data-href]');
-        if (!card) return;
-        var href = card.dataset.href;
-        window.open(href, '_blank', 'noopener,noreferrer');
-      });
+worksEl.addEventListener('click', function (e) {
+  /* ① 点的是 X：只移除卡片，不打开文章 */
+  var closeBtn = e.target.closest && e.target.closest('.work__close');
+  if (closeBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var card = closeBtn.closest('.work');
+    if (!card) return;
+
+    card.style.transition = 'opacity .25s ease, transform .25s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(.96)';
+    card.style.pointerEvents = 'none';
+
+    setTimeout(function () {
+      if (card.parentNode) card.parentNode.removeChild(card);
+    }, 250);
+    return;
+  }
+
+  /* ② 普通点击卡片：打开文章 */
+  var card = e.target.closest && e.target.closest('.work[data-href]');
+  if (!card) return;
+  var href = card.dataset.href;
+  window.open(href, '_blank', 'noopener,noreferrer');
+});
 
       worksEl.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
+        /* 焦点在 X 按钮上，让按钮自己处理，不要触发卡片跳转 */
+  if (e.target.closest && e.target.closest('.work__close')) return;
         var card = e.target.closest && e.target.closest('.work[data-href]');
         if (!card) return;
         e.preventDefault();
