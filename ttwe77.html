@@ -3478,6 +3478,50 @@
     :root[data-theme="dark"] .hover-hint__tooltip.is-below::after {
       border-bottom-color: var(--color-bg-white);
     }
+
+    /* —— View Transitions：模糊溶解 —— */
+    ::view-transition-old(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+
+    ::view-transition-new(root) {
+      animation: theme-blur-dissolve .55s cubic-bezier(.65, .05, .36, 1) both;
+      background-color: var(--color-bg-light, #fff);
+    }
+
+    @keyframes theme-blur-dissolve {
+      from {
+        opacity: 0;
+        filter: blur(20px);
+        transform: scale(1.015);
+        /* 稍微放大，防止模糊边缘透出旧内容 */
+      }
+
+      to {
+        opacity: 1;
+        filter: blur(0);
+        transform: scale(1);
+      }
+    }
+
+    /* —— 兜底：不支持 View Transitions 时，用旧底色层做淡出溶解 —— */
+    .theme-dissolve {
+      position: fixed;
+      inset: 0;
+      z-index: 999998;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .45s cubic-bezier(.65, .05, .36, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 
@@ -3499,8 +3543,7 @@
     <div class="topbar__spacer"></div>
 
     <!-- 主题切换 -->
-    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式"
-      aria-pressed="false">
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
       <svg class="icon-btn__sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="4.5" />
@@ -5125,12 +5168,46 @@
 
       sync();
 
-      if (btn) {
-        btn.addEventListener('click', function () {
-          apply(isDark() ? 'light' : 'dark', true);
-        });
+      function prefersReducedMotion() {
+        return window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       }
 
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var theme = isDark() ? 'light' : 'dark';
+
+          if (prefersReducedMotion()) {
+            apply(theme, true);
+            return;
+          }
+
+          if (typeof document.startViewTransition === 'function') {
+            // 主力方案：新主题从模糊中淡入，覆盖旧主题
+            document.startViewTransition(function () {
+              apply(theme, true);
+            });
+          } else {
+            // 兜底方案：旧底色覆盖 → 淡出 → 露出新主题
+            var overlay = document.createElement('div');
+            overlay.className = 'theme-dissolve';
+            overlay.style.background = getComputedStyle(document.body).backgroundColor;
+            document.body.appendChild(overlay);
+
+            void overlay.offsetWidth;     // 强制回流，确保起始状态生效
+
+            apply(theme, true);           // 现在有层挡着，用户看不到瞬切
+
+            requestAnimationFrame(function () {
+              overlay.style.opacity = '0';
+            });
+
+            setTimeout(function () {
+              if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 550);
+          }
+        });
+      }
       /* 用户没手动选过时，跟随系统偏好变化 */
       if (mq && mq.addEventListener) {
         mq.addEventListener('change', function (e) {

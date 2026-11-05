@@ -2403,6 +2403,56 @@
         :root[data-theme="dark"] .mermaid-wrap {
             background: var(--color-bg-white);
         }
+                /* —— View Transitions：模糊溶解 —— */
+        ::view-transition-old(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
+
+        ::view-transition-new(root) {
+            animation: theme-blur-dissolve .55s cubic-bezier(.65, .05, .36, 1) both;
+            background-color: var(--color-bg-light, #fff);
+        }
+
+        @keyframes theme-blur-dissolve {
+            from {
+                opacity: 0;
+                filter: blur(20px);
+                transform: scale(1.015);   /* 稍微放大，防止模糊边缘透出旧内容 */
+            }
+            to {
+                opacity: 1;
+                filter: blur(0);
+                transform: scale(1);
+            }
+        }
+
+        /* —— 兜底：不支持 View Transitions 时，用旧底色层做淡出溶解 —— */
+        .theme-dissolve {
+            position: fixed;
+            inset: 0;
+            z-index: 999998;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity .45s cubic-bezier(.65, .05, .36, 1);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            ::view-transition-old(root),
+            ::view-transition-new(root) {
+                animation: none !important;
+            }
+        }
+        /* 深色模式下，对文章内的原生 SVG 图表进行反色适配 */
+:root[data-theme="dark"] .article-body svg {
+    /* 将白色变深色，黑色变亮色，同时纠正色相 */
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* 排除 Mermaid 渲染的图表（因为 Mermaid 已经由 JS 自己切换了深色主题，不需要反色） */
+:root[data-theme="dark"] .mermaid-wrap svg {
+    filter: none;
+}
 
     </style>
 </head>
@@ -4130,9 +4180,44 @@ document.addEventListener('click', function (e) {
 
             sync();
 
+            function prefersReducedMotion() {
+                return window.matchMedia &&
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            }
+
             if (btn) {
                 btn.addEventListener('click', function () {
-                    apply(isDark() ? 'light' : 'dark', true);
+                    var theme = isDark() ? 'light' : 'dark';
+
+                    if (prefersReducedMotion()) {
+                        apply(theme, true);
+                        return;
+                    }
+
+                    if (typeof document.startViewTransition === 'function') {
+                        // 主力方案：新主题从模糊中淡入，覆盖旧主题
+                        document.startViewTransition(function () {
+                            apply(theme, true);
+                        });
+                    } else {
+                        // 兜底方案：旧底色覆盖 → 淡出 → 露出新主题
+                        var overlay = document.createElement('div');
+                        overlay.className = 'theme-dissolve';
+                        overlay.style.background = getComputedStyle(document.body).backgroundColor;
+                        document.body.appendChild(overlay);
+
+                        void overlay.offsetWidth;     // 强制回流，确保起始状态生效
+
+                        apply(theme, true);           // 现在有层挡着，用户看不到瞬切
+
+                        requestAnimationFrame(function () {
+                            overlay.style.opacity = '0';
+                        });
+
+                        setTimeout(function () {
+                            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                        }, 550);
+                    }
                 });
             }
 

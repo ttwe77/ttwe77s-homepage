@@ -31,25 +31,25 @@
   <meta property="og:description" content="互联网很大，一个人折腾有点孤单。这里放一些我常去逛的小站。">
   <meta property="og:locale" content="zh_CN">
   <link rel="canonical" href="https://www.ttwe77.cn/friends/">
-<script type="module">
-  import { BAClickFX } from '/libs/ba-click-fx.js';
-  const fx = new BAClickFX();
-  fx.updateConfig({ trailAlways: true });
-  fx.setCompositingReference({ hostCompositing: 'screen' });
+  <script type="module">
+    import { BAClickFX } from '/libs/ba-click-fx.js';
+    const fx = new BAClickFX();
+    fx.updateConfig({ trailAlways: true });
+    fx.setCompositingReference({ hostCompositing: 'screen' });
 
-  function applyFxTheme() {
-    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
-    fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
-  }
-  applyFxTheme();
+    function applyFxTheme() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
+      fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
+    }
+    applyFxTheme();
 
-  // 跟随主题切换
-  new MutationObserver(applyFxTheme).observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-theme']
-  });
-</script>
+    // 跟随主题切换
+    new MutationObserver(applyFxTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+  </script>
 
   <style>
     /* ============ 设计令牌 ============ */
@@ -1432,11 +1432,11 @@
       display: none;
     }
 
-/* 深色模式下的 Logo 适配 */
-:root[data-theme="dark"] .topbar__logo img {
-  /* 反转颜色后，黑色变白，蓝色变成橙红，再利用色相旋转将橙红转回蓝色 */
-  filter: invert(1) hue-rotate(180deg) brightness(1.2);
-}
+    /* 深色模式下的 Logo 适配 */
+    :root[data-theme="dark"] .topbar__logo img {
+      /* 反转颜色后，黑色变白，蓝色变成橙红，再利用色相旋转将橙红转回蓝色 */
+      filter: invert(1) hue-rotate(180deg) brightness(1.2);
+    }
 
     :root[data-theme="dark"] .icon-btn__sun {
       display: none;
@@ -1540,6 +1540,101 @@
       border-top-color: transparent;
       border-bottom-color: var(--color-bg-white);
     }
+
+    /* —— View Transitions：模糊溶解 —— */
+    ::view-transition-old(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+
+    ::view-transition-new(root) {
+      animation: theme-blur-dissolve .55s cubic-bezier(.65, .05, .36, 1) both;
+      background-color: var(--color-bg-light, #fff);
+    }
+
+    @keyframes theme-blur-dissolve {
+      from {
+        opacity: 0;
+        filter: blur(20px);
+        transform: scale(1.015);
+        /* 稍微放大，防止模糊边缘透出旧内容 */
+      }
+
+      to {
+        opacity: 1;
+        filter: blur(0);
+        transform: scale(1);
+      }
+    }
+
+    /* —— 兜底：不支持 View Transitions 时，用旧底色层做淡出溶解 —— */
+    .theme-dissolve {
+      position: fixed;
+      inset: 0;
+      z-index: 999998;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .45s cubic-bezier(.65, .05, .36, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none !important;
+      }
+    }
+
+    /* ============ 滚动条美化 ============ */
+    :root {
+      --scrollbar-size: 10px;
+      --scrollbar-track: transparent;
+      --scrollbar-thumb: rgba(33, 165, 227, .32);
+      --scrollbar-thumb-hover: rgba(33, 165, 227, .55);
+      --scrollbar-thumb-active: rgba(33, 165, 227, .75);
+    }
+
+    /* Firefox */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+
+    /* WebKit / Chromium / Safari / Edge */
+    ::-webkit-scrollbar {
+      width: var(--scrollbar-size);
+      height: var(--scrollbar-size);
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+      background-color: var(--scrollbar-thumb-active);
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    /* 深色模式：换成偏白的滚动条 */
+    :root[data-theme="dark"] {
+      --scrollbar-thumb: rgba(171, 215, 255, .3);
+      --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
+      --scrollbar-thumb-active: rgba(171, 215, 255, .7);
+    }
   </style>
 </head>
 
@@ -1563,8 +1658,7 @@
 
     <div class="topbar__spacer"></div>
 
-    <button class="icon-btn" type="button" id="btn-theme" aria-label="切换到深色模式" title="切换到深色模式"
-      aria-pressed="false">
+    <button class="icon-btn" type="button" id="btn-theme" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
       <svg class="icon-btn__sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="4.5" />
@@ -1660,28 +1754,36 @@
 
     <section class="friends reveal" id="thanks" aria-label="特别鸣谢列表">
       <!-- THANKS:START -->
-      <a class="friend" href="https://space.bilibili.com/1530325561" target="_blank" rel="noopener noreferrer" style="--c1:#8AB4F8;--c2:#5E8BFF;--i:0">
-              <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/tempting.avif" alt="" width="50" height="50" loading="lazy" onerror="this.remove()"><span>T</span></span>
-              <span class="friend__main">
-                <span class="friend__top">
-                  <span class="friend__name">Tempting</span>
-                </span>
-                <span class="friend__desc" title="学工程的，土木工程计算机工程铁道工程...啥工程都会">学工程的，土木工程计算机工程铁道工程...啥工程都会</span>
-                <span class="friend__tags"><span class="chip">非男同</span><span class="chip">技术党</span><span class="chip">冲浪</span></span>
-              </span>
-              <span class="friend__go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
-            </a>
+      <a class="friend" href="https://space.bilibili.com/1530325561" target="_blank" rel="noopener noreferrer"
+        style="--c1:#8AB4F8;--c2:#5E8BFF;--i:0">
+        <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/tempting.avif" alt="" width="50"
+            height="50" loading="lazy" onerror="this.remove()"><span>T</span></span>
+        <span class="friend__main">
+          <span class="friend__top">
+            <span class="friend__name">Tempting</span>
+          </span>
+          <span class="friend__desc" title="学工程的，土木工程计算机工程铁道工程...啥工程都会">学工程的，土木工程计算机工程铁道工程...啥工程都会</span>
+          <span class="friend__tags"><span class="chip">非男同</span><span class="chip">技术党</span><span
+              class="chip">冲浪</span></span>
+        </span>
+        <span class="friend__go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7" />
+            <path d="M8 7h9v9" />
+          </svg></span>
+      </a>
       <div class="friend friend--static" style="--c1:#7FC4EA;--c2:#21a5e3;--i:1">
-              <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/very.avif" alt="" width="50" height="50" loading="lazy" onerror="this.remove()"><span>V</span></span>
-              <span class="friend__main">
-                <span class="friend__top">
-                  <span class="friend__name">VeryStorm</span>
-                </span>
-                <span class="friend__desc" title="游离的魂魄">游离的魂魄</span>
-                <span class="friend__tags"><span class="chip">高三牲</span></span>
-              </span>
-        
-            </div>
+        <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/very.avif" alt="" width="50" height="50"
+            loading="lazy" onerror="this.remove()"><span>V</span></span>
+        <span class="friend__main">
+          <span class="friend__top">
+            <span class="friend__name">VeryStorm</span>
+          </span>
+          <span class="friend__desc" title="游离的魂魄">游离的魂魄</span>
+          <span class="friend__tags"><span class="chip">高三牲</span></span>
+        </span>
+
+      </div>
       <!-- THANKS:END -->
     </section>
 
@@ -2194,9 +2296,44 @@
 
       sync();
 
+      function prefersReducedMotion() {
+        return window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      }
+
       if (btn) {
         btn.addEventListener('click', function () {
-          apply(isDark() ? 'light' : 'dark', true);
+          var theme = isDark() ? 'light' : 'dark';
+
+          if (prefersReducedMotion()) {
+            apply(theme, true);
+            return;
+          }
+
+          if (typeof document.startViewTransition === 'function') {
+            // 主力方案：新主题从模糊中淡入，覆盖旧主题
+            document.startViewTransition(function () {
+              apply(theme, true);
+            });
+          } else {
+            // 兜底方案：旧底色覆盖 → 淡出 → 露出新主题
+            var overlay = document.createElement('div');
+            overlay.className = 'theme-dissolve';
+            overlay.style.background = getComputedStyle(document.body).backgroundColor;
+            document.body.appendChild(overlay);
+
+            void overlay.offsetWidth;     // 强制回流，确保起始状态生效
+
+            apply(theme, true);           // 现在有层挡着，用户看不到瞬切
+
+            requestAnimationFrame(function () {
+              overlay.style.opacity = '0';
+            });
+
+            setTimeout(function () {
+              if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 550);
+          }
         });
       }
 
