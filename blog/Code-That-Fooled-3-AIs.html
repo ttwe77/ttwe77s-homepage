@@ -2461,6 +2461,12 @@
             filter: none;
         }
 
+        /* 深色模式下的 Logo 适配 */
+        :root[data-theme="dark"] .topbar__avatar img {
+            /* 反转颜色后，黑色变白，蓝色变成橙红，再利用色相旋转将橙红转回蓝色 */
+            filter: invert(1) hue-rotate(180deg) brightness(1.2);
+        }
+
     </style>
 </head>
 
