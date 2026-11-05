@@ -3422,6 +3422,17 @@
     :root[data-theme="dark"] .btn-confirm:hover {
       filter: brightness(1.12);
     }
+    /* ===== 深色模式下压暗文章缩略图颜色 ===== */
+:root[data-theme="dark"] .work__thumb {
+  /* 利用多重背景，在最上层叠加一层 65% 透明度的黑色遮罩 */
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.65)),
+              linear-gradient(135deg, var(--c1), var(--c2));
+}
+
+/* 深色模式下，缩略图上的网格线也变暗一点，避免刺眼 */
+:root[data-theme="dark"] .work__thumb::after {
+  opacity: 0.2;
+}
   </style>
 </head>
 
@@ -5328,141 +5339,176 @@
       });
     })();
   </script>
-  <script>
-    /* ============================================================
-   悬停提示框（事件委托版）
-   支持动态插入的 .hover-hint，例如第3页能力参数里的 i5-3570
-   ============================================================ */
-    (function () {
-      var active = null;      // 当前显示的 tooltip 元素
-      var activeHint = null;  // 当前对应的 .hover-hint 元素
+ <script>
+  /* ============================================================
+     悬停提示框（事件委托版）
+     支持动态插入的 .hover-hint
+     ============================================================ */
+  (function () {
+    var active      = null;   // 当前显示的 tooltip
+    var activeHint  = null;   // 对应的 .hover-hint
+    var pendingHint = null;   // 等待显示（延迟中）的 .hover-hint
+    var showTimer   = 0;
+    var rafId       = 0;
 
-      // 获取 tooltip，并把它移动到 body 下，避免被 overflow 裁剪
-      function getTooltip(hint) {
-        if (!hint) return null;
+    var SHOW_DELAY = 120;     // 悬停多久才弹出；想零延迟改成 0 即可
+    var PAD = 8;
+    var GAP = 10;
 
-        var tooltip = hint.__tooltip;
-        if (tooltip && tooltip.parentNode) return tooltip;
+    function getTooltip(hint) {
+      if (!hint) return null;
 
-        tooltip = hint.querySelector('.hover-hint__tooltip');
-        if (!tooltip) return null;
+      var tooltip = hint.__tooltip;
+      if (tooltip && tooltip.parentNode) return tooltip;
 
-        hint.__tooltip = tooltip;
-        tooltip.__hint = hint;
-        document.body.appendChild(tooltip);
-        return tooltip;
+      tooltip = hint.querySelector('.hover-hint__tooltip');
+      if (!tooltip) return null;
+
+      hint.__tooltip = tooltip;
+      tooltip.__hint = hint;
+      document.body.appendChild(tooltip);
+      return tooltip;
+    }
+
+    function place(hint, tooltip) {
+      tooltip.style.left = '-9999px';
+      tooltip.style.top  = '-9999px';
+
+      var r  = hint.getBoundingClientRect();
+      var tw = tooltip.offsetWidth;
+      var th = tooltip.offsetHeight;
+
+      var cx   = r.left + r.width / 2;
+      var left = cx - tw / 2;
+      if (left < PAD) left = PAD;
+      var maxLeft = window.innerWidth - tw - PAD;
+      if (left > maxLeft) left = Math.max(PAD, maxLeft);
+
+      var top   = r.top - GAP - th;
+      var below = false;
+      if (top < PAD) {
+        top   = r.bottom + GAP;
+        below = true;
       }
 
-      // 定位
-      function place(hint, tooltip) {
-        var pad = 8;   // 距视口边缘的最小间距
-        var gap = 10;  // tooltip 与元素的间距
+      tooltip.style.left = left + 'px';
+      tooltip.style.top  = top  + 'px';
+      tooltip.classList.toggle('is-below', below);
+    }
 
-        tooltip.style.left = '-9999px';
-        tooltip.style.top = '-9999px';
+    /* 收掉 body 上所有还挂着 is-visible 的 tooltip（except 除外）
+       —— rAF 乱序 / 主线程卡顿时的最后一道保险 */
+    function clearStale(except) {
+      var list = document.querySelectorAll('.hover-hint__tooltip.is-visible');
+      Array.prototype.forEach.call(list, function (el) {
+        if (el === except) return;
+        el.classList.remove('is-visible');
+      });
+    }
 
-        var r = hint.getBoundingClientRect();
-        var tw = tooltip.offsetWidth;
-        var th = tooltip.offsetHeight;
+    function commitShow(hint) {
+      var tooltip = getTooltip(hint);
+      if (!tooltip) return;
 
-        // 水平：以元素中心对齐，超出视口则贴边
-        var cx = r.left + r.width / 2;
-        var left = cx - tw / 2;
-        if (left < pad) left = pad;
-        var maxLeft = window.innerWidth - tw - pad;
-        if (left > maxLeft) left = Math.max(pad, maxLeft);
+      clearStale(tooltip);          // 顺手清掉可能残留的其它 tooltip
 
-        // 垂直：默认在上方；上方放不下则翻到下方
-        var top = r.top - gap - th;
-        var below = false;
-        if (top < pad) {
-          top = r.bottom + gap;
-          below = true;
-        }
+      active     = tooltip;
+      activeHint = hint;
 
-        tooltip.style.left = left + 'px';
-        tooltip.style.top = top + 'px';
-        tooltip.classList.toggle('is-below', below);
+      place(hint, tooltip);
+
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(function () {
+        rafId = 0;
+        /* ★ 关键：期间已经切到别的词条 / 已关闭，就丢弃这次显示 */
+        if (active !== tooltip) return;
+        tooltip.classList.add('is-visible');
+      });
+    }
+
+    function scheduleShow(hint) {
+      // 已经在显示，且确实是这个 hint → 无需重复
+      if (activeHint === hint && active && active.classList.contains('is-visible')) return;
+      if (pendingHint === hint) return;
+
+      pendingHint = hint;
+      if (showTimer) clearTimeout(showTimer);
+      showTimer = setTimeout(function () {
+        showTimer   = 0;
+        var target  = pendingHint;
+        pendingHint = null;
+        if (!target) return;
+        commitShow(target);
+      }, SHOW_DELAY);
+    }
+
+    function cancelPending(hint) {
+      if (hint && pendingHint && pendingHint !== hint) return;
+      pendingHint = null;
+      if (showTimer) { clearTimeout(showTimer); showTimer = 0; }
+    }
+
+    function hide(hint) {
+      var tooltip = null;
+      if (hint) tooltip = hint.__tooltip || hint.querySelector('.hover-hint__tooltip');
+      if (!tooltip && (!hint || activeHint === hint)) tooltip = active;
+
+      if (!tooltip) return;
+      tooltip.classList.remove('is-visible');
+
+      if (active === tooltip) {
+        active     = null;
+        activeHint = null;
       }
+    }
 
-      // 显示
-      function show(hint) {
-        var tooltip = getTooltip(hint);
-        if (!tooltip) return;
-        if (active === tooltip) return;
+    function hideAll() {
+      cancelPending();
+      clearStale(null);
+      active     = null;
+      activeHint = null;
+    }
 
-        if (active) active.classList.remove('is-visible');
+    /* —— 事件委托 —— */
+    document.addEventListener('mouseover', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+      scheduleShow(hint);
+    });
 
-        active = tooltip;
-        activeHint = hint;
+    document.addEventListener('mouseout', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
 
-        place(hint, tooltip);
-        requestAnimationFrame(function () {
-          tooltip.classList.add('is-visible');
-        });
-      }
+      // 只是在 hint 内部元素之间移动，不隐藏
+      var related = e.relatedTarget;
+      if (related && hint.contains(related)) return;
 
-      // 隐藏
-      function hide(hint) {
-        var tooltip = hint
-          ? (hint.__tooltip || hint.querySelector('.hover-hint__tooltip'))
-          : active;
+      cancelPending(hint);
+      hide(hint);
+    });
 
-        if (!tooltip) return;
-        tooltip.classList.remove('is-visible');
+    /* 键盘聚焦：立即显示，不走延迟 */
+    document.addEventListener('focusin', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+      cancelPending(hint);
+      commitShow(hint);
+    });
 
-        if (active === tooltip) {
-          active = null;
-          activeHint = null;
-        }
-      }
+    document.addEventListener('focusout', function (e) {
+      var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
+      if (!hint) return;
+      cancelPending(hint);
+      hide(hint);
+    });
 
-      // 鼠标进入
-      document.addEventListener('mouseover', function (e) {
-        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-        if (!hint) return;
-        show(hint);
-      });
-
-      // 鼠标离开
-      document.addEventListener('mouseout', function (e) {
-        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-        if (!hint) return;
-
-        // 如果只是移动到该 hint 的子元素，不隐藏
-        var related = e.relatedTarget;
-        if (related && hint.contains(related)) return;
-
-        hide(hint);
-      });
-
-      // 键盘聚焦
-      document.addEventListener('focusin', function (e) {
-        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-        if (!hint) return;
-        show(hint);
-      });
-
-      document.addEventListener('focusout', function (e) {
-        var hint = e.target.closest ? e.target.closest('.hover-hint') : null;
-        if (!hint) return;
-        hide(hint);
-      });
-
-      // 滚动 / 缩放 / 触屏时隐藏
-      window.addEventListener('scroll', function () {
-        if (active && activeHint) hide(activeHint);
-      }, true);
-
-      window.addEventListener('resize', function () {
-        if (active && activeHint) hide(activeHint);
-      });
-
-      document.addEventListener('touchstart', function () {
-        if (active && activeHint) hide(activeHint);
-      }, { passive: true });
-    })();
-  </script>
+    /* 滚动 / 缩放 / 触屏：全部收起，不留尾巴 */
+    window.addEventListener('scroll', hideAll, true);
+    window.addEventListener('resize', hideAll);
+    document.addEventListener('touchstart', hideAll, { passive: true });
+  })();
+</script>
   <script>
     /* ============================================================
        OpenPGP 公钥卡片
