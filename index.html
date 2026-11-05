@@ -5,6 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#21a5e3">
+
+  <!-- 主题初始化：在样式解析前决定深色 / 浅色，避免刷新时闪白 -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var dark = saved
+          ? saved === 'dark'
+          : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
   <title>七七的折腾笔记 | 技术·游戏·日常</title>
   <link rel="icon" href="/src/favicon.svg">
   <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
@@ -37,7 +53,19 @@
     const fx = new BAClickFX();
     fx.updateConfig({ trailAlways: true });
     fx.setCompositingReference({ hostCompositing: 'screen' });
-    fx.setThemeColor('#80c1ff');
+
+    function applyFxTheme() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
+      fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
+    }
+    applyFxTheme();
+
+    // 跟随主题切换
+    new MutationObserver(applyFxTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
   </script>
   <style>
     /* ============ 设计令牌 ============ */
@@ -693,59 +721,61 @@
       margin-top: 2px
     }
 
-/* ===== 文章卡片右上角 X ===== */
-.work__close {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 3;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, .85);
-  border: 1px solid var(--color-border);
-  opacity: 0;
-  visibility: hidden;
-  transform: scale(.85);
-  transition: opacity .2s ease, visibility .2s ease,
-              background .16s ease, color .16s ease,
-              border-color .16s ease, transform .16s ease;
-  cursor: url('src/cursors/link.cur'), pointer;
-}
+    /* ===== 文章卡片右上角 X ===== */
+    .work__close {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 3;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--color-text-secondary);
+      background: rgba(255, 255, 255, .85);
+      border: 1px solid var(--color-border);
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(.85);
+      transition: opacity .2s ease, visibility .2s ease,
+        background .16s ease, color .16s ease,
+        border-color .16s ease, transform .16s ease;
+      cursor: url('src/cursors/link.cur'), pointer;
+    }
 
-/* 桌面端：hover / 键盘聚焦时显示 */
-.work:hover .work__close,
-.work:focus-within .work__close {
-  opacity: 1;
-  visibility: visible;
-  transform: scale(1);
-}
+    /* 桌面端：hover / 键盘聚焦时显示 */
+    .work:hover .work__close,
+    .work:focus-within .work__close {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
 
-.work__close:hover {
-  color: #fff;
-  background: var(--color-danger);
-  border-color: var(--color-danger);
-}
-.work__close:active {
-  transform: scale(.88);
-}
-.work__close:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
+    .work__close:hover {
+      color: #fff;
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+    }
 
-/* 触屏设备没有 hover，直接常显，避免用户找不到 */
-@media (hover: none) {
-  .work__close {
-    opacity: .85;
-    visibility: visible;
-    transform: scale(1);
-  }
-}
+    .work__close:active {
+      transform: scale(.88);
+    }
+
+    .work__close:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* 触屏设备没有 hover，直接常显，避免用户找不到 */
+    @media (hover: none) {
+      .work__close {
+        opacity: .85;
+        visibility: visible;
+        transform: scale(1);
+      }
+    }
 
     .chip {
       display: inline-flex;
@@ -3053,35 +3083,301 @@
     .posts-sidebar .panel__head {
       padding-right: 24px;
     }
-/* ===== 侧栏全部隐藏后，文章列表平滑占满并居中 ===== */
-.posts-layout {
-  transition:
-    grid-template-columns .55s var(--page-ease),
-    gap .55s var(--page-ease);
-}
 
-/* 保留两列轨道，只把第一列压到 0 —— grid-template-columns 才能插值 */
-.posts-layout.is-solo {
-  grid-template-columns: minmax(0, 0px) minmax(0, 1fr);
-  gap: 0;
-}
+    /* ===== 侧栏全部隐藏后，文章列表平滑占满并居中 ===== */
+    .posts-layout {
+      transition:
+        grid-template-columns .55s var(--page-ease),
+        gap .55s var(--page-ease);
+    }
 
-.posts-layout.is-solo .posts-sidebar {
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
+    /* 保留两列轨道，只把第一列压到 0 —— grid-template-columns 才能插值 */
+    .posts-layout.is-solo {
+      grid-template-columns: minmax(0, 0px) minmax(0, 1fr);
+      gap: 0;
+    }
 
-/* 窄屏本来就是单列，直接隐藏侧栏，不做轨道过渡 */
-@media (max-width: 860px) {
-  .posts-layout.is-solo {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .posts-layout.is-solo .posts-sidebar {
-    display: none;
-  }
-}
+    .posts-layout.is-solo .posts-sidebar {
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* 窄屏本来就是单列，直接隐藏侧栏，不做轨道过渡 */
+    @media (max-width: 860px) {
+      .posts-layout.is-solo {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .posts-layout.is-solo .posts-sidebar {
+        display: none;
+      }
+    }
+
+    /* ==================== 深色模式 ==================== */
+    .icon-btn__moon {
+      display: none;
+    }
+
+    :root[data-theme="dark"] .icon-btn__sun {
+      display: none;
+    }
+
+    :root[data-theme="dark"] .icon-btn__moon {
+      display: block;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+
+      --color-primary: #4FB8F0;
+      --color-primary-hover: #7ACDFF;
+      --color-primary-active: #35A0D8;
+      --color-blue-light: #6FA8D6;
+      --color-periwinkle: #9A9DE8;
+      --color-orchid: #8C9BFF;
+
+      --color-bg-white: #1B2230;
+      --color-bg-light: #12161F;
+      --color-bg-soft: #232B3A;
+      --color-border: #2B3546;
+      --color-border-strong: #3B465C;
+
+      --color-text-primary: #EAF2FA;
+      --color-text-body: #C6D2E0;
+      --color-text-secondary: #93A3B8;
+      --color-text-disabled: #6B7A8E;
+
+      --color-danger: #FF6B75;
+      --color-success: #4ED08A;
+      --color-warning: #FFD84D;
+
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, .38);
+      --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .5);
+    }
+
+    :root[data-theme="dark"] body::before {
+      background:
+        radial-gradient(circle at 10% 4%, rgba(79, 184, 240, .16), transparent 42%),
+        radial-gradient(circle at 92% -4%, rgba(68, 84, 248, .18), transparent 46%),
+        radial-gradient(circle at 72% 96%, rgba(140, 155, 255, .12), transparent 46%);
+    }
+
+    :root[data-theme="dark"] body::after {
+      background-image:
+        linear-gradient(rgba(79, 184, 240, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 184, 240, .05) 1px, transparent 1px);
+    }
+
+    :root[data-theme="dark"] .topbar {
+      background: rgba(18, 22, 31, .92);
+      border-bottom-color: rgba(255, 255, 255, .07);
+    }
+
+    :root[data-theme="dark"] .brand__name {
+      color: var(--color-text-primary);
+    }
+
+    :root[data-theme="dark"] .icon-btn {
+      color: #AFC4DD;
+    }
+
+    :root[data-theme="dark"] .icon-btn:hover {
+      background: rgba(175, 196, 221, .1);
+    }
+
+    :root[data-theme="dark"] .masthead__title {
+      background: linear-gradient(118deg, #67C8F5 0%, #8FD8FF 52%, #B4E4FF 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    :root[data-theme="dark"] .btn--secondary {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .works__state {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .works-pager__btn {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .work__close {
+      background: rgba(27, 34, 48, .85);
+    }
+
+    :root[data-theme="dark"] .footer {
+      border-color: rgba(255, 255, 255, .1);
+      background: rgba(27, 34, 48, .55);
+      box-shadow:
+        0 6px 24px rgba(0, 0, 0, .32),
+        inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      :root[data-theme="dark"] .footer {
+        background: rgba(27, 34, 48, .94);
+      }
+    }
+
+    :root[data-theme="dark"] .topbar-menu {
+      background: rgba(20, 26, 36, .96);
+      border-color: rgba(255, 255, 255, .1);
+    }
+
+    :root[data-theme="dark"] .mp {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .mp__head {
+      background: linear-gradient(180deg, #1E2634, #1B2230);
+    }
+
+    :root[data-theme="dark"] .mp__volume-pop {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .modal-box {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .modal-question {
+      color: var(--color-text-primary);
+    }
+
+    :root[data-theme="dark"] .modal-subtext {
+      color: var(--color-text-secondary);
+    }
+
+    :root[data-theme="dark"] .modal-stepper {
+      border-color: var(--color-border);
+      background: var(--color-bg-soft);
+    }
+
+    :root[data-theme="dark"] .step-btn {
+      border-color: var(--color-border-strong);
+      background: var(--color-bg-white);
+      color: var(--color-text-secondary);
+    }
+
+    :root[data-theme="dark"] .step-btn:hover {
+      border-color: var(--color-primary);
+      background: var(--color-bg-soft);
+      color: var(--color-text-primary);
+    }
+
+    :root[data-theme="dark"] .step-btn:active {
+      background: var(--color-bg-soft);
+    }
+
+    :root[data-theme="dark"] .step-btn.step-icon {
+      color: #AFC4DD;
+    }
+
+    :root[data-theme="dark"] .pgp-key__head {
+      background: var(--color-bg-soft);
+    }
+
+    :root[data-theme="dark"] .pgp-key__copy {
+      background: rgba(255, 255, 255, .06);
+    }
+
+    :root[data-theme="dark"] .toast {
+      background: rgba(27, 34, 48, .94);
+    }
+
+    :root[data-theme="dark"] .hover-hint__tooltip {
+      background: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .hover-hint__tooltip::after {
+      border-top-color: var(--color-bg-white);
+    }
+
+    :root[data-theme="dark"] .hover-hint__tooltip.is-below::after {
+      border-top-color: transparent;
+      border-bottom-color: var(--color-bg-white);
+    }
+
+    /* ===== 深色模式补丁 ===== */
+
+    /* 深色模式下的 Logo 适配 */
+    :root[data-theme="dark"] .brand__mark img {
+      /* 反转颜色后，黑色变白，蓝色变成橙红，再利用色相旋转将橙红转回蓝色 */
+      filter: invert(1) hue-rotate(180deg) brightness(1.2);
+    }
+
+    /* 顶栏资源数值（AP / 金币 / 青曜石） */
+    :root[data-theme="dark"] .resource {
+      color: var(--color-text-primary);
+    }
+
+    /* 弹窗标题 */
+    :root[data-theme="dark"] .modal-title {
+      color: var(--color-text-primary);
+    }
+
+    /* 弹窗关闭按钮的 X 图标（原来是硬编码 #333，深色下看不见） */
+    :root[data-theme="dark"] .modal-close svg {
+      stroke: var(--color-text-secondary);
+    }
+
+    /* 音乐播放列表 */
+    :root[data-theme="dark"] .mp__playlist {
+      background: var(--color-bg-soft);
+      border-bottom-color: var(--color-border);
+    }
+
+    :root[data-theme="dark"] .mp__playlist-head {
+      background: var(--color-bg-soft);
+      color: var(--color-text-secondary);
+    }
+
+    :root[data-theme="dark"] .mp__playlist-body li:hover {
+      background: rgba(79, 184, 240, .12);
+    }
+
+    :root[data-theme="dark"] .mp__playlist-body li.is-active {
+      background: rgba(79, 184, 240, .18);
+    }
+
+    /* 购买弹窗价格行 */
+    :root[data-theme="dark"] .price-row {
+      background: var(--color-bg-soft);
+    }
+
+    :root[data-theme="dark"] .price-label {
+      color: var(--color-text-primary);
+    }
+
+    /* PGP 公钥展开区 */
+    :root[data-theme="dark"] .pgp-key {
+      background: var(--color-bg-soft);
+    }
+
+    :root[data-theme="dark"] .pgp-key pre {
+      color: var(--color-text-body);
+    }
+
+    /* 弹窗按钮：压低亮度 */
+    :root[data-theme="dark"] .btn-cancel {
+      background: rgba(79, 184, 240, .16);
+      color: var(--color-text-primary);
+    }
+
+    :root[data-theme="dark"] .btn-confirm {
+      background: #8A6E1A;
+      /* 暗金 */
+      color: #FFF6D8;
+    }
+
+    :root[data-theme="dark"] .btn-cancel:hover,
+    :root[data-theme="dark"] .btn-confirm:hover {
+      filter: brightness(1.12);
+    }
   </style>
 </head>
 
@@ -3143,6 +3439,19 @@
         <path d="M9 18V5l12-2v13" />
         <circle cx="6" cy="18" r="3" />
         <circle cx="18" cy="16" r="3" />
+      </svg>
+    </button>
+
+    <!-- ========== 主题切换 ========== -->
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
+      <svg class="icon-btn__sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="4.5" />
+        <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+      </svg>
+      <svg class="icon-btn__moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
       </svg>
     </button>
 
@@ -3927,13 +4236,13 @@
             '<article class="card work" data-href="' + esc(POST_BASE + item.file) + '"' +
             ' tabindex="0" role="link" aria-label="' + esc(title.text) + '">' +
 
-  /* 右上角 X 按钮 */
-  '<button class="work__close" type="button" aria-label="移除这篇文章">' +
-    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-         'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<path d="M18 6L6 18M6 6l12 12"/>' +
-    '</svg>' +
-  '</button>' +
+            /* 右上角 X 按钮 */
+            '<button class="work__close" type="button" aria-label="移除这篇文章">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+            'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '<path d="M18 6L6 18M6 6l12 12"/>' +
+            '</svg>' +
+            '</button>' +
 
             '<div class="work__thumb" style="--c1:' + c[0] + ';--c2:' + c[1] + '">' +
             icon +
@@ -4352,38 +4661,38 @@
       /* =========================================================
        *  文章卡片点击（事件委托，兼容动态渲染）
        * =======================================================*/
-worksEl.addEventListener('click', function (e) {
-  /* ① 点的是 X：只移除卡片，不打开文章 */
-  var closeBtn = e.target.closest && e.target.closest('.work__close');
-  if (closeBtn) {
-    e.preventDefault();
-    e.stopPropagation();
+      worksEl.addEventListener('click', function (e) {
+        /* ① 点的是 X：只移除卡片，不打开文章 */
+        var closeBtn = e.target.closest && e.target.closest('.work__close');
+        if (closeBtn) {
+          e.preventDefault();
+          e.stopPropagation();
 
-    var card = closeBtn.closest('.work');
-    if (!card) return;
+          var card = closeBtn.closest('.work');
+          if (!card) return;
 
-    card.style.transition = 'opacity .25s ease, transform .25s ease';
-    card.style.opacity = '0';
-    card.style.transform = 'scale(.96)';
-    card.style.pointerEvents = 'none';
+          card.style.transition = 'opacity .25s ease, transform .25s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(.96)';
+          card.style.pointerEvents = 'none';
 
-    setTimeout(function () {
-      if (card.parentNode) card.parentNode.removeChild(card);
-    }, 250);
-    return;
-  }
+          setTimeout(function () {
+            if (card.parentNode) card.parentNode.removeChild(card);
+          }, 250);
+          return;
+        }
 
-  /* ② 普通点击卡片：打开文章 */
-  var card = e.target.closest && e.target.closest('.work[data-href]');
-  if (!card) return;
-  var href = card.dataset.href;
-  window.open(href, '_blank', 'noopener,noreferrer');
-});
+        /* ② 普通点击卡片：打开文章 */
+        var card = e.target.closest && e.target.closest('.work[data-href]');
+        if (!card) return;
+        var href = card.dataset.href;
+        window.open(href, '_blank', 'noopener,noreferrer');
+      });
 
       worksEl.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         /* 焦点在 X 按钮上，让按钮自己处理，不要触发卡片跳转 */
-  if (e.target.closest && e.target.closest('.work__close')) return;
+        if (e.target.closest && e.target.closest('.work__close')) return;
         var card = e.target.closest && e.target.closest('.work[data-href]');
         if (!card) return;
         e.preventDefault();
@@ -5408,100 +5717,155 @@ worksEl.addEventListener('click', function (e) {
     })();
   </script>
   <script>
-/* ============================================================
-   侧栏卡片：右上角 X 隐藏
-   全部隐藏后让文章列表独占一行并居中
-   ============================================================ */
-(function () {
-  'use strict';
+    /* ============================================================
+       侧栏卡片：右上角 X 隐藏
+       全部隐藏后让文章列表独占一行并居中
+       ============================================================ */
+    (function () {
+      'use strict';
 
-  var sidebar = document.querySelector('.posts-sidebar');
-  if (!sidebar) return;
+      var sidebar = document.querySelector('.posts-sidebar');
+      if (!sidebar) return;
 
-  var layout = sidebar.closest('.posts-layout');
+      var layout = sidebar.closest('.posts-layout');
 
-  var CLOSE_ICON =
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-    'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M18 6L6 18M6 6l12 12"/></svg>';
+      var CLOSE_ICON =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M18 6L6 18M6 6l12 12"/></svg>';
 
-  /* 检查侧栏是否已经一张可见卡片都不剩 */
-  function checkSidebarEmpty() {
-    if (!layout) return;
+      /* 检查侧栏是否已经一张可见卡片都不剩 */
+      function checkSidebarEmpty() {
+        if (!layout) return;
 
-    var cards = sidebar.querySelectorAll('.card');
-    var anyVisible = false;
+        var cards = sidebar.querySelectorAll('.card');
+        var anyVisible = false;
 
-    Array.prototype.forEach.call(cards, function (c) {
-      if (c.style.display !== 'none') anyVisible = true;
-    });
+        Array.prototype.forEach.call(cards, function (c) {
+          if (c.style.display !== 'none') anyVisible = true;
+        });
 
-    layout.classList.toggle('is-solo', !anyVisible);
-  }
-
-  Array.prototype.forEach.call(sidebar.querySelectorAll('.card'), function (card) {
-    if (card.querySelector('.sidebar-close')) return;
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'sidebar-close';
-    btn.setAttribute('aria-label', '隐藏此卡片');
-    btn.innerHTML = CLOSE_ICON;
-    card.appendChild(btn);
-
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (card.classList.contains('is-collapsing')) return;
-
-      var h = card.offsetHeight;
-      card.style.overflow = 'hidden';
-      card.style.maxHeight = h + 'px';
-      card.style.transition =
-        'max-height .46s cubic-bezier(.65,.05,.36,1),' +
-        'opacity .3s ease,' +
-        'transform .3s ease,' +
-        'padding-top .46s cubic-bezier(.65,.05,.36,1),' +
-        'padding-bottom .46s cubic-bezier(.65,.05,.36,1),' +
-        'margin-top .46s cubic-bezier(.65,.05,.36,1),' +
-        'border-width .46s ease';
-      card.classList.add('is-collapsing');
-
-      void card.offsetHeight;
-
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(8px) scale(.97)';
-      card.style.paddingTop = '0px';
-      card.style.paddingBottom = '0px';
-      card.style.marginTop = '0px';
-      card.style.borderWidth = '0px';
-      card.style.maxHeight = '0px';
-      card.style.pointerEvents = 'none';
-
-      var finished = false;
-      function finish() {
-        if (finished) return;
-        finished = true;
-        card.style.display = 'none';
-        card.style.maxHeight = '';
-        card.style.overflow = '';
-        card.style.transition = '';
-        card.classList.remove('is-collapsing');
-
-        /* ★ 关键：每张卡片隐藏完成后检查一次 */
-        checkSidebarEmpty();
+        layout.classList.toggle('is-solo', !anyVisible);
       }
 
-      card.addEventListener('transitionend', function onEnd(ev) {
-        if (ev.target !== card || ev.propertyName !== 'max-height') return;
-        card.removeEventListener('transitionend', onEnd);
-        finish();
-      });
+      Array.prototype.forEach.call(sidebar.querySelectorAll('.card'), function (card) {
+        if (card.querySelector('.sidebar-close')) return;
 
-      setTimeout(finish, 800);
-    });
-  });
-})();
-</script>
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sidebar-close';
+        btn.setAttribute('aria-label', '隐藏此卡片');
+        btn.innerHTML = CLOSE_ICON;
+        card.appendChild(btn);
+
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (card.classList.contains('is-collapsing')) return;
+
+          var h = card.offsetHeight;
+          card.style.overflow = 'hidden';
+          card.style.maxHeight = h + 'px';
+          card.style.transition =
+            'max-height .46s cubic-bezier(.65,.05,.36,1),' +
+            'opacity .3s ease,' +
+            'transform .3s ease,' +
+            'padding-top .46s cubic-bezier(.65,.05,.36,1),' +
+            'padding-bottom .46s cubic-bezier(.65,.05,.36,1),' +
+            'margin-top .46s cubic-bezier(.65,.05,.36,1),' +
+            'border-width .46s ease';
+          card.classList.add('is-collapsing');
+
+          void card.offsetHeight;
+
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(8px) scale(.97)';
+          card.style.paddingTop = '0px';
+          card.style.paddingBottom = '0px';
+          card.style.marginTop = '0px';
+          card.style.borderWidth = '0px';
+          card.style.maxHeight = '0px';
+          card.style.pointerEvents = 'none';
+
+          var finished = false;
+          function finish() {
+            if (finished) return;
+            finished = true;
+            card.style.display = 'none';
+            card.style.maxHeight = '';
+            card.style.overflow = '';
+            card.style.transition = '';
+            card.classList.remove('is-collapsing');
+
+            /* ★ 关键：每张卡片隐藏完成后检查一次 */
+            checkSidebarEmpty();
+          }
+
+          card.addEventListener('transitionend', function onEnd(ev) {
+            if (ev.target !== card || ev.propertyName !== 'max-height') return;
+            card.removeEventListener('transitionend', onEnd);
+            finish();
+          });
+
+          setTimeout(finish, 800);
+        });
+      });
+    })();
+  </script>
+
+  <!-- ==================== 主题切换 ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      var root = document.documentElement;
+      var btn = document.getElementById('btn-theme');
+      var meta = document.querySelector('meta[name="theme-color"]');
+      var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+      function isDark() {
+        return root.getAttribute('data-theme') === 'dark';
+      }
+
+      function sync() {
+        var dark = isDark();
+        if (btn) {
+          var label = dark ? '切换到浅色模式' : '切换到深色模式';
+          btn.setAttribute('aria-label', label);
+          btn.setAttribute('title', label);
+          btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        }
+        if (meta) {
+          meta.setAttribute('content', dark ? '#12161F' : '#21a5e3');
+        }
+      }
+
+      function apply(theme, persist) {
+        root.setAttribute('data-theme', theme);
+        if (persist) {
+          try { localStorage.setItem('theme', theme); } catch (e) { }
+        }
+        sync();
+      }
+
+      sync();
+
+      if (btn) {
+        btn.addEventListener('click', function () {
+          apply(isDark() ? 'light' : 'dark', true);
+        });
+      }
+
+      /* 用户没手动选过时，跟随系统偏好变化 */
+      if (mq && mq.addEventListener) {
+        mq.addEventListener('change', function (e) {
+          var saved = null;
+          try { saved = localStorage.getItem('theme'); } catch (err) { }
+          if (saved) return;
+          apply(e.matches ? 'dark' : 'light', false);
+        });
+      }
+    })();
+  </script>
 </body>
 
 </html>
