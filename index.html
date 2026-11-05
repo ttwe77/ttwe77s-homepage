@@ -3231,11 +3231,12 @@
       background: rgba(175, 196, 221, .1);
     }
 
-    :root[data-theme="dark"] .masthead__title {
-      background: linear-gradient(118deg, #67C8F5 0%, #8FD8FF 52%, #B4E4FF 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
+:root[data-theme="dark"] .masthead__title {
+  /* 将颜色调深、调灰一点，避免高亮刺眼 */
+  background: linear-gradient(118deg, #3992c4 0%, #4fa8d6 52%, #64b2dc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
 
     :root[data-theme="dark"] .btn--secondary {
       background: var(--color-bg-white);
@@ -3432,6 +3433,21 @@
 /* 深色模式下，缩略图上的网格线也变暗一点，避免刺眼 */
 :root[data-theme="dark"] .work__thumb::after {
   opacity: 0.2;
+}
+/* ===== 深色模式下降低主按钮的亮度 ===== */
+:root[data-theme="dark"] .btn--primary {
+  /* 调暗按钮背景色 */
+  background: #2277a5; 
+  /* 去掉原本蓝色的发光阴影，换成暗色的普通投影，防止发光刺眼 */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .btn--primary:hover {
+  background: #2e8cbd;
+}
+
+:root[data-theme="dark"] .btn--primary:active {
+  background: #1c6087;
 }
   </style>
 </head>
