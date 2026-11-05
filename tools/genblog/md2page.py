@@ -1578,79 +1578,111 @@ def indent(text: str, spaces: int) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="把 Markdown 渲染成与 parts/ 一致的页面")
-    ap.add_argument("md_file", help="Markdown 源文件")
+    ap.add_argument("input", help="Markdown 文件，或包含 .md 的目录")
     ap.add_argument("-p", "--parts", default="parts", help="parts 目录（默认 parts）")
-    ap.add_argument("-o", "--out", default=None, help="输出 HTML（默认同名 .html）")
+    ap.add_argument(
+        "-o", "--out", default=None,
+        help="输出路径：输入为文件时是 .html 路径；输入为目录时是输出目录",
+    )
+    ap.add_argument(
+        "-r", "--recursive", action="store_true",
+        help="输入为目录时递归处理子目录",
+    )
     args = ap.parse_args(argv)
 
-    md_path = Path(args.md_file)
-    if not md_path.is_file():
-        print(f"找不到文件：{md_path}", file=sys.stderr)
-        return 1
-
+    in_path = Path(args.input)
     parts_dir = Path(args.parts)
+
     if not parts_dir.is_dir():
         print(f"找不到 parts 目录：{parts_dir}", file=sys.stderr)
         return 1
 
-    raw = md_path.read_text(encoding="utf-8")
-    meta, body = parse_front_matter(raw)
+    # ---------- 单个文件 ----------
+    if in_path.is_file():
+        out_path = Path(args.out) if args.out else None
+        return 0 if process_one(in_path, parts_dir, out_path) else 1
 
+    # ---------- 目录 ----------
+    if in_path.is_dir():
+        pattern = "**/*.md" if args.recursive else "*.md"
+        files = sorted(p for p in in_path.glob(pattern) if p.is_file())
+        if not files:
+            print(f"目录中没有 .md 文件：{in_path}", file=sys.stderr)
+            return 1
+
+        out_root = Path(args.out) if args.out else None
+        ok, bad = 0, 0
+
+        for idx, md in enumerate(files, 1):
+            if out_root is not None:
+                # 保留相对目录结构，方便和源文件对应
+                rel = md.relative_to(in_path)
+                out_path = out_root / rel.with_suffix(".html")
+            else:
+                out_path = None  # 与 .md 同目录
+            print(f"[{idx}/{len(files)}]", end=" ")
+            if process_one(md, parts_dir, out_path):
+                ok += 1
+            else:
+                bad += 1
+
+        print(f"\n完成：成功 {ok}，失败 {bad}，共 {len(files)} 个文件")
+        return 0 if bad == 0 else 1
+
+    print(f"输入路径不存在：{in_path}", file=sys.stderr)
+    return 1
+
+def process_one(md_path: Path, parts_dir: Path, out_path: Path | None = None) -> bool:
+    """渲染单个 md 文件，成功返回 True。"""
+    try:
+        raw = md_path.read_text(encoding="utf-8")
+    except Exception as e:
+        print(f"✗ 读取失败：{md_path}  ({e})", file=sys.stderr)
+        return False
+
+    meta, body = parse_front_matter(raw)
     if "title" not in meta:
         meta["title"] = md_path.stem
 
-    # ★ 每次渲染前清空脚注状态
+    # ★ 每个文件开始前必须清空脚注状态
     _footnote_defs.clear()
     _footnote_order.clear()
 
     content, headings = render_markdown(body)
     content = add_iframe_attrs(content)
 
-    # ★ 拼装脚注区
     if _footnote_order:
         items = []
         for fid in _footnote_order:
             fn_body, _ = render_markdown(_footnote_defs[fid])
-            
             backref_html = (
                 f'<a class="footnote-backref" '
                 f'href="#fnref-{esc_attr(fid)}">↩</a>'
             )
-            
-            # 将返回键插入到最后一个 </p> 内部，紧跟文字
             if fn_body.rstrip().endswith("</p>"):
                 idx = fn_body.rfind("</p>")
                 fn_body = fn_body[:idx] + " " + backref_html + fn_body[idx:]
             else:
-                # 如果正文末尾不是 </p>（例如以列表或代码块结尾），则直接拼在后面
                 fn_body += " " + backref_html
-                
             items.append(
-                f'<li id="fn-{esc_attr(fid)}">\n'
-                f'{fn_body}\n'
-                f'</li>'
+                f'<li id="fn-{esc_attr(fid)}">\n{fn_body}\n</li>'
             )
         content += (
-            '\n\n<section class="footnotes">\n'
-            '<hr>\n'
-            '<ol>\n'
+            '\n\n<section class="footnotes">\n<hr>\n<ol>\n'
             + "\n".join(items)
             + '\n</ol>\n</section>'
         )
 
     page = build_page(meta, content, headings, parts_dir)
 
-    out_path = Path(args.out) if args.out else md_path.with_suffix(".html")
+    if out_path is None:
+        out_path = md_path.with_suffix(".html")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(page, encoding="utf-8")
 
-    print(f"输入：{md_path}")
-    print(f"模板：{parts_dir}/")
-    print(f"标题：{meta.get('title')}")
-    print(f"标题数：{len(headings)}  正文字符：{len(content):,}")
-    print(f"输出：{out_path.resolve()}  ({len(page):,} 字符)")
-    return 0
-
+    print(f"✓ {md_path}  →  {out_path.resolve()}  "
+          f"({len(page):,} 字符，{len(headings)} 个标题)")
+    return True
 
 if __name__ == "__main__":
     sys.exit(main())
