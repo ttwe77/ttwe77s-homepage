@@ -781,51 +781,118 @@ window.MathJax = {
 <script id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>"""
 
+# 主题初始化脚本：必须在 <head> 中尽早执行，避免刷新时闪白。
+# parts/head.html 里通常已带有它；这里留一份兜底，模板缺失时也能生效。
+THEME_INIT_SCRIPT = """<script id="theme-init">
+    (function () {
+        try {
+            var saved = localStorage.getItem('theme');
+            var dark = saved
+                ? saved === 'dark'
+                : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        } catch (e) {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
+</script>"""
+
 # 只有页面里真的出现图表时才注入这段脚本
 MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
 (function () {
-    var nodes = document.querySelectorAll(".mermaid");
+    var nodes = Array.prototype.slice.call(document.querySelectorAll(".mermaid"));
     if (!nodes.length || !window.mermaid) return;
 
-    mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "strict",
-        theme: "base",
-        themeVariables: {
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
-            fontSize: "13px",
-            primaryColor: "#E8F4FD",
-            primaryTextColor: "#1F1F1F",
-            primaryBorderColor: "#21A5E3",
-            lineColor: "#9BB7CC",
-            secondaryColor: "#F2F6FF",
-            tertiaryColor: "#FAFAFA",
-            background: "#FFFFFF",
-            mainBkg: "#E8F4FD",
-            nodeBorder: "#21A5E3",
-            clusterBkg: "#F7FBFF",
-            clusterBorder: "#CFE6F7",
-            edgeLabelBackground: "#FFFFFF",
-            actorBkg: "#E8F4FD",
-            actorBorder: "#21A5E3",
-            actorTextColor: "#1F1F1F",
-            signalColor: "#404040",
-            signalTextColor: "#404040",
-            noteBkgColor: "#FFF8DD",
-            noteBorderColor: "#FFD84D"
-        },
-        flowchart: { curve: "basis", htmlLabels: true, useMaxWidth: true },
-        sequence: { useMaxWidth: true, mirrorActors: false }
+    /* 记住原始源码，切换主题后可以重新渲染 */
+    var sources = nodes.map(function (el) {
+        return { el: el, code: el.textContent };
     });
 
-    mermaid.run({ nodes: nodes }).then(function () {
-        document.querySelectorAll(".mermaid-wrap").forEach(function (el) {
-            el.classList.add("is-rendered");
+    var LIGHT = {
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+        fontSize: "13px",
+        primaryColor: "#E8F4FD",
+        primaryTextColor: "#1F1F1F",
+        primaryBorderColor: "#21A5E3",
+        lineColor: "#9BB7CC",
+        secondaryColor: "#F2F6FF",
+        tertiaryColor: "#FAFAFA",
+        background: "#FFFFFF",
+        mainBkg: "#E8F4FD",
+        nodeBorder: "#21A5E3",
+        clusterBkg: "#F7FBFF",
+        clusterBorder: "#CFE6F7",
+        edgeLabelBackground: "#FFFFFF",
+        actorBkg: "#E8F4FD",
+        actorBorder: "#21A5E3",
+        actorTextColor: "#1F1F1F",
+        signalColor: "#404040",
+        signalTextColor: "#404040",
+        noteBkgColor: "#FFF8DD",
+        noteBorderColor: "#FFD84D"
+    };
+
+    var DARK = {
+        fontFamily: LIGHT.fontFamily,
+        fontSize: "13px",
+        primaryColor: "#233248",
+        primaryTextColor: "#EAF2FA",
+        primaryBorderColor: "#4FB8F0",
+        lineColor: "#6E86A3",
+        secondaryColor: "#1F2836",
+        tertiaryColor: "#1B2230",
+        background: "#1B2230",
+        mainBkg: "#233248",
+        nodeBorder: "#4FB8F0",
+        clusterBkg: "#1F2836",
+        clusterBorder: "#33445C",
+        edgeLabelBackground: "#1B2230",
+        actorBkg: "#233248",
+        actorBorder: "#4FB8F0",
+        actorTextColor: "#EAF2FA",
+        signalColor: "#C6D2E0",
+        signalTextColor: "#C6D2E0",
+        noteBkgColor: "#3A3520",
+        noteBorderColor: "#FFD84D"
+    };
+
+    function isDark() {
+        return document.documentElement.getAttribute("data-theme") === "dark";
+    }
+
+    function render() {
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: "strict",
+            theme: "base",
+            themeVariables: isDark() ? DARK : LIGHT,
+            flowchart: { curve: "basis", htmlLabels: true, useMaxWidth: true },
+            sequence: { useMaxWidth: true, mirrorActors: false }
         });
-    }).catch(function (err) {
-        console.error("[mermaid]", err);
-    });
+
+        /* 还原成源码，允许重新渲染 */
+        sources.forEach(function (s) {
+            var wrap = s.el.closest ? s.el.closest(".mermaid-wrap") : null;
+            if (wrap) wrap.classList.remove("is-rendered");
+            s.el.removeAttribute("data-processed");
+            s.el.innerHTML = "";
+            s.el.textContent = s.code;
+        });
+
+        mermaid.run({ nodes: sources.map(function (s) { return s.el; }) })
+            .then(function () {
+                document.querySelectorAll(".mermaid-wrap").forEach(function (el) {
+                    el.classList.add("is-rendered");
+                });
+            })
+            .catch(function (err) {
+                console.error("[mermaid]", err);
+            });
+    }
+
+    render();
+    window.addEventListener("themechange", render);
 })();
 </script>"""
 
@@ -1214,8 +1281,19 @@ def fill_head(head: str, css: str, meta: dict) -> str:
     if "<style" not in head:
         head = head.replace("</head>", f"    <style>\n{css}\n    </style>\n</head>")
 
-    # 去掉 <head> 里的 script（script 统一放到 body 底部）
-    head = re.sub(r"\s*<script\b[\s\S]*?</script>\s*", "\n", head)
+    # 去掉 <head> 里的 script（script 统一放到 body 底部），
+    # 但保留主题初始化脚本，它必须在样式解析前执行
+    def _drop_head_script(m: re.Match) -> str:
+        block = m.group(0)
+        if 'id="theme-init"' in block or "id='theme-init'" in block:
+            return block
+        return "\n"
+
+    head = re.sub(r"\s*<script\b[\s\S]*?</script>\s*", _drop_head_script, head)
+
+    # 兜底：模板里没有主题初始化脚本时补上
+    if "theme-init" not in head:
+        head = head.replace("</head>", THEME_INIT_SCRIPT + "\n</head>")
 
     # 标题
     head = re.sub(

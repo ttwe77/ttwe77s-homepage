@@ -268,7 +268,11 @@ def main(argv=None) -> int:
         rows.append((key, el["tag"], f"{l0}-{l1}", len(text), filename))
 
     # ---------- 脚本 ----------
-    scripts = find_all(elements, tag="script")
+    # 主题初始化脚本必须留在 <head> 里提前执行，不重复收进 scripts.html
+    scripts = [
+        s for s in find_all(elements, tag="script")
+        if s["attrs"].get("id") != "theme-init"
+    ]
     if scripts:
         chunks = []
         for idx, s in enumerate(scripts, 1):
