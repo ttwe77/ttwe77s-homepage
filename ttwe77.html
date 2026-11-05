@@ -346,17 +346,22 @@
     /* 默认（无 JS）保持可见；仅在 <html class="js"> 时隐藏，等待进入当前页 */
     .js .reveal {
       opacity: 0;
-      /* 用独立的 translate 属性做位移，避免与组件自身的 transform 冲突 */
       translate: 0 22px;
+      visibility: hidden;
+      /* 新增：隐藏期间不可聚焦 */
       transition:
         opacity .62s cubic-bezier(.22, .61, .36, 1),
-        translate .62s cubic-bezier(.22, .61, .36, 1);
+        translate .62s cubic-bezier(.22, .61, .36, 1),
+        visibility 0s;
+      /* 立即生效，不参与过渡 */
       will-change: opacity, translate;
     }
 
     .js .reveal.is-visible {
       opacity: 1;
       translate: 0 0;
+      visibility: visible;
+      /* 新增 */
       will-change: auto;
     }
 
@@ -1336,6 +1341,7 @@
       .js .reveal {
         opacity: 1 !important;
         translate: none !important;
+        visibility: visible !important;
         transition: none !important;
       }
     }
@@ -3522,6 +3528,20 @@
         animation: none !important;
       }
     }
+
+    /* ==================== 键盘焦点可见 ==================== */
+    a:focus-visible,
+    button:focus-visible,
+    [role="button"]:focus-visible,
+    .work[data-href]:focus-visible,
+    .ability__item:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 3px;
+    }
+
+    .pager-nav__dot:focus-visible {
+      outline-offset: 4px;
+    }
   </style>
 </head>
 
@@ -3581,7 +3601,7 @@
     <div class="pager__track" id="pager-track">
 
       <!-- ---------- 第 1 页 · 封面 ---------- -->
-      <section class="page" aria-label="封面">
+      <section class="page" aria-label="封面" inert>
         <div class="page__inner">
           <div class="masthead">
             <h1 class="masthead__title reveal">
@@ -3604,7 +3624,7 @@
       </section>
 
       <!-- ==================== 第 2 页 · 个人简介 ==================== -->
-      <section class="page" aria-label="个人资料">
+      <section class="page" aria-label="个人资料" inert>
         <div class="page__inner">
           <h2 class="section-title reveal">个人资料<span class="section-title__sub">PROFILE</span></h2>
 
@@ -3723,7 +3743,7 @@
       </section>
 
       <!-- ---------- 第 3 页 · 能力参数 ---------- -->
-      <section class="page" aria-label="能力参数">
+      <section class="page" aria-label="能力参数" inert>
         <div class="page__inner">
           <h2 class="section-title reveal">小故事/碎碎念<span class="section-title__sub">STORY/THOUGHTS</span></h2>
 
@@ -3739,7 +3759,7 @@
       </section>
 
       <!-- ---------- 第 4 页 · 作品记录 ---------- -->
-      <section class="page" aria-label="作品记录">
+      <section class="page" aria-label="作品记录" inert>
         <div class="page__inner">
           <h2 class="section-title reveal">作品记录<span class="section-title__sub">SELECTED WORKS</span></h2>
 
@@ -3850,7 +3870,7 @@
       </section>
 
       <!-- ---------- 第 5 页 · 建立连接 ---------- -->
-      <section class="page" aria-label="建立连接">
+      <section class="page" aria-label="建立连接" inert>
         <div class="page__inner">
           <h2 class="section-title reveal">建立连接<span class="section-title__sub">CONTACT</span></h2>
 
@@ -4005,6 +4025,13 @@
         });
       }
 
+      function syncInert() {
+        for (var i = 0; i < pages.length; i++) {
+          if (i === current) pages[i].removeAttribute('inert');
+          else pages[i].setAttribute('inert', '');
+        }
+      }
+
       /* ---------- 跳转 ---------- */
       function goTo(target) {
         target = clamp(target);
@@ -4014,6 +4041,9 @@
         current = target;
         locked = true;
 
+        // 广播翻页事件（在其他模块里监听后立即复位状态）
+        window.dispatchEvent(new CustomEvent('pager:change', { detail: { index: current } }));
+
         // 用位移百分比：轨道高度 = 视口高度，-100% 即一页
         track.style.transition = reduceMotion ? 'none' : '';
         track.style.transform = 'translate3d(0,' + (-current * 100) + '%,0)';
@@ -4022,6 +4052,7 @@
         pages[current].scrollTop = 0;
 
         updateDots();
+        syncInert();
 
         // 等页面滑入大半后再播放内容入场
         clearTimeout(revealTimer);
@@ -4153,6 +4184,7 @@
 
       /* ---------- 初始化 ---------- */
       updateDots();
+      syncInert();
       // 首屏入场
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
@@ -4335,6 +4367,7 @@
       /* ---------- 一次完整交互 ---------- */
       var busy = false;
       var MIN_SHOW = 1200;   // 气泡最短显示时间
+      var resetTimer = null; // 保存"语音结束后复位"的定时器
 
       function triggerDialogue() {
         if (busy) return;
@@ -4356,14 +4389,43 @@
         /* 4. 播放语音；结束（或失败）后切回默认立绘 */
         playVoice(d.voice, function () {
           var wait = Math.max(0, MIN_SHOW - (Date.now() - shownAt));
-          setTimeout(function () {
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(function () {
+            resetTimer = null;
             busy = false;
-            setArt(DEFAULT_ART);                  // 切回默认立绘
-            if (window.blinkResume) window.blinkResume();  // 恢复眨眼
+            setArt(DEFAULT_ART);
+            if (window.blinkResume) window.blinkResume();
             hideTimer = setTimeout(hideDialog, 600);
           }, wait);
         });
       }
+
+      /* 翻页立即中断：停语音 → 清定时器 → 复位立绘 / 眨眼 → 隐藏气泡 */
+function stopDialogue() {
+  // 没有正在进行的对话就直接跳过，避免多余的复位
+  if (!busy && !currentAudio && !dialogEl.classList.contains('is-visible')) return;
+
+  stopVoice();                 // audio.pause() 是同步的，语音立刻静音
+
+  clearTimeout(resetTimer);
+  resetTimer = null;
+  clearTimeout(hideTimer);
+  hideTimer = null;
+
+  busy = false;
+
+  setArt(DEFAULT_ART);         // 切回默认立绘
+  if (window.blinkResume) window.blinkResume();
+
+  hideDialog();                // 移除 .is-visible → 气泡淡出
+
+  // 过渡结束后清空文本，避免读屏残留
+setTimeout(function () {
+  if (!dialogEl.classList.contains('is-visible')) dialogEl.textContent = '';
+}, 300);
+}
+
+window.addEventListener('pager:change', stopDialogue);
 
       artEl.addEventListener('click', function (e) {
         e.preventDefault();
