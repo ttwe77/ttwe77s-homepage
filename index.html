@@ -755,43 +755,43 @@
       /* 避免内边距影响 */
     }
 
-.sidebar-avatar picture,
-.sidebar-avatar img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
+    .sidebar-avatar picture,
+    .sidebar-avatar img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
 
-/* ===== 头像悬停：360° 旋转 ===== */
-.sidebar-avatar img {
-  transform-origin: center;
-  transition: transform .9s cubic-bezier(.22, .61, .36, 1);
-  will-change: transform;
-}
+    /* ===== 头像悬停：360° 旋转 ===== */
+    .sidebar-avatar img {
+      transform-origin: center;
+      transition: transform .9s cubic-bezier(.22, .61, .36, 1);
+      will-change: transform;
+    }
 
-.sidebar-avatar:hover img {
-  transform: rotate(360deg);
-}
+    .sidebar-avatar:hover img {
+      transform: rotate(360deg);
+    }
 
-/* 触屏设备没有真正的 hover，避免点一下卡在旋转态 */
-@media (hover: none) {
-  .sidebar-avatar:hover img {
-    transform: none;
-  }
-}
+    /* 触屏设备没有真正的 hover，避免点一下卡在旋转态 */
+    @media (hover: none) {
+      .sidebar-avatar:hover img {
+        transform: none;
+      }
+    }
 
-/* 尊重系统「减少动态效果」设置 */
-@media (prefers-reduced-motion: reduce) {
-  .sidebar-avatar img {
-    transition: none;
-  }
+    /* 尊重系统「减少动态效果」设置 */
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar-avatar img {
+        transition: none;
+      }
 
-  .sidebar-avatar:hover img {
-    transform: none;
-  }
-}
+      .sidebar-avatar:hover img {
+        transform: none;
+      }
+    }
 
     .sidebar-name {
       font-size: 17px;
@@ -1110,73 +1110,74 @@
     }
 
     /* ============ 页脚 ============ */
-.footer {
-  position: relative;           /* 新增：供关闭按钮定位 */
-  margin-top: 28px;
-  padding: 18px 22px;
-  border: 1px solid rgba(255, 255, 255, .65);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, .55);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  box-shadow:
-    0 6px 24px rgba(18, 138, 250, .08),
-    inset 0 1px 0 rgba(255, 255, 255, .7);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
+    .footer {
+      position: relative;
+      /* 新增：供关闭按钮定位 */
+      margin-top: 28px;
+      padding: 18px 22px;
+      border: 1px solid rgba(255, 255, 255, .65);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .55);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      backdrop-filter: blur(16px) saturate(180%);
+      box-shadow:
+        0 6px 24px rgba(18, 138, 250, .08),
+        inset 0 1px 0 rgba(255, 255, 255, .7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
 
-/* 页脚右上角关闭按钮 */
-.footer__close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--color-text-secondary);
-  background: transparent;
-  opacity: .5;
-  transition: opacity .2s ease, background .2s ease, color .2s ease, transform .15s ease;
-}
+    /* 页脚右上角关闭按钮 */
+    .footer__close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--color-text-secondary);
+      background: transparent;
+      opacity: .5;
+      transition: opacity .2s ease, background .2s ease, color .2s ease, transform .15s ease;
+    }
 
-.footer__close:hover {
-  opacity: 1;
-  color: var(--color-primary);
-  background: rgba(33, 165, 227, .12);
-}
+    .footer__close:hover {
+      opacity: 1;
+      color: var(--color-primary);
+      background: rgba(33, 165, 227, .12);
+    }
 
-.footer__close:active {
-  transform: scale(.88);
-}
+    .footer__close:active {
+      transform: scale(.88);
+    }
 
-.footer__close:focus-visible {
-  opacity: 1;
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
+    .footer__close:focus-visible {
+      opacity: 1;
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
 
-/* 窄屏 footer 变纵向排列，给内容右侧留点空，避免和按钮重叠 */
-@media (max-width: 640px) {
-  .footer__brand {
-    padding-right: 26px;
-  }
-}
+    /* 窄屏 footer 变纵向排列，给内容右侧留点空，避免和按钮重叠 */
+    @media (max-width: 640px) {
+      .footer__brand {
+        padding-right: 26px;
+      }
+    }
 
-/* 不支持 backdrop-filter 的浏览器（老版本）降级为接近不透明 */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .footer {
-    background: rgba(255, 255, 255, .92);
-  }
-}
+    /* 不支持 backdrop-filter 的浏览器（老版本）降级为接近不透明 */
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .footer {
+        background: rgba(255, 255, 255, .92);
+      }
+    }
 
     .footer a {
       text-decoration: underline;
@@ -1233,7 +1234,7 @@
       color: var(--color-primary)
     }
 
-        .footer__links a:hover {
+    .footer__links a:hover {
       color: var(--color-primary)
     }
 
@@ -1250,19 +1251,19 @@
       color: var(--color-primary);
     }
 
-/* 萌ICP备 */
-.footer__moeicp {
-  align-self: flex-start;
-  margin-top: -2px;
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: 0;
-    color: var(--color-text-secondary);
-  text-decoration: none;
-  opacity: 1;
-  text-decoration: underline;
-  transition: opacity .2s ease, color .2s ease;
-}
+    /* 萌ICP备 */
+    .footer__moeicp {
+      align-self: flex-start;
+      margin-top: -2px;
+      font-weight: 400;
+      line-height: 1.2;
+      letter-spacing: 0;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      opacity: 1;
+      text-decoration: underline;
+      transition: opacity .2s ease, color .2s ease;
+    }
 
     /* ============ 响应式 ============ */
     @media(min-width:861px) {
@@ -2939,18 +2940,93 @@
         padding: 0 10px;
       }
     }
+
     /* ICP 备案行：图标 + 备案号横向并排 */
-.footer__icp-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+    .footer__icp-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer__icp-row img {
+      display: block;
+      height: 16px;
+      /* 按需调整；不限制的话图片可能过大 */
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    /* ===== 侧栏卡片关闭按钮 ===== */
+    .posts-sidebar .card {
+      position: relative;
+    }
+
+    .sidebar-close {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 3;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--color-text-secondary);
+      background: transparent;
+      opacity: .4;
+      transition: opacity .2s ease, background .2s ease, color .2s ease, transform .15s ease;
+      cursor: url('src/cursors/link.cur'), pointer;
+    }
+
+    .sidebar-close:hover {
+      opacity: 1;
+      color: var(--color-primary);
+      background: rgba(33, 165, 227, .12);
+    }
+
+    .sidebar-close:active {
+      transform: scale(.85);
+    }
+
+    .sidebar-close:focus-visible {
+      opacity: 1;
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* 给 PGP 卡片头部的 "RSA 4096" 让位，避免被关闭按钮压住 */
+    .posts-sidebar .panel__head {
+      padding-right: 24px;
+    }
+/* ===== 侧栏全部隐藏后，文章列表平滑占满并居中 ===== */
+.posts-layout {
+  transition:
+    grid-template-columns .55s var(--page-ease),
+    gap .55s var(--page-ease);
 }
 
-.footer__icp-row img {
-  display: block;
-  height: 16px;      /* 按需调整；不限制的话图片可能过大 */
-  width: auto;
-  flex: 0 0 auto;
+/* 保留两列轨道，只把第一列压到 0 —— grid-template-columns 才能插值 */
+.posts-layout.is-solo {
+  grid-template-columns: minmax(0, 0px) minmax(0, 1fr);
+  gap: 0;
+}
+
+.posts-layout.is-solo .posts-sidebar {
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 窄屏本来就是单列，直接隐藏侧栏，不做轨道过渡 */
+@media (max-width: 860px) {
+  .posts-layout.is-solo {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .posts-layout.is-solo .posts-sidebar {
+    display: none;
+  }
 }
   </style>
 </head>
@@ -3046,7 +3122,7 @@
           我的状态
         </a>
 
-                <a class="topbar-menu__item" href="/links.html">
+        <a class="topbar-menu__item" href="/links.html">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5" />
@@ -3251,34 +3327,35 @@
 
           </div>
 
-<footer class="footer reveal" data-delay="140">
-  <button class="footer__close" id="footer-close" type="button" aria-label="关闭页脚">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
-  </button>
+          <footer class="footer reveal" data-delay="140">
+            <button class="footer__close" id="footer-close" type="button" aria-label="关闭页脚">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
 
-  <!-- 左栏：品牌 + 版权 + 备案 + 开源协议 -->
-  <div class="footer__brand">
-    <span class="footer__mark">七七的折腾笔记</span>
-<span class="footer__icp-row">
-  <img src="/src/icp.avif" alt="icp">
-  <a class="footer__icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
-</span>
-    <span>© 2026 ttwe77 · 本站已运行 <span class="footer__runtime" id="site-runtime">—</span></span>
-    <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
-        rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
-        href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
-        仓库</a> 查阅。</span>
-  </div>
+            <!-- 左栏：品牌 + 版权 + 备案 + 开源协议 -->
+            <div class="footer__brand">
+              <span class="footer__mark">七七的折腾笔记</span>
+              <span class="footer__icp-row">
+                <img src="/src/icp.avif" alt="icp">
+                <a class="footer__icp" href="https://beian.miit.gov.cn/" target="_blank"
+                  rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+              </span>
+              <span>© 2026 ttwe77 · 本站已运行 <span class="footer__runtime" id="site-runtime">—</span></span>
+              <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a> 开源协议，欢迎前往 <a
+                  href="https://gitee.com/ttwe77/ttwe77s-homepage" target="_blank" rel="noopener noreferrer">Gitee
+                  仓库</a> 查阅。</span>
+            </div>
 
-  <!-- 右栏：萌ICP备（悬挂） -->
-  <div class="footer__right">
-    <a class="footer__moeicp" href="https://icp.gov.moe/?keyword=20267770" target="_blank"
-       rel="noopener noreferrer" title="萌ICP备20267770号">萌ICP备20267770号</a>
-  </div>
-</footer>
+            <!-- 右栏：萌ICP备（悬挂） -->
+            <div class="footer__right">
+              <a class="footer__moeicp" href="https://icp.gov.moe/?keyword=20267770" target="_blank"
+                rel="noopener noreferrer" title="萌ICP备20267770号">萌ICP备20267770号</a>
+            </div>
+          </footer>
 
         </div>
       </section>
@@ -4406,30 +4483,32 @@
       /* ---------- 歌单配置（id 为网易云歌曲 ID） ---------- */
       var PLAYLIST = [
         { id: '2093260104', name: 'Shooting Stars', artist: 'KARUT' },
-        { id: '33469292', name: 'hometown', artist: 'mamomo' },
-        { id: '32743519', name: '江上清风游', artist: '变奏的梦想' },
-        { id: '1472039787', name: 'CHINA眉山', artist: 'XDONE' },
-        { id: '1910580587', name: 'Maplecamp☆', artist: 'Shiroi-Ice' },
-        { id: '1394601255', name: '浮光 (The History)', artist: 'Jannik' },
-        { id: '520242026', name: 'Luv Letter', artist: 'TSUKINOSORA' },
-        { id: '557850882', name: '盛夏与蝉鸣', artist: 'Hea2t' },
-        { id: '1984571661', name: '盛夏与蝉鸣2.0', artist: 'Hea2t' },
-        { id: '422429425', name: '青石巷', artist: '魏琮霏' },
-        { id: '434871406', name: '夏の喚く', artist: '邱有句' },
-        { id: '493942', name: '通り雨 - Passing Rain -', artist: 'Otokaze' },
-        { id: '493911', name: '夏恋', artist: 'Otokaze' },
-        { id: '493981', name: '彩月​-​Sai​-​getsu-', artist: 'Otokaze' },
-        { id: '493886', name: '和夏-waka', artist: 'Otokaze' },
-        { id: '493945', name: '帰路 - KaeriMichi -', artist: 'Otokaze' },
-        { id: '493957', name: '乱花街 - Rankagai -', artist: 'Otokaze' },
-        { id: '493954', name: '花恋 - Karen -', artist: 'Otokaze' },
-        { id: '2093257373', name: 'Constant Moderato', artist: 'ミツキヨ' },
-        { id: '2093257379', name: 'Connected Sky', artist: 'KARUT' },
-        { id: '2098478355', name: 'RE Aoharu', artist: 'Nor' },
-        { id: '2098477533', name: 'Constant Moderato Piano Arrange', artist: 'ミツキヨ' },
-        { id: '2098477531', name: 'Aoharu', artist: 'Nor' },
-        { id: '2098477957', name: 'GGF', artist: 'Nor' },
-        { id: '2699945657', name: '将世事高枕 The World at Bay Beyond the Pillow', artist: 'HOYO-MiX' }
+        { id: '2085833545', name: '深夕映繁星 Nocturnal Illumination', artist: 'HOYO-MiX' },
+        { id: '1861577584', name: '白日梦的涟漪 Ripples of Daydream', artist: '陈致逸/HOYO-MiX' },
+        { id: '2041862692', name: '灵光的回响 Resonance of Khvarena', artist: 'HOYO-MiX' },
+        { id: '1956541068', name: '丹砂巍巍 Wordless Cliffs', artist: 'HOYO-MiX' },
+        { id: '2613482875', name: '清泉之诗 Callirhoe\'s Prayer', artist: 'HOYO-MiX' },
+        { id: '2130083946', name: '柔灯轻漾时 Lumidouce\'s Repose', artist: 'HOYO-MiX' },
+        { id: '2657687374', name: '旧乡的叹音 Sigh, the Breath of Yore', artist: 'HOYO-MiX' },
+        { id: '1879098366', name: '终有谢时 Time to Say Farewell', artist: '陈致逸/HOYO-MiX' },
+        { id: '1992141918', name: '无羁的漫游 Vagrant Wandering', artist: 'HOYO-MiX' },
+        { id: '1492276659', name: '沉睡的往昔 Slumbering Lore', artist: '陈致逸/HOYO-MiX' },
+        { id: '1833806442', name: '银白的希望 Fragile Fantasy', artist: '陈致逸/HOYO-MiX' },
+        { id: '2085833525', name: '轻雨何故落 Pluie sur la ville', artist: 'HOYO-MiX' },
+        { id: '1481390619', name: '晨曦酒庄 Dawn Winery Theme', artist: '陈致逸/HOYO-MiX' },
+        { id: '1992141912', name: '黛绿的夜话 Enchanting Bedtime Stories', artist: 'HOYO-MiX' },
+        { id: '2635292789', name: '绵远的诀别 A Distant Farewell', artist: 'HOYO-MiX' },
+        { id: '1833805540', name: '皎洁的笑颜 Moonlike Smile', artist: '陈致逸/HOYO-MiX' },
+        { id: '1937111284', name: '温情的遥忆 A Memorable Fancy', artist: 'HOYO-MiX' },
+        { id: '1973622666', name: '白鹭舒翼 Pathos of Shirasagi', artist: 'HOYO-MiX' },
+        { id: '1879098373', name: '神狐的祝福 Hakushin\'s Lullaby', artist: '陈致逸/HOYO-MiX' },
+        { id: '1492276660', name: '不再年轻的村庄(轻策夜间) The Fading Stories (Qingce Night', artist: '陈致逸/HOYO-MiX' },
+        { id: '2635292799', name: '风清月白 The Nocturnal Firmament\'s Luster', artist: 'HOYO-MiX' },
+        { id: '1481390662', name: '希望的新一天 A New Day with Hope', artist: '陈致逸/HOYO-MiX' },
+        { id: '1481392260', name: '同伴的力量 Tender Strength', artist: '陈致逸/HOYO-MiX' },
+        { id: '1879108667', name: '永远的花火 Lingering Blossom', artist: '陈致逸/HOYO-MiX' },
+        { id: '1879108679', name: '安宁的天光 A Harmonious Rest', artist: '陈致逸/HOYO-MiX' },
+        { id: '2140118336', name: '锦色映夜风 Night\'s Whispering Breath', artist: 'HOYO-MiX' }
       ];
 
       var API_BASE = 'https://music.163.com/song/media/outer/url?id=';
@@ -5177,28 +5256,121 @@
     })();
   </script>
   <script>
-  /* ============================================================
-     页脚关闭：从真实高度收起到 0，再彻底移出布局
-     ============================================================ */
-  (function () {
-    'use strict';
+    /* ============================================================
+       页脚关闭：从真实高度收起到 0，再彻底移出布局
+       ============================================================ */
+    (function () {
+      'use strict';
 
-    var footer = document.querySelector('.footer');
-    var btn = document.getElementById('footer-close');
-    if (!footer || !btn) return;
+      var footer = document.querySelector('.footer');
+      var btn = document.getElementById('footer-close');
+      if (!footer || !btn) return;
 
-    var closing = false;
+      var closing = false;
 
-    btn.addEventListener('click', function () {
-      if (closing) return;
-      closing = true;
+      btn.addEventListener('click', function () {
+        if (closing) return;
+        closing = true;
 
-      /* 1) 先把当前真实高度钉成 max-height，才能做「高度 → 0」过渡 */
-      footer.style.maxHeight = footer.offsetHeight + 'px';
-      footer.style.overflow = 'hidden';
+        /* 1) 先把当前真实高度钉成 max-height，才能做「高度 → 0」过渡 */
+        footer.style.maxHeight = footer.offsetHeight + 'px';
+        footer.style.overflow = 'hidden';
 
-      /* 2) 内联 transition：优先级最高，不会被 .reveal.is-settled 的 transition:none 吃掉 */
-      footer.style.transition =
+        /* 2) 内联 transition：优先级最高，不会被 .reveal.is-settled 的 transition:none 吃掉 */
+        footer.style.transition =
+          'max-height .46s cubic-bezier(.65,.05,.36,1),' +
+          'opacity .3s ease,' +
+          'transform .3s ease,' +
+          'padding-top .46s cubic-bezier(.65,.05,.36,1),' +
+          'padding-bottom .46s cubic-bezier(.65,.05,.36,1),' +
+          'margin-top .46s cubic-bezier(.65,.05,.36,1),' +
+          'border-width .46s ease';
+
+        /* 3) 强制回流，让上面的初始值先生效，再改目标值 */
+        void footer.offsetHeight;
+
+        /* 4) 触发隐藏：淡出 + 轻微下沉 + 收起高度/内边距/外边距/边框 */
+        footer.style.opacity = '0';
+        footer.style.transform = 'translateY(10px) scale(.98)';
+        footer.style.paddingTop = '0px';
+        footer.style.paddingBottom = '0px';
+        footer.style.marginTop = '0px';
+        footer.style.borderWidth = '0px';
+        footer.style.maxHeight = '0px';
+        footer.style.pointerEvents = 'none';
+
+        /* 5) 动画结束彻底移出布局，避免残留空白 */
+        var finished = false;
+        function finish() {
+          if (finished) return;
+          finished = true;
+          footer.style.display = 'none';
+          footer.style.maxHeight = '';
+          footer.style.overflow = '';
+          footer.style.transition = '';
+          if (window.showToast) window.showToast('页脚已隐藏，刷新页面可恢复');
+        }
+
+        footer.addEventListener('transitionend', function onEnd(e) {
+          if (e.target !== footer || e.propertyName !== 'max-height') return;
+          footer.removeEventListener('transitionend', onEnd);
+          finish();
+        });
+
+        setTimeout(finish, 800);   // 兜底：prefers-reduced-motion 等情况下没有 transitionend
+      });
+    })();
+  </script>
+  <script>
+/* ============================================================
+   侧栏卡片：右上角 X 隐藏
+   全部隐藏后让文章列表独占一行并居中
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var sidebar = document.querySelector('.posts-sidebar');
+  if (!sidebar) return;
+
+  var layout = sidebar.closest('.posts-layout');
+
+  var CLOSE_ICON =
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M18 6L6 18M6 6l12 12"/></svg>';
+
+  /* 检查侧栏是否已经一张可见卡片都不剩 */
+  function checkSidebarEmpty() {
+    if (!layout) return;
+
+    var cards = sidebar.querySelectorAll('.card');
+    var anyVisible = false;
+
+    Array.prototype.forEach.call(cards, function (c) {
+      if (c.style.display !== 'none') anyVisible = true;
+    });
+
+    layout.classList.toggle('is-solo', !anyVisible);
+  }
+
+  Array.prototype.forEach.call(sidebar.querySelectorAll('.card'), function (card) {
+    if (card.querySelector('.sidebar-close')) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sidebar-close';
+    btn.setAttribute('aria-label', '隐藏此卡片');
+    btn.innerHTML = CLOSE_ICON;
+    card.appendChild(btn);
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (card.classList.contains('is-collapsing')) return;
+
+      var h = card.offsetHeight;
+      card.style.overflow = 'hidden';
+      card.style.maxHeight = h + 'px';
+      card.style.transition =
         'max-height .46s cubic-bezier(.65,.05,.36,1),' +
         'opacity .3s ease,' +
         'transform .3s ease,' +
@@ -5206,41 +5378,43 @@
         'padding-bottom .46s cubic-bezier(.65,.05,.36,1),' +
         'margin-top .46s cubic-bezier(.65,.05,.36,1),' +
         'border-width .46s ease';
+      card.classList.add('is-collapsing');
 
-      /* 3) 强制回流，让上面的初始值先生效，再改目标值 */
-      void footer.offsetHeight;
+      void card.offsetHeight;
 
-      /* 4) 触发隐藏：淡出 + 轻微下沉 + 收起高度/内边距/外边距/边框 */
-      footer.style.opacity = '0';
-      footer.style.transform = 'translateY(10px) scale(.98)';
-      footer.style.paddingTop = '0px';
-      footer.style.paddingBottom = '0px';
-      footer.style.marginTop = '0px';
-      footer.style.borderWidth = '0px';
-      footer.style.maxHeight = '0px';
-      footer.style.pointerEvents = 'none';
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(8px) scale(.97)';
+      card.style.paddingTop = '0px';
+      card.style.paddingBottom = '0px';
+      card.style.marginTop = '0px';
+      card.style.borderWidth = '0px';
+      card.style.maxHeight = '0px';
+      card.style.pointerEvents = 'none';
 
-      /* 5) 动画结束彻底移出布局，避免残留空白 */
       var finished = false;
       function finish() {
         if (finished) return;
         finished = true;
-        footer.style.display = 'none';
-        footer.style.maxHeight = '';
-        footer.style.overflow = '';
-        footer.style.transition = '';
-        if (window.showToast) window.showToast('页脚已隐藏，刷新页面可恢复');
+        card.style.display = 'none';
+        card.style.maxHeight = '';
+        card.style.overflow = '';
+        card.style.transition = '';
+        card.classList.remove('is-collapsing');
+
+        /* ★ 关键：每张卡片隐藏完成后检查一次 */
+        checkSidebarEmpty();
       }
 
-      footer.addEventListener('transitionend', function onEnd(e) {
-        if (e.target !== footer || e.propertyName !== 'max-height') return;
-        footer.removeEventListener('transitionend', onEnd);
+      card.addEventListener('transitionend', function onEnd(ev) {
+        if (ev.target !== card || ev.propertyName !== 'max-height') return;
+        card.removeEventListener('transitionend', onEnd);
         finish();
       });
 
-      setTimeout(finish, 800);   // 兜底：prefers-reduced-motion 等情况下没有 transitionend
+      setTimeout(finish, 800);
     });
-  })();
+  });
+})();
 </script>
 </body>
 
