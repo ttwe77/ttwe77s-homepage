@@ -2147,12 +2147,34 @@
             background-color: rgba(33, 165, 227, .5);
         }
 
-        /* 如果你以后真的做了深色模式，可以顺手覆盖变量 */
         :root[data-theme="dark"] {
             --scrollbar-thumb: rgba(171, 215, 255, .3);
             --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
             --scrollbar-thumb-active: rgba(171, 215, 255, .7);
         }
+
+        /* ============ 深色模式：右下角浮动按钮降亮 ============ */
+:root[data-theme="dark"] .to-top,
+:root[data-theme="dark"] .toc-toggle {
+    /* 深色卡片底，而非高亮主色 */
+    background: rgba(35, 50, 72, .92);
+    color: var(--color-primary);          /* 图标用主色，够辨识但不刺眼 */
+    border: 1px solid var(--color-border-strong);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .45);   /* 黑色阴影替代蓝色光晕 */
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+:root[data-theme="dark"] .to-top:hover,
+:root[data-theme="dark"] .toc-toggle:hover {
+    background: rgba(45, 62, 88, .96);
+    color: var(--color-primary-hover);
+}
+
+:root[data-theme="dark"] .to-top:active,
+:root[data-theme="dark"] .toc-toggle:active {
+    background: rgba(30, 43, 62, .98);
+}
 
         /* ============ h4 ~ h6 左侧标记 ============ */
         .article-body h4,
