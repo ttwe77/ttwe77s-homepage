@@ -1788,6 +1788,48 @@
       transform: rotate(180deg)
     }
 
+        /* ============ 精简顶栏 ============ */
+    /* 让三块内容可动画地收起 / 展开 */
+    .resources,
+    #btn-music,
+    #btn-theme {
+      min-width: 0;            /* 关键：否则 max-width:0 会被 min-width:auto 顶住 */
+      overflow: hidden;
+      transition:
+        max-width .42s var(--page-ease),
+        opacity .26s ease,
+        margin .42s var(--page-ease);
+    }
+
+    .resources {
+      max-width: 520px;        /* 足够容纳完整资源栏，收起时过渡到 0 */
+      white-space: nowrap;
+    }
+
+    /* 保留 .icon-btn 原有的背景/颜色过渡，再追加宽度与透明度过渡 */
+    #btn-music,
+    #btn-theme {
+      max-width: 36px;
+      transition:
+        background .18s ease,
+        color .18s ease,
+        transform .12s ease,
+        max-width .42s var(--page-ease),
+        opacity .26s ease,
+        margin .42s var(--page-ease);
+    }
+
+    /* 收起状态 */
+    .topbar.is-compact .resources,
+    .topbar.is-compact #btn-music,
+    .topbar.is-compact #btn-theme {
+      max-width: 0;
+      opacity: 0;
+      margin: 0;
+      padding: 0;
+      pointer-events: none;
+    }
+
     /* ============ 轻提示 Toast ============ */
     .toast {
       position: fixed;
@@ -3544,6 +3586,15 @@
           </svg>
           回到顶部
         </a>
+
+                <button class="topbar-menu__item" id="btn-compact" type="button" aria-pressed="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9h18" />
+            <path d="M3 15h11" />
+          </svg>
+          <span class="topbar-menu__label">精简顶栏</span>
+        </button>
 
         <span class="topbar-menu__sep" aria-hidden="true"></span>
 
@@ -5343,6 +5394,29 @@
       });
 
       window.addEventListener('wheel', close, { passive: true });
+
+            /* ---------- 精简顶栏：收起资源栏 / 音乐 / 主题 ---------- */
+      var topbar = document.querySelector('.topbar');
+      var compactBtn = document.getElementById('btn-compact');
+      var compactLabel = compactBtn ? compactBtn.querySelector('.topbar-menu__label') : null;
+
+      function setCompact(on) {
+        if (!topbar) return;
+        topbar.classList.toggle('is-compact', on);
+        if (compactBtn) {
+          compactBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+          compactBtn.setAttribute('aria-label', on ? '恢复完整顶栏' : '精简顶栏');
+        }
+        if (compactLabel) compactLabel.textContent = on ? '完整顶栏' : '精简顶栏';
+      }
+
+      if (compactBtn) {
+        compactBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          setCompact(!topbar.classList.contains('is-compact'));
+          close();               // 顺手收起下拉菜单
+        });
+      }
 
       /* 所有带 data-menu-home 的元素共用同一套“回到顶部”逻辑 */
       document.querySelectorAll('[data-menu-home]').forEach(function (el) {
