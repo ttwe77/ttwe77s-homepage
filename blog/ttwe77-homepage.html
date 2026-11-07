@@ -475,17 +475,66 @@
             text-align: center;
         }
 
-        .article-body a:not(.chip) {
-            color: var(--color-primary);
-            font-weight: 600;
-            border-bottom: 1px dashed currentColor;
-            transition: color .18s ease, border-color .18s ease;
-        }
+/* 1. 普通链接：更蓝 + 实体下划线 */
+.article-body a:not(.chip) {
+    color: #0025ff; /* 更蓝 */
+    font-weight: 600;
+    border-bottom: 1px solid currentColor; /* 实线 */
+    transition: color .18s ease, border-color .18s ease;
+}
 
-        .article-body a:not(.chip):hover {
-            color: var(--color-primary-hover);
-            border-bottom-style: solid;
-        }
+.article-body a:not(.chip):hover {
+    color: #0c63b4; /* hover 更深一点的蓝 */
+    border-bottom-style: solid;
+}
+
+/* 2. 包裹了提示文本的链接：去掉外层 a 的下划线，避免和内层重叠 */
+.article-body a:not(.chip):has(.hover-hint),
+.article-body a:not(.chip):has(.hover-hint):hover {
+    border-bottom: none;
+}
+
+/* 3. 链接内的提示文本：文字更蓝、1px 虚线、不加粗、无背景 */
+.article-body a:not(.chip) .hover-hint {
+    color: #0025ff; /* 文字更蓝 */
+    border-bottom: 1px dashed #60a5fa; /* 虚线 */
+    font-weight: 400; /* 取消加粗 */
+    background: none; /* 无背景 */
+}
+
+/* 4. 悬停时保持 1px 虚线，防止变粗/变实 */
+.article-body a:not(.chip) .hover-hint:hover {
+    border-bottom: 1px dashed #0E7AE0;
+}
+
+/* 5. 针对：提示文本内包裹了链接的情况 */
+/* 去掉内层链接自带的下划线，防止和外层的 .hover-hint 虚线重叠 */
+.article-body .hover-hint a:not(.chip),
+.article-body .hover-hint a:not(.chip):hover {
+    border-bottom: none;
+}
+
+/* ===== 深色模式适配 ===== */
+/* ===== 深色模式适配：带链接的提示文本 ===== */
+:root[data-theme="dark"] .article-body a:not(.chip) {
+    color: #60a5fa; /* 文字调成亮蓝色，否则纯蓝色在深色背景下太暗 */
+    border-bottom-color: #4879b5; /* 下划线改为白色 */
+}
+
+:root[data-theme="dark"] .article-body a:not(.chip):hover {
+    color: #60a5fa; /* hover 时文字再亮一点 */
+    border-bottom-color: #ffffff; /* 保持下划线为白色 */
+}
+
+/* 提示文本里包链接（.hover-hint 包 <a>） */
+:root[data-theme="dark"] .article-body .hover-hint a:not(.chip),
+:root[data-theme="dark"] .article-body .hover-hint a:not(.chip):hover {
+    color: #2b64ff;
+}
+
+:root[data-theme="dark"] .article-body a:not(.chip) .hover-hint {
+    color: #2b64ff;
+}
 
         .article-body strong {
             font-weight: 700;
@@ -2309,10 +2358,14 @@
             background: rgba(79, 184, 240, .24);
         }
 
-        :root[data-theme="dark"] .article-body a:not(.chip),
-        :root[data-theme="dark"] .article-body strong {
-            color: #8FD8FF;
-        }
+/* 粗体保持蓝色 */
+:root[data-theme="dark"] .article-body strong {
+    color: #8FD8FF;
+}
+/* 普通链接改为黄色 */
+:root[data-theme="dark"] .article-body a:not(.chip) {
+    color: #2b51ff;
+}
 
         :root[data-theme="dark"] .article-body blockquote {
             background: linear-gradient(90deg, rgba(79, 184, 240, .12) 0%, rgba(79, 184, 240, .02) 100%);
@@ -2687,9 +2740,21 @@
 
 <script type="module">
 import { BAClickFX } from '/libs/ba-click-fx.js';
-        const fx = new BAClickFX();
-        fx.setCompositingReference({ hostCompositing: 'screen' });
-        fx.setThemeColor('#80c1ff');
+    const fx = new BAClickFX();
+    fx.setCompositingReference({ hostCompositing: 'screen' });
+
+    function applyFxTheme() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
+      fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
+    }
+    applyFxTheme();
+
+    // 跟随主题切换
+    new MutationObserver(applyFxTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
 </script>
 
 <script>
