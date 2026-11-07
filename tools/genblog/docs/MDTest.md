@@ -104,6 +104,127 @@ X^2^ 上标（部分扩展）
 :smile: :rocket: :+1: （emoji 扩展）  
 &copy; &amp; &lt; &gt; &nbsp;
 
+### 专有样式
+
+<span class="hover-hint">提示文本<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>
+
+**<span class="hover-hint">粗体提示文本<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>**
+
+[<span class="hover-hint">带链接的提示文本<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>](https://example.com)
+
+<span class="hover-hint">[包裹在提示文本中的链接](https://example.com)<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span>
+
+[普通链接](https://example.com)
+
+#### 悬停提示（Hover Hint）测试文档
+
+以下内容用于测试 `<span class="hover-hint">` 在各类 Markdown 场景下的渲染表现，包括行内、列表、表格、引用、标题、链接等。
+
+---
+
+##### 1. 行内基础用法
+
+这是一段普通文本，中间夹着一个 <span class="hover-hint">悬停查看提示<span class="hover-hint__tooltip"><span class="hint-title">基础提示</span>这是一个最基础的悬停提示，鼠标移上去就会显示。</span></span>，后面继续普通文本。
+
+再来一个<span class="hover-hint">没有标题的提示<span class="hover-hint__tooltip">这个提示没有 `hint-title`，只显示正文内容。</span></span>作为对比。
+
+也可以连续出现多个：<span class="hover-hint">第一处<span class="hover-hint__tooltip"><span class="hint-title">提示 A</span>内容 A</span></span>、<span class="hover-hint">第二处<span class="hover-hint__tooltip"><span class="hint-title">提示 B</span>内容 B</span></span>、<span class="hover-hint">第三处<span class="hover-hint__tooltip">内容 C（无标题）</span></span>。
+
+---
+
+##### 2. 多行与长文本提示
+
+<span class="hover-hint">多行提示示例<span class="hover-hint__tooltip"><span class="hint-title">多行内容</span>第一行内容。<br>第二行内容。<br>第三行内容，用于测试换行和最大宽度表现。</span></span>
+
+<span class="hover-hint">长文本提示<span class="hover-hint__tooltip"><span class="hint-title">很长的提示标题可能会换行或截断</span>这是一段相对较长的提示内容，用来测试 tooltip 的最大宽度、自动换行、以及靠近视口边缘时的定位行为。建议在窄屏和宽屏下都测试一遍。</span></span>
+
+---
+
+#### 3. 标题中的提示
+
+##### 3.1 普通标题 <span class="hover-hint">（带提示）<span class="hover-hint__tooltip"><span class="hint-title">标题提示</span>标题里也可以嵌入悬停提示。</span></span>
+
+###### 3.1.1 六级标题 <span class="hover-hint">ⓘ<span class="hover-hint__tooltip">图标式提示，常见于标题右侧。</span></span>
+
+---
+
+#### 4. 列表中的提示
+
+- 无序列表项一：<span class="hover-hint">说明<span class="hover-hint__tooltip"><span class="hint-title">列表提示</span>列表项中的提示应正常弹出。</span></span>
+- 无序列表项二：普通文本
+- 无序列表项三：<span class="hover-hint">嵌套列表测试<span class="hover-hint__tooltip">包含子列表的父项提示。</span></span>
+  - 子项 A：<span class="hover-hint">子提示 A<span class="hover-hint__tooltip"><span class="hint-title">子级</span>嵌套层级的提示。</span></span>
+  - 子项 B：普通文本
+
+1. 有序列表第一项 <span class="hover-hint">①<span class="hover-hint__tooltip">数字编号项中的提示。</span></span>
+2. 有序列表第二项
+3. 有序列表第三项 <span class="hover-hint">③<span class="hover-hint__tooltip"><span class="hint-title">第三项</span>有序列表中的提示内容。</span></span>
+
+- [ ] 任务列表：<span class="hover-hint">未完成<span class="hover-hint__tooltip">任务列表中的提示。</span></span>
+- [x] 任务列表：<span class="hover-hint">已完成<span class="hover-hint__tooltip"><span class="hint-title">状态</span>已完成项也可以有提示。</span></span>
+
+---
+
+#### 5. 引用块中的提示
+
+> 这是一段引用文字，其中包含 <span class="hover-hint">引用内提示<span class="hover-hint__tooltip"><span class="hint-title">引用提示</span>引用块里的 tooltip 定位可能需要特别测试。</span></span>。
+>
+> > 嵌套引用：<span class="hover-hint">嵌套引用提示<span class="hover-hint__tooltip">嵌套引用中的提示。</span></span>
+
+---
+
+#### 6. 表格中的提示
+
+| 名称 | 说明 | 状态 |
+|------|------|------|
+| 项目 A | <span class="hover-hint">查看详情<span class="hover-hint__tooltip"><span class="hint-title">项目 A</span>这是项目 A 的详细信息，可能比较长需要换行。</span></span> | 正常 |
+| 项目 B | 普通文本 | <span class="hover-hint">异常<span class="hover-hint__tooltip"><span class="hint-title">警告</span>状态为异常，请检查。</span></span> |
+| 项目 C | <span class="hover-hint">ⓘ<span class="hover-hint__tooltip">表格单元格中的图标提示。</span></span> | 待定 |
+
+---
+
+#### 7. 链接中的提示
+
+- 外链 + 提示：[<span class="hover-hint">访问示例站点<span class="hover-hint__tooltip"><span class="hint-title">外部链接</span>点击将跳转到 example.com。</span></span>](https://example.com)
+- 纯提示链接文字：[<span class="hover-hint">悬停我<span class="hover-hint__tooltip"><span class="hint-title">链接提示</span>这是一个带悬停提示的链接文本。</span></span>](https://example.com)
+
+---
+
+#### 8. 与其他行内样式组合
+
+<span class="hover-hint">**加粗的提示文字**<span class="hover-hint__tooltip"><span class="hint-title">粗体</span>显示文字使用了粗体。</span></span>
+
+<span class="hover-hint">*斜体的提示文字*<span class="hover-hint__tooltip"><span class="hint-title">斜体</span>显示文字使用了斜体。</span></span>
+
+<span class="hover-hint">`代码样式的提示`<span class="hover-hint__tooltip"><span class="hint-title">代码</span>显示文字使用了行内代码样式。</span></span>
+
+<span class="hover-hint"><mark>高亮的提示</mark><span class="hover-hint__tooltip"><span class="hint-title">高亮</span>显示文字带高亮背景。</span></span>
+
+<span class="hover-hint"><u>下划线提示</u><span class="hover-hint__tooltip"><span class="hint-title">下划线</span>显示文字带下划线。</span></span>
+
+<span class="hover-hint">😀 表情提示 🚀<span class="hover-hint__tooltip"><span class="hint-title">Emoji</span>显示文字中包含 emoji。</span></span>
+
+---
+
+#### 9. 边界与极端情况
+
+- 超短提示：<span class="hover-hint">?<span class="hover-hint__tooltip">?</span></span>
+- 空标题：<span class="hover-hint">空标题<span class="hover-hint__tooltip"><span class="hint-title"></span>标题为空时是否还显示标题行？</span></span>
+- 仅标题：<span class="hover-hint">仅标题<span class="hover-hint__tooltip"><span class="hint-title">只有标题</span></span></span>
+- 无任何内容：<span class="hover-hint">空提示<span class="hover-hint__tooltip"></span></span>
+- 特殊字符：<span class="hover-hint">符号<span class="hover-hint__tooltip"><span class="hint-title">&lt;标题 &amp; 符号&gt;</span>内容包含 &lt; &gt; &amp; " ' 等字符。</span></span>
+- 超长单词：<span class="hover-hint">长单词<span class="hover-hint__tooltip"><span class="hint-title">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span>bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb</span></span>
+
+---
+
+#### 10. 一段综合段落
+
+在真实文档中，提示常常出现在说明性文字里，例如：<span class="hover-hint">配置项 `timeout`<span class="hover-hint__tooltip"><span class="hint-title">timeout</span>类型：number，单位：毫秒，默认值：3000。</span></span> 控制请求超时时间；<span class="hover-hint">配置项 `retry`<span class="hint-title">retry</span><span class="hover-hint__tooltip">类型：number，默认值：3，表示失败重试次数。</span></span> 控制重试次数。更多细节请参考 <span class="hover-hint">官方文档<span class="hover-hint__tooltip"><span class="hint-title">文档链接</span>文档地址：https://example.com/docs</span></span>。
+
+---
+
+以上覆盖了常见 Markdown 结构中的悬停提示用法，可用于回归测试 tooltip 的渲染、定位、换行、边界与样式组合表现。
+
 ## 4. 引用
 
 > 一级引用
