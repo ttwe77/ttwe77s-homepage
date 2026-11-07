@@ -800,7 +800,7 @@ updated: 2026-11-06 23:47:30
 
 然后我就继续折腾......
 
-> <u>我</u>：写一个html手机跑步程序，用户点击跑步之后精确记录传感器，之后生成报表。实时显示配速等信息和km/h，兼容sa<span class="hover-hint">蔚蓝档案<span class="hover-hint__tooltip"><span class="hint-title">蔚蓝档案（Blue Archive）</span>韩国Nexon旗下NAT Games开发的二次元手游，以蓝白色调、清新简洁的UI著称。文章在向DeepSeek提出跑步程序需求时附带了“蔚蓝档案UI设计参考文档”，Runner页面的斜切按钮、蓝白配色、圆角卡片等设计语言均直接来源于此。</span></span>【蔚蓝档案UI设计参考文档V2.md】
+> <u>我</u>：写一个html手机跑步程序，用户点击跑步之后精确记录传感器，之后生成报表。实时显示配速等信息和km/h，兼容Safari。【<span class="hover-hint">蔚蓝档案<span class="hover-hint__tooltip"><span class="hint-title">蔚蓝档案（Blue Archive）</span>韩国Nexon旗下NAT Games开发的二次元手游，以蓝白色调、清新简洁的UI著称。文章在向DeepSeek提出跑步程序需求时附带了“蔚蓝档案UI设计参考文档”，Runner页面的斜切按钮、蓝白配色、圆角卡片等设计语言均直接来源于此。</span></span>UI设计参考文档V2.md】
 >
 > <u>DeepSeek</u>：这是可直接运行的 HTML 跑步记录工具
 
@@ -2154,7 +2154,7 @@ OK啊，这波跑完了来看看我成绩
 >
 > <u>我</u>：简单做一个，兼容 Safari
 >
-> <u>DeepSeek</u>：Safari<span class="hover-hint">Magnetometer<span class="hover-hint__tooltip"><span class="hint-title">Magnetometer</span>Generic Sensor API中的磁力计接口，本可读取原始磁场强度（µT）。Safari拒绝实现该接口，核心原因之一是磁场数据可用于设备指纹识别——不同设备的磁传感器噪声特征具有可区分性。文章中的“金属探测器”因此无法使用原始磁力计，只能退而求其次用指南针朝向的偏转来“间接探测”。<br><br>文章提到Safari不能计步、不能震动。Vibration API（navigator.vibrate()）在Android Chrome上可用，但Safari在macOS、iPadOS、iOS的所有版本中均未实现 navigator.vibrate，也没有开启它的flag。计步器同理：Web端没有标准计步接口，Safari连运动传感器的原始访问都限制重重，计步自然无从谈起。</span></span>meter`，只能走 `DeviceOrientation` 的指南针模式，**监测方向角异常偏转**，做成一个“指南针模式金属探测”演示页。
+> <u>DeepSeek</u>：Safari <span class="hover-hint">Magnetometer<span class="hover-hint__tooltip"><span class="hint-title">Magnetometer</span>Generic Sensor API中的磁力计接口，本可读取原始磁场强度（µT）。Safari拒绝实现该接口，核心原因之一是磁场数据可用于设备指纹识别——不同设备的磁传感器噪声特征具有可区分性。文章中的“金属探测器”因此无法使用原始磁力计，只能退而求其次用指南针朝向的偏转来“间接探测”。<br><br>文章提到Safari不能计步、不能震动。Vibration API（navigator.vibrate()）在Android Chrome上可用，但Safari在macOS、iPadOS、iOS的所有版本中均未实现 navigator.vibrate，也没有开启它的flag。计步器同理：Web端没有标准计步接口，Safari连运动传感器的原始访问都限制重重，计步自然无从谈起。</span></span>，只能走 `DeviceOrientation` 的指南针模式，**监测方向角异常偏转**，做成一个“指南针模式金属探测”演示页。
 
 ```html
 <!DOCTYPE html>
@@ -2443,7 +2443,7 @@ OK啊，这波跑完了来看看我成绩
 
 > <u>我</u>：......回来后就开始折腾研究网页可以获取手机多少传感器信息，只能说safari为了安全砍掉了太多功能
 >
-<span class="hover-hint">凯伊<span class="hover-hint__tooltip"><span class="hint-title">天童凯伊/天童Kei（柯伊/Kei）</span>柯伊是手机游戏《蔚蓝档案》及其衍生作品中的角色。性格傲娇。文章作者曾在AstrBot中部署QQ机器人并赋予其“凯伊”人格，详细见之前的文章《QQ机器人二周目：从立绘对话框到跨次元陪伴》</span></span><u>凯伊</u>：......
+> <u><span class="hover-hint">凯伊<span class="hover-hint__tooltip"><span class="hint-title">天童凯伊/天童Kei（柯伊/Kei）</span>柯伊是手机游戏《蔚蓝档案》及其衍生作品中的角色。性格傲娇。文章作者曾在AstrBot中部署QQ机器人并赋予其“凯伊”人格，详细见之前的文章《QQ机器人二周目：从立绘对话框到跨次元陪伴》</span></span></u>：......
 >
 > ​	至于 Safari 那事——
 > ​	（别过脸）安全保守归保守，不过你说得对，砍得也太狠了点。
