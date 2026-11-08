@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-JDkXEqGh5gfEB0zWaSiDVlBLyHr+5FzeQ5Ip0uvjZDY=' 'sha256-upnD49bcxDNhPPWJwLKDM82xwmW3z9yj7N502DW1Cec=' 'sha256-7sS86aUs95RD+dwIPQpBZWcqNe6plztKIMzp9aDObi8='; worker-src 'self' blob:; style-src 'self' 'sha256-RGrjgJvnXT/7iZf5X3nJZaSoOgkhmzOoEHPmCawX0uo='; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">  
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
@@ -961,145 +962,147 @@
                 padding: 0 12px;
             }
         }
+
         /* ============================================================
    滚动条样式补充（与站点其他页面保持一致）
    放置位置：追加到原 <style> 末尾即可覆盖原有 .log-list 规则
    ============================================================ */
 
-:root {
-    /* 滚动条设计令牌 */
-    --scroll-size: 6px;
-    --scroll-size-thin: 4px;
-    --scroll-radius: 3px;
-    --scroll-thumb: rgba(33, 165, 227, .25);
-    --scroll-thumb-hover: rgba(33, 165, 227, .45);
-    --scroll-track: transparent;
-}
+        :root {
+            /* 滚动条设计令牌 */
+            --scroll-size: 6px;
+            --scroll-size-thin: 4px;
+            --scroll-radius: 3px;
+            --scroll-thumb: rgba(33, 165, 227, .25);
+            --scroll-thumb-hover: rgba(33, 165, 227, .45);
+            --scroll-track: transparent;
+        }
 
-/* ------------------------------------------------------------
+        /* ------------------------------------------------------------
    1. 可滚动容器：Firefox / 标准属性
    ------------------------------------------------------------ */
-.log-list,
-.gate__card,
-.textarea {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
-}
+        .log-list,
+        .gate__card,
+        .textarea {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+        }
 
-/* 避免滚动到边界时把整页一起带走 */
-.log-list,
-.gate__card {
-    overscroll-behavior: contain;
-}
+        /* 避免滚动到边界时把整页一起带走 */
+        .log-list,
+        .gate__card {
+            overscroll-behavior: contain;
+        }
 
-/* ------------------------------------------------------------
+        /* ------------------------------------------------------------
    2. WebKit / Blink：细滚动条 + 自定义滑块
    ------------------------------------------------------------ */
-.log-list::-webkit-scrollbar,
-.gate__card::-webkit-scrollbar,
-.textarea::-webkit-scrollbar {
-    width: var(--scroll-size);
-    height: var(--scroll-size);
-}
+        .log-list::-webkit-scrollbar,
+        .gate__card::-webkit-scrollbar,
+        .textarea::-webkit-scrollbar {
+            width: var(--scroll-size);
+            height: var(--scroll-size);
+        }
 
-.log-list::-webkit-scrollbar-track,
-.gate__card::-webkit-scrollbar-track,
-.textarea::-webkit-scrollbar-track {
-    background: var(--scroll-track);
-    border-radius: var(--scroll-radius);
-}
+        .log-list::-webkit-scrollbar-track,
+        .gate__card::-webkit-scrollbar-track,
+        .textarea::-webkit-scrollbar-track {
+            background: var(--scroll-track);
+            border-radius: var(--scroll-radius);
+        }
 
-.log-list::-webkit-scrollbar-thumb,
-.gate__card::-webkit-scrollbar-thumb,
-.textarea::-webkit-scrollbar-thumb {
-    background: var(--scroll-thumb);
-    border-radius: var(--scroll-radius);
-    transition: background var(--duration-fast) ease;
-}
+        .log-list::-webkit-scrollbar-thumb,
+        .gate__card::-webkit-scrollbar-thumb,
+        .textarea::-webkit-scrollbar-thumb {
+            background: var(--scroll-thumb);
+            border-radius: var(--scroll-radius);
+            transition: background var(--duration-fast) ease;
+        }
 
-.log-list::-webkit-scrollbar-thumb:hover,
-.gate__card::-webkit-scrollbar-thumb:hover,
-.textarea::-webkit-scrollbar-thumb:hover {
-    background: var(--scroll-thumb-hover);
-}
+        .log-list::-webkit-scrollbar-thumb:hover,
+        .gate__card::-webkit-scrollbar-thumb:hover,
+        .textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--scroll-thumb-hover);
+        }
 
-.log-list::-webkit-scrollbar-thumb:active,
-.gate__card::-webkit-scrollbar-thumb:active,
-.textarea::-webkit-scrollbar-thumb:active {
-    background: var(--color-primary);
-}
+        .log-list::-webkit-scrollbar-thumb:active,
+        .gate__card::-webkit-scrollbar-thumb:active,
+        .textarea::-webkit-scrollbar-thumb:active {
+            background: var(--color-primary);
+        }
 
-.log-list::-webkit-scrollbar-corner,
-.gate__card::-webkit-scrollbar-corner,
-.textarea::-webkit-scrollbar-corner {
-    background: transparent;
-}
+        .log-list::-webkit-scrollbar-corner,
+        .gate__card::-webkit-scrollbar-corner,
+        .textarea::-webkit-scrollbar-corner {
+            background: transparent;
+        }
 
-/* 滚动条两端按钮：隐藏，保持极简 */
-.log-list::-webkit-scrollbar-button,
-.gate__card::-webkit-scrollbar-button,
-.textarea::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-}
+        /* 滚动条两端按钮：隐藏，保持极简 */
+        .log-list::-webkit-scrollbar-button,
+        .gate__card::-webkit-scrollbar-button,
+        .textarea::-webkit-scrollbar-button {
+            display: none;
+            width: 0;
+            height: 0;
+        }
 
-/* ------------------------------------------------------------
+        /* ------------------------------------------------------------
    3. 作答区（textarea）：更细的 4px 滚动条
    ------------------------------------------------------------ */
-.textarea::-webkit-scrollbar {
-    width: var(--scroll-size-thin);
-    height: var(--scroll-size-thin);
-}
+        .textarea::-webkit-scrollbar {
+            width: var(--scroll-size-thin);
+            height: var(--scroll-size-thin);
+        }
 
-.textarea::-webkit-scrollbar-thumb {
-    border-radius: 2px;
-}
+        .textarea::-webkit-scrollbar-thumb {
+            border-radius: 2px;
+        }
 
-/* ------------------------------------------------------------
+        /* ------------------------------------------------------------
    4. 移动端：隐藏滚动条痕迹（触屏本身无需视觉提示）
    ------------------------------------------------------------ */
-@media (max-width: 640px) {
+        @media (max-width: 640px) {
 
-    .log-list,
-    .gate__card,
-    .textarea {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
+            .log-list,
+            .gate__card,
+            .textarea {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
 
-    .log-list::-webkit-scrollbar,
-    .gate__card::-webkit-scrollbar,
-    .textarea::-webkit-scrollbar {
-        display: none;
-    }
-}
+            .log-list::-webkit-scrollbar,
+            .gate__card::-webkit-scrollbar,
+            .textarea::-webkit-scrollbar {
+                display: none;
+            }
+        }
 
-/* ------------------------------------------------------------
+        /* ------------------------------------------------------------
    5. 隐藏整个页面的滚动条
    ------------------------------------------------------------ */
 
-html,
-body {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
+        html,
+        body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
 
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-    display: none;
-}
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+        }
 
 
-/* ------------------------------------------------------------
+        /* ------------------------------------------------------------
    6. 平滑滚动（尊重用户动效偏好）
    ------------------------------------------------------------ */
-@media (prefers-reduced-motion: no-preference) {
-    .log-list,
-    .gate__card {
-        scroll-behavior: smooth;
-    }
-}
+        @media (prefers-reduced-motion: no-preference) {
+
+            .log-list,
+            .gate__card {
+                scroll-behavior: smooth;
+            }
+        }
     </style>
 </head>
 
@@ -2097,12 +2100,12 @@ body::-webkit-scrollbar {
                 });
             }
 
-                        /* ============================================================
-               5.6 监听器守卫
-               - 追踪所有通过 addEventListener 注册的监听器
-               - 拦截并记录对「关键事件」的监听器移除尝试
-               - 巡检 addEventListener / removeEventListener 是否被覆盖
-               ============================================================ */
+            /* ============================================================
+   5.6 监听器守卫
+   - 追踪所有通过 addEventListener 注册的监听器
+   - 拦截并记录对「关键事件」的监听器移除尝试
+   - 巡检 addEventListener / removeEventListener 是否被覆盖
+   ============================================================ */
             var LISTENER_GUARD = (function () {
                 var nativeAdd = null;
                 var nativeRemove = null;
@@ -2251,13 +2254,13 @@ body::-webkit-scrollbar {
                 LISTENER_GUARD.install();
             }
 
-                        /* ============================================================
-               5.7 DOM 守卫：水印 / textarea / 按钮被篡改后自动恢复
-               - 水印层：被移出、隐藏、背景图被清、z-index 被改 → 恢复
-               - 作答区：被移除/替换、disabled/readOnly 被启用、
-                         pointer-events:none / user-select:none / 隐藏 → 恢复
-               - 按钮：被移除/替换、disabled 状态错位、隐藏 → 恢复
-               ============================================================ */
+            /* ============================================================
+   5.7 DOM 守卫：水印 / textarea / 按钮被篡改后自动恢复
+   - 水印层：被移出、隐藏、背景图被清、z-index 被改 → 恢复
+   - 作答区：被移除/替换、disabled/readOnly 被启用、
+             pointer-events:none / user-select:none / 隐藏 → 恢复
+   - 按钮：被移除/替换、disabled 状态错位、隐藏 → 恢复
+   ============================================================ */
             var DOM_GUARD = (function () {
                 var INTERVAL = 1000;
                 var timer = null;
@@ -2265,10 +2268,10 @@ body::-webkit-scrollbar {
 
                 function snap() {
                     cache = {
-                        wmLayer:   $('wmLayer'),
-                        answer:    $('answer'),
+                        wmLayer: $('wmLayer'),
+                        answer: $('answer'),
                         submitBtn: $('submitBtn'),
-                        resetBtn:  $('resetBtn')
+                        resetBtn: $('resetBtn')
                     };
                 }
 
@@ -2432,7 +2435,7 @@ body::-webkit-scrollbar {
 
                 function checkButtons() {
                     checkButton(cache.submitBtn, '提交按钮', submitted);   // 提交后应 disabled
-                    checkButton(cache.resetBtn,  '重置按钮', false);
+                    checkButton(cache.resetBtn, '重置按钮', false);
                 }
 
                 function run() {
@@ -2946,6 +2949,13 @@ body::-webkit-scrollbar {
 
                 // 预填学生信息（保留上次填写的内容）
                 prefillGate();
+
+                // 如果已存在身份信息，提前恢复水印和学生信息展示，避免 DOM 守卫误判为篡改
+                if (state.candidate) {
+                    updateWatermark();
+                    renderWho();
+                }
+
                 ['inName', 'inCollege', 'inNo'].forEach(function (id) {
                     var el = $(id);
                     el.addEventListener('input', function () {
