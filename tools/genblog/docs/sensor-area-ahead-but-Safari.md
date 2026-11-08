@@ -2462,6 +2462,6 @@ OK啊，这波跑完了来看看我成绩
 >
 > ***可以***
 
-我<span class="hover-hint">残血版<span class="hover-hint__tooltip"><span class="hint-title">Safari的“残血版”传感器策略</span>文章的核心吐槽：出于隐私与防指纹追踪的考虑，Safari主动拒绝实现了大量Web传感器API。具体包括：不支持Generic Sensor API全系、devicemotion/deviceorientation 默认关闭且需手势授权、不支持 navigator.vibrate、无计步器接口。相比之下，Chromium内核浏览器对传感器的覆盖要完整得多。</span></span>改成残血版浏览器了。就这样吧，想给我的网站的/tools目录做一个引导页面，但是我懒得做，还是下次再做吧。
+我也是用上<span class="hover-hint">残血版<span class="hover-hint__tooltip"><span class="hint-title">Safari的“残血版”传感器策略</span>文章的核心吐槽：出于隐私与防指纹追踪的考虑，Safari主动拒绝实现了大量Web传感器API。具体包括：不支持Generic Sensor API全系、devicemotion/deviceorientation 默认关闭且需手势授权、不支持 navigator.vibrate、无计步器接口。相比之下，Chromium内核浏览器对传感器的覆盖要完整得多。</span></span>浏览器了。就这样吧，想给我的网站的/tools目录做一个引导页面，但是我懒得做，还是下次再做吧。
 
 > 前面的区域，以后再来探索吧

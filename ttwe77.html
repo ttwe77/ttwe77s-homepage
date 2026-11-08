@@ -53,19 +53,7 @@
     const fx = new BAClickFX();
     fx.updateConfig({ trailAlways: true });
     fx.setCompositingReference({ hostCompositing: 'screen' });
-
-    function applyFxTheme() {
-      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-      // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
-      fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
-    }
-    applyFxTheme();
-
-    // 跟随主题切换
-    new MutationObserver(applyFxTheme).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme']
-    });
+    fx.setThemeColor('#80c1ff');
   </script>
   <style>
     /* ==================== 设计变量 ==================== */
@@ -346,22 +334,17 @@
     /* 默认（无 JS）保持可见；仅在 <html class="js"> 时隐藏，等待进入当前页 */
     .js .reveal {
       opacity: 0;
+      /* 用独立的 translate 属性做位移，避免与组件自身的 transform 冲突 */
       translate: 0 22px;
-      visibility: hidden;
-      /* 新增：隐藏期间不可聚焦 */
       transition:
         opacity .62s cubic-bezier(.22, .61, .36, 1),
-        translate .62s cubic-bezier(.22, .61, .36, 1),
-        visibility 0s;
-      /* 立即生效，不参与过渡 */
+        translate .62s cubic-bezier(.22, .61, .36, 1);
       will-change: opacity, translate;
     }
 
     .js .reveal.is-visible {
       opacity: 1;
       translate: 0 0;
-      visibility: visible;
-      /* 新增 */
       will-change: auto;
     }
 
@@ -1341,7 +1324,6 @@
       .js .reveal {
         opacity: 1 !important;
         translate: none !important;
-        visibility: visible !important;
         transition: none !important;
       }
     }
@@ -3484,64 +3466,6 @@
     :root[data-theme="dark"] .hover-hint__tooltip.is-below::after {
       border-bottom-color: var(--color-bg-white);
     }
-
-    /* —— View Transitions：模糊溶解 —— */
-    ::view-transition-old(root) {
-      animation: none;
-      mix-blend-mode: normal;
-    }
-
-    ::view-transition-new(root) {
-      animation: theme-blur-dissolve .55s cubic-bezier(.65, .05, .36, 1) both;
-      background-color: var(--color-bg-light, #fff);
-    }
-
-    @keyframes theme-blur-dissolve {
-      from {
-        opacity: 0;
-        filter: blur(20px);
-        transform: scale(1.015);
-        /* 稍微放大，防止模糊边缘透出旧内容 */
-      }
-
-      to {
-        opacity: 1;
-        filter: blur(0);
-        transform: scale(1);
-      }
-    }
-
-    /* —— 兜底：不支持 View Transitions 时，用旧底色层做淡出溶解 —— */
-    .theme-dissolve {
-      position: fixed;
-      inset: 0;
-      z-index: 999998;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity .45s cubic-bezier(.65, .05, .36, 1);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-
-      ::view-transition-old(root),
-      ::view-transition-new(root) {
-        animation: none !important;
-      }
-    }
-
-    /* ==================== 键盘焦点可见 ==================== */
-    a:focus-visible,
-    button:focus-visible,
-    [role="button"]:focus-visible,
-    .work[data-href]:focus-visible,
-    .ability__item:focus-visible {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 3px;
-    }
-
-    .pager-nav__dot:focus-visible {
-      outline-offset: 4px;
-    }
   </style>
 </head>
 
@@ -3563,7 +3487,8 @@
     <div class="topbar__spacer"></div>
 
     <!-- 主题切换 -->
-    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式"
+      aria-pressed="false">
       <svg class="icon-btn__sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="4.5" />
@@ -3601,7 +3526,7 @@
     <div class="pager__track" id="pager-track">
 
       <!-- ---------- 第 1 页 · 封面 ---------- -->
-      <section class="page" aria-label="封面" inert>
+      <section class="page" aria-label="封面">
         <div class="page__inner">
           <div class="masthead">
             <h1 class="masthead__title reveal">
@@ -3624,7 +3549,7 @@
       </section>
 
       <!-- ==================== 第 2 页 · 个人简介 ==================== -->
-      <section class="page" aria-label="个人资料" inert>
+      <section class="page" aria-label="个人资料">
         <div class="page__inner">
           <h2 class="section-title reveal">个人资料<span class="section-title__sub">PROFILE</span></h2>
 
@@ -3743,7 +3668,7 @@
       </section>
 
       <!-- ---------- 第 3 页 · 能力参数 ---------- -->
-      <section class="page" aria-label="能力参数" inert>
+      <section class="page" aria-label="能力参数">
         <div class="page__inner">
           <h2 class="section-title reveal">小故事/碎碎念<span class="section-title__sub">STORY/THOUGHTS</span></h2>
 
@@ -3759,7 +3684,7 @@
       </section>
 
       <!-- ---------- 第 4 页 · 作品记录 ---------- -->
-      <section class="page" aria-label="作品记录" inert>
+      <section class="page" aria-label="作品记录">
         <div class="page__inner">
           <h2 class="section-title reveal">作品记录<span class="section-title__sub">SELECTED WORKS</span></h2>
 
@@ -3870,7 +3795,7 @@
       </section>
 
       <!-- ---------- 第 5 页 · 建立连接 ---------- -->
-      <section class="page" aria-label="建立连接" inert>
+      <section class="page" aria-label="建立连接">
         <div class="page__inner">
           <h2 class="section-title reveal">建立连接<span class="section-title__sub">CONTACT</span></h2>
 
@@ -4025,13 +3950,6 @@
         });
       }
 
-      function syncInert() {
-        for (var i = 0; i < pages.length; i++) {
-          if (i === current) pages[i].removeAttribute('inert');
-          else pages[i].setAttribute('inert', '');
-        }
-      }
-
       /* ---------- 跳转 ---------- */
       function goTo(target) {
         target = clamp(target);
@@ -4041,9 +3959,6 @@
         current = target;
         locked = true;
 
-        // 广播翻页事件（在其他模块里监听后立即复位状态）
-        window.dispatchEvent(new CustomEvent('pager:change', { detail: { index: current } }));
-
         // 用位移百分比：轨道高度 = 视口高度，-100% 即一页
         track.style.transition = reduceMotion ? 'none' : '';
         track.style.transform = 'translate3d(0,' + (-current * 100) + '%,0)';
@@ -4052,7 +3967,6 @@
         pages[current].scrollTop = 0;
 
         updateDots();
-        syncInert();
 
         // 等页面滑入大半后再播放内容入场
         clearTimeout(revealTimer);
@@ -4184,7 +4098,6 @@
 
       /* ---------- 初始化 ---------- */
       updateDots();
-      syncInert();
       // 首屏入场
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
@@ -4367,7 +4280,6 @@
       /* ---------- 一次完整交互 ---------- */
       var busy = false;
       var MIN_SHOW = 1200;   // 气泡最短显示时间
-      var resetTimer = null; // 保存"语音结束后复位"的定时器
 
       function triggerDialogue() {
         if (busy) return;
@@ -4389,43 +4301,14 @@
         /* 4. 播放语音；结束（或失败）后切回默认立绘 */
         playVoice(d.voice, function () {
           var wait = Math.max(0, MIN_SHOW - (Date.now() - shownAt));
-          clearTimeout(resetTimer);
-          resetTimer = setTimeout(function () {
-            resetTimer = null;
+          setTimeout(function () {
             busy = false;
-            setArt(DEFAULT_ART);
-            if (window.blinkResume) window.blinkResume();
+            setArt(DEFAULT_ART);                  // 切回默认立绘
+            if (window.blinkResume) window.blinkResume();  // 恢复眨眼
             hideTimer = setTimeout(hideDialog, 600);
           }, wait);
         });
       }
-
-      /* 翻页立即中断：停语音 → 清定时器 → 复位立绘 / 眨眼 → 隐藏气泡 */
-function stopDialogue() {
-  // 没有正在进行的对话就直接跳过，避免多余的复位
-  if (!busy && !currentAudio && !dialogEl.classList.contains('is-visible')) return;
-
-  stopVoice();                 // audio.pause() 是同步的，语音立刻静音
-
-  clearTimeout(resetTimer);
-  resetTimer = null;
-  clearTimeout(hideTimer);
-  hideTimer = null;
-
-  busy = false;
-
-  setArt(DEFAULT_ART);         // 切回默认立绘
-  if (window.blinkResume) window.blinkResume();
-
-  hideDialog();                // 移除 .is-visible → 气泡淡出
-
-  // 过渡结束后清空文本，避免读屏残留
-setTimeout(function () {
-  if (!dialogEl.classList.contains('is-visible')) dialogEl.textContent = '';
-}, 300);
-}
-
-window.addEventListener('pager:change', stopDialogue);
 
       artEl.addEventListener('click', function (e) {
         e.preventDefault();
@@ -5230,46 +5113,12 @@ window.addEventListener('pager:change', stopDialogue);
 
       sync();
 
-      function prefersReducedMotion() {
-        return window.matchMedia &&
-          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      }
-
       if (btn) {
         btn.addEventListener('click', function () {
-          var theme = isDark() ? 'light' : 'dark';
-
-          if (prefersReducedMotion()) {
-            apply(theme, true);
-            return;
-          }
-
-          if (typeof document.startViewTransition === 'function') {
-            // 主力方案：新主题从模糊中淡入，覆盖旧主题
-            document.startViewTransition(function () {
-              apply(theme, true);
-            });
-          } else {
-            // 兜底方案：旧底色覆盖 → 淡出 → 露出新主题
-            var overlay = document.createElement('div');
-            overlay.className = 'theme-dissolve';
-            overlay.style.background = getComputedStyle(document.body).backgroundColor;
-            document.body.appendChild(overlay);
-
-            void overlay.offsetWidth;     // 强制回流，确保起始状态生效
-
-            apply(theme, true);           // 现在有层挡着，用户看不到瞬切
-
-            requestAnimationFrame(function () {
-              overlay.style.opacity = '0';
-            });
-
-            setTimeout(function () {
-              if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-            }, 550);
-          }
+          apply(isDark() ? 'light' : 'dark', true);
         });
       }
+
       /* 用户没手动选过时，跟随系统偏好变化 */
       if (mq && mq.addEventListener) {
         mq.addEventListener('change', function (e) {
