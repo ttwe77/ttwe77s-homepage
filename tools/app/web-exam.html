@@ -5,7 +5,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
-    <title>知识问答 · 单题主观题</title>
+    <title>知识测试</title>
+    <link rel="icon" href="/src/favicon.svg">
+    <script type="module">
+        import { BAClickFX } from '/libs/ba-click-fx.js';
+        const fx = new BAClickFX();
+        fx.updateConfig({ trailAlways: true });
+        fx.setCompositingReference({ hostCompositing: 'screen' });
+
+        function applyFxTheme() {
+            const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+            // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
+            fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
+        }
+        applyFxTheme();
+
+        // 跟随主题切换
+        new MutationObserver(applyFxTheme).observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+    </script>
     <style>
         /* ============================================================
    设计令牌
@@ -673,8 +693,17 @@
             text-align: center;
         }
 
+        .gate .btn {
+            width: 100%;
+        }
+
+        /* 新增：预设按钮容器 */
+        .gate__preset {
+            margin: 0 0 16px;
+        }
+
         /* ============================================================
-   考生身份表单
+   学生身份表单
    ============================================================ */
         .gate__form {
             display: flex;
@@ -777,7 +806,7 @@
         }
 
         /* ============================================================
-   顶栏考生信息
+   顶栏学生信息
    ============================================================ */
         .topbar__who {
             display: inline-flex;
@@ -902,6 +931,175 @@
                 transition-duration: .001ms !important;
             }
         }
+
+        .site-footer {
+            max-width: var(--content-max);
+            margin: 8px auto 0;
+            padding: 0 16px;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .site-footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .site-footer .sep {
+            margin: 0 8px;
+            color: var(--color-border-strong);
+        }
+
+        @media (max-width: 640px) {
+            .site-footer {
+                padding: 0 12px;
+            }
+        }
+        /* ============================================================
+   滚动条样式补充（与站点其他页面保持一致）
+   放置位置：追加到原 <style> 末尾即可覆盖原有 .log-list 规则
+   ============================================================ */
+
+:root {
+    /* 滚动条设计令牌 */
+    --scroll-size: 6px;
+    --scroll-size-thin: 4px;
+    --scroll-radius: 3px;
+    --scroll-thumb: rgba(33, 165, 227, .25);
+    --scroll-thumb-hover: rgba(33, 165, 227, .45);
+    --scroll-track: transparent;
+}
+
+/* ------------------------------------------------------------
+   1. 可滚动容器：Firefox / 标准属性
+   ------------------------------------------------------------ */
+.log-list,
+.gate__card,
+.textarea {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+/* 避免滚动到边界时把整页一起带走 */
+.log-list,
+.gate__card {
+    overscroll-behavior: contain;
+}
+
+/* ------------------------------------------------------------
+   2. WebKit / Blink：细滚动条 + 自定义滑块
+   ------------------------------------------------------------ */
+.log-list::-webkit-scrollbar,
+.gate__card::-webkit-scrollbar,
+.textarea::-webkit-scrollbar {
+    width: var(--scroll-size);
+    height: var(--scroll-size);
+}
+
+.log-list::-webkit-scrollbar-track,
+.gate__card::-webkit-scrollbar-track,
+.textarea::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+    border-radius: var(--scroll-radius);
+}
+
+.log-list::-webkit-scrollbar-thumb,
+.gate__card::-webkit-scrollbar-thumb,
+.textarea::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: var(--scroll-radius);
+    transition: background var(--duration-fast) ease;
+}
+
+.log-list::-webkit-scrollbar-thumb:hover,
+.gate__card::-webkit-scrollbar-thumb:hover,
+.textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+}
+
+.log-list::-webkit-scrollbar-thumb:active,
+.gate__card::-webkit-scrollbar-thumb:active,
+.textarea::-webkit-scrollbar-thumb:active {
+    background: var(--color-primary);
+}
+
+.log-list::-webkit-scrollbar-corner,
+.gate__card::-webkit-scrollbar-corner,
+.textarea::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* 滚动条两端按钮：隐藏，保持极简 */
+.log-list::-webkit-scrollbar-button,
+.gate__card::-webkit-scrollbar-button,
+.textarea::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* ------------------------------------------------------------
+   3. 作答区（textarea）：更细的 4px 滚动条
+   ------------------------------------------------------------ */
+.textarea::-webkit-scrollbar {
+    width: var(--scroll-size-thin);
+    height: var(--scroll-size-thin);
+}
+
+.textarea::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+}
+
+/* ------------------------------------------------------------
+   4. 移动端：隐藏滚动条痕迹（触屏本身无需视觉提示）
+   ------------------------------------------------------------ */
+@media (max-width: 640px) {
+
+    .log-list,
+    .gate__card,
+    .textarea {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .log-list::-webkit-scrollbar,
+    .gate__card::-webkit-scrollbar,
+    .textarea::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------
+   5. 隐藏整个页面的滚动条
+   ------------------------------------------------------------ */
+
+html,
+body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* ------------------------------------------------------------
+   6. 平滑滚动（尊重用户动效偏好）
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+    .log-list,
+    .gate__card {
+        scroll-behavior: smooth;
+    }
+}
     </style>
 </head>
 
@@ -910,7 +1108,7 @@
     <!-- ================= 顶栏 ================= -->
     <header class="topbar">
         <div class="topbar__brand">
-            知识问答 <small>SUBJECTIVE · 01</small>
+            知识测试 <small>SUBJECTIVE · 01</small>
         </div>
         <div class="topbar__who" id="who" hidden>
             <span class="who-chip" id="whoName"></span>
@@ -951,7 +1149,7 @@
             <div class="answer__foot">
                 <span class="counter" id="counter">0 字</span>
                 <button class="btn btn--ghost" id="resetBtn" type="button">
-                    <span class="btn__label">重置</span>
+                    <span class="btn__label">重置并刷新</span>
                 </button>
                 <button class="btn btn--primary" id="submitBtn" type="button">
                     <span class="btn__label">提交答卷</span>
@@ -971,6 +1169,28 @@
 
     </main>
 
+    <footer class="site-footer">
+        <div>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+                桂ICP备2026023217号-1
+            </a>
+            <span class="sep">·</span>
+            <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
+                rel="noopener noreferrer">
+                本站点使用 MIT License 开源
+            </a>
+            <span class="sep">·</span>
+            <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/app/web-exam.html" target="_blank"
+                rel="noopener noreferrer">
+                查看源代码
+            </a>
+            <span class="sep">·</span>
+            <a href="https://www.ttwe77.cn/blog/web-exam.html" target="_blank" rel="noopener noreferrer">
+                开发经过
+            </a>
+        </div>
+    </footer>
+
     <!-- ================= 全局水印层 ================= -->
     <div class="wm-layer" id="wmLayer" hidden aria-hidden="true"></div>
 
@@ -978,12 +1198,12 @@
     <div class="gate" id="gate">
         <div class="gate__card">
             <span class="gate__kicker">BEFORE YOU START</span>
-            <h1 class="gate__title">核对考生身份</h1>
+            <h1 class="gate__title">核对学生身份</h1>
             <p class="gate__sub">请填写以下信息，它会作为水印叠加在整页之上。默认信息已为你填好，可直接开始。</p>
 
             <form class="gate__form" id="gateForm" autocomplete="off" novalidate>
                 <div class="field">
-                    <label class="field__label" for="inName">考生昵称 <em>必填</em></label>
+                    <label class="field__label" for="inName">学生昵称 <em>必填</em></label>
                     <div class="field__row">
                         <input id="inName" name="nickname" type="text" maxlength="24" placeholder="例如：天童 凯伊">
                     </div>
@@ -1002,6 +1222,12 @@
                 </div>
             </form>
             <p class="gate__error" id="gateError"></p>
+
+            <div class="gate__preset">
+                <button class="btn btn--ghost" id="presetBtn" type="button">
+                    <span class="btn__label">填入预设</span>
+                </button>
+            </div>
 
             <ul class="gate__list">
                 <li>开始后整页会叠加显示你的身份水印，便于追溯</li>
@@ -1032,12 +1258,21 @@
             var LIMIT = 20 * 60 * 1000;               // 20 分钟
             var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
 
-            /* ---- 考生默认信息 ---- */
-            var DEFAULT_CANDIDATE = {
-                nickname: '天童 凯伊',
-                college: '千禧年科学学院',
-                studentNo: '10135'
-            };
+            /* ---- 学生预设信息（可循环切换，可自行增删） ---- */
+            var PRESET_CANDIDATES = [
+                { nickname: '天童 凯伊', college: '千禧年科学学院', studentNo: '10135' },
+                { nickname: '纳西妲', college: '教令院', studentNo: '202211021027' },
+                { nickname: '多托雷', college: '刹诃伐罗学院', studentNo: '114514' },
+                { nickname: '提纳里', college: '阿弥利多学院', studentNo: '20220824' },
+                { nickname: '白洲 梓', college: '圣三一综合学院', studentNo: '10019' },
+                { nickname: '圣园 未花', college: '圣三一综合学院', studentNo: '10059' },
+                { nickname: '天童 爱丽丝', college: '千禧年科学学院', studentNo: '10134' },
+                { nickname: '空崎 日奈', college: '格黑娜学院', studentNo: '10004' }
+            ];
+            var presetIndex = -1;   // -1 表示尚未点过预设按钮
+
+            /* ---- 默认学生（水印兜底用，取第一套预设） ---- */
+            var DEFAULT_CANDIDATE = PRESET_CANDIDATES[0];
 
             /* ---- 题目文本 Base64 编码，源码中不出现明文，增加抄题成本 ---- */
             var Q_ENC = {
@@ -1136,6 +1371,7 @@
 
             var saveTimer = null;
             function saveState() {
+                if (isResetting) return;
                 try {
                     state.elapsedMs = elapsed();
                     state.sig = computeSig(state);
@@ -1145,6 +1381,7 @@
                 } catch (e) { /* 存储不可用时静默 */ }
             }
             function saveStateSoon() {
+                if (isResetting) return;
                 clearTimeout(saveTimer);
                 saveTimer = setTimeout(saveState, 400);
             }
@@ -1453,7 +1690,7 @@
             }
 
             /* ============================================================
-               4.5 全局水印 / 考生信息展示
+               4.5 全局水印 / 学生信息展示
                ============================================================ */
             function fmtDate(ts) {
                 var d = new Date(ts);
@@ -1585,6 +1822,7 @@
                ============================================================ */
             var started = false;
             var submitted = false;
+            var isResetting = false;
 
             function isFullscreen() {
                 return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
@@ -1614,6 +1852,7 @@
 
             function bindFullscreenWatch() {
                 var handler = function () {
+                    if (isResetting) return;
                     if (!started) return;
                     if (!isFullscreen()) {
                         logViolation('退出全屏', '检测到页面已退出全屏状态（fullscreenchange）', 1500);
@@ -1632,6 +1871,7 @@
             var lastSwitchAt = 0;
 
             function reportSwitch(source, extra) {
+                if (isResetting) return;
                 if (!started || submitted) return;
                 var now = Date.now();
                 if (now - lastSwitchAt < 800) return; // 去抖，避免一次切屏记两条
@@ -1641,6 +1881,7 @@
 
             function bindVisibilityWatch() {
                 document.addEventListener('visibilitychange', function () {
+                    if (isResetting) return;
                     if (document.hidden) {
                         reportSwitch('visibilitychange（document.hidden）');
                         if (started && !submitted) shieldOn('hidden');
@@ -1660,7 +1901,10 @@
                         saveStateSoon();
                     }
                 });
-                window.addEventListener('pagehide', function () { saveState(); });
+                window.addEventListener('pagehide', function () {
+                    if (isResetting) return;
+                    saveState();
+                });
             }
 
             /* ============================================================
@@ -1796,6 +2040,7 @@
                ============================================================ */
             function bindUnloadGuard() {
                 window.addEventListener('beforeunload', function (e) {
+                    if (isResetting) return;
                     saveState();
                     if (submitted) return;
                     logViolation('尝试离开页面', '触发 beforeunload（刷新 / 关闭 / 跳转）', 1500);
@@ -1933,7 +2178,7 @@
 
                 // 每 5 秒落盘一次耗时
                 setInterval(function () {
-                    if (started && !submitted) saveState();
+                    if (started && !submitted && !isResetting) saveState();
                 }, 5000);
             }
 
@@ -1969,56 +2214,31 @@
              13.5 重置：清空所有本地存储 + 内存状态 + UI
              ============================================================ */
             function doReset() {
-                if (!window.confirm('确定要清空所有本地数据吗？\n作答内容、违规日志、计时都会重置，且无法恢复。')) {
+                if (!window.confirm('确定要重置并刷新吗？\n作答内容、违规日志、计时都会重置，且无法恢复。')) {
                     return;
                 }
 
-                /* 1) 清空 localStorage 中的答题数据 */
-                try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+                isResetting = true;
 
-                /* 2) 重置内存状态（注意：不能整体重新赋值 state 之外的闭包变量） */
+                // 停掉所有可能写盘的定时器
+                clearTimeout(saveTimer);
+                clearTimeout(wmTimer);
+                clearTimeout(keyShieldTimer);
+                clearTimeout(shotShieldTimer);
+
+                // 先清空内存状态，任何漏网回调也写不回旧数据
                 state.answer = '';
                 state.answerUpdatedAt = 0;
                 state.violations = [];
                 state.elapsedMs = 0;
                 state.submitted = false;
+                state.candidate = null;
+                state.sig = '';
 
-                /* 3) 重置计时基准：从 20:00 重新开始 */
-                sessionT0 = performance.now();
-                elapsedBase = 0;
+                // 再清本地存储
+                try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
 
-                /* 4) 清空违规去抖表，避免旧时间戳干扰 */
-                lastLogAt = Object.create(null);
-
-                /* 4.5) 解除题目护盾 */
-                maskReasons = Object.create(null);
-                clearTimeout(keyShieldTimer);
-                clearTimeout(shotShieldTimer);
-                paintQuestion();
-
-                /* 5) 恢复作答区与提交按钮 */
-                var ta = $('answer');
-                ta.value = '';
-                ta.disabled = false;
-                updateCounter();
-
-                var btn = $('submitBtn');
-                btn.disabled = false;
-                btn.innerHTML = '<span class="btn__label">提交答卷</span>';
-
-                var hint = $('saveHint');
-                if (hint) hint.textContent = '已清空';
-
-                /* 6) 若已进入答题模式，保持答题中；否则保持未开始 */
-                submitted = false;
-                started = !!($('gate') && $('gate').hidden);
-
-                /* 7) 刷新日志 / 徽章 / 计时显示 */
-                renderLog();
-                updateBadge();
-                updateTimerUI();
-
-                showToast('🧹 已清空所有本地数据');
+                window.location.reload();
             }
 
             /* ============================================================
@@ -2048,10 +2268,10 @@
             }
 
             function prefillGate() {
-                var c = state.candidate || DEFAULT_CANDIDATE;
-                $('inName').value = c.nickname;
-                $('inCollege').value = c.college;
-                $('inNo').value = c.studentNo;
+                // 编辑框默认为空，预设信息由「填入预设」按钮按需填入
+                $('inName').value = '';
+                $('inCollege').value = '';
+                $('inNo').value = '';
             }
 
             function beginExam() {
@@ -2069,7 +2289,7 @@
                     $(id).classList.remove('is-invalid');
                 });
 
-                if (!name) { badEl = $('inName'); msg = '请填写考生昵称'; }
+                if (!name) { badEl = $('inName'); msg = '请填写学生昵称'; }
                 else if (name.length > 24) { badEl = $('inName'); msg = '昵称最多 24 个字'; }
                 else if (!college) { badEl = $('inCollege'); msg = '请填写所属学院'; }
                 else if (college.length > 32) { badEl = $('inCollege'); msg = '学院名称最多 32 个字'; }
@@ -2134,7 +2354,7 @@
                 renderLog();
                 updateBadge();
 
-                // 预填考生信息（保留上次填写的内容）
+                // 预填学生信息（保留上次填写的内容）
                 prefillGate();
                 ['inName', 'inCollege', 'inNo'].forEach(function (id) {
                     var el = $(id);
@@ -2150,6 +2370,26 @@
                         }
                     });
                 });
+
+                /* 填入 / 切换预设信息 */
+                function fillPreset() {
+                    presetIndex = (presetIndex + 1) % PRESET_CANDIDATES.length;
+                    var p = PRESET_CANDIDATES[presetIndex];
+
+                    $('inName').value = p.nickname;
+                    $('inCollege').value = p.college;
+                    $('inNo').value = p.studentNo;
+
+                    ['inName', 'inCollege', 'inNo'].forEach(function (id) {
+                        $(id).classList.remove('is-invalid');
+                    });
+                    var err = $('gateError');
+                    if (err) err.classList.remove('is-on');
+
+                    // 首次点击后按钮文案变为“换一版”
+                    var btn = $('presetBtn');
+                    if (btn) btn.innerHTML = '<span class="btn__label">换一版</span>';
+                }
 
                 // 绘制题目
                 drawQuestion();
@@ -2186,6 +2426,8 @@
 
                 // 开始按钮 / 表单回车提交
                 $('startBtn').addEventListener('click', beginExam);
+                // 填入预设 / 换一版
+                $('presetBtn').addEventListener('click', fillPreset);
                 $('gateForm').addEventListener('submit', function (e) {
                     e.preventDefault();
                     beginExam();
