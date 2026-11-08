@@ -2097,6 +2097,370 @@ body::-webkit-scrollbar {
                 });
             }
 
+                        /* ============================================================
+               5.6 监听器守卫
+               - 追踪所有通过 addEventListener 注册的监听器
+               - 拦截并记录对「关键事件」的监听器移除尝试
+               - 巡检 addEventListener / removeEventListener 是否被覆盖
+               ============================================================ */
+            var LISTENER_GUARD = (function () {
+                var nativeAdd = null;
+                var nativeRemove = null;
+                var guardedAdd = null;
+                var guardedRemove = null;
+                var installed = false;
+                var registry = [];                 // 已注册监听器登记表
+                var REG_CAP = 4000;
+
+                // 关键事件类型：移除这些要被记录
+                var CRITICAL_TYPES = [
+                    'keydown', 'keyup', 'keypress',
+                    'copy', 'cut', 'paste', 'contextmenu', 'selectstart',
+                    'dragstart', 'drop', 'mousedown', 'mousemove', 'mouseup',
+                    'visibilitychange', 'blur', 'focus', 'pagehide',
+                    'beforeunload', 'beforeprint',
+                    'fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'
+                ];
+
+                function isNative(fn) {
+                    try {
+                        return typeof fn === 'function' &&
+                            /\{\s*\[native code\]\s*\}/.test(Function.prototype.toString.call(fn));
+                    } catch (e) { return false; }
+                }
+
+                function describeTarget(t) {
+                    try {
+                        if (t === window) return 'window';
+                        if (t === document) return 'document';
+                        if (t && t.tagName) return t.tagName.toLowerCase() + (t.id ? '#' + t.id : '');
+                        if (t && t.constructor && t.constructor.name) return t.constructor.name;
+                    } catch (e) { }
+                    return 'unknown';
+                }
+
+                function normCapture(opts) {
+                    if (typeof opts === 'boolean') return opts;
+                    if (opts && typeof opts === 'object') return !!opts.capture;
+                    return false;
+                }
+
+                function isCriticalType(type) {
+                    return CRITICAL_TYPES.indexOf(String(type).toLowerCase()) >= 0;
+                }
+
+                function track(target, type, listener, options) {
+                    if (!listener || !type) return;
+                    registry.push({
+                        target: target,
+                        type: String(type).toLowerCase(),
+                        listener: listener,
+                        capture: normCapture(options)
+                    });
+                    if (registry.length > REG_CAP) registry.splice(0, registry.length - REG_CAP);
+                }
+
+                function untrack(target, type, listener, options) {
+                    if (!listener || !type) return null;
+                    var t = String(type).toLowerCase();
+                    var cap = normCapture(options);
+                    for (var i = registry.length - 1; i >= 0; i--) {
+                        var r = registry[i];
+                        if (r.target === target && r.type === t &&
+                            r.listener === listener && r.capture === cap) {
+                            registry.splice(i, 1);
+                            return r;
+                        }
+                    }
+                    return null;
+                }
+
+                function install() {
+                    if (installed) return;
+                    if (typeof EventTarget === 'undefined' || !EventTarget.prototype) return;
+                    var proto = EventTarget.prototype;
+
+                    var curAdd = proto.addEventListener;
+                    var curRemove = proto.removeEventListener;
+                    if (curAdd && curAdd.__baGuarded) { installed = true; return; }
+
+                    if (!isNative(curAdd) || !isNative(curRemove)) {
+                        if (typeof logViolation === 'function') {
+                            logViolation('监听器 API 被污染', '页面加载时 addEventListener / removeEventListener 已非原生实现', 0);
+                        }
+                    }
+
+                    nativeAdd = curAdd;
+                    nativeRemove = curRemove;
+
+                    guardedAdd = function (type, listener, options) {
+                        try { track(this, type, listener, options); } catch (e) { }
+                        return nativeAdd.apply(this, arguments);
+                    };
+                    guardedAdd.__baGuarded = true;
+
+                    guardedRemove = function (type, listener, options) {
+                        try {
+                            var rec = untrack(this, type, listener, options);
+                            if (rec && isCriticalType(type) && typeof logViolation === 'function') {
+                                logViolation(
+                                    '移除关键监听器',
+                                    '检测到尝试移除 ' + describeTarget(this) + ' 上的 ' + String(type).toLowerCase() + ' 监听器',
+                                    1500
+                                );
+                            }
+                        } catch (e) { }
+                        return nativeRemove.apply(this, arguments);
+                    };
+                    guardedRemove.__baGuarded = true;
+
+                    try {
+                        proto.addEventListener = guardedAdd;
+                        proto.removeEventListener = guardedRemove;
+                    } catch (e) {
+                        if (typeof logViolation === 'function') {
+                            logViolation('监听器守卫安装失败', String(e && e.message || e));
+                        }
+                        return;
+                    }
+
+                    installed = true;
+
+                    // 巡检：原型方法被覆盖 → 恢复并留痕
+                    setInterval(function () {
+                        try {
+                            if (proto.addEventListener !== guardedAdd || proto.removeEventListener !== guardedRemove) {
+                                proto.addEventListener = guardedAdd;
+                                proto.removeEventListener = guardedRemove;
+                                if (typeof logViolation === 'function') {
+                                    logViolation(
+                                        '监听器 API 被篡改',
+                                        'EventTarget.prototype 上的监听器方法被覆盖，已自动恢复',
+                                        3000
+                                    );
+                                }
+                            }
+                        } catch (e) { }
+                    }, 1500);
+                }
+
+                return { install: install };
+            })();
+
+            function installListenerGuard() {
+                LISTENER_GUARD.install();
+            }
+
+                        /* ============================================================
+               5.7 DOM 守卫：水印 / textarea / 按钮被篡改后自动恢复
+               - 水印层：被移出、隐藏、背景图被清、z-index 被改 → 恢复
+               - 作答区：被移除/替换、disabled/readOnly 被启用、
+                         pointer-events:none / user-select:none / 隐藏 → 恢复
+               - 按钮：被移除/替换、disabled 状态错位、隐藏 → 恢复
+               ============================================================ */
+            var DOM_GUARD = (function () {
+                var INTERVAL = 1000;
+                var timer = null;
+                var cache = null;
+
+                function snap() {
+                    cache = {
+                        wmLayer:   $('wmLayer'),
+                        answer:    $('answer'),
+                        submitBtn: $('submitBtn'),
+                        resetBtn:  $('resetBtn')
+                    };
+                }
+
+                /* 元素是否视觉隐藏（可指定最小 opacity 阈值） */
+                function isHidden(el, minOpacity) {
+                    if (!el || !document.body.contains(el)) return true;
+                    var cs;
+                    try { cs = window.getComputedStyle(el); } catch (e) { return false; }
+                    if (!cs) return false;
+                    if (cs.display === 'none') return true;
+                    if (cs.visibility === 'hidden' || cs.visibility === 'collapse') return true;
+                    var min = typeof minOpacity === 'number' ? minOpacity : 0.05;
+                    if (parseFloat(cs.opacity || '1') < min) return true;
+                    return false;
+                }
+
+                /* 把节点放回容器；顺带清掉同名 id 的冒牌货 */
+                function restoreNode(node, parentSelector, idCheck) {
+                    if (!node) return false;
+                    if (document.body.contains(node)) return false;
+
+                    if (idCheck) {
+                        var dup = document.getElementById(idCheck);
+                        if (dup && dup !== node) {
+                            try { dup.remove(); } catch (e) { }
+                        }
+                    }
+
+                    var parent = parentSelector ? document.querySelector(parentSelector) : null;
+                    if (!parent || !document.body.contains(parent)) {
+                        parent = document.body;
+                    }
+                    parent.appendChild(node);
+                    return true;
+                }
+
+                /* ---------- 水印 ---------- */
+                function checkWatermark() {
+                    if (!state.candidate) return;
+                    var el = cache.wmLayer;
+                    if (!el) return;
+
+                    var issues = [];
+
+                    if (!document.body.contains(el)) {
+                        document.body.appendChild(el);
+                        issues.push('被移出文档');
+                    }
+                    if (el.hidden) {
+                        el.hidden = false;
+                        issues.push('hidden 被置位');
+                    }
+                    if (isHidden(el, 0.08)) {
+                        el.style.display = '';
+                        el.style.visibility = '';
+                        el.style.opacity = '';
+                        issues.push('样式被隐藏');
+                    }
+                    // 背景图被清 → 重新生成（同时重置 60s 刷新定时器）
+                    var bg = el.style.backgroundImage;
+                    if (!bg || bg === 'none' || bg === 'url("")') {
+                        try { updateWatermark(); } catch (e) { }
+                        issues.push('背景图被清除');
+                    }
+                    // z-index 被压到很低（藏到内容后）
+                    var z = el.style.zIndex;
+                    if (z && z !== '' && z !== '900') {
+                        el.style.zIndex = '';
+                        issues.push('z-index 被修改');
+                    }
+
+                    if (issues.length) {
+                        logViolation('水印被篡改', '检测到水印层' + issues.join('、') + '，已自动恢复', 1500);
+                    }
+                }
+
+                /* ---------- 作答区 ---------- */
+                function checkTextarea() {
+                    var el = cache.answer;
+                    if (!el) return;
+
+                    // 已提交：textarea 应保持 disabled
+                    if (submitted) {
+                        if (!el.disabled) {
+                            el.disabled = true;
+                            logViolation('作答区状态被篡改', '提交后 textarea 的 disabled 被移除，已恢复', 2000);
+                        }
+                        return;
+                    }
+
+                    var issues = [];
+
+                    if (restoreNode(el, '.shell .card:nth-of-type(2)', 'answer')) {
+                        issues.push('被替换/移出文档');
+                    }
+
+                    if (el.disabled) {
+                        el.disabled = false;
+                        issues.push('disabled 被启用');
+                    }
+                    if (el.readOnly) {
+                        el.readOnly = false;
+                        issues.push('readOnly 被启用');
+                    }
+                    if (isHidden(el)) {
+                        el.style.display = '';
+                        el.style.visibility = '';
+                        el.style.opacity = '';
+                        issues.push('被隐藏');
+                    }
+                    // pointer-events / user-select 被禁
+                    var cs;
+                    try { cs = window.getComputedStyle(el); } catch (e) { cs = null; }
+                    if (cs) {
+                        if (cs.pointerEvents === 'none') {
+                            el.style.pointerEvents = '';
+                            issues.push('pointer-events:none');
+                        }
+                        if (cs.userSelect === 'none') {
+                            el.style.userSelect = '';
+                            el.style.webkitUserSelect = '';
+                            issues.push('user-select:none');
+                        }
+                    }
+
+                    if (issues.length) {
+                        logViolation('作答区被篡改', '检测到 textarea ' + issues.join('、') + '，已自动恢复', 1500);
+                    }
+                }
+
+                /* ---------- 按钮 ---------- */
+                function checkButton(node, name, shouldDisable) {
+                    if (!node) return;
+                    var issues = [];
+
+                    if (restoreNode(node, '.answer__foot', node.id || '')) {
+                        issues.push('被替换/移出文档');
+                    }
+
+                    if (node.disabled !== !!shouldDisable) {
+                        node.disabled = !!shouldDisable;
+                        issues.push(shouldDisable ? 'disabled 被移除' : 'disabled 被启用');
+                    }
+                    if (isHidden(node)) {
+                        node.style.display = '';
+                        node.style.visibility = '';
+                        node.style.opacity = '';
+                        issues.push('被隐藏');
+                    }
+                    var cs;
+                    try { cs = window.getComputedStyle(node); } catch (e) { cs = null; }
+                    if (cs && cs.pointerEvents === 'none') {
+                        node.style.pointerEvents = '';
+                        issues.push('pointer-events:none');
+                    }
+
+                    if (issues.length) {
+                        logViolation(name + '被篡改', '检测到按钮' + issues.join('、') + '，已自动恢复', 1500);
+                    }
+                }
+
+                function checkButtons() {
+                    checkButton(cache.submitBtn, '提交按钮', submitted);   // 提交后应 disabled
+                    checkButton(cache.resetBtn,  '重置按钮', false);
+                }
+
+                function run() {
+                    try {
+                        checkWatermark();
+                        checkTextarea();
+                        checkButtons();
+                    } catch (e) { /* 静默 */ }
+                }
+
+                function start() {
+                    if (timer) return;
+                    snap();
+                    run();
+                    timer = setInterval(run, INTERVAL);
+                }
+
+                function stop() {
+                    if (timer) { clearInterval(timer); timer = null; }
+                }
+
+                return { start: start, stop: stop, run: run };
+            })();
+
+            function installDomGuard() {
+                DOM_GUARD.start();
+            }
+
             /* ============================================================
                6. 全屏
                ============================================================ */
@@ -2573,6 +2937,9 @@ body::-webkit-scrollbar {
                 // 启动 Worker（关键逻辑）+ 初始渲染
                 initWorker();
 
+                // 安装监听器守卫：必须早于任何 bind* 调用
+                installListenerGuard();
+
                 // 渲染日志 / 徽章
                 renderLog();
                 updateBadge();
@@ -2633,8 +3000,8 @@ body::-webkit-scrollbar {
                 startAutoSave();
                 updateTimerUI();
 
-                // 水印守护 + 画布完整性巡检
-                guardWatermark();
+                // DOM 守卫（水印 + 作答区 + 按钮）+ 画布完整性巡检
+                installDomGuard();
                 setInterval(checkCanvasIntegrity, 2000);
 
                 // 已提交状态直接锁定
