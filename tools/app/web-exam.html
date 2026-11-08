@@ -1247,6 +1247,369 @@ body::-webkit-scrollbar {
         </div>
     </div>
 
+    <!-- ================= Worker 源码（关键逻辑运行于此，经 Blob 内联加载） ================= -->
+    <script type="text/js-worker" id="examWorkerSrc">
+        /* 题目测量/渲染 · 黑屏护盾 · 计时 · 违规日志缓冲 · 时钟与心跳检测 · 画布采样校验 */
+        'use strict';
+
+        var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+        var VIOLATION_CAP = 800;
+
+        var LIMIT = 20 * 60 * 1000;
+        var TITLE_FONT = '800 15px ' + FONT;
+        var BODY_FONT = '400 14px ' + FONT;
+        var TITLE_LH = 23;
+        var BODY_LH = 24;
+        var PARA_GAP = 10;
+        var HEAD_GAP = 23;
+        var PAD_X = 20;
+
+        var canvas = null;
+        var ctx = null;
+        var cache = null;
+
+        var titleText = '';
+        var paraTexts = [];
+        var studentLabel = '';
+
+        var cssW = 0;
+        var dpr = 1;
+        var expectedW = 0;
+        var expectedH = 0;
+        var refSamples = null;
+
+        var shielded = false;
+        var shieldReasons = Object.create(null);
+
+        var started = false;
+        var submitted = false;
+        var pageHidden = false;
+
+        var elapsedBase = 0;
+        var sessionT0 = performance.now();
+
+        var violations = [];
+        var violationQueue = [];
+        var flushTimer = null;
+        var lastLogAt = Object.create(null);
+
+        self.onmessage = function (e) {
+            var d = e.data || {};
+            switch (d.type) {
+                case 'init':
+                    init(d);
+                    break;
+                case 'start':
+                    started = true;
+                    sessionT0 = performance.now();
+                    break;
+                case 'submitted':
+                    submitted = true;
+                    started = false;
+                    break;
+                case 'visibility':
+                    pageHidden = !!d.hidden;
+                    break;
+                case 'label':
+                    studentLabel = d.label || studentLabel;
+                    break;
+                case 'resize':
+                    cssW = d.cssW;
+                    dpr = d.dpr;
+                    draw();
+                    break;
+                case 'shield':
+                    updateShield(d.action, d.reason);
+                    break;
+                case 'violation':
+                    queueViolation(d.vtype, d.detail, d.gap);
+                    break;
+                case 'integrity':
+                    checkIntegrity(d.cw, d.ch);
+                    break;
+            }
+        };
+
+        function init(d) {
+            canvas = d.canvas;
+            ctx = canvas.getContext('2d');
+            LIMIT = d.limit || LIMIT;
+            titleText = d.title || '';
+            paraTexts = d.paras || [];
+            studentLabel = d.label || '';
+            elapsedBase = d.elapsedMs || 0;
+            sessionT0 = performance.now();
+            cssW = d.cssW;
+            dpr = d.dpr;
+            pageHidden = !!d.hidden;
+            violations = Array.isArray(d.violations) ? d.violations.slice(-VIOLATION_CAP) : [];
+            draw();
+            startClocks();
+        }
+
+        /* ---------- 计时：单调时钟 + 累计基准，心跳式回传 ---------- */
+        function elapsedMs() {
+            return elapsedBase + (performance.now() - sessionT0);
+        }
+
+        function startClocks() {
+            setInterval(function () {
+                var el = elapsedMs();
+                self.postMessage({
+                    type: 'tick',
+                    elapsed: el,
+                    remaining: Math.max(0, LIMIT - el)
+                });
+            }, 250);
+
+            /* 墙钟 vs 单调时钟跳变 */
+            var lastWall = Date.now();
+            var lastPerf = performance.now();
+            setInterval(function () {
+                if (submitted) return;
+                var w = Date.now();
+                var p = performance.now();
+                var dw = w - lastWall;
+                var dp = p - lastPerf;
+                lastWall = w;
+                lastPerf = p;
+                var diff = dw - dp;
+                if (Math.abs(diff) > 1500) {
+                    queueViolation(
+                        '系统时钟异常',
+                        '墙钟增量 ' + Math.round(dw) + 'ms 与单调时钟增量 ' + Math.round(dp) + 'ms 相差 ' + Math.round(diff) + 'ms',
+                        5000
+                    );
+                }
+            }, 1000);
+
+            /* 心跳：定时器被断点暂停 / 被清除时检测 */
+            var lastBeat = performance.now();
+            setInterval(function () {
+                var now = performance.now();
+                var gap = now - lastBeat;
+                lastBeat = now;
+                if (!started || submitted || pageHidden) return;
+                if (gap > 6000) {
+                    queueViolation(
+                        '监测中断',
+                        '心跳间隔 ' + Math.round(gap) + 'ms，疑似定时器被暂停或被断点阻塞',
+                        4000
+                    );
+                }
+            }, 1000);
+        }
+
+        /* ---------- 违规日志：去重缓冲 + 批量上报队列 ---------- */
+        function queueViolation(type, detail, gap) {
+            var now = Date.now();
+            if (gap && lastLogAt[type] && now - lastLogAt[type] < gap) return;
+            lastLogAt[type] = now;
+
+            var item = { t: now, type: String(type || ''), detail: String(detail || '') };
+            violations.push(item);
+            if (violations.length > VIOLATION_CAP) {
+                violations.splice(0, violations.length - VIOLATION_CAP);
+            }
+            violationQueue.push(item);
+
+            if (!flushTimer) flushTimer = setTimeout(flushViolations, 120);
+        }
+
+        function flushViolations() {
+            flushTimer = null;
+            if (!violationQueue.length) return;
+            var batch = violationQueue;
+            violationQueue = [];
+            self.postMessage({ type: 'violations', items: batch, total: violations.length });
+        }
+
+        /* ---------- 题目渲染（离屏缓存 + 可见画布合成） ---------- */
+        function wrapLines(c, text, maxWidth) {
+            var out = [];
+            var line = '';
+            var chars = Array.from(text);
+            for (var i = 0; i < chars.length; i++) {
+                var ch = chars[i];
+                if (ch === '\n') { out.push(line); line = ''; continue; }
+                var test = line + ch;
+                if (c.measureText(test).width > maxWidth && line) {
+                    out.push(line);
+                    line = ch;
+                } else {
+                    line = test;
+                }
+            }
+            if (line) out.push(line);
+            return out;
+        }
+
+        function draw() {
+            if (!canvas || !ctx) return;
+            var contentW = cssW - PAD_X * 2;
+
+            ctx.font = TITLE_FONT;
+            var titleLines = wrapLines(ctx, titleText, contentW);
+            ctx.font = BODY_FONT;
+            var paraLines = paraTexts.map(function (p) { return wrapLines(ctx, p, contentW); });
+
+            var titleH = titleLines.length * TITLE_LH;
+            var bodyH = paraLines.reduce(function (sum, lines, i) {
+                return sum + lines.length * BODY_LH + (i < paraLines.length - 1 ? PARA_GAP : 0);
+            }, 0);
+            var totalH = Math.ceil(PAD_X + titleH + HEAD_GAP + bodyH + PAD_X);
+
+            if (!cache) cache = new OffscreenCanvas(1, 1);
+            cache.width = Math.floor(cssW * dpr);
+            cache.height = Math.floor(totalH * dpr);
+            var c = cache.getContext('2d');
+            c.setTransform(dpr, 0, 0, dpr, 0, 0);
+            c.textBaseline = 'top';
+
+            /* 背景 */
+            c.fillStyle = '#FFFFFF';
+            c.fillRect(0, 0, cssW, totalH);
+
+            /* 网格纹理 */
+            c.strokeStyle = 'rgba(33,165,227,.06)';
+            c.lineWidth = 1;
+            c.beginPath();
+            var x, y;
+            for (x = 0; x <= cssW; x += 20) { c.moveTo(x + 0.5, 0); c.lineTo(x + 0.5, totalH); }
+            for (y = 0; y <= totalH; y += 20) { c.moveTo(0, y + 0.5); c.lineTo(cssW, y + 0.5); }
+            c.stroke();
+
+            /* 水印 */
+            c.save();
+            c.globalAlpha = 0.05;
+            c.fillStyle = '#0B6BC5';
+            c.font = '700 12px ' + FONT;
+            c.rotate(-Math.PI / 9);
+            for (y = -320; y < totalH * 2; y += 88) {
+                for (x = -320; x < cssW * 2; x += 240) {
+                    c.fillText('仅限本人作答 · CONFIDENTIAL', x, y);
+                }
+            }
+            c.restore();
+
+            /* 标题 */
+            y = PAD_X;
+            c.font = TITLE_FONT;
+            c.fillStyle = '#1F1F1F';
+            for (var i = 0; i < titleLines.length; i++) {
+                c.fillText(titleLines[i], PAD_X, y);
+                y += TITLE_LH;
+            }
+
+            /* 强调线 */
+            y += 6;
+            c.fillStyle = '#21a5e3';
+            c.fillRect(PAD_X, y, 34, 3);
+            y += HEAD_GAP - 6;
+
+            /* 正文 */
+            c.font = BODY_FONT;
+            c.fillStyle = '#404040';
+            for (var p = 0; p < paraLines.length; p++) {
+                var lines = paraLines[p];
+                for (var j = 0; j < lines.length; j++) {
+                    c.fillText(lines[j], PAD_X, y);
+                    y += BODY_LH;
+                }
+                if (p < paraLines.length - 1) y += PARA_GAP;
+            }
+
+            expectedW = cache.width;
+            expectedH = cache.height;
+            refSamples = samplePixels(c);
+
+            if (shielded) paintShield();
+            else presentQuestion();
+
+            self.postMessage({ type: 'layout', cssW: cssW, totalH: totalH });
+        }
+
+        function presentQuestion() {
+            if (!cache) return;
+            if (canvas.width !== cache.width) canvas.width = cache.width;
+            if (canvas.height !== cache.height) canvas.height = cache.height;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(cache, 0, 0);
+        }
+
+        function paintShield() {
+            if (!canvas || !ctx) return;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = '#0B0B0B';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            /* 黑底上保留极淡身份水印 */
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 9);
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '700 ' + Math.round(13 * dpr) + 'px ' + FONT;
+            var spanX = canvas.width * 1.2;
+            var spanY = canvas.height * 1.2;
+            for (var yy = -spanY; yy <= spanY; yy += 82 * dpr) {
+                for (var xx = -spanX; xx <= spanX; xx += 300 * dpr) {
+                    ctx.fillText(studentLabel, xx, yy);
+                }
+            }
+            ctx.restore();
+        }
+
+        function updateShield(action, reason) {
+            if (action === 'clear') shieldReasons = Object.create(null);
+            else if (action === 'on') shieldReasons[reason] = true;
+            else if (action === 'off') delete shieldReasons[reason];
+
+            var now = Object.keys(shieldReasons).length > 0;
+            if (now === shielded) return;
+
+            shielded = now;
+            if (shielded) paintShield();
+            else presentQuestion();
+            self.postMessage({ type: 'shieldState', shielded: shielded });
+        }
+
+        /* ---------- 画布像素采样比对 ---------- */
+        function samplePixels(c) {
+            var cols = 6, rows = 4, out = [];
+            for (var r = 1; r <= rows; r++) {
+                for (var col = 1; col <= cols; col++) {
+                    var px = Math.floor(expectedW * col / (cols + 1));
+                    var py = Math.floor(expectedH * r / (rows + 1));
+                    var data = c.getImageData(px, py, 1, 1).data;
+                    out.push({ x: px, y: py, rgb: [data[0], data[1], data[2]] });
+                }
+            }
+            return out;
+        }
+
+        function checkIntegrity(cw, ch) {
+            if (shielded || !refSamples || !canvas) {
+                self.postMessage({ type: 'integrityResult', ok: true });
+                return;
+            }
+
+            var bad = (cw !== expectedW || ch !== expectedH);
+
+            if (!bad) {
+                for (var i = 0; i < refSamples.length; i++) {
+                    var s = refSamples[i];
+                    var p = ctx.getImageData(s.x, s.y, 1, 1).data;
+                    var diff = Math.abs(p[0] - s.rgb[0]) + Math.abs(p[1] - s.rgb[1]) + Math.abs(p[2] - s.rgb[2]);
+                    if (diff > 30) { bad = true; break; }
+                }
+            }
+
+            self.postMessage({ type: 'integrityResult', ok: !bad });
+        }
+    </script>
+
     <script>
         (function () {
             'use strict';
@@ -1358,16 +1721,14 @@ body::-webkit-scrollbar {
                 tamperDetected = true;
             }
 
-            /* ---- 计时器：单调时钟 + 持久化累计，刷新不重置 ---- */
-            var sessionT0 = performance.now();
-            var elapsedBase = state.elapsedMs;
+            /* ---- 计时器：由 Worker 的单调时钟计算，主线程只读取最近一次回传值 ---- */
+            var clock = {
+                elapsed: state.elapsedMs,
+                remaining: Math.max(0, LIMIT - state.elapsedMs)
+            };
 
-            function elapsed() {
-                return elapsedBase + (performance.now() - sessionT0);
-            }
-            function remaining() {
-                return Math.max(0, LIMIT - elapsed());
-            }
+            function elapsed() { return clock.elapsed; }
+            function remaining() { return clock.remaining; }
 
             var saveTimer = null;
             function saveState() {
@@ -1409,16 +1770,21 @@ body::-webkit-scrollbar {
             }
 
             /* ============================================================
-               3. 违规日志
+               3. 违规日志（去重与缓冲在 Worker 内完成，批量回传后落盘）
                ============================================================ */
-            var lastLogAt = Object.create(null);
-
             function logViolation(type, detail, gap) {
-                var now = Date.now();
-                if (gap && lastLogAt[type] && now - lastLogAt[type] < gap) return;
-                lastLogAt[type] = now;
+                if (!worker) return;
+                worker.postMessage({
+                    type: 'violation',
+                    vtype: type,
+                    detail: String(detail || ''),
+                    gap: gap || 0
+                });
+            }
 
-                state.violations.push({ t: now, type: type, detail: String(detail || '') });
+            function applyViolations(items) {
+                if (!items || !items.length) return;
+                for (var i = 0; i < items.length; i++) state.violations.push(items[i]);
                 if (state.violations.length > 800) {
                     state.violations.splice(0, state.violations.length - 800);
                 }
@@ -1426,7 +1792,7 @@ body::-webkit-scrollbar {
                 saveState();
                 renderLog();
                 updateBadge();
-                showToast('⚠ 已记录违规：' + type);
+                showToast('⚠ 已记录违规：' + items[items.length - 1].type);
             }
 
             function renderLog() {
@@ -1498,195 +1864,109 @@ body::-webkit-scrollbar {
             /* ============================================================
                4. Canvas 渲染题目（防复制 / 防选中）
                ============================================================ */
-            function wrapLines(ctx, text, maxWidth) {
-                var out = [];
-                var line = '';
-                var chars = Array.from(text);
-                for (var i = 0; i < chars.length; i++) {
-                    var ch = chars[i];
-                    if (ch === '\n') { out.push(line); line = ''; continue; }
-                    var test = line + ch;
-                    if (ctx.measureText(test).width > maxWidth && line) {
-                        out.push(line);
-                        line = ch;
-                    } else {
-                        line = test;
-                    }
-                }
-                if (line) out.push(line);
-                return out;
-            }
-
-            /* ---- 离屏位图 + 护盾状态 ---- */
-            var questionBitmap = null;
-            var maskReasons = Object.create(null);
+            /* 题目渲染 / 护盾 / 像素校验均下沉到 Worker（OffscreenCanvas），主线程只保留 DOM 编排 */
+            var worker = null;
+            var shielded = false;
+            var canvasReady = false;
 
             function candidateLabel() {
                 var c = state.candidate || DEFAULT_CANDIDATE;
                 return c.nickname + ' · ' + c.college + ' · ' + c.studentNo;
             }
 
-            function isShielded() {
-                return Object.keys(maskReasons).length > 0;
-            }
-
-            /* 把题目画布整体涂黑，按键 / 失焦时调用 */
-            function paintShield() {
-                var canvas = $('questionCanvas');
-                if (!canvas || !questionBitmap) return;
-                var ctx = canvas.getContext('2d');
-                var dpr = Math.min(window.devicePixelRatio || 1, 2);
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.fillStyle = '#0B0B0B';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                /* 黑底上保留极淡身份水印 */
-                ctx.save();
-                ctx.translate(canvas.width / 2, canvas.height / 2);
-                ctx.rotate(-Math.PI / 9);
-                ctx.globalAlpha = 0.08;
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = '700 ' + Math.round(13 * dpr) + 'px ' + FONT;
-                var label = candidateLabel();
-                var spanX = canvas.width * 1.2;
-                var spanY = canvas.height * 1.2;
-                for (var yy = -spanY; yy <= spanY; yy += 82 * dpr) {
-                    for (var xx = -spanX; xx <= spanX; xx += 300 * dpr) {
-                        ctx.fillText(label, xx, yy);
-                    }
-                }
-                ctx.restore();
-
-                var wrap = $('canvasWrap');
-                if (wrap) wrap.classList.add('is-shielded');
-            }
-
-            function paintQuestion() {
-                var canvas = $('questionCanvas');
-                if (!canvas || !questionBitmap) return;
-                var ctx = canvas.getContext('2d');
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(questionBitmap, 0, 0);
-                var wrap = $('canvasWrap');
-                if (wrap) wrap.classList.remove('is-shielded');
-            }
-
-            function applyShieldState() {
-                if (isShielded()) paintShield();
-                else paintQuestion();
-            }
-
-            function shieldOn(reason) {
-                maskReasons[reason] = true;
-                paintShield();
-            }
-
-            function shieldOff(reason) {
-                if (!maskReasons[reason]) return;
-                delete maskReasons[reason];
-                if (!isShielded()) paintQuestion();
-            }
-
             function drawQuestion() {
                 var wrap = $('canvasWrap');
                 var canvas = $('questionCanvas');
-                if (!wrap || !canvas) return;
+                if (!wrap || !canvas || !worker) return;
 
                 var cssW = Math.max(260, wrap.clientWidth || 320);
                 var dpr = Math.min(window.devicePixelRatio || 1, 2);
-                var padX = 20;
-                var contentW = cssW - padX * 2;
+                worker.postMessage({ type: 'resize', cssW: cssW, dpr: dpr });
+            }
 
-                var titleFont = '800 15px ' + FONT;
-                var bodyFont = '400 14px ' + FONT;
-                var titleLH = 23;
-                var bodyLH = 24;
-                var paraGap = 10;
-                var GAP = 23; // 标题与正文之间
+            function shieldOn(reason) {
+                if (worker) worker.postMessage({ type: 'shield', action: 'on', reason: reason });
+            }
 
-                /* --- 先测量（用离屏 ctx，避免闪烁） --- */
-                var measure = document.createElement('canvas').getContext('2d');
-                measure.font = titleFont;
-                var titleLines = wrapLines(measure, Q_TITLE, contentW);
+            function shieldOff(reason) {
+                if (worker) worker.postMessage({ type: 'shield', action: 'off', reason: reason });
+            }
 
-                measure.font = bodyFont;
-                var paraLines = Q_PARAS.map(function (p) { return wrapLines(measure, p, contentW); });
+            function clearShield() {
+                if (worker) worker.postMessage({ type: 'shield', action: 'clear' });
+            }
 
-                var titleH = titleLines.length * titleLH;
-                var bodyH = paraLines.reduce(function (sum, lines, i) {
-                    return sum + lines.length * bodyLH + (i < paraLines.length - 1 ? paraGap : 0);
-                }, 0);
-                var totalH = Math.ceil(padX + titleH + GAP + bodyH + padX);
-
-                /* --- 渲染到离屏位图 --- */
-                var bmp = document.createElement('canvas');
-                bmp.width = Math.floor(cssW * dpr);
-                bmp.height = Math.floor(totalH * dpr);
-                var ctx = bmp.getContext('2d');
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.textBaseline = 'top';
-
-                /* --- 背景 --- */
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, cssW, totalH);
-
-                /* --- 网格纹理 --- */
-                ctx.strokeStyle = 'rgba(33,165,227,.06)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                var x, y;
-                for (x = 0; x <= cssW; x += 20) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, totalH); }
-                for (y = 0; y <= totalH; y += 20) { ctx.moveTo(0, y + 0.5); ctx.lineTo(cssW, y + 0.5); }
-                ctx.stroke();
-
-                /* --- 水印 --- */
-                ctx.save();
-                ctx.globalAlpha = 0.05;
-                ctx.fillStyle = '#0B6BC5';
-                ctx.font = '700 12px ' + FONT;
-                ctx.rotate(-Math.PI / 9);
-                for (y = -320; y < totalH * 2; y += 88) {
-                    for (x = -320; x < cssW * 2; x += 240) {
-                        ctx.fillText('仅限本人作答 · CONFIDENTIAL', x, y);
-                    }
-                }
-                ctx.restore();
-
-                /* --- 标题 --- */
-                y = padX;
-                ctx.font = titleFont;
-                ctx.fillStyle = '#1F1F1F';
-                for (var i = 0; i < titleLines.length; i++) {
-                    ctx.fillText(titleLines[i], padX, y);
-                    y += titleLH;
+            function initWorker() {
+                var src = document.getElementById('examWorkerSrc');
+                var canvas = $('questionCanvas');
+                var wrap = $('canvasWrap');
+                if (!src || !canvas || !wrap) return;
+                if (typeof canvas.transferControlToOffscreen !== 'function') {
+                    showToast('当前浏览器不支持 OffscreenCanvas，题目无法渲染');
+                    return;
                 }
 
-                /* --- 强调线 --- */
-                y += 6;
-                ctx.fillStyle = '#21a5e3';
-                ctx.fillRect(padX, y, 34, 3);
-                y += GAP - 6;
+                var blob = new Blob([src.textContent], { type: 'text/javascript' });
+                var url = URL.createObjectURL(blob);
+                worker = new Worker(url);
+                URL.revokeObjectURL(url);
+                worker.onmessage = onWorkerMessage;
 
-                /* --- 正文 --- */
-                ctx.font = bodyFont;
-                ctx.fillStyle = '#404040';
-                for (var p = 0; p < paraLines.length; p++) {
-                    var lines = paraLines[p];
-                    for (var j = 0; j < lines.length; j++) {
-                        ctx.fillText(lines[j], padX, y);
-                        y += bodyLH;
-                    }
-                    if (p < paraLines.length - 1) y += paraGap;
+                var cssW = Math.max(260, wrap.clientWidth || 320);
+                var dpr = Math.min(window.devicePixelRatio || 1, 2);
+                var offscreen = canvas.transferControlToOffscreen();
+
+                worker.postMessage({
+                    type: 'init',
+                    canvas: offscreen,
+                    limit: LIMIT,
+                    elapsedMs: state.elapsedMs,
+                    title: Q_TITLE,
+                    paras: Q_PARAS,
+                    label: candidateLabel(),
+                    violations: state.violations.slice(),
+                    cssW: cssW,
+                    dpr: dpr,
+                    hidden: document.hidden
+                }, [offscreen]);
+
+                if (state.submitted) worker.postMessage({ type: 'submitted' });
+            }
+
+            function onWorkerMessage(e) {
+                var d = e.data || {};
+                switch (d.type) {
+                    case 'tick':
+                        clock.elapsed = d.elapsed;
+                        clock.remaining = d.remaining;
+                        if (started && !submitted) {
+                            updateTimerUI();
+                            if (d.remaining <= 0) timeUp();
+                        }
+                        break;
+                    case 'layout':
+                        canvasReady = true;
+                        var canvas = $('questionCanvas');
+                        if (canvas) {
+                            canvas.style.width = d.cssW + 'px';
+                            canvas.style.height = d.totalH + 'px';
+                        }
+                        break;
+                    case 'shieldState':
+                        shielded = !!d.shielded;
+                        var wrapEl = $('canvasWrap');
+                        if (wrapEl) wrapEl.classList.toggle('is-shielded', shielded);
+                        break;
+                    case 'violations':
+                        applyViolations(d.items);
+                        break;
+                    case 'integrityResult':
+                        if (!d.ok) {
+                            logViolation('题目画布被篡改', '检测到题目画布内容 / 尺寸被修改，已自动重绘', 2000);
+                            drawQuestion();
+                        }
+                        break;
                 }
-
-                /* --- 同步到可见画布 --- */
-                questionBitmap = bmp;
-                canvas.width = bmp.width;
-                canvas.height = bmp.height;
-                canvas.style.width = cssW + 'px';
-                canvas.style.height = totalH + 'px';
-                applyShieldState();
             }
 
             /* ============================================================
@@ -1881,6 +2161,7 @@ body::-webkit-scrollbar {
 
             function bindVisibilityWatch() {
                 document.addEventListener('visibilitychange', function () {
+                    if (worker) worker.postMessage({ type: 'visibility', hidden: document.hidden });
                     if (isResetting) return;
                     if (document.hidden) {
                         reportSwitch('visibilitychange（document.hidden）');
@@ -2073,82 +2354,26 @@ body::-webkit-scrollbar {
                     }
                 }, 1000);
 
-                // --- 系统时钟 vs 单调时钟 跳变检测 ---
-                var lastWall = Date.now();
-                var lastPerf = performance.now();
-                setInterval(function () {
-                    if (submitted) return;
-                    var w = Date.now();
-                    var p = performance.now();
-                    var dw = w - lastWall;
-                    var dp = p - lastPerf;
-                    lastWall = w;
-                    lastPerf = p;
-                    var diff = dw - dp;
-                    if (Math.abs(diff) > 1500) {
-                        logViolation(
-                            '系统时钟异常',
-                            '墙钟增量 ' + Math.round(dw) + 'ms 与单调时钟增量 ' + Math.round(dp) + 'ms 相差 ' + Math.round(diff) + 'ms',
-                            5000
-                        );
-                    }
-                }, 1000);
-
-                // --- 心跳：定时器被断点暂停 / 被清除时检测 ---
-                var lastBeat = performance.now();
-                setInterval(function () {
-                    if (!started || submitted) return;
-                    var now = performance.now();
-                    var gap = now - lastBeat;
-                    lastBeat = now;
-                    if (!document.hidden && gap > 6000) {
-                        logViolation(
-                            '监测中断',
-                            '心跳间隔 ' + Math.round(gap) + 'ms，疑似定时器被暂停或被断点阻塞',
-                            4000
-                        );
-                    }
-                }, 1000);
+                // --- 系统时钟 / 心跳检测已迁至 Worker（避免主线程被断点暂停后误判） ---
             }
 
             /* ============================================================
                11.5 题目画布完整性校验
                ============================================================ */
+            /* 可见性由主线程检查，像素采样与尺寸比对交给 Worker */
             function checkCanvasIntegrity() {
-                if (!started || submitted || isShielded() || !questionBitmap) return;
+                if (!started || submitted || shielded || !canvasReady || !worker) return;
                 var canvas = $('questionCanvas');
-                var wrap = $('canvasWrap');
                 if (!canvas) return;
 
-                var bad = canvas.width !== questionBitmap.width || canvas.height !== questionBitmap.height;
-
-                if (!bad) {
-                    var cs = window.getComputedStyle(canvas);
-                    if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') < 0.05) {
-                        bad = true;
-                    }
-                }
-
-                if (!bad) {
-                    var ctx = canvas.getContext('2d');
-                    var bctx = questionBitmap.getContext('2d');
-                    var cols = 6, rows = 4;
-                    for (var r = 1; r <= rows && !bad; r++) {
-                        for (var c = 1; c <= cols; c++) {
-                            var px = Math.floor(canvas.width * c / (cols + 1));
-                            var py = Math.floor(canvas.height * r / (rows + 1));
-                            var a = ctx.getImageData(px, py, 1, 1).data;
-                            var b = bctx.getImageData(px, py, 1, 1).data;
-                            var diff = Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
-                            if (diff > 30) { bad = true; break; }
-                        }
-                    }
-                }
-
-                if (bad) {
-                    logViolation('题目画布被篡改', '检测到题目画布内容 / 尺寸 / 可见性被修改，已自动重绘', 2000);
+                var cs = window.getComputedStyle(canvas);
+                if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') < 0.05) {
+                    logViolation('题目画布被篡改', '检测到题目画布被隐藏或透明度被改写，已自动重绘', 2000);
                     drawQuestion();
+                    return;
                 }
+
+                worker.postMessage({ type: 'integrity', cw: canvas.width, ch: canvas.height });
             }
 
             /* ============================================================
@@ -2169,14 +2394,8 @@ body::-webkit-scrollbar {
                 doSubmit(true);
             }
 
-            function startTimerLoop() {
-                setInterval(function () {
-                    if (!started || submitted) return;
-                    updateTimerUI();
-                    if (remaining() <= 0) timeUp();
-                }, 250);
-
-                // 每 5 秒落盘一次耗时
+            /* 计时与超时判定由 Worker 的 tick 消息驱动，这里只保留落盘节奏 */
+            function startAutoSave() {
                 setInterval(function () {
                     if (started && !submitted && !isResetting) saveState();
                 }, 5000);
@@ -2195,10 +2414,10 @@ body::-webkit-scrollbar {
                 saveState();
 
                 /* 提交后解除护盾，确保题目内容正常可见 */
-                maskReasons = Object.create(null);
+                if (worker) worker.postMessage({ type: 'submitted' });
+                clearShield();
                 clearTimeout(keyShieldTimer);
                 clearTimeout(shotShieldTimer);
-                paintQuestion();
 
                 var ta = $('answer');
                 var btn = $('submitBtn');
@@ -2309,6 +2528,7 @@ body::-webkit-scrollbar {
                 saveState();
                 updateWatermark();
                 renderWho();
+                if (worker) worker.postMessage({ type: 'label', label: candidateLabel() });
 
                 requestFullscreen().then(function () {
                     gate.hidden = true;
@@ -2317,8 +2537,8 @@ body::-webkit-scrollbar {
                         return;
                     }
 
-                    // 重置会话计时起点（遮罩停留时间不计入）
-                    sessionT0 = performance.now();
+                    // 重置会话计时起点（遮罩停留时间不计入），并由 Worker 接管计时
+                    if (worker) worker.postMessage({ type: 'start' });
                     started = true;
 
                     if (!isFullscreen()) {
@@ -2349,6 +2569,9 @@ body::-webkit-scrollbar {
                     });
                     tamperDetected = false;
                 }
+
+                // 启动 Worker（关键逻辑）+ 初始渲染
+                initWorker();
 
                 // 渲染日志 / 徽章
                 renderLog();
@@ -2391,8 +2614,7 @@ body::-webkit-scrollbar {
                     if (btn) btn.innerHTML = '<span class="btn__label">换一版</span>';
                 }
 
-                // 绘制题目
-                drawQuestion();
+                // 绘制题目（首帧由 Worker 的 init 完成，这里只处理重排）
                 var rt = null;
                 window.addEventListener('resize', function () {
                     clearTimeout(rt);
@@ -2408,7 +2630,7 @@ body::-webkit-scrollbar {
                 bindFullscreenWatch();
                 bindUnloadGuard();
                 bindAntiDebug();
-                startTimerLoop();
+                startAutoSave();
                 updateTimerUI();
 
                 // 水印守护 + 画布完整性巡检

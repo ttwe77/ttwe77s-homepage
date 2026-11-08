@@ -1,0 +1,2684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-JDkXEqGh5gfEB0zWaSiDVlBLyHr+5FzeQ5Ip0uvjZDY=' 'sha256-upnD49bcxDNhPPWJwLKDM82xwmW3z9yj7N502DW1Cec=' 'sha256-qorAtaSlZRtlcG8i7frhpRHQ/FF3OHOFUDY8EHUIw0w='; worker-src 'self' blob:; style-src 'self' 'sha256-NQJ2nhSMDb0MOzcLjLxHQi/VA3kICSZfg2NBHBpAYIU='; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <title>知识测试</title>
+    <link rel="icon" href="/src/favicon.svg">
+    <script type="module">
+        import { BAClickFX } from '/libs/ba-click-fx.js';
+        const fx = new BAClickFX();
+        fx.updateConfig({ trailAlways: true });
+        fx.setCompositingReference({ hostCompositing: 'screen' });
+
+        function applyFxTheme() {
+            const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+            // 浅色模式保留原色；深色模式换成更柔和的蓝，避免刺眼
+            fx.setThemeColor(dark ? '#3b556d' : '#80c1ff');
+        }
+        applyFxTheme();
+
+        // 跟随主题切换
+        new MutationObserver(applyFxTheme).observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+    </script>
+    <style>
+        /* ============================================================
+   设计令牌
+   ============================================================ */
+        :root {
+            --color-bg-white: #FFFFFF;
+            --color-bg-light: #FAFAFA;
+            --color-bg-soft: #F5F5F5;
+            --color-border: #EDEDED;
+            --color-border-strong: #D4D4D4;
+            --color-text-primary: #1F1F1F;
+            --color-text-body: #404040;
+            --color-text-secondary: #737373;
+            --color-text-disabled: #A3A3A3;
+
+            --color-primary: #21a5e3;
+            --color-primary-hover: #0E7AE0;
+            --color-primary-active: #0B6BC5;
+            --color-primary-light: #ABD7FF;
+            --color-primary-alt: #BEC0EC;
+            --color-accent: #4454F8;
+
+            --color-danger: #F21B28;
+            --color-success: #169B5B;
+            --color-warning: #FFD84D;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, .06);
+            --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
+            --shadow-accent: 0 6px 20px rgba(33, 165, 227, .25);
+
+            --ease-out: cubic-bezier(.22, .61, .36, 1);
+            --ease-in-out: cubic-bezier(.65, .05, .36, 1);
+            --ease-soft: cubic-bezier(.4, 0, .2, 1);
+
+            --duration-fast: 120ms;
+            --duration-base: 200ms;
+            --duration-slow: 380ms;
+
+            --btn-skew: -10deg;
+
+            --topbar-h: 56px;
+            --content-max: 880px;
+
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                "PingFang SC", "Hiragino Sans GB",
+                "Microsoft YaHei", "Noto Sans SC", sans-serif;
+        }
+
+        /* ============================================================
+   基础
+   ============================================================ */
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--color-text-body);
+            background-color: var(--color-bg-light);
+            background-image:
+                radial-gradient(circle at 10% -5%, rgba(33, 165, 227, .12), transparent 45%),
+                radial-gradient(circle at 92% 4%, rgba(190, 192, 236, .30), transparent 42%);
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+
+            /* 全局禁止选中 / 长按菜单 */
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+
+            padding-top: calc(var(--topbar-h) + 16px);
+            padding-bottom: 48px;
+            min-height: 100vh;
+        }
+
+        /* 输入区允许选中（自己写的内容） */
+        textarea,
+        input {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        /* ============================================================
+   顶栏
+   ============================================================ */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: var(--topbar-h);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, .92);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0, 0, 0, .05);
+        }
+
+        .topbar__brand {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            letter-spacing: .02em;
+        }
+
+        .topbar__brand small {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            letter-spacing: .08em;
+        }
+
+        .topbar__spacer {
+            flex: 1;
+        }
+
+        .timer {
+            display: inline-flex;
+            align-items: center;
+            height: 32px;
+            padding: 0 14px;
+            border-radius: var(--radius-sm);
+            background: rgba(33, 165, 227, .09);
+            color: var(--color-primary);
+            font-size: 14px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: .06em;
+            transform: skewX(-8deg);
+            transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+        }
+
+        .timer__inner {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transform: skewX(8deg);
+        }
+
+        .timer::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: .75;
+        }
+
+        .timer.is-warning {
+            background: rgba(242, 27, 40, .1);
+            color: var(--color-danger);
+            animation: pulse 1.1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .55;
+            }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 28px;
+            padding: 0 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(242, 27, 40, .09);
+            color: var(--color-danger);
+            font-size: 12px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .badge.is-clean {
+            background: rgba(22, 155, 91, .1);
+            color: var(--color-success);
+        }
+
+        /* ============================================================
+   布局
+   ============================================================ */
+        .shell {
+            max-width: var(--content-max);
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ============================================================
+   卡片
+   ============================================================ */
+        .card {
+            position: relative;
+            background: var(--color-bg-white);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: 18px;
+            transition: box-shadow var(--duration-base) ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .card__head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .card__kicker {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            background: rgba(33, 165, 227, .09);
+            color: var(--color-primary);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            transform: skewX(-10deg);
+        }
+
+        .card__title {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .card__meta {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============================================================
+   Canvas 题目区
+   ============================================================ */
+        .canvas-wrap {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            background: #fff;
+            position: relative;
+        }
+
+        .canvas-wrap canvas {
+            display: block;
+            width: 100%;
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+   输入区
+   ============================================================ */
+        .textarea {
+            width: 100%;
+            min-height: 170px;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--color-border);
+            background: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--color-text-body);
+            resize: vertical;
+            transition: border-color var(--duration-fast) ease,
+                box-shadow var(--duration-fast) ease;
+        }
+
+        .textarea::placeholder {
+            color: var(--color-text-disabled);
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 165, 227, .15);
+        }
+
+        .textarea:disabled {
+            background: var(--color-bg-soft);
+            color: var(--color-text-disabled);
+            cursor: not-allowed;
+        }
+
+        .answer__foot {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .counter {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .answer__foot .btn {
+            margin-left: auto;
+        }
+
+        /* 重置按钮保持在左侧，不受 .btn 的 margin-left:auto 影响 */
+        .answer__foot #resetBtn {
+            margin-left: 0;
+        }
+
+        /* ============================================================
+   按钮
+   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            letter-spacing: .3px;
+            white-space: nowrap;
+            transform: skewX(var(--btn-skew));
+            transform-origin: center;
+            transition: background var(--duration-fast) ease,
+                transform var(--duration-fast) ease,
+                box-shadow var(--duration-base) ease,
+                color var(--duration-fast) ease;
+        }
+
+        .btn__label {
+            display: inline-block;
+            transform: skewX(calc(var(--btn-skew) * -1));
+        }
+
+        .btn:hover {
+            transform: skewX(var(--btn-skew)) translateY(-2px);
+        }
+
+        .btn:active {
+            transform: skewX(var(--btn-skew)) scale(.96);
+        }
+
+        .btn--primary {
+            height: 52px;
+            padding: 0 26px;
+            font-size: 16px;
+            background: var(--color-primary);
+            color: #fff;
+            box-shadow: var(--shadow-accent);
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn--primary:active {
+            background: var(--color-primary-active);
+        }
+
+        .btn--primary:disabled {
+            background: var(--color-border-strong);
+            color: #fff;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: .7;
+            transform: skewX(var(--btn-skew));
+        }
+
+        .btn--ghost {
+            height: 36px;
+            padding: 0 16px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(33, 165, 227, .08);
+            color: var(--color-primary);
+        }
+
+        .btn--ghost:hover {
+            background: rgba(33, 165, 227, .15);
+        }
+
+        /* 触摸设备锁定 hover 副作用 */
+        @media (hover:none) {
+            .btn:hover {
+                transform: skewX(var(--btn-skew));
+            }
+        }
+
+        /* ============================================================
+   违规日志
+   ============================================================ */
+        .log-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 280px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .log-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-list::-webkit-scrollbar-thumb {
+            background: var(--color-border-strong);
+            border-radius: 3px;
+        }
+
+        .log-item {
+            display: grid;
+            grid-template-columns: 62px 104px minmax(0, 1fr);
+            gap: 10px;
+            align-items: start;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            background: var(--color-bg-soft);
+            border-left: 3px solid var(--color-danger);
+            font-size: 12px;
+            animation: logIn .32s var(--ease-out) backwards;
+        }
+
+        @keyframes logIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .log-item__time {
+            color: var(--color-text-secondary);
+            font-variant-numeric: tabular-nums;
+            font-size: 11px;
+            padding-top: 1px;
+        }
+
+        .log-item__type {
+            color: var(--color-danger);
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .log-item__detail {
+            color: var(--color-text-body);
+            word-break: break-word;
+        }
+
+        .log-empty {
+            padding: 18px 0;
+            text-align: center;
+            color: var(--color-text-disabled);
+            font-size: 13px;
+        }
+
+        @media (max-width:520px) {
+            .log-item {
+                grid-template-columns: 52px minmax(0, 1fr);
+            }
+
+            .log-item__detail {
+                grid-column: 1/-1;
+                padding-left: 2px;
+            }
+        }
+
+        /* ============================================================
+   Toast
+   ============================================================ */
+        .toast {
+            position: fixed;
+            left: 50%;
+            top: calc(var(--topbar-h) + 16px);
+            z-index: 99999;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            max-width: min(86vw, 360px);
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, .94);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            box-shadow: var(--shadow-card-hover);
+            font-size: 13px;
+            font-weight: 600;
+            white-space: pre-line;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -10px);
+            transition: opacity .25s var(--ease-out),
+                transform .25s var(--ease-out);
+        }
+
+        .toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .toast::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-danger);
+            box-shadow: 0 0 0 3px rgba(242, 27, 40, .15);
+        }
+
+        /* ============================================================
+   入口遮罩（开始答题 / 全屏请求）
+   ============================================================ */
+        .gate {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(15, 30, 50, .55);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+        }
+
+        .gate[hidden] {
+            display: none;
+        }
+
+        .gate__card {
+            width: 100%;
+            max-width: 440px;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #fff;
+            border-radius: var(--radius-xl);
+            padding: 26px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+            animation: modalIn .3s var(--ease-out);
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(.95) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .gate__kicker {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: var(--radius-sm);
+            background: rgba(33, 165, 227, .09);
+            color: var(--color-primary);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            transform: skewX(-10deg);
+            margin-bottom: 12px;
+        }
+
+        .gate__title {
+            margin: 0 0 6px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            letter-spacing: .02em;
+        }
+
+        .gate__sub {
+            margin: 0 0 16px;
+            font-size: 12.5px;
+            color: var(--color-text-secondary);
+        }
+
+        .gate__list {
+            margin: 0 0 20px;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--color-text-body);
+        }
+
+        .gate__list li {
+            display: flex;
+            gap: 9px;
+            align-items: flex-start;
+            line-height: 1.6;
+        }
+
+        .gate__list li::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 6px;
+            height: 6px;
+            margin-top: 8px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 165, 227, .15);
+        }
+
+        .gate .btn {
+            width: 100%;
+        }
+
+        .gate__note {
+            margin: 12px 0 0;
+            font-size: 11.5px;
+            color: var(--color-text-disabled);
+            text-align: center;
+        }
+
+        .gate .btn {
+            width: 100%;
+        }
+
+        /* 新增：预设按钮容器 */
+        .gate__preset {
+            margin: 0 0 16px;
+        }
+
+        /* ============================================================
+   学生身份表单
+   ============================================================ */
+        .gate__form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 0 0 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field__label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-secondary);
+            letter-spacing: .04em;
+        }
+
+        .field__label em {
+            font-style: normal;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: var(--radius-sm);
+            background: rgba(33, 165, 227, .1);
+            color: var(--color-primary);
+        }
+
+        .field__row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .field input {
+            flex: 1;
+            min-width: 0;
+            height: 44px;
+            padding: 0 12px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--color-border);
+            background: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--color-text-primary);
+            transition: border-color var(--duration-fast) ease,
+                box-shadow var(--duration-fast) ease;
+        }
+
+        .field input::placeholder {
+            color: var(--color-text-disabled);
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 165, 227, .15);
+        }
+
+        .field input.is-invalid {
+            border-color: var(--color-danger);
+            box-shadow: 0 0 0 3px rgba(242, 27, 40, .12);
+        }
+
+        .gate__error {
+            display: none;
+            margin: 0 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-danger);
+        }
+
+        .gate__error.is-on {
+            display: block;
+        }
+
+        /* ============================================================
+   全局水印层
+   ============================================================ */
+        .wm-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 900;
+            pointer-events: none;
+            -webkit-user-select: none;
+            user-select: none;
+            background-repeat: repeat;
+            background-position: 0 0;
+            opacity: .16;
+        }
+
+        .wm-layer[hidden] {
+            display: none;
+        }
+
+        /* ============================================================
+   顶栏学生信息
+   ============================================================ */
+        .topbar__who {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .topbar__who[hidden] {
+            display: none;
+        }
+
+        .who-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: var(--radius-full);
+            background: rgba(11, 107, 197, .07);
+            color: #0B6BC5;
+            font-size: 11.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .who-chip::before {
+            content: "";
+            flex: 0 0 auto;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: .65;
+        }
+
+        /* ============================================================
+   题目护盾（按键时题目变黑）
+   ============================================================ */
+        .canvas-wrap.is-shielded {
+            background: #0B0B0B;
+            border-color: #0B0B0B;
+        }
+
+        .shield-tip {
+            position: absolute;
+            inset: 0;
+            display: none;
+            place-items: center;
+            text-align: center;
+            padding: 0 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .14em;
+            color: rgba(255, 255, 255, .42);
+            pointer-events: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .canvas-wrap.is-shielded .shield-tip {
+            display: grid;
+        }
+
+        /* ============================================================
+   响应式
+   ============================================================ */
+        @media (max-width:640px) {
+            .topbar {
+                padding: 0 12px;
+                gap: 8px;
+            }
+
+            .topbar__brand small {
+                display: none;
+            }
+
+            .topbar__who .who-chip:nth-child(n+2) {
+                display: none;
+            }
+
+            .shell {
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .btn--primary {
+                height: 46px;
+                padding: 0 20px;
+                font-size: 15px;
+            }
+
+            .answer__foot .btn {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        @media (max-width:480px) {
+            :root {
+                --btn-skew: -6deg;
+            }
+
+            .timer {
+                font-size: 13px;
+                padding: 0 11px;
+            }
+        }
+
+        /* 动效降级 */
+        @media (prefers-reduced-motion:reduce) {
+            * {
+                animation-duration: .001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .001ms !important;
+            }
+        }
+
+        .site-footer {
+            max-width: var(--content-max);
+            margin: 8px auto 0;
+            padding: 0 16px;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .site-footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .site-footer .sep {
+            margin: 0 8px;
+            color: var(--color-border-strong);
+        }
+
+        @media (max-width: 640px) {
+            .site-footer {
+                padding: 0 12px;
+            }
+        }
+        /* ============================================================
+   滚动条样式补充（与站点其他页面保持一致）
+   放置位置：追加到原 <style> 末尾即可覆盖原有 .log-list 规则
+   ============================================================ */
+
+:root {
+    /* 滚动条设计令牌 */
+    --scroll-size: 6px;
+    --scroll-size-thin: 4px;
+    --scroll-radius: 3px;
+    --scroll-thumb: rgba(33, 165, 227, .25);
+    --scroll-thumb-hover: rgba(33, 165, 227, .45);
+    --scroll-track: transparent;
+}
+
+/* ------------------------------------------------------------
+   1. 可滚动容器：Firefox / 标准属性
+   ------------------------------------------------------------ */
+.log-list,
+.gate__card,
+.textarea {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+/* 避免滚动到边界时把整页一起带走 */
+.log-list,
+.gate__card {
+    overscroll-behavior: contain;
+}
+
+/* ------------------------------------------------------------
+   2. WebKit / Blink：细滚动条 + 自定义滑块
+   ------------------------------------------------------------ */
+.log-list::-webkit-scrollbar,
+.gate__card::-webkit-scrollbar,
+.textarea::-webkit-scrollbar {
+    width: var(--scroll-size);
+    height: var(--scroll-size);
+}
+
+.log-list::-webkit-scrollbar-track,
+.gate__card::-webkit-scrollbar-track,
+.textarea::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+    border-radius: var(--scroll-radius);
+}
+
+.log-list::-webkit-scrollbar-thumb,
+.gate__card::-webkit-scrollbar-thumb,
+.textarea::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: var(--scroll-radius);
+    transition: background var(--duration-fast) ease;
+}
+
+.log-list::-webkit-scrollbar-thumb:hover,
+.gate__card::-webkit-scrollbar-thumb:hover,
+.textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+}
+
+.log-list::-webkit-scrollbar-thumb:active,
+.gate__card::-webkit-scrollbar-thumb:active,
+.textarea::-webkit-scrollbar-thumb:active {
+    background: var(--color-primary);
+}
+
+.log-list::-webkit-scrollbar-corner,
+.gate__card::-webkit-scrollbar-corner,
+.textarea::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* 滚动条两端按钮：隐藏，保持极简 */
+.log-list::-webkit-scrollbar-button,
+.gate__card::-webkit-scrollbar-button,
+.textarea::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* ------------------------------------------------------------
+   3. 作答区（textarea）：更细的 4px 滚动条
+   ------------------------------------------------------------ */
+.textarea::-webkit-scrollbar {
+    width: var(--scroll-size-thin);
+    height: var(--scroll-size-thin);
+}
+
+.textarea::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+}
+
+/* ------------------------------------------------------------
+   4. 移动端：隐藏滚动条痕迹（触屏本身无需视觉提示）
+   ------------------------------------------------------------ */
+@media (max-width: 640px) {
+
+    .log-list,
+    .gate__card,
+    .textarea {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .log-list::-webkit-scrollbar,
+    .gate__card::-webkit-scrollbar,
+    .textarea::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------
+   5. 隐藏整个页面的滚动条
+   ------------------------------------------------------------ */
+
+html,
+body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* ------------------------------------------------------------
+   6. 平滑滚动（尊重用户动效偏好）
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+    .log-list,
+    .gate__card {
+        scroll-behavior: smooth;
+    }
+}
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= 顶栏 ================= -->
+    <header class="topbar">
+        <div class="topbar__brand">
+            知识测试 <small>SUBJECTIVE · 01</small>
+        </div>
+        <div class="topbar__who" id="who" hidden>
+            <span class="who-chip" id="whoName"></span>
+            <span class="who-chip" id="whoCollege"></span>
+            <span class="who-chip" id="whoNo"></span>
+        </div>
+        <div class="topbar__spacer"></div>
+        <div class="timer" id="timer">
+            <span class="timer__inner" id="timerText">--:--</span>
+        </div>
+        <div class="badge is-clean" id="violationBadge">违规 0</div>
+    </header>
+
+    <!-- ================= 主体 ================= -->
+    <main class="shell">
+
+        <!-- 题目卡 -->
+        <section class="card">
+            <div class="card__head">
+                <span class="card__kicker">QUESTION 01</span>
+                <h2 class="card__title">主观题</h2>
+                <span class="card__meta">按键时题目自动隐藏</span>
+            </div>
+            <div class="canvas-wrap" id="canvasWrap">
+                <canvas id="questionCanvas"></canvas>
+                <div class="shield-tip">按键中 · 题目已临时隐藏</div>
+            </div>
+        </section>
+
+        <!-- 作答卡 -->
+        <section class="card">
+            <div class="card__head">
+                <span class="card__kicker">ANSWER</span>
+                <h2 class="card__title">你的作答</h2>
+                <span class="card__meta" id="saveHint">自动保存中</span>
+            </div>
+            <textarea id="answer" class="textarea" spellcheck="false" placeholder="请在此作答，内容会实时保存到本地……"></textarea>
+            <div class="answer__foot">
+                <span class="counter" id="counter">0 字</span>
+                <button class="btn btn--ghost" id="resetBtn" type="button">
+                    <span class="btn__label">重置并刷新</span>
+                </button>
+                <button class="btn btn--primary" id="submitBtn" type="button">
+                    <span class="btn__label">提交答卷</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 违规日志卡 -->
+        <section class="card">
+            <div class="card__head">
+                <span class="card__kicker">AUDIT</span>
+                <h2 class="card__title">违规日志</h2>
+                <span class="card__meta" id="logMeta">0 条记录</span>
+            </div>
+            <ol class="log-list" id="logList"></ol>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+                桂ICP备2026023217号-1
+            </a>
+            <span class="sep">·</span>
+            <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
+                rel="noopener noreferrer">
+                本站点使用 MIT License 开源
+            </a>
+            <span class="sep">·</span>
+            <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/app/web-exam.html" target="_blank"
+                rel="noopener noreferrer">
+                查看源代码
+            </a>
+            <span class="sep">·</span>
+            <a href="https://www.ttwe77.cn/blog/web-exam.html" target="_blank" rel="noopener noreferrer">
+                开发经过
+            </a>
+        </div>
+    </footer>
+
+    <!-- ================= 全局水印层 ================= -->
+    <div class="wm-layer" id="wmLayer" hidden aria-hidden="true"></div>
+
+    <!-- ================= 入口遮罩 ================= -->
+    <div class="gate" id="gate">
+        <div class="gate__card">
+            <span class="gate__kicker">BEFORE YOU START</span>
+            <h1 class="gate__title">核对学生身份</h1>
+            <p class="gate__sub">请填写以下信息，它会作为水印叠加在整页之上。默认信息已为你填好，可直接开始。</p>
+
+            <form class="gate__form" id="gateForm" autocomplete="off" novalidate>
+                <div class="field">
+                    <label class="field__label" for="inName">学生昵称 <em>必填</em></label>
+                    <div class="field__row">
+                        <input id="inName" name="nickname" type="text" maxlength="24" placeholder="例如：天童 凯伊">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="inCollege">所属学院 <em>必填</em></label>
+                    <div class="field__row">
+                        <input id="inCollege" name="college" type="text" maxlength="32" placeholder="例如：千禧年科学学院">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="inNo">学号 <em>必填</em></label>
+                    <div class="field__row">
+                        <input id="inNo" name="studentNo" type="text" maxlength="24" placeholder="例如：10135">
+                    </div>
+                </div>
+            </form>
+            <p class="gate__error" id="gateError"></p>
+
+            <div class="gate__preset">
+                <button class="btn btn--ghost" id="presetBtn" type="button">
+                    <span class="btn__label">填入预设</span>
+                </button>
+            </div>
+
+            <ul class="gate__list">
+                <li>开始后整页会叠加显示你的身份水印，便于追溯</li>
+                <li>此页面为模拟测试环境，不涉及真实测试内容</li>
+                <!--<li><b>按下任意按键时题目会立即变黑</b>，防止按键瞬间被截屏</li>
+                <li>点击开始后将请求<b>全屏</b>，中途退出全屏会被记录</li>
+                <li>禁止复制、剪切、粘贴、右键菜单与文本选择</li>
+                <li>切换标签页 / 窗口失焦会被记录，题目同时临时隐藏</li>
+                <li>禁止刷新或关闭页面（会弹出原生确认框）</li>
+                <li>浏览器开发者工具、快捷键、打印、画布篡改均被监测</li>
+                <li>作答内容与时间实时写入本地存储，刷新也不会清零</li>-->
+            </ul>
+            <button class="btn btn--primary" id="startBtn" type="button">
+                <span class="btn__label">进入全屏并开始答题</span>
+            </button>
+            <p class="gate__note">真正的价值不在于“防住”，而在于让作弊变得麻烦，并留下痕迹。</p>
+        </div>
+    </div>
+
+    <!-- ================= Worker 源码（关键逻辑运行于此，经 Blob 内联加载） ================= -->
+    <script type="text/js-worker" id="examWorkerSrc">
+        /* 题目测量/渲染 · 黑屏护盾 · 计时 · 违规日志缓冲 · 时钟与心跳检测 · 画布采样校验 */
+        'use strict';
+
+        var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+        var VIOLATION_CAP = 800;
+
+        var LIMIT = 20 * 60 * 1000;
+        var TITLE_FONT = '800 15px ' + FONT;
+        var BODY_FONT = '400 14px ' + FONT;
+        var TITLE_LH = 23;
+        var BODY_LH = 24;
+        var PARA_GAP = 10;
+        var HEAD_GAP = 23;
+        var PAD_X = 20;
+
+        var canvas = null;
+        var ctx = null;
+        var cache = null;
+
+        var titleText = '';
+        var paraTexts = [];
+        var studentLabel = '';
+
+        var cssW = 0;
+        var dpr = 1;
+        var expectedW = 0;
+        var expectedH = 0;
+        var refSamples = null;
+
+        var shielded = false;
+        var shieldReasons = Object.create(null);
+
+        var started = false;
+        var submitted = false;
+        var pageHidden = false;
+
+        var elapsedBase = 0;
+        var sessionT0 = performance.now();
+
+        var violations = [];
+        var violationQueue = [];
+        var flushTimer = null;
+        var lastLogAt = Object.create(null);
+
+        self.onmessage = function (e) {
+            var d = e.data || {};
+            switch (d.type) {
+                case 'init':
+                    init(d);
+                    break;
+                case 'start':
+                    started = true;
+                    sessionT0 = performance.now();
+                    break;
+                case 'submitted':
+                    submitted = true;
+                    started = false;
+                    break;
+                case 'visibility':
+                    pageHidden = !!d.hidden;
+                    break;
+                case 'label':
+                    studentLabel = d.label || studentLabel;
+                    break;
+                case 'resize':
+                    cssW = d.cssW;
+                    dpr = d.dpr;
+                    draw();
+                    break;
+                case 'shield':
+                    updateShield(d.action, d.reason);
+                    break;
+                case 'violation':
+                    queueViolation(d.vtype, d.detail, d.gap);
+                    break;
+                case 'integrity':
+                    checkIntegrity(d.cw, d.ch);
+                    break;
+            }
+        };
+
+        function init(d) {
+            canvas = d.canvas;
+            ctx = canvas.getContext('2d');
+            LIMIT = d.limit || LIMIT;
+            titleText = d.title || '';
+            paraTexts = d.paras || [];
+            studentLabel = d.label || '';
+            elapsedBase = d.elapsedMs || 0;
+            sessionT0 = performance.now();
+            cssW = d.cssW;
+            dpr = d.dpr;
+            pageHidden = !!d.hidden;
+            violations = Array.isArray(d.violations) ? d.violations.slice(-VIOLATION_CAP) : [];
+            draw();
+            startClocks();
+        }
+
+        /* ---------- 计时：单调时钟 + 累计基准，心跳式回传 ---------- */
+        function elapsedMs() {
+            return elapsedBase + (performance.now() - sessionT0);
+        }
+
+        function startClocks() {
+            setInterval(function () {
+                var el = elapsedMs();
+                self.postMessage({
+                    type: 'tick',
+                    elapsed: el,
+                    remaining: Math.max(0, LIMIT - el)
+                });
+            }, 250);
+
+            /* 墙钟 vs 单调时钟跳变 */
+            var lastWall = Date.now();
+            var lastPerf = performance.now();
+            setInterval(function () {
+                if (submitted) return;
+                var w = Date.now();
+                var p = performance.now();
+                var dw = w - lastWall;
+                var dp = p - lastPerf;
+                lastWall = w;
+                lastPerf = p;
+                var diff = dw - dp;
+                if (Math.abs(diff) > 1500) {
+                    queueViolation(
+                        '系统时钟异常',
+                        '墙钟增量 ' + Math.round(dw) + 'ms 与单调时钟增量 ' + Math.round(dp) + 'ms 相差 ' + Math.round(diff) + 'ms',
+                        5000
+                    );
+                }
+            }, 1000);
+
+            /* 心跳：定时器被断点暂停 / 被清除时检测 */
+            var lastBeat = performance.now();
+            setInterval(function () {
+                var now = performance.now();
+                var gap = now - lastBeat;
+                lastBeat = now;
+                if (!started || submitted || pageHidden) return;
+                if (gap > 6000) {
+                    queueViolation(
+                        '监测中断',
+                        '心跳间隔 ' + Math.round(gap) + 'ms，疑似定时器被暂停或被断点阻塞',
+                        4000
+                    );
+                }
+            }, 1000);
+        }
+
+        /* ---------- 违规日志：去重缓冲 + 批量上报队列 ---------- */
+        function queueViolation(type, detail, gap) {
+            var now = Date.now();
+            if (gap && lastLogAt[type] && now - lastLogAt[type] < gap) return;
+            lastLogAt[type] = now;
+
+            var item = { t: now, type: String(type || ''), detail: String(detail || '') };
+            violations.push(item);
+            if (violations.length > VIOLATION_CAP) {
+                violations.splice(0, violations.length - VIOLATION_CAP);
+            }
+            violationQueue.push(item);
+
+            if (!flushTimer) flushTimer = setTimeout(flushViolations, 120);
+        }
+
+        function flushViolations() {
+            flushTimer = null;
+            if (!violationQueue.length) return;
+            var batch = violationQueue;
+            violationQueue = [];
+            self.postMessage({ type: 'violations', items: batch, total: violations.length });
+        }
+
+        /* ---------- 题目渲染（离屏缓存 + 可见画布合成） ---------- */
+        function wrapLines(c, text, maxWidth) {
+            var out = [];
+            var line = '';
+            var chars = Array.from(text);
+            for (var i = 0; i < chars.length; i++) {
+                var ch = chars[i];
+                if (ch === '\n') { out.push(line); line = ''; continue; }
+                var test = line + ch;
+                if (c.measureText(test).width > maxWidth && line) {
+                    out.push(line);
+                    line = ch;
+                } else {
+                    line = test;
+                }
+            }
+            if (line) out.push(line);
+            return out;
+        }
+
+        function draw() {
+            if (!canvas || !ctx) return;
+            var contentW = cssW - PAD_X * 2;
+
+            ctx.font = TITLE_FONT;
+            var titleLines = wrapLines(ctx, titleText, contentW);
+            ctx.font = BODY_FONT;
+            var paraLines = paraTexts.map(function (p) { return wrapLines(ctx, p, contentW); });
+
+            var titleH = titleLines.length * TITLE_LH;
+            var bodyH = paraLines.reduce(function (sum, lines, i) {
+                return sum + lines.length * BODY_LH + (i < paraLines.length - 1 ? PARA_GAP : 0);
+            }, 0);
+            var totalH = Math.ceil(PAD_X + titleH + HEAD_GAP + bodyH + PAD_X);
+
+            if (!cache) cache = new OffscreenCanvas(1, 1);
+            cache.width = Math.floor(cssW * dpr);
+            cache.height = Math.floor(totalH * dpr);
+            var c = cache.getContext('2d');
+            c.setTransform(dpr, 0, 0, dpr, 0, 0);
+            c.textBaseline = 'top';
+
+            /* 背景 */
+            c.fillStyle = '#FFFFFF';
+            c.fillRect(0, 0, cssW, totalH);
+
+            /* 网格纹理 */
+            c.strokeStyle = 'rgba(33,165,227,.06)';
+            c.lineWidth = 1;
+            c.beginPath();
+            var x, y;
+            for (x = 0; x <= cssW; x += 20) { c.moveTo(x + 0.5, 0); c.lineTo(x + 0.5, totalH); }
+            for (y = 0; y <= totalH; y += 20) { c.moveTo(0, y + 0.5); c.lineTo(cssW, y + 0.5); }
+            c.stroke();
+
+            /* 水印 */
+            c.save();
+            c.globalAlpha = 0.05;
+            c.fillStyle = '#0B6BC5';
+            c.font = '700 12px ' + FONT;
+            c.rotate(-Math.PI / 9);
+            for (y = -320; y < totalH * 2; y += 88) {
+                for (x = -320; x < cssW * 2; x += 240) {
+                    c.fillText('仅限本人作答 · CONFIDENTIAL', x, y);
+                }
+            }
+            c.restore();
+
+            /* 标题 */
+            y = PAD_X;
+            c.font = TITLE_FONT;
+            c.fillStyle = '#1F1F1F';
+            for (var i = 0; i < titleLines.length; i++) {
+                c.fillText(titleLines[i], PAD_X, y);
+                y += TITLE_LH;
+            }
+
+            /* 强调线 */
+            y += 6;
+            c.fillStyle = '#21a5e3';
+            c.fillRect(PAD_X, y, 34, 3);
+            y += HEAD_GAP - 6;
+
+            /* 正文 */
+            c.font = BODY_FONT;
+            c.fillStyle = '#404040';
+            for (var p = 0; p < paraLines.length; p++) {
+                var lines = paraLines[p];
+                for (var j = 0; j < lines.length; j++) {
+                    c.fillText(lines[j], PAD_X, y);
+                    y += BODY_LH;
+                }
+                if (p < paraLines.length - 1) y += PARA_GAP;
+            }
+
+            expectedW = cache.width;
+            expectedH = cache.height;
+            refSamples = samplePixels(c);
+
+            if (shielded) paintShield();
+            else presentQuestion();
+
+            self.postMessage({ type: 'layout', cssW: cssW, totalH: totalH });
+        }
+
+        function presentQuestion() {
+            if (!cache) return;
+            if (canvas.width !== cache.width) canvas.width = cache.width;
+            if (canvas.height !== cache.height) canvas.height = cache.height;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(cache, 0, 0);
+        }
+
+        function paintShield() {
+            if (!canvas || !ctx) return;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = '#0B0B0B';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            /* 黑底上保留极淡身份水印 */
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 9);
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '700 ' + Math.round(13 * dpr) + 'px ' + FONT;
+            var spanX = canvas.width * 1.2;
+            var spanY = canvas.height * 1.2;
+            for (var yy = -spanY; yy <= spanY; yy += 82 * dpr) {
+                for (var xx = -spanX; xx <= spanX; xx += 300 * dpr) {
+                    ctx.fillText(studentLabel, xx, yy);
+                }
+            }
+            ctx.restore();
+        }
+
+        function updateShield(action, reason) {
+            if (action === 'clear') shieldReasons = Object.create(null);
+            else if (action === 'on') shieldReasons[reason] = true;
+            else if (action === 'off') delete shieldReasons[reason];
+
+            var now = Object.keys(shieldReasons).length > 0;
+            if (now === shielded) return;
+
+            shielded = now;
+            if (shielded) paintShield();
+            else presentQuestion();
+            self.postMessage({ type: 'shieldState', shielded: shielded });
+        }
+
+        /* ---------- 画布像素采样比对 ---------- */
+        function samplePixels(c) {
+            var cols = 6, rows = 4, out = [];
+            for (var r = 1; r <= rows; r++) {
+                for (var col = 1; col <= cols; col++) {
+                    var px = Math.floor(expectedW * col / (cols + 1));
+                    var py = Math.floor(expectedH * r / (rows + 1));
+                    var data = c.getImageData(px, py, 1, 1).data;
+                    out.push({ x: px, y: py, rgb: [data[0], data[1], data[2]] });
+                }
+            }
+            return out;
+        }
+
+        function checkIntegrity(cw, ch) {
+            if (shielded || !refSamples || !canvas) {
+                self.postMessage({ type: 'integrityResult', ok: true });
+                return;
+            }
+
+            var bad = (cw !== expectedW || ch !== expectedH);
+
+            if (!bad) {
+                for (var i = 0; i < refSamples.length; i++) {
+                    var s = refSamples[i];
+                    var p = ctx.getImageData(s.x, s.y, 1, 1).data;
+                    var diff = Math.abs(p[0] - s.rgb[0]) + Math.abs(p[1] - s.rgb[1]) + Math.abs(p[2] - s.rgb[2]);
+                    if (diff > 30) { bad = true; break; }
+                }
+            }
+
+            self.postMessage({ type: 'integrityResult', ok: !bad });
+        }
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* ============================================================
+               0. 常量
+               ============================================================ */
+            var STORAGE_KEY = 'ba_quiz_state_v1';
+            var LIMIT = 20 * 60 * 1000;               // 20 分钟
+            var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+
+            /* ---- 学生预设信息（可循环切换，可自行增删） ---- */
+            var PRESET_CANDIDATES = [
+                { nickname: '天童 凯伊', college: '千禧年科学学院', studentNo: '10135' },
+                { nickname: '纳西妲', college: '教令院', studentNo: '202211021027' },
+                { nickname: '多托雷', college: '刹诃伐罗学院', studentNo: '114514' },
+                { nickname: '提纳里', college: '阿弥利多学院', studentNo: '20220824' },
+                { nickname: '白洲 梓', college: '圣三一综合学院', studentNo: '10019' },
+                { nickname: '圣园 未花', college: '圣三一综合学院', studentNo: '10059' },
+                { nickname: '天童 爱丽丝', college: '千禧年科学学院', studentNo: '10134' },
+                { nickname: '空崎 日奈', college: '格黑娜学院', studentNo: '10004' }
+            ];
+            var presetIndex = -1;   // -1 表示尚未点过预设按钮
+
+            /* ---- 默认学生（水印兜底用，取第一套预设） ---- */
+            var DEFAULT_CANDIDATE = PRESET_CANDIDATES[0];
+
+            /* ---- 题目文本 Base64 编码，源码中不出现明文，增加抄题成本 ---- */
+            var Q_ENC = {
+                title: '5Li76KeC6aKYIMK3IEhUVFAg57yT5a2Y562W55Wl5LiO55Sf5Lqn5a6e6Le1',
+                paras: [
+                    '6K+36ZiQ6L+wIEhUVFAg57yT5a2Y5L2T57O75Lit44CM5by657yT5a2Y44CN5LiO44CM5Y2P5ZWG57yT5a2Y44CN55qE5qC45b+D5Yy65Yir77yM5bm25YiG5Yir6K+05piOIENhY2hlLUNvbnRyb2zjgIFFVGFn44CBTGFzdC1Nb2RpZmllZCDkuInkuKrlk43lupTlpLTnmoTkvZznlKjkuI7kvJjlhYjnuqflhbPns7vjgII=',
+                    '6K+357uT5ZCI5LiA5Liq55yf5a6e5oiW5YGH5oOz55qEIFdlYiDpobnnm67vvIzor7TmmI7kvaDkvJrlpoLkvZXkuLrjgIzpnZnmgIHotYTmupDvvIhKUyAvIENTUyAvIOWbvueJh++8ieOAjeS4juOAjOaVsOaNruOhteWPo+OAjeWIhuWIq+iuvuiuoee8k+WtmOetlueVpe+8jOW5tuino+mHiui/meagt+iuvuiuoeeahOWOn+WboO+8jOS7peWPiuWPr+iDvei4qeWIsOeahOWdkeOAgg=='
+                ]
+            };
+
+            function decodeB64(s) {
+                try {
+                    var bin = atob(s);
+                    var bytes = new Uint8Array(bin.length);
+                    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                    return new TextDecoder('utf-8').decode(bytes);
+                } catch (e) { return ''; }
+            }
+
+            var Q_TITLE = decodeB64(Q_ENC.title);
+            var Q_PARAS = Q_ENC.paras.map(function (s) { return decodeB64(s); });
+
+            /* ---- 本地数据签名（防止手改 localStorage 重置计时 / 清除违规） ---- */
+            var SIG_SALT = 'exam::' + Q_ENC.title.slice(-10) + '::' + Q_ENC.paras.length;
+
+            function computeSig(st) {
+                var c = st.candidate || {};
+                var raw = [
+                    c.nickname || '', c.college || '', c.studentNo || '',
+                    (st.answer || '').length,
+                    st.answerUpdatedAt || 0,
+                    Math.round((st.elapsedMs || 0) / 1000),
+                    (st.violations || []).length,
+                    st.submitted ? 1 : 0
+                ].join('|') + '|' + SIG_SALT;
+                var h = 0x811c9dc5 >>> 0;
+                var g = 0x27d4eb2d >>> 0;
+                for (var i = 0; i < raw.length; i++) {
+                    var code = raw.charCodeAt(i);
+                    h = Math.imul(h ^ code, 16777619) >>> 0;
+                    g = Math.imul(g ^ code, 2654435761) >>> 0;
+                }
+                for (var j = raw.length - 1; j >= 0; j--) {
+                    g = Math.imul(g ^ raw.charCodeAt(j), 2246822519) >>> 0;
+                }
+                return h.toString(16) + g.toString(16);
+            }
+
+            function normalizeCandidate(c) {
+                if (!c || typeof c !== 'object') return null;
+                var out = {
+                    nickname: String(c.nickname || '').trim().slice(0, 24),
+                    college: String(c.college || '').trim().slice(0, 32),
+                    studentNo: String(c.studentNo || '').trim().slice(0, 24)
+                };
+                return (out.nickname && out.college && out.studentNo) ? out : null;
+            }
+
+            /* ============================================================
+               1. 本地存储与恢复
+               ============================================================ */
+            function readStore() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) { return null; }
+            }
+
+            var restored = readStore() || {};
+            var state = {
+                answer: typeof restored.answer === 'string' ? restored.answer : '',
+                answerUpdatedAt: typeof restored.answerUpdatedAt === 'number' ? restored.answerUpdatedAt : 0,
+                violations: Array.isArray(restored.violations) ? restored.violations : [],
+                elapsedMs: typeof restored.elapsedMs === 'number' ? restored.elapsedMs : 0,
+                submitted: !!restored.submitted,
+                candidate: normalizeCandidate(restored.candidate),
+                sig: typeof restored.sig === 'string' ? restored.sig : ''
+            };
+
+            /* 签名不一致：视为本地数据被手工篡改，留痕但不清除作答 */
+            var tamperDetected = false;
+            if (state.sig && state.sig !== computeSig(state)) {
+                tamperDetected = true;
+            }
+
+            /* ---- 计时器：由 Worker 的单调时钟计算，主线程只读取最近一次回传值 ---- */
+            var clock = {
+                elapsed: state.elapsedMs,
+                remaining: Math.max(0, LIMIT - state.elapsedMs)
+            };
+
+            function elapsed() { return clock.elapsed; }
+            function remaining() { return clock.remaining; }
+
+            var saveTimer = null;
+            function saveState() {
+                if (isResetting) return;
+                try {
+                    state.elapsedMs = elapsed();
+                    state.sig = computeSig(state);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    var hint = document.getElementById('saveHint');
+                    if (hint) hint.textContent = '已保存 ' + fmtClock(Date.now());
+                } catch (e) { /* 存储不可用时静默 */ }
+            }
+            function saveStateSoon() {
+                if (isResetting) return;
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(saveState, 400);
+            }
+
+            /* ============================================================
+               2. 工具函数
+               ============================================================ */
+            function $(id) { return document.getElementById(id); }
+
+            function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+            function fmtTime(ts) {
+                var d = new Date(ts);
+                return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+            }
+            function fmtClock(ts) {
+                var d = new Date(ts);
+                return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+            }
+            function fmtMMSS(ms) {
+                var total = Math.ceil(ms / 1000);
+                var m = Math.floor(total / 60);
+                var s = total % 60;
+                return pad2(m) + ':' + pad2(s);
+            }
+
+            /* ============================================================
+               3. 违规日志（去重与缓冲在 Worker 内完成，批量回传后落盘）
+               ============================================================ */
+            function logViolation(type, detail, gap) {
+                if (!worker) return;
+                worker.postMessage({
+                    type: 'violation',
+                    vtype: type,
+                    detail: String(detail || ''),
+                    gap: gap || 0
+                });
+            }
+
+            function applyViolations(items) {
+                if (!items || !items.length) return;
+                for (var i = 0; i < items.length; i++) state.violations.push(items[i]);
+                if (state.violations.length > 800) {
+                    state.violations.splice(0, state.violations.length - 800);
+                }
+
+                saveState();
+                renderLog();
+                updateBadge();
+                showToast('⚠ 已记录违规：' + items[items.length - 1].type);
+            }
+
+            function renderLog() {
+                var list = $('logList');
+                if (!list) return;
+                var meta = $('logMeta');
+
+                list.innerHTML = '';
+                if (!state.violations.length) {
+                    var empty = document.createElement('li');
+                    empty.className = 'log-empty';
+                    empty.textContent = '暂无违规记录 · 保持专注';
+                    list.appendChild(empty);
+                } else {
+                    // 最新的在最上面
+                    for (var i = state.violations.length - 1; i >= 0; i--) {
+                        var v = state.violations[i];
+                        var li = document.createElement('li');
+                        li.className = 'log-item';
+
+                        var t = document.createElement('span');
+                        t.className = 'log-item__time';
+                        t.textContent = fmtTime(v.t);
+
+                        var ty = document.createElement('span');
+                        ty.className = 'log-item__type';
+                        ty.textContent = v.type;
+
+                        var d = document.createElement('span');
+                        d.className = 'log-item__detail';
+                        d.textContent = v.detail;
+
+                        li.appendChild(t);
+                        li.appendChild(ty);
+                        li.appendChild(d);
+                        list.appendChild(li);
+                    }
+                }
+
+                if (meta) meta.textContent = state.violations.length + ' 条记录';
+            }
+
+            function updateBadge() {
+                var b = $('violationBadge');
+                if (!b) return;
+                var n = state.violations.length;
+                b.textContent = '违规 ' + n;
+                b.classList.toggle('is-clean', n === 0);
+            }
+
+            /* ---- Toast ---- */
+            var toastEl = null, toastTimer = null;
+            function showToast(msg) {
+                if (!toastEl) {
+                    toastEl = document.createElement('div');
+                    toastEl.className = 'toast';
+                    toastEl.setAttribute('role', 'status');
+                    toastEl.setAttribute('aria-live', 'polite');
+                    document.body.appendChild(toastEl);
+                }
+                toastEl.textContent = msg;
+                toastEl.classList.add('is-visible');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(function () {
+                    toastEl.classList.remove('is-visible');
+                }, 1800);
+            }
+
+            /* ============================================================
+               4. Canvas 渲染题目（防复制 / 防选中）
+               ============================================================ */
+            /* 题目渲染 / 护盾 / 像素校验均下沉到 Worker（OffscreenCanvas），主线程只保留 DOM 编排 */
+            var worker = null;
+            var shielded = false;
+            var canvasReady = false;
+
+            function candidateLabel() {
+                var c = state.candidate || DEFAULT_CANDIDATE;
+                return c.nickname + ' · ' + c.college + ' · ' + c.studentNo;
+            }
+
+            function drawQuestion() {
+                var wrap = $('canvasWrap');
+                var canvas = $('questionCanvas');
+                if (!wrap || !canvas || !worker) return;
+
+                var cssW = Math.max(260, wrap.clientWidth || 320);
+                var dpr = Math.min(window.devicePixelRatio || 1, 2);
+                worker.postMessage({ type: 'resize', cssW: cssW, dpr: dpr });
+            }
+
+            function shieldOn(reason) {
+                if (worker) worker.postMessage({ type: 'shield', action: 'on', reason: reason });
+            }
+
+            function shieldOff(reason) {
+                if (worker) worker.postMessage({ type: 'shield', action: 'off', reason: reason });
+            }
+
+            function clearShield() {
+                if (worker) worker.postMessage({ type: 'shield', action: 'clear' });
+            }
+
+            function initWorker() {
+                var src = document.getElementById('examWorkerSrc');
+                var canvas = $('questionCanvas');
+                var wrap = $('canvasWrap');
+                if (!src || !canvas || !wrap) return;
+                if (typeof canvas.transferControlToOffscreen !== 'function') {
+                    showToast('当前浏览器不支持 OffscreenCanvas，题目无法渲染');
+                    return;
+                }
+
+                var blob = new Blob([src.textContent], { type: 'text/javascript' });
+                var url = URL.createObjectURL(blob);
+                worker = new Worker(url);
+                URL.revokeObjectURL(url);
+                worker.onmessage = onWorkerMessage;
+
+                var cssW = Math.max(260, wrap.clientWidth || 320);
+                var dpr = Math.min(window.devicePixelRatio || 1, 2);
+                var offscreen = canvas.transferControlToOffscreen();
+
+                worker.postMessage({
+                    type: 'init',
+                    canvas: offscreen,
+                    limit: LIMIT,
+                    elapsedMs: state.elapsedMs,
+                    title: Q_TITLE,
+                    paras: Q_PARAS,
+                    label: candidateLabel(),
+                    violations: state.violations.slice(),
+                    cssW: cssW,
+                    dpr: dpr,
+                    hidden: document.hidden
+                }, [offscreen]);
+
+                if (state.submitted) worker.postMessage({ type: 'submitted' });
+            }
+
+            function onWorkerMessage(e) {
+                var d = e.data || {};
+                switch (d.type) {
+                    case 'tick':
+                        clock.elapsed = d.elapsed;
+                        clock.remaining = d.remaining;
+                        if (started && !submitted) {
+                            updateTimerUI();
+                            if (d.remaining <= 0) timeUp();
+                        }
+                        break;
+                    case 'layout':
+                        canvasReady = true;
+                        var canvas = $('questionCanvas');
+                        if (canvas) {
+                            canvas.style.width = d.cssW + 'px';
+                            canvas.style.height = d.totalH + 'px';
+                        }
+                        break;
+                    case 'shieldState':
+                        shielded = !!d.shielded;
+                        var wrapEl = $('canvasWrap');
+                        if (wrapEl) wrapEl.classList.toggle('is-shielded', shielded);
+                        break;
+                    case 'violations':
+                        applyViolations(d.items);
+                        break;
+                    case 'integrityResult':
+                        if (!d.ok) {
+                            logViolation('题目画布被篡改', '检测到题目画布内容 / 尺寸被修改，已自动重绘', 2000);
+                            drawQuestion();
+                        }
+                        break;
+                }
+            }
+
+            /* ============================================================
+               4.5 全局水印 / 学生信息展示
+               ============================================================ */
+            function fmtDate(ts) {
+                var d = new Date(ts);
+                return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + fmtClock(ts);
+            }
+
+            function buildWatermarkTile() {
+                var W = 420, H = 220;
+                var dpr = Math.min(window.devicePixelRatio || 1, 2);
+                var c = document.createElement('canvas');
+                c.width = W * dpr;
+                c.height = H * dpr;
+                var ctx = c.getContext('2d');
+                ctx.scale(dpr, dpr);
+                ctx.translate(W / 2, H / 2);
+                ctx.rotate(-Math.PI / 9);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '700 14px ' + FONT;
+                ctx.fillStyle = 'rgba(11,107,197,.72)';
+                ctx.fillText(candidateLabel(), 0, -9);
+                ctx.font = '600 12px ' + FONT;
+                ctx.fillStyle = 'rgba(11,107,197,.5)';
+                ctx.fillText('仅限本人作答 · ' + fmtDate(Date.now()), 0, 12);
+                return c.toDataURL('image/png');
+            }
+
+            var wmTimer = null;
+            function updateWatermark() {
+                if (!state.candidate) return;
+                var layer = $('wmLayer');
+                if (!layer) return;
+                layer.style.backgroundImage = 'url("' + buildWatermarkTile() + '")';
+                layer.hidden = false;
+                clearTimeout(wmTimer);
+                wmTimer = setTimeout(updateWatermark, 60000);
+            }
+
+            function renderWho() {
+                if (!state.candidate) return;
+                var who = $('who');
+                if (!who) return;
+                $('whoName').textContent = state.candidate.nickname;
+                $('whoCollege').textContent = state.candidate.college;
+                $('whoNo').textContent = '学号 ' + state.candidate.studentNo;
+                who.hidden = false;
+            }
+
+            /* 水印层被删除 / 隐藏时自动恢复并留痕 */
+            function guardWatermark() {
+                var layer = $('wmLayer');
+                if (!layer) return;
+                if (typeof MutationObserver !== 'undefined') {
+                    try {
+                        new MutationObserver(function () {
+                            if (!state.candidate) return;
+                            if (!document.body.contains(layer)) {
+                                document.body.appendChild(layer);
+                                logViolation('水印被移除', '检测到水印层被移出文档，已自动恢复', 1500);
+                            }
+                        }).observe(document.body, { childList: true });
+                    } catch (e) { }
+                }
+                setInterval(function () {
+                    if (!started || !state.candidate) return;
+                    var gone = !document.body.contains(layer);
+                    var cs = window.getComputedStyle(layer);
+                    var invisible = cs.display === 'none' || cs.visibility === 'hidden' ||
+                        parseFloat(cs.opacity || '1') < 0.05;
+                    if (gone) document.body.appendChild(layer);
+                    if (gone || invisible) {
+                        layer.hidden = false;
+                        layer.style.display = '';
+                        layer.style.visibility = '';
+                        layer.style.opacity = '';
+                        if (!layer.style.backgroundImage) updateWatermark();
+                        logViolation('水印被隐藏', '检测到水印层被隐藏或样式被改写，已自动恢复', 2000);
+                    }
+                }, 1200);
+            }
+
+            /* ============================================================
+               5. 事件属性陷阱（带 setter）
+               ============================================================ */
+            var TRAP_PROPS = [
+                'onpaste', 'oncopy', 'oncut', 'oncontextmenu', 'onselectstart', 'ondragstart',
+                'onkeydown', 'onkeyup', 'onblur', 'onbeforeprint', 'onvisibilitychange'
+            ];
+
+            function installTrapOn(target, prop) {
+                if (!target) return;
+                try {
+                    // 若已存在自有描述符则先移除
+                    var existing = Object.getOwnPropertyDescriptor(target, prop);
+                    if (existing && !existing.configurable) return;
+
+                    var store = new WeakMap();
+                    Object.defineProperty(target, prop, {
+                        configurable: true,
+                        enumerable: true,
+                        get: function () {
+                            return store.has(this) ? store.get(this) : null;
+                        },
+                        set: function (value) {
+                            store.set(this, value);
+                            var who = this === document ? 'document'
+                                : this === window ? 'window'
+                                    : (this && this.tagName ? this.tagName.toLowerCase() : 'object');
+                            logViolation(
+                                '事件属性篡改',
+                                '检测到通过赋值方式改写 ' + who + '.' + prop + '（值类型：' + typeof value + '）',
+                                3000
+                            );
+                        }
+                    });
+                } catch (e) { /* 某些环境不支持则跳过 */ }
+            }
+
+            function installTraps() {
+                TRAP_PROPS.forEach(function (prop) {
+                    installTrapOn(Document.prototype, prop);
+                    installTrapOn(HTMLElement.prototype, prop);
+                    try { installTrapOn(Window.prototype, prop); } catch (e) { }
+                });
+            }
+
+            /* ============================================================
+               6. 全屏
+               ============================================================ */
+            var started = false;
+            var submitted = false;
+            var isResetting = false;
+
+            function isFullscreen() {
+                return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            }
+
+            function requestFullscreen() {
+                var el = document.documentElement;
+                var fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+                if (!fn) {
+                    logViolation('全屏不可用', '当前浏览器不支持 Fullscreen API');
+                    return Promise.resolve(false);
+                }
+                try {
+                    var r = fn.call(el);
+                    if (r && typeof r.then === 'function') {
+                        return r.then(function () { return true; }).catch(function (err) {
+                            logViolation('全屏请求被拒绝', '浏览器拒绝进入全屏：' + (err && err.message ? err.message : '未知原因'));
+                            return false;
+                        });
+                    }
+                    return Promise.resolve(true);
+                } catch (e) {
+                    logViolation('全屏请求异常', String(e && e.message || e));
+                    return Promise.resolve(false);
+                }
+            }
+
+            function bindFullscreenWatch() {
+                var handler = function () {
+                    if (isResetting) return;
+                    if (!started) return;
+                    if (!isFullscreen()) {
+                        logViolation('退出全屏', '检测到页面已退出全屏状态（fullscreenchange）', 1500);
+                        // 尝试无手势重新进入（多数浏览器会拒绝，属预期）
+                        requestFullscreen();
+                    }
+                };
+                document.addEventListener('fullscreenchange', handler);
+                document.addEventListener('webkitfullscreenchange', handler);
+                document.addEventListener('msfullscreenchange', handler);
+            }
+
+            /* ============================================================
+               7. 切屏检测（双通道：blur + visibilitychange）
+               ============================================================ */
+            var lastSwitchAt = 0;
+
+            function reportSwitch(source, extra) {
+                if (isResetting) return;
+                if (!started || submitted) return;
+                var now = Date.now();
+                if (now - lastSwitchAt < 800) return; // 去抖，避免一次切屏记两条
+                lastSwitchAt = now;
+                logViolation('切屏 / 失焦', '触发通道：' + source + (extra ? ' · ' + extra : ''));
+            }
+
+            function bindVisibilityWatch() {
+                document.addEventListener('visibilitychange', function () {
+                    if (worker) worker.postMessage({ type: 'visibility', hidden: document.hidden });
+                    if (isResetting) return;
+                    if (document.hidden) {
+                        reportSwitch('visibilitychange（document.hidden）');
+                        if (started && !submitted) shieldOn('hidden');
+                        saveState(); // 页面隐藏时立刻落盘
+                    } else if (started && !submitted) {
+                        shieldOff('hidden');
+                    }
+                });
+                window.addEventListener('blur', function () {
+                    reportSwitch('window.blur');
+                    if (started && !submitted) shieldOn('blur');
+                });
+                window.addEventListener('focus', function () {
+                    if (started && !submitted) {
+                        shieldOff('blur');
+                        shieldOff('hidden');
+                        saveStateSoon();
+                    }
+                });
+                window.addEventListener('pagehide', function () {
+                    if (isResetting) return;
+                    saveState();
+                });
+            }
+
+            /* ============================================================
+               8. 剪贴板 / 右键 / 拖拽 / 打印
+               ============================================================ */
+            function bindClipboardGuards() {
+                ['copy', 'cut', 'paste'].forEach(function (type) {
+                    document.addEventListener(type, function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        logViolation('剪贴板操作', '已拦截 ' + type + ' 事件（来源：' + (e.target && e.target.tagName ? e.target.tagName.toLowerCase() : 'unknown') + '）', 1200);
+                    }, true);
+                });
+
+                document.addEventListener('contextmenu', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    logViolation('右键菜单', '已拦截 contextmenu 事件', 1200);
+                }, true);
+
+                // 文本选择：输入区放行，其余禁止
+                document.addEventListener('selectstart', function (e) {
+                    var t = e.target;
+                    if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT')) return;
+                    e.preventDefault();
+                }, true);
+
+                // 拖拽
+                document.addEventListener('dragstart', function (e) {
+                    e.preventDefault();
+                    logViolation('拖拽操作', '已拦截 dragstart 事件', 2000);
+                }, true);
+                document.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                }, true);
+
+                // 打印
+                window.addEventListener('beforeprint', function () {
+                    logViolation('打印行为', '检测到打印（beforeprint）', 1500);
+                });
+                try {
+                    var mq = window.matchMedia('print');
+                    if (mq && mq.addEventListener) {
+                        mq.addEventListener('change', function (ev) {
+                            if (ev.matches) logViolation('打印行为', '检测到打印媒体查询切换', 1500);
+                        });
+                    }
+                } catch (e) { }
+
+                // 剪贴板写入（部分截屏 / 抄题工具会往剪贴板写内容）
+                try {
+                    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                        navigator.clipboard.writeText = function () {
+                            logViolation('剪贴板写入', '尝试向剪贴板写入内容，已拦截', 1000);
+                            return Promise.reject(new Error('clipboard blocked'));
+                        };
+                    }
+                } catch (e) { }
+            }
+
+            /* ============================================================
+               9. 快捷键拦截（捕获阶段）
+               ============================================================ */
+            var keyShieldTimer = null;
+            var shotShieldTimer = null;
+
+            function bindKeyboardGuards() {
+                document.addEventListener('keydown', function (e) {
+                    var k = (e.key || '').toLowerCase();
+                    var ctrl = e.ctrlKey || e.metaKey;
+
+                    /* 任意按键：题目立刻变黑，停手 900ms 后恢复 */
+                    if (started && !submitted) {
+                        shieldOn('key');
+                        clearTimeout(keyShieldTimer);
+                        keyShieldTimer = setTimeout(function () { shieldOff('key'); }, 900);
+                    }
+
+                    /* 截屏按键：长时间遮挡 + 留痕 */
+                    if ((e.key === 'PrintScreen' || e.keyCode === 44) && started && !submitted) {
+                        shieldOn('shot');
+                        clearTimeout(shotShieldTimer);
+                        shotShieldTimer = setTimeout(function () { shieldOff('shot'); }, 4000);
+                        logViolation('截屏按键', '检测到 PrintScreen / 系统截屏快捷键', 1500);
+                    }
+
+                    function block(reason) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        logViolation('高危快捷键', reason, 1200);
+                        return false;
+                    }
+
+                    // 开发者工具
+                    if (e.key === 'F12') return block('按下 F12');
+                    if (ctrl && e.shiftKey && ['i', 'j', 'c', 'k', 's'].indexOf(k) >= 0) {
+                        return block('按下 Ctrl/Cmd+Shift+' + k.toUpperCase());
+                    }
+                    if (ctrl && k === 'u') return block('按下 Ctrl/Cmd+U（查看源代码）');
+
+                    // 剪贴板 / 打印 / 保存 / 全选
+                    if (ctrl && ['c', 'x', 'v', 'a', 'p', 's', 'd'].indexOf(k) >= 0) {
+                        return block('按下 Ctrl/Cmd+' + k.toUpperCase());
+                    }
+
+                    // 刷新类
+                    if (e.key === 'F5' || (ctrl && k === 'r')) {
+                        return block('按下刷新快捷键（' + (e.key === 'F5' ? 'F5' : 'Ctrl/Cmd+R') + '）');
+                    }
+
+                    // 退出全屏（浏览器可能仍会执行，这里尽量拦）
+                    if (e.key === 'Escape') {
+                        // 不阻止（会退出全屏，由 fullscreenchange 记录），仅提示
+                        return;
+                    }
+                }, true);
+
+                // 屏蔽拖拽选中与中键
+                document.addEventListener('mousedown', function (e) {
+                    if (e.button === 1) e.preventDefault();
+                });
+
+                // 松键后延迟恢复题目显示
+                document.addEventListener('keyup', function () {
+                    if (!started || submitted) return;
+                    clearTimeout(keyShieldTimer);
+                    keyShieldTimer = setTimeout(function () { shieldOff('key'); }, 900);
+                }, true);
+            }
+
+            /* ============================================================
+               10. beforeunload
+               ============================================================ */
+            function bindUnloadGuard() {
+                window.addEventListener('beforeunload', function (e) {
+                    if (isResetting) return;
+                    saveState();
+                    if (submitted) return;
+                    logViolation('尝试离开页面', '触发 beforeunload（刷新 / 关闭 / 跳转）', 1500);
+                    e.preventDefault();
+                    e.returnValue = '答题尚未提交，离开将丢失未保存的作答，确认离开？';
+                    return e.returnValue;
+                });
+            }
+
+            /* ============================================================
+               11. debugger 陷阱 + 时钟跳变检测
+               ============================================================ */
+            function bindAntiDebug() {
+                // --- debugger 计时陷阱 ---
+                var dbgReported = 0;
+                setInterval(function () {
+                    if (submitted) return;
+                    var before = performance.now();
+                    // eslint-disable-next-line no-debugger
+                    debugger;
+                    var after = performance.now();
+                    var cost = after - before;
+                    if (cost > 120) {
+                        dbgReported++;
+                        logViolation(
+                            '调试器检测',
+                            'debugger 语句阻塞 ' + Math.round(cost) + 'ms（第 ' + dbgReported + ' 次），疑似开发者工具已开启',
+                            4000
+                        );
+                    }
+                }, 1000);
+
+                // --- 系统时钟 / 心跳检测已迁至 Worker（避免主线程被断点暂停后误判） ---
+            }
+
+            /* ============================================================
+               11.5 题目画布完整性校验
+               ============================================================ */
+            /* 可见性由主线程检查，像素采样与尺寸比对交给 Worker */
+            function checkCanvasIntegrity() {
+                if (!started || submitted || shielded || !canvasReady || !worker) return;
+                var canvas = $('questionCanvas');
+                if (!canvas) return;
+
+                var cs = window.getComputedStyle(canvas);
+                if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') < 0.05) {
+                    logViolation('题目画布被篡改', '检测到题目画布被隐藏或透明度被改写，已自动重绘', 2000);
+                    drawQuestion();
+                    return;
+                }
+
+                worker.postMessage({ type: 'integrity', cw: canvas.width, ch: canvas.height });
+            }
+
+            /* ============================================================
+               12. 计时循环
+               ============================================================ */
+            function updateTimerUI() {
+                var t = $('timerText');
+                var box = $('timer');
+                if (!t || !box) return;
+                var r = remaining();
+                t.textContent = fmtMMSS(r);
+                box.classList.toggle('is-warning', r <= 60000);
+            }
+
+            function timeUp() {
+                if (submitted) return;
+                logViolation('答题超时', '倒计时结束，系统自动提交');
+                doSubmit(true);
+            }
+
+            /* 计时与超时判定由 Worker 的 tick 消息驱动，这里只保留落盘节奏 */
+            function startAutoSave() {
+                setInterval(function () {
+                    if (started && !submitted && !isResetting) saveState();
+                }, 5000);
+            }
+
+            /* ============================================================
+               13. 提交
+               ============================================================ */
+            function doSubmit(auto) {
+                if (submitted) return;
+                submitted = true;
+                started = false;
+                state.submitted = true;
+                state.answer = $('answer').value;
+                state.answerUpdatedAt = Date.now();
+                saveState();
+
+                /* 提交后解除护盾，确保题目内容正常可见 */
+                if (worker) worker.postMessage({ type: 'submitted' });
+                clearShield();
+                clearTimeout(keyShieldTimer);
+                clearTimeout(shotShieldTimer);
+
+                var ta = $('answer');
+                var btn = $('submitBtn');
+                ta.disabled = true;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn__label">已提交</span>';
+
+                showToast(auto ? '⏰ 时间到，已自动提交' : '✅ 答卷已提交');
+                updateTimerUI();
+            }
+
+            /* ============================================================
+             13.5 重置：清空所有本地存储 + 内存状态 + UI
+             ============================================================ */
+            function doReset() {
+                if (!window.confirm('确定要重置并刷新吗？\n作答内容、违规日志、计时都会重置，且无法恢复。')) {
+                    return;
+                }
+
+                isResetting = true;
+
+                // 停掉所有可能写盘的定时器
+                clearTimeout(saveTimer);
+                clearTimeout(wmTimer);
+                clearTimeout(keyShieldTimer);
+                clearTimeout(shotShieldTimer);
+
+                // 先清空内存状态，任何漏网回调也写不回旧数据
+                state.answer = '';
+                state.answerUpdatedAt = 0;
+                state.violations = [];
+                state.elapsedMs = 0;
+                state.submitted = false;
+                state.candidate = null;
+                state.sig = '';
+
+                // 再清本地存储
+                try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+
+                window.location.reload();
+            }
+
+            /* ============================================================
+               14. 初始化
+               ============================================================ */
+            function updateCounter() {
+                var c = $('counter');
+                var ta = $('answer');
+                if (!c || !ta) return;
+                c.textContent = ta.value.length + ' 字';
+            }
+
+            function bindAnswer() {
+                var ta = $('answer');
+                ta.addEventListener('input', function () {
+                    state.answer = ta.value;
+                    state.answerUpdatedAt = Date.now();
+                    updateCounter();
+                    saveStateSoon();
+                });
+                // 输入区也拦截粘贴，避免通过中间事件绕过
+                ta.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    logViolation('剪贴板操作', '在作答区拦截 paste', 1200);
+                });
+                ta.addEventListener('drop', function (e) { e.preventDefault(); });
+            }
+
+            function prefillGate() {
+                // 编辑框默认为空，预设信息由「填入预设」按钮按需填入
+                $('inName').value = '';
+                $('inCollege').value = '';
+                $('inNo').value = '';
+            }
+
+            function beginExam() {
+                var gate = $('gate');
+                if (!gate) return;
+
+                var name = $('inName').value.trim();
+                var college = $('inCollege').value.trim();
+                var no = $('inNo').value.trim();
+                var err = $('gateError');
+                var badEl = null;
+                var msg = '';
+
+                ['inName', 'inCollege', 'inNo'].forEach(function (id) {
+                    $(id).classList.remove('is-invalid');
+                });
+
+                if (!name) { badEl = $('inName'); msg = '请填写学生昵称'; }
+                else if (name.length > 24) { badEl = $('inName'); msg = '昵称最多 24 个字'; }
+                else if (!college) { badEl = $('inCollege'); msg = '请填写所属学院'; }
+                else if (college.length > 32) { badEl = $('inCollege'); msg = '学院名称最多 32 个字'; }
+                else if (!no) { badEl = $('inNo'); msg = '请填写学号'; }
+                else if (no.length < 2) { badEl = $('inNo'); msg = '学号至少 2 位'; }
+
+                if (badEl) {
+                    badEl.classList.add('is-invalid');
+                    badEl.focus();
+                    err.textContent = msg;
+                    err.classList.add('is-on');
+                    return;
+                }
+                err.classList.remove('is-on');
+
+                state.candidate = { nickname: name, college: college, studentNo: no };
+                saveState();
+                updateWatermark();
+                renderWho();
+                if (worker) worker.postMessage({ type: 'label', label: candidateLabel() });
+
+                requestFullscreen().then(function () {
+                    gate.hidden = true;
+                    if (state.submitted) {
+                        showToast('本场答卷已提交，内容已锁定');
+                        return;
+                    }
+
+                    // 重置会话计时起点（遮罩停留时间不计入），并由 Worker 接管计时
+                    if (worker) worker.postMessage({ type: 'start' });
+                    started = true;
+
+                    if (!isFullscreen()) {
+                        logViolation('未进入全屏', '点击开始后未能进入全屏模式，后续监测仍持续');
+                    } else {
+                        showToast('已进入答题模式 · ' + state.candidate.nickname);
+                    }
+
+                    var ans = $('answer');
+                    if (!ans.disabled) ans.focus();
+                    updateTimerUI();
+                    saveState();
+                });
+            }
+
+            function init() {
+                // 恢复作答
+                var ta = $('answer');
+                ta.value = state.answer || '';
+                updateCounter();
+
+                // 本地数据被篡改时留痕
+                if (tamperDetected) {
+                    state.violations.push({
+                        t: Date.now(),
+                        type: '本地数据被篡改',
+                        detail: '本地存储签名校验失败，作答 / 计时 / 日志可能被手工改写'
+                    });
+                    tamperDetected = false;
+                }
+
+                // 启动 Worker（关键逻辑）+ 初始渲染
+                initWorker();
+
+                // 渲染日志 / 徽章
+                renderLog();
+                updateBadge();
+
+                // 预填学生信息（保留上次填写的内容）
+                prefillGate();
+                ['inName', 'inCollege', 'inNo'].forEach(function (id) {
+                    var el = $(id);
+                    el.addEventListener('input', function () {
+                        el.classList.remove('is-invalid');
+                        var err = $('gateError');
+                        if (err) err.classList.remove('is-on');
+                    });
+                    el.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            beginExam();
+                        }
+                    });
+                });
+
+                /* 填入 / 切换预设信息 */
+                function fillPreset() {
+                    presetIndex = (presetIndex + 1) % PRESET_CANDIDATES.length;
+                    var p = PRESET_CANDIDATES[presetIndex];
+
+                    $('inName').value = p.nickname;
+                    $('inCollege').value = p.college;
+                    $('inNo').value = p.studentNo;
+
+                    ['inName', 'inCollege', 'inNo'].forEach(function (id) {
+                        $(id).classList.remove('is-invalid');
+                    });
+                    var err = $('gateError');
+                    if (err) err.classList.remove('is-on');
+
+                    // 首次点击后按钮文案变为“换一版”
+                    var btn = $('presetBtn');
+                    if (btn) btn.innerHTML = '<span class="btn__label">换一版</span>';
+                }
+
+                // 绘制题目（首帧由 Worker 的 init 完成，这里只处理重排）
+                var rt = null;
+                window.addEventListener('resize', function () {
+                    clearTimeout(rt);
+                    rt = setTimeout(drawQuestion, 180);
+                });
+
+                // 绑定
+                bindAnswer();
+                installTraps();
+                bindClipboardGuards();
+                bindKeyboardGuards();
+                bindVisibilityWatch();
+                bindFullscreenWatch();
+                bindUnloadGuard();
+                bindAntiDebug();
+                startAutoSave();
+                updateTimerUI();
+
+                // 水印守护 + 画布完整性巡检
+                guardWatermark();
+                setInterval(checkCanvasIntegrity, 2000);
+
+                // 已提交状态直接锁定
+                if (state.submitted) {
+                    submitted = true;
+                    ta.disabled = true;
+                    var btn = $('submitBtn');
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="btn__label">已提交</span>';
+                }
+
+                // 开始按钮 / 表单回车提交
+                $('startBtn').addEventListener('click', beginExam);
+                // 填入预设 / 换一版
+                $('presetBtn').addEventListener('click', fillPreset);
+                $('gateForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    beginExam();
+                });
+
+                // 提交按钮
+                $('submitBtn').addEventListener('click', function () {
+                    if (submitted) return;
+                    var v = $('answer').value.trim();
+                    if (v.length < 10) {
+                        showToast('作答内容过短（至少 10 字）');
+                        return;
+                    }
+                    doSubmit(false);
+                });
+
+                // 重置按钮
+                $('resetBtn').addEventListener('click', doReset);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+
+</html>
