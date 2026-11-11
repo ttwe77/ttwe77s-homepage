@@ -33,5 +33,12 @@
   "url": "./app/cyber-cert.html",
   "icon": "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 2l7 3v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V5z'></path><path d='M9 11l2 2 4-4'></path></svg>",
   "tags": ["安全", "整活", "前端"]
+},
+{
+  "name": "校园睡",
+  "desc": "娱乐向睡眠打卡 Web 页面，数据保存在本地浏览器。",
+  "url": "./app/campus-sleep.html",
+  "icon": "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z'></path></svg>",
+  "tags": ["睡眠", "打卡", "娱乐"]
 }
 ]
