@@ -93,6 +93,9 @@ input,button{font-family:inherit}
 .loc-bar:active{transform:scale(.99);border-color:#ded9f8}
 .loc-text{font-size:13.5px;font-weight:600;color:#3b3b58;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .loc-edit{font-size:11px;color:#6C5CE7;background:#f2efff;padding:3px 9px;border-radius:8px;font-weight:700}
+.loc-quick{width:100%;margin-top:10px;border:1.5px dashed #d6d2ee;background:#faf9ff;color:#6C5CE7;font-size:13px;font-weight:700;padding:12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+.loc-quick:active{transform:scale(.99)}
+.loc-quick:disabled{opacity:.55;cursor:not-allowed;background:#f3f3f8;color:#a8a8bc;border-color:#e6e6f0}
 .dial-wrap{display:flex;justify-content:center;align-items:center;padding:46px 0 30px}
 .dial{width:246px;height:246px;border-radius:50%;background:linear-gradient(150deg,#8B7BF0,#6C5CE7 45%,#5142C9);display:flex;align-items:center;justify-content:center;box-shadow:0 22px 48px rgba(108,92,231,.38),inset 0 -8px 24px rgba(0,0,0,.12);cursor:pointer;transition:.25s;position:relative;user-select:none}
 .dial:active{transform:scale(.97)}
@@ -196,6 +199,16 @@ input,button{font-family:inherit}
 .tab-item b{font-size:10px;font-weight:700;letter-spacing:.5px}
 .tab-item.on{color:#6C5CE7}
 .tab-item.on span{filter:none;transform:translateY(-1px) scale(1.08)}
+.li-main{cursor:pointer}
+.li-op{width:30px;height:30px;border-radius:10px;border:none;background:#eef0ff;color:#5B4BD6;font-size:13px;cursor:pointer;flex:none;padding:0;display:flex;align-items:center;justify-content:center;line-height:1}
+.li-op.danger{background:#fff0f0;color:#e03131}
+.li-op:active{transform:scale(.93)}
+.coord-row{display:flex;gap:9px}
+.coord-row>div{flex:1;min-width:0}
+.coord-row label{display:block;font-size:11px;color:#8a8aa0;font-weight:600;margin:0 0 6px}
+.coord-row input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 12px;font-size:13.5px;outline:none;color:#1c1c28}
+.coord-row input:focus{border-color:#6C5CE7;background:#fff}
+.nearby-tip{font-size:12.5px;color:#0e7a56;background:#effcf6;border:1.5px solid #b6e8d2;border-radius:12px;padding:10px 12px;margin-top:10px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -288,8 +301,9 @@ var state = {
 };
 
 var devOpen = false;
-var pendingCoord = null;
-var pendingType = '宿舍';
+var pendingCoord = null;   // 正在编辑的坐标 {lat,lng} 或 null
+var pendingType  = '宿舍';
+var pendingName  = '';
 
 /* ---------------- 存取 ---------------- */
 function save() {
@@ -683,6 +697,11 @@ function renderSleep(){
       '<div class="loc-text">' + locHtml + '</div>' +
     '</div>' +
 
+    '<button class="loc-quick" id="quickLocBtn" onclick="quickLocate()"' +
+      (active ? ' disabled' : '') + '>' +
+      (active ? '😴 睡眠中，先结账才能切位置' : '📍 定位匹配最近位置') +
+    '</button>' +
+
     '<div class="dial-wrap">' +
       '<div class="dial ' + (active ? 'sleeping' : '') + '" onclick="' + (active ? 'endSleep()' : 'startSleep()') + '">' +
         '<div class="dial-inner">' +
@@ -798,22 +817,91 @@ function showReport(s){
 }
 
 /* ==================================================================
-   位置管理
+   位置管理（多位置存储 + 定位获取 + 坐标查看/编辑）
    ================================================================== */
+function getLocById(id){
+  for (var i = 0; i < state.locations.length; i++) {
+    if (state.locations[i].id === id) return state.locations[i];
+  }
+  return null;
+}
+
+/* ---- 距离计算（米），用于“查找附近已存位置” ---- */
+function distanceM(a, b){
+  if (!a || !b) return Infinity;
+  var R = 6371000, rad = Math.PI / 180;
+  var dLat = (b.lat - a.lat) * rad;
+  var dLng = (b.lng - a.lng) * rad;
+  var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(a.lat * rad) * Math.cos(b.lat * rad) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+function findNearbyLoc(coord, radius){
+  if (!coord) return null;
+  var best = null, bestD = radius;
+  state.locations.forEach(function(l){
+    if (!l.coord) return;
+    var d = distanceM(coord, l.coord);
+    if (d <= bestD) { bestD = d; best = l; }
+  });
+  return best;
+}
+
+/* ---- 坐标输入框读写 ---- */
+function parseCoord(latId, lngId){
+  var la = document.getElementById(latId), ln = document.getElementById(lngId);
+  if (!la || !ln) return null;
+  var a = parseFloat(la.value), b = parseFloat(ln.value);
+  if (isNaN(a) || isNaN(b)) return null;
+  if (a < -90 || a > 90 || b < -180 || b > 180) return null;
+  return { lat: +a.toFixed(5), lng: +b.toFixed(5) };
+}
+function coordEmpty(latId, lngId){
+  var la = document.getElementById(latId), ln = document.getElementById(lngId);
+  if (!la || !ln) return true;
+  return !la.value.trim() && !ln.value.trim();
+}
+function coordRowHtml(latId, lngId, coord){
+  var la = (coord && coord.lat != null) ? coord.lat : '';
+  var ln = (coord && coord.lng != null) ? coord.lng : '';
+  return '<div class="coord-row" style="margin-top:10px">' +
+    '<div><label>纬度 lat</label>' +
+      '<input id="' + latId + '" type="number" step="0.00001" placeholder="30.12345" value="' + la + '"' +
+      (latId === 'locLat' ? ' oninput="onCoordInput()"' : '') + '></div>' +
+    '<div><label>经度 lng</label>' +
+      '<input id="' + lngId + '" type="number" step="0.00001" placeholder="120.12345" value="' + ln + '"' +
+      (lngId === 'locLng' ? ' oninput="onCoordInput()"' : '') + '></div>' +
+  '</div>';
+}
+function typeChipsHtml(){
+  return '<div class="type-chips">' + Object.keys(LOC_TYPES).map(function(t){
+    return '<div class="chip ' + (t === pendingType ? 'on' : '') + '" onclick="selectLocType(\'' + t + '\')">' +
+      LOC_TYPES[t] + ' ' + t + '</div>';
+  }).join('') + '</div>';
+}
+
+/* ---- 打开位置选择面板 ---- */
 function openLocPicker(){
   pendingCoord = null;
   pendingType = '宿舍';
+  pendingName = '';
   renderLocPicker();
 }
 
 function renderLocPicker(){
   var listHtml = state.locations.map(function(l){
-    return '<div class="loc-item ' + (l.id === state.currentLocId ? 'on' : '') + '" onclick="pickLoc(\'' + l.id + '\')">' +
+    var coordTxt = l.coord
+      ? '📍 纬度 ' + l.coord.lat.toFixed(5) + ' · 经度 ' + l.coord.lng.toFixed(5)
+      : '未绑定坐标';
+    return '<div class="loc-item ' + (l.id === state.currentLocId ? 'on' : '') + '">' +
       '<div class="li-icon">' + (LOC_TYPES[l.type] || '📍') + '</div>' +
-      '<div class="li-main">' +
+      '<div class="li-main" onclick="pickLoc(\'' + l.id + '\')">' +
         '<div class="li-name">' + esc(l.type) + ' · ' + esc(l.name) + '</div>' +
-        '<div class="li-sub">' + (l.coord ? '已绑定定位坐标（本地保存）' : '未绑定坐标') + '</div>' +
+        '<div class="li-sub">' + coordTxt + '</div>' +
       '</div>' +
+      '<button class="li-op" onclick="openLocEditor(\'' + l.id + '\')">✎</button>' +
+      '<button class="li-op danger" onclick="deleteLoc(\'' + l.id + '\')">🗑</button>' +
       '<div class="li-check">✓</div>' +
     '</div>';
   }).join('');
@@ -822,26 +910,31 @@ function renderLocPicker(){
     listHtml = '<div class="li-sub" style="padding:6px 2px 10px">还没有常用位置，先在下面添加一个吧</div>';
   }
 
-  var chips = Object.keys(LOC_TYPES).map(function(t){
-    return '<div class="chip ' + (t === pendingType ? 'on' : '') + '" onclick="selectLocType(\'' + t + '\')">' +
-      LOC_TYPES[t] + ' ' + t + '</div>';
-  }).join('');
-
   openModal(
     '<div class="modal-head">选择睡眠位置</div>' +
-    '<div class="modal-sub">位置仅保存在本机浏览器，界面只显示类型和名称。</div>' +
+    '<div class="modal-sub">可保存多个位置。位置仅保存在本机浏览器，界面只显示类型和名称。</div>' +
     listHtml +
     '<div class="divider">新增常用位置</div>' +
-    '<div class="type-chips">' + chips + '</div>' +
+    typeChipsHtml() +
     '<input id="newLocName" placeholder="给位置起个名，如：3号楼402床" autocomplete="off" ' +
+      'value="' + esc(pendingName || '') + '" ' +
       'style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#1c1c28">' +
-    '<button class="btn-ghost" onclick="grabGPS()">📍 获取当前定位（可选，非强制）</button>' +
+    '<button class="btn-ghost" onclick="grabGPS()">📍 点击定位，获取并存储当前位置</button>' +
     '<div class="gps-status" id="gpsStatus"></div>' +
+    '<div id="nearbyBox"></div>' +
+    coordRowHtml('locLat', 'locLng', pendingCoord) +
     '<button class="btn-primary" onclick="saveNewLoc()">保存并使用</button>' +
     (state.locations.length ? '<button class="btn-ghost" onclick="closeModal()">取消</button>' : '')
   );
+
+  if (pendingCoord) {
+    var st = document.getElementById('gpsStatus');
+    if (st) st.textContent = '✅ 当前坐标：' + pendingCoord.lat.toFixed(5) + ', ' + pendingCoord.lng.toFixed(5);
+    showNearbyMatch();
+  }
 }
 
+/* ---- 类型选择 ---- */
 function selectLocType(t){
   pendingType = t;
   Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(el){
@@ -849,43 +942,102 @@ function selectLocType(t){
   });
 }
 
-function grabGPS(){
-  var el = document.getElementById('gpsStatus');
+/* ---- 定位：获取当前位置 → 查找附近已存位置 → 填入坐标 ---- */
+function grabGPS(latId, lngId, statusId){
+  latId    = latId    || 'locLat';
+  lngId    = lngId    || 'locLng';
+  statusId = statusId || 'gpsStatus';
+
+  var el = document.getElementById(statusId);
   if (!el) return;
+
   if (!navigator.geolocation) {
-    el.textContent = '❌ 当前浏览器不支持定位，请手动选择位置类型并填写名称';
+    el.textContent = '❌ 当前浏览器不支持定位，可手动填写经纬度';
     return;
   }
-  el.textContent = '定位中…';
+
+  el.textContent = '⏳ 正在获取你的位置…';
+
   navigator.geolocation.getCurrentPosition(
     function(pos){
-      pendingCoord = {
-        lat: +pos.coords.latitude.toFixed(5),
-        lng: +pos.coords.longitude.toFixed(5)
-      };
-      el.textContent = '✅ 已绑定坐标（仅保存在本地，界面不显示具体坐标）';
+      var lat = +pos.coords.latitude.toFixed(5);
+      var lng = +pos.coords.longitude.toFixed(5);
+      var acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+
+      var la = document.getElementById(latId);
+      var ln = document.getElementById(lngId);
+      if (la) la.value = lat;
+      if (ln) ln.value = lng;
+
+      if (latId === 'locLat') {
+        pendingCoord = { lat: lat, lng: lng };
+        showNearbyMatch();
+      }
+
+      el.textContent = '✅ 已获取：' + lat + ', ' + lng +
+        (acc ? '（精度约 ' + acc + ' 米）' : '') + '，可直接保存';
     },
-    function(){
-      pendingCoord = null;
-      el.textContent = '❌ 定位失败或已拒绝授权，请手动选择位置类型并填写名称';
+    function(err){
+      var msg = '❌ 定位失败';
+      if (err && err.code === 1) msg = '❌ 你拒绝了定位授权';
+      else if (err && err.code === 2) msg = '❌ 暂时无法获取位置';
+      else if (err && err.code === 3) msg = '❌ 定位超时';
+      el.textContent = msg + '，可手动填写经纬度或选择已有位置';
     },
-    { timeout: 10000, maximumAge: 60000 }
+    { timeout: 12000, maximumAge: 0, enableHighAccuracy: true }
   );
 }
 
+/* ---- 定位后：查找附近已存位置（300 米内） ---- */
+function showNearbyMatch(){
+  var box = document.getElementById('nearbyBox');
+  if (!box) return;
+  var m = findNearbyLoc(pendingCoord, 300);
+  if (!m) { box.innerHTML = ''; return; }
+  box.innerHTML =
+    '<div class="nearby-tip">📍 这附近你已经存过位置：<b>' +
+      (LOC_TYPES[m.type] || '📍') + ' ' + esc(m.type) + ' · ' + esc(m.name) + '</b></div>' +
+    '<button class="btn-ghost" onclick="pickLoc(\'' + m.id + '\')">直接使用这个已存位置</button>';
+}
+
+/* ---- 手动改坐标时实时同步 ---- */
+function onCoordInput(){
+  var c = parseCoord('locLat', 'locLng');
+  pendingCoord = c;
+  var st = document.getElementById('gpsStatus');
+  if (st) st.textContent = c
+    ? '✅ 当前坐标：' + c.lat.toFixed(5) + ', ' + c.lng.toFixed(5)
+    : '';
+  if (c) showNearbyMatch();
+  else {
+    var box = document.getElementById('nearbyBox');
+    if (box) box.innerHTML = '';
+  }
+}
+
+/* ---- 新增位置 ---- */
 function saveNewLoc(){
   var input = document.getElementById('newLocName');
   var name = (input && input.value || '').trim();
   if (!name) { toast('给位置起个名字吧'); return; }
 
+  var coord = null;
+  if (!coordEmpty('locLat', 'locLng')) {
+    coord = parseCoord('locLat', 'locLng');
+    if (!coord) { toast('经纬度格式不正确（或两栏都清空）'); return; }
+  }
+
   var loc = {
     id: 'loc' + Date.now(),
     type: pendingType,
     name: name,
-    coord: pendingCoord
+    coord: coord
   };
   state.locations.push(loc);
   state.currentLocId = loc.id;
+  pendingCoord = null;
+  pendingType = '宿舍';
+  pendingName = '';
   save();
   closeModal();
   renderSleep();
@@ -893,6 +1045,81 @@ function saveNewLoc(){
   toast('位置已保存：' + loc.type + ' · ' + loc.name);
 }
 
+/* ---- 编辑已有位置（含查看/改经纬度） ---- */
+function openLocEditor(id){
+  var l = getLocById(id);
+  if (!l) return;
+  pendingType = l.type || '宿舍';
+  pendingCoord = l.coord ? { lat: l.coord.lat, lng: l.coord.lng } : null;
+
+  openModal(
+    '<div class="modal-head">编辑位置</div>' +
+    '<div class="modal-sub">可修改类型、名称和经纬度。</div>' +
+    typeChipsHtml() +
+    '<input id="editLocName" placeholder="位置名称" autocomplete="off" ' +
+      'value="' + esc(l.name) + '" ' +
+      'style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#1c1c28">' +
+    '<button class="btn-ghost" onclick="grabGPS(\'eLat\',\'eLng\',\'editGpsStatus\')">📍 重新定位并填入</button>' +
+    '<div class="gps-status" id="editGpsStatus"></div>' +
+    coordRowHtml('eLat', 'eLng', pendingCoord) +
+    '<button class="btn-ghost" onclick="clearLocCoord()">清空坐标</button>' +
+    '<button class="btn-primary" onclick="saveLocEdit(\'' + id + '\')">保存修改</button>' +
+    '<button class="btn-ghost" onclick="openLocPicker()">返回列表</button>'
+  );
+}
+
+function clearLocCoord(){
+  var a = document.getElementById('eLat'), b = document.getElementById('eLng');
+  if (a) a.value = '';
+  if (b) b.value = '';
+  pendingCoord = null;
+  var st = document.getElementById('editGpsStatus');
+  if (st) st.textContent = '坐标已清空，保存后该位置不带坐标';
+}
+
+function saveLocEdit(id){
+  var l = getLocById(id);
+  if (!l) return;
+
+  var nameEl = document.getElementById('editLocName');
+  var name = (nameEl && nameEl.value || '').trim();
+  if (!name) { toast('给位置起个名字吧'); return; }
+
+  var coord = null;
+  if (!coordEmpty('eLat', 'eLng')) {
+    coord = parseCoord('eLat', 'eLng');
+    if (!coord) { toast('经纬度格式不正确（或两栏都清空）'); return; }
+  }
+
+  l.name  = name;
+  l.type  = pendingType;
+  l.coord = coord;
+  save();
+  renderSleep();
+  toast('位置已更新');
+  pendingCoord = null;
+  pendingType = '宿舍';
+  openLocPicker();
+}
+
+/* ---- 删除位置 ---- */
+function deleteLoc(id){
+  var l = getLocById(id);
+  if (!l) return;
+  if (!confirm('删除位置「' + l.type + ' · ' + l.name + '」？')) return;
+
+  state.locations = state.locations.filter(function(x){ return x.id !== id; });
+  if (state.currentLocId === id) {
+    state.currentLocId = state.locations.length ? state.locations[0].id : null;
+  }
+  save();
+  renderLocPicker();
+  renderSleep();
+  renderMe();
+  toast('已删除该位置');
+}
+
+/* ---- 选中某位置 ---- */
 function pickLoc(id){
   state.currentLocId = id;
   save();
@@ -900,6 +1127,83 @@ function pickLoc(id){
   renderSleep();
   var l = getCurrentLocation();
   if (l) toast('当前位置：' + l.type + ' · ' + l.name);
+}
+
+/* ---- 睡觉页一键定位：匹配最近已存位置 ---- */
+var MATCH_RADIUS = 800; // 800 米内自动切换，超过则弹窗确认
+
+function quickLocate(){
+  if (state.active) { toast('睡眠中不能切换位置，请先结账'); return; }
+
+  if (!state.locations.length) {
+    toast('还没有保存的位置，先添加一个吧');
+    openLocPicker();
+    return;
+  }
+  if (!navigator.geolocation) {
+    toast('当前浏览器不支持定位，请手动选择位置');
+    return;
+  }
+
+  var btn = document.getElementById('quickLocBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 正在获取你的位置…'; }
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      var me = {
+        lat: +pos.coords.latitude.toFixed(5),
+        lng: +pos.coords.longitude.toFixed(5)
+      };
+
+      // 在所有已存位置中找最近的
+      var best = null, bestD = Infinity;
+      state.locations.forEach(function(l){
+        if (!l.coord) return;
+        var d = distanceM(me, l.coord);
+        if (d < bestD) { bestD = d; best = l; }
+      });
+
+      restoreQuickBtn();
+
+      if (!best) {
+        toast('已存位置都没有坐标，点「切换」进去补个定位吧');
+        return;
+      }
+
+      if (bestD <= MATCH_RADIUS) {
+        state.currentLocId = best.id;
+        save();
+        renderSleep();
+        toast('已定位到最近位置：' + best.type + ' · ' + best.name +
+              '（约 ' + Math.round(bestD) + ' 米）');
+      } else {
+        openModal(
+          '<div class="modal-head">最近的建筑有点远</div>' +
+          '<div class="modal-sub">离你最近的已存位置是：' +
+            (LOC_TYPES[best.type] || '📍') + ' ' + esc(best.type) + ' · ' + esc(best.name) +
+            '，约 <b>' + Math.round(bestD) + '</b> 米。<br>要使用它，还是添加一个新位置？</div>' +
+          '<button class="btn-primary" onclick="pickLoc(\'' + best.id + '\')">就选这个（' + Math.round(bestD) + ' 米）</button>' +
+          '<button class="btn-ghost" onclick="closeModal();openLocPicker()">添加新位置</button>'
+        );
+      }
+    },
+    function(err){
+      restoreQuickBtn();
+      var msg = '定位失败或未授权，请手动选择位置';
+      if (err && err.code === 1) msg = '你拒绝了定位授权，请手动选择位置';
+      else if (err && err.code === 3) msg = '定位超时，请手动选择位置';
+      toast(msg);
+    },
+    { timeout: 12000, maximumAge: 0, enableHighAccuracy: true }
+  );
+
+  function restoreQuickBtn(){
+    var b = document.getElementById('quickLocBtn');
+    if (b) {
+      b.disabled = false;
+      b.textContent = '📍 定位匹配最近位置';
+    }
+  }
 }
 
 /* ==================================================================
@@ -1173,6 +1477,7 @@ function openEditProfile(){
   openModal(
     '<div class="modal-head">编辑个人信息</div>' +
     '<div class="modal-sub">昵称可匿名，不强制真实姓名。</div>' +
+        '<button class="btn-ghost" id="editPresetBtn" style="margin-top:2px" onclick="fillPresetForEdit()">✨ 填入预设信息</button>' +
     '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学校</label>' +
     '<input id="epSchool" value="' + esc(state.user.school || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
     '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学院</label>' +
@@ -1258,6 +1563,22 @@ function fillPreset(){
   document.getElementById('regNick').value    = p.nickname;
   document.getElementById('presetBtn').textContent =
     state.presetIdx > 0 ? '🔄 换一版' : '✨ 填入预设信息';
+}
+
+function fillPresetForEdit(){
+  var p = PRESETS[state.presetIdx % PRESETS.length];
+  state.presetIdx++;
+  save();
+
+  document.getElementById('epSchool').value  = p.school;
+  document.getElementById('epCollege').value = p.college;
+  document.getElementById('epId').value      = p.studentId;
+  document.getElementById('epNick').value    = p.nickname;
+
+  var btn = document.getElementById('editPresetBtn');
+  if (btn) btn.textContent = '🔄 换一版';
+
+  toast('已填入预设信息，记得点「保存」哦');
 }
 
 function doRegister(){
