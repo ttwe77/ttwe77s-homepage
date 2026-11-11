@@ -28,7 +28,7 @@
   <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
 
   <script>document.documentElement.classList.add('js');</script>
-    <script type="module">
+  <script type="module">
     import { BAClickFX } from '/libs/ba-click-fx.js';
     const fx = new BAClickFX();
     fx.updateConfig({ trailAlways: true });
@@ -495,7 +495,7 @@
       text-decoration-color: currentColor;
     }
 
-     /* ============ 行内提示 ============ */
+    /* ============ 行内提示 ============ */
     .hover-hint {
       position: relative;
       color: var(--color-primary);
@@ -561,6 +561,7 @@
       top: 100%;
       border-top-color: var(--color-border);
     }
+
     .hover-hint__tooltip::after {
       top: calc(100% - 1px);
       border-top-color: var(--color-bg-white);
@@ -573,6 +574,7 @@
       border-top-color: transparent;
       border-bottom-color: var(--color-border);
     }
+
     .hover-hint__tooltip.is-below::after {
       bottom: calc(100% - 1px);
       top: auto;
@@ -589,6 +591,7 @@
       padding-left: 8px;
       position: relative;
     }
+
     .hint-title::before {
       content: "";
       position: absolute;
@@ -874,6 +877,78 @@
     .hover-hint {
       cursor: url('/src/cursors/help.cur'), help;
     }
+
+    /* ============ 备案信息条 ============ */
+    .beian-bar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--color-text-disabled);
+      text-align: center;
+    }
+
+    .beian-bar a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color .18s ease;
+    }
+
+    .beian-bar a:hover {
+      color: var(--color-primary);
+    }
+
+    .beian-bar__sep {
+      color: var(--color-border-strong);
+      user-select: none;
+    }
+
+    /* 公安备案：图标 + 文字对齐，避免下划线穿过图标 */
+    .beian-bar__police {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      vertical-align: middle;
+    }
+
+    .beian-bar__police img {
+      display: block;
+      height: 13px;
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    /* 深色模式 */
+    :root[data-theme="dark"] .beian-bar a {
+      color: #93A3B8;
+    }
+
+    :root[data-theme="dark"] .beian-bar a:hover {
+      color: var(--color-primary);
+    }
+
+    :root[data-theme="dark"] .beian-bar__sep {
+      color: #3B465C;
+    }
+
+    /* 窄屏：小一号，避免换行后显得拥挤 */
+    @media (max-width: 480px) {
+      .beian-bar {
+        font-size: 11px;
+        padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+        gap: 6px;
+      }
+
+      .beian-bar__police img {
+        height: 12px;
+      }
+    }
   </style>
 </head>
 
@@ -897,8 +972,7 @@
 
     <div class="topbar__spacer"></div>
 
-    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式"
-      aria-pressed="false">
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
       <svg class="icon-btn__sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="4.5" />
@@ -955,7 +1029,8 @@
       <p class="subline reveal" data-delay="160">
         服务器是一个茶壶，不能为你冲泡咖啡。<br>
         你在这里能找到完整的
-        <span class="hover-hint" tabindex="0">HTCPCP<span class="hover-hint__tooltip">HTCPCP（Hyper Text Coffee Pot Control
+        <span class="hover-hint" tabindex="0">HTCPCP<span class="hover-hint__tooltip">HTCPCP（Hyper Text Coffee Pot
+            Control
             Protocol，超文本咖啡壶控制协议）由 RFC 2324 于 1998 年 4 月 1 日愚人节发布。它在 HTTP 基础上增加了 BREW、WHEN
             等指令，专门用来控制咖啡壶——以及礼貌地拒绝咖啡请求。</span></span>
         协议文档，但绝对找不到一杯美式。
@@ -1008,6 +1083,16 @@
 
     </div>
   </main>
+
+  <!-- ============ 备案信息 ============ -->
+  <footer class="beian-bar">
+    <span>七七的折腾笔记</span>
+    <span class="beian-bar__sep" aria-hidden="true">/</span>
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+    <span class="beian-bar__sep" aria-hidden="true">/</span>
+    <a class="beian-bar__police" href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311" target="_blank"
+      rel="noreferrer"><img src="/src/beian.png" alt="公安备案">桂公网安备45020002000311号</a>
+  </footer>
 
   <!-- ============ 脚本 ============ -->
   <script>
@@ -1150,7 +1235,7 @@
     })();
   </script>
   <script>
-        /* ---------- 悬停提示框（事件委托版） ---------- */
+    /* ---------- 悬停提示框（事件委托版） ---------- */
     (function () {
       'use strict';
 
@@ -1180,15 +1265,15 @@
 
       function place(hint, tooltip) {
         var r = hint.getBoundingClientRect();
-        
+
         // 先放到屏幕外测量尺寸，防止闪烁
         tooltip.style.left = '-9999px';
         tooltip.style.top = '-9999px';
         tooltip.classList.remove('is-below');
-        
+
         var tw = tooltip.offsetWidth;
         var th = tooltip.offsetHeight;
-        
+
         var vw = window.innerWidth;
         var vh = window.innerHeight;
 
@@ -1226,7 +1311,7 @@
         active = tooltip;
         activeHint = hint;
         place(hint, tooltip);
-        
+
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(function () {
           rafId = 0;

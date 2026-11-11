@@ -1185,6 +1185,21 @@
       color: var(--color-primary);
     }
 
+    /* 公安备案：图标 + 文字横向居中，避免图标被下划线穿过 */
+    .footer__police {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      vertical-align: middle;
+    }
+
+    .footer__police img {
+      display: block;
+      height: 13px;
+      width: auto;
+      flex: 0 0 auto;
+    }
+
     /* ==================== 响应式适配 ==================== */
     @media (max-width: 640px) {
       .footer__main {
@@ -3487,8 +3502,7 @@
     <div class="topbar__spacer"></div>
 
     <!-- 主题切换 -->
-    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式"
-      aria-pressed="false">
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
       <svg class="icon-btn__sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="4.5" />
@@ -3844,29 +3858,29 @@
             <div class="footer__meta">
               <p>备案号：<a style="color:#666" target="_blank" rel="noopener"
                   href="http://beian.miit.gov.cn/">桂ICP备2026023217号-1</a>
-                <!--<a style="color:#666;margin-left: 20px;"
-                  target="_blank" rel="noopener"
-                  href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=01234567890123"> X公网安备
-                  01234567890123号</a> </p>-->
-                <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
-                    rel="noopener noreferrer">ba-click-fx</a>（<a
-                    href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
-                    rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
-                    href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
-                    rel="noopener noreferrer">BlueArchive-Cursors</a>（<a
-                    href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
-                    rel="noopener noreferrer">MIT License</a>）。</span>
-                <span>角色立绘来自<span class="hover-hint">B站<span class="hover-hint__tooltip"><span
-                        class="hint-title">哔哩哔哩</span><del>全球最大同性交友网站(不是)</del>哔哩哔哩是中国一个以视频弹幕为特色的综合视频平台，总部在上海。它最早以
-                      ACG（动画、漫画、游戏）内容起家，后来扩展到番剧、游戏、音乐、舞蹈、科技、知识、生活、鬼畜、直播等多个领域。</span></span>UP主 <a
-                    href="https://space.bilibili.com/522341749" target="_blank" rel="noopener noreferrer">女仆优香</a> 的 <a
-                    href="https://www.bilibili.com/opus/1214489311059116040" target="_blank"
-                    rel="noopener noreferrer">冬装凯伊差分立绘</a> 视频立绘。建站使用到的工具：<a href="https://imagemagick.org/"
-                    target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/"
-                    target="_blank" rel="noopener noreferrer">Git</a>。</span>
-                <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
-                    href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
-                    rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
+                <a class="footer__police" style="color:#666;margin-left:16px;" target="_blank" rel="noreferrer"
+                  href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311"><img src="/src/beian.png"
+                    alt="公安备案">桂公网安备45020002000311号</a>
+              </p>
+              <span>本站点击特效使用 <a href="https://github.com/CialloKing/ba-click-fx" target="_blank"
+                  rel="noopener noreferrer">ba-click-fx</a>（<a
+                  href="https://github.com/CialloKing/ba-click-fx/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a>） ，鼠标指针来自 <a
+                  href="https://github.com/makipom/BlueArchive-Cursors" target="_blank"
+                  rel="noopener noreferrer">BlueArchive-Cursors</a>（<a
+                  href="https://github.com/makipom/BlueArchive-Cursors/blob/main/LICENSE" target="_blank"
+                  rel="noopener noreferrer">MIT License</a>）。</span>
+              <span>角色立绘来自<span class="hover-hint">B站<span class="hover-hint__tooltip"><span
+                      class="hint-title">哔哩哔哩</span><del>全球最大同性交友网站(不是)</del>哔哩哔哩是中国一个以视频弹幕为特色的综合视频平台，总部在上海。它最早以
+                    ACG（动画、漫画、游戏）内容起家，后来扩展到番剧、游戏、音乐、舞蹈、科技、知识、生活、鬼畜、直播等多个领域。</span></span>UP主 <a
+                  href="https://space.bilibili.com/522341749" target="_blank" rel="noopener noreferrer">女仆优香</a> 的 <a
+                  href="https://www.bilibili.com/opus/1214489311059116040" target="_blank"
+                  rel="noopener noreferrer">冬装凯伊差分立绘</a> 视频立绘。建站使用到的工具：<a href="https://imagemagick.org/"
+                  target="_blank" rel="noopener noreferrer">ImageMagick</a>、<a href="https://git-scm.com/"
+                  target="_blank" rel="noopener noreferrer">Git</a>。</span>
+              <span>本站由<a href="https://www.deepseek.com" target="_blank" rel="noopener noreferrer">蓝色大肥鱼</a>和<a
+                  href="https://huggingface.co/XHToken/Spark-X2.5-4B-GGUF" target="_blank"
+                  rel="noopener noreferrer">Spark-X2.5-4B</a>提供支持</span>
             </div>
           </footer>
         </div>

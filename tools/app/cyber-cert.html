@@ -1214,6 +1214,27 @@
       color: var(--color-primary-hover);
     }
 
+    /* 公安备案：图标 + 文字对齐，避免下划线穿过图标 */
+    .footer__police {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      vertical-align: middle;
+    }
+
+    .footer__police img {
+      display: block;
+      height: 12px;
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      .footer__police img {
+        height: 11px;
+      }
+    }
+
     /* ============================================================
    深色模式
    ============================================================ */
@@ -1540,7 +1561,11 @@
         桂ICP备2026023217号-1
       </a>
       <span> | </span>
-      <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/app/cyber-cert.html" target="_blank" rel="noopener noreferrer">
+      <a class="footer__police" href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311" target="_blank"
+        rel="noreferrer"><img src="/src/beian.png" alt="公安备案">桂公网安备45020002000311号</a>
+      <span> | </span>
+      <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/app/cyber-cert.html" target="_blank"
+        rel="noopener noreferrer">
         看源代码
       </a>
       <span> | </span>
@@ -1548,1005 +1573,1004 @@
         折腾经过
       </a>
     </footer>
-  </main>
 
-  <!-- Toast -->
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script>
-    (function () {
-      'use strict';
+    <script>
+      (function () {
+        'use strict';
 
-      /* ==========================================================
-         常量
-         ========================================================== */
+        /* ==========================================================
+           常量
+           ========================================================== */
 
-      const OID_NAME_ATTR = {
-        '2.5.4.3': 'CN',
-        '2.5.4.4': 'SN',
-        '2.5.4.5': 'serialNumber',
-        '2.5.4.6': 'C',
-        '2.5.4.7': 'L',
-        '2.5.4.8': 'ST',
-        '2.5.4.9': 'STREET',
-        '2.5.4.10': 'O',
-        '2.5.4.11': 'OU',
-        '2.5.4.12': 'title',
-        '2.5.4.42': 'GN',
-        '0.9.2342.19200300.100.1.25': 'DC',
-        '1.2.840.113549.1.9.1': 'E',
-        '1.3.6.1.4.1.311.60.2.1.3': 'jurisdictionC'
-      };
-
-      const CURVES = {
-        '1.2.840.10045.3.1.7': 'P-256',
-        '1.3.132.0.34': 'P-384',
-        '1.3.132.0.35': 'P-521'
-      };
-
-      const KEY_ALGS = {
-        '1.2.840.113549.1.1.1': 'RSA',
-        '1.2.840.10045.2.1': 'ECDSA',
-        '1.3.101.112': 'Ed25519',
-        '1.3.101.113': 'Ed448',
-        '1.2.840.113549.1.1.10': 'RSASSA-PSS'
-      };
-
-      const SIG_ALGS = {
-        '1.2.840.113549.1.1.5': 'SHA-1 with RSA',
-        '1.2.840.113549.1.1.11': 'SHA-256 with RSA',
-        '1.2.840.113549.1.1.12': 'SHA-384 with RSA',
-        '1.2.840.113549.1.1.13': 'SHA-512 with RSA',
-        '1.2.840.10045.4.3.2': 'ECDSA with SHA-256',
-        '1.2.840.10045.4.3.3': 'ECDSA with SHA-384',
-        '1.2.840.10045.4.3.4': 'ECDSA with SHA-512',
-        '1.3.101.112': 'Ed25519'
-      };
-
-      const ROOT_URL = '/src/rootCA.crt';
-
-      /* ==========================================================
-         DOM 引用
-         ========================================================== */
-      const $ = (sel, root) => (root || document).querySelector(sel);
-
-      const rootBadge = $('#rootBadge');
-      const rootBody = $('#rootBody');
-      const fileBadge = $('#fileBadge');
-      const uploadArea = $('#uploadArea');
-      const resultArea = $('#resultArea');
-      const dropzone = $('#dropzone');
-      const fileInput = $('#fileInput');
-      const toastEl = $('#toast');
-      const downloadTop = $('#downloadRootTop');
-      const btnBack = $('#btnBack');
-      const btnTheme = $('#btnTheme');
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-
-      const state = {
-        root: null,
-        rootFingerprint: null,
-        rootErr: null,
-        busy: false
-      };
-
-      /* ==========================================================
-         工具函数
-         ========================================================== */
-
-      function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        }[c]));
-      }
-
-      function bytesToHex(bytes) {
-        let out = '';
-        for (let i = 0; i < bytes.length; i++) {
-          out += bytes[i].toString(16).padStart(2, '0');
-        }
-        return out.toUpperCase();
-      }
-
-      function base64ToBytes(b64) {
-        const bin = atob(b64);
-        const out = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-        return out;
-      }
-
-      function fmtTime(d) {
-        if (!d || isNaN(d.getTime())) return '—';
-        const p = n => String(n).padStart(2, '0');
-        return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) +
-          ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC';
-      }
-
-      let toastTimer = null;
-      function toast(msg, isError) {
-        toastEl.textContent = msg;
-        toastEl.classList.toggle('is-error', !!isError);
-        toastEl.classList.add('is-visible');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toastEl.classList.remove('is-visible'), 1800);
-      }
-
-      /* ==========================================================
-         DER / ASN.1 解析
-         ========================================================== */
-
-      function readTLV(buf, off) {
-        if (off + 2 > buf.length) throw new Error('DER 数据在偏移 ' + off + ' 处越界');
-        const tag = buf[off];
-        let len = buf[off + 1];
-        let headerLen = 2;
-
-        if (len & 0x80) {
-          const n = len & 0x7f;
-          if (n === 0) throw new Error('不支持的 DER 不定长编码');
-          if (n > 4) throw new Error('DER 长度字段过长');
-          len = 0;
-          for (let i = 0; i < n; i++) len = len * 256 + buf[off + 2 + i];
-          headerLen = 2 + n;
-        }
-
-        const contentStart = off + headerLen;
-        const end = contentStart + len;
-        if (end > buf.length) throw new Error('DER 长度字段与实际数据不符');
-
-        return { tag, headerLen, len, start: off, contentStart, end };
-      }
-
-      function decodeOID(bytes) {
-        if (!bytes.length) return '';
-        const parts = [];
-        const first = bytes[0];
-        parts.push(Math.floor(first / 40), first % 40);
-
-        let value = 0;
-        for (let i = 1; i < bytes.length; i++) {
-          value = value * 128 + (bytes[i] & 0x7f);
-          if (!(bytes[i] & 0x80)) {
-            parts.push(value);
-            value = 0;
-          }
-        }
-        return parts.join('.');
-      }
-
-      function decodeASN1String(buf, tlv) {
-        const bytes = buf.subarray(tlv.contentStart, tlv.end);
-        switch (tlv.tag) {
-          case 0x0C: // UTF8String
-          case 0x13: // PrintableString
-          case 0x16: // IA5String
-          case 0x14: // TeletexString
-          case 0x1A: // VisibleString
-            return new TextDecoder('utf-8').decode(bytes);
-          case 0x1E: { // BMPString (UTF-16BE)
-            let s = '';
-            for (let i = 0; i + 1 < bytes.length; i += 2) {
-              s += String.fromCharCode((bytes[i] << 8) | bytes[i + 1]);
-            }
-            return s;
-          }
-          case 0x1C: { // UniversalString (UTF-32BE)
-            let s = '';
-            for (let i = 0; i + 3 < bytes.length; i += 4) {
-              s += String.fromCodePoint(
-                (bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]
-              );
-            }
-            return s;
-          }
-          default:
-            return new TextDecoder('utf-8').decode(bytes);
-        }
-      }
-
-      function parseName(buf, nameTlv) {
-        const out = [];
-        let p = nameTlv.contentStart;
-
-        while (p < nameTlv.end) {
-          const rdnSet = readTLV(buf, p);        // SET
-          p = rdnSet.end;
-
-          let q = rdnSet.contentStart;
-          while (q < rdnSet.end) {
-            const atv = readTLV(buf, q);          // SEQUENCE { OID, VALUE }
-            q = atv.end;
-
-            const oidTlv = readTLV(buf, atv.contentStart);
-            const oid = decodeOID(buf.subarray(oidTlv.contentStart, oidTlv.end));
-            const valTlv = readTLV(buf, oidTlv.end);
-            const value = decodeASN1String(buf, valTlv);
-
-            out.push({ oid, key: OID_NAME_ATTR[oid] || oid, value });
-          }
-        }
-        return out;
-      }
-
-      function nameToString(rdns) {
-        if (!rdns || !rdns.length) return '';
-        return rdns.map(r => r.key + '=' + r.value).join(', ');
-      }
-
-      function nameKey(rdns) {
-        if (!rdns) return '';
-        return rdns
-          .map(r => r.oid + '=' + String(r.value).trim().toLowerCase())
-          .sort()
-          .join('|');
-      }
-
-      function parseASN1Time(buf, tlv) {
-        const s = new TextDecoder('utf-8').decode(buf.subarray(tlv.contentStart, tlv.end)).trim();
-
-        if (tlv.tag === 0x17) { // UTCTime  YYMMDDHHMMSS[Z]
-          const m = s.match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?/);
-          if (!m) return null;
-          const yy = parseInt(m[1], 10);
-          const year = yy >= 50 ? 1900 + yy : 2000 + yy;
-          return new Date(Date.UTC(year, +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)));
-        }
-        if (tlv.tag === 0x18) { // GeneralizedTime YYYYMMDDHHMMSS[Z]
-          const m = s.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?/);
-          if (!m) return null;
-          return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)));
-        }
-        return null;
-      }
-
-      /**
-       * 解析 X.509 证书（DER）
-       */
-      function parseCertificate(der) {
-        const cert = readTLV(der, 0);
-        if (cert.tag !== 0x30) throw new Error('根节点不是 SEQUENCE，不是合法的 X.509 证书');
-
-        const tbsTlv = readTLV(der, cert.contentStart);
-        if (tbsTlv.tag !== 0x30) throw new Error('tbsCertificate 结构异常');
-
-        const sigAlgTlv = readTLV(der, tbsTlv.end);
-        const sigValTlv = readTLV(der, sigAlgTlv.end);
-        if (sigValTlv.tag !== 0x03) throw new Error('signatureValue 不是 BIT STRING');
-
-        /* ---- 解析 tbsCertificate ---- */
-        let p = tbsTlv.contentStart;
-        let t = readTLV(der, p);
-
-        let version = 1;
-        if (t.tag === 0xA0) {                       // [0] EXPLICIT Version
-          const inner = readTLV(der, t.contentStart);
-          version = der[inner.contentStart] + 1;
-          p = t.end;
-          t = readTLV(der, p);
-        }
-
-        // serialNumber
-        const serialTlv = t;
-        const serial = bytesToHex(der.subarray(serialTlv.contentStart, serialTlv.end));
-        p = serialTlv.end;
-
-        readTLV(der, p);                            // signature AlgorithmIdentifier（与外部一致，略过）
-        p = readTLV(der, p).end;
-
-        const issuerTlv = readTLV(der, p); p = issuerTlv.end;
-        const validityTlv = readTLV(der, p); p = validityTlv.end;
-        const subjectTlv = readTLV(der, p); p = subjectTlv.end;
-        const spkiTlv = readTLV(der, p); p = spkiTlv.end;
-
-        // validity
-        const nbTlv = readTLV(der, validityTlv.contentStart);
-        const naTlv = readTLV(der, nbTlv.end);
-
-        // subjectPublicKeyInfo
-        const algTlv = readTLV(der, spkiTlv.contentStart);
-        const algOidTlv = readTLV(der, algTlv.contentStart);
-        const keyAlgOid = decodeOID(der.subarray(algOidTlv.contentStart, algOidTlv.end));
-
-        let curveOid = null;
-        if (algOidTlv.end < algTlv.end) {
-          const paramTlv = readTLV(der, algOidTlv.end);
-          if (paramTlv.tag === 0x06) {
-            curveOid = decodeOID(der.subarray(paramTlv.contentStart, paramTlv.end));
-          }
-        }
-
-        // signatureAlgorithm（外部）
-        const sigOidTlv = readTLV(der, sigAlgTlv.contentStart);
-        const sigAlgOid = decodeOID(der.subarray(sigOidTlv.contentStart, sigOidTlv.end));
-
-        // signatureValue
-        const sigBits = der.subarray(sigValTlv.contentStart, sigValTlv.end);
-        const signature = sigBits.subarray(1);      // 跳过 unused bits 计数
-
-        return {
-          raw: der,
-          tbs: der.subarray(tbsTlv.start, tbsTlv.end),
-          version,
-          serial,
-          issuer: parseName(der, issuerTlv),
-          subject: parseName(der, subjectTlv),
-          notBefore: parseASN1Time(der, nbTlv),
-          notAfter: parseASN1Time(der, naTlv),
-          spkiDer: der.subarray(spkiTlv.start, spkiTlv.end),
-          keyAlgOid,
-          curveOid,
-          sigAlgOid,
-          signature
+        const OID_NAME_ATTR = {
+          '2.5.4.3': 'CN',
+          '2.5.4.4': 'SN',
+          '2.5.4.5': 'serialNumber',
+          '2.5.4.6': 'C',
+          '2.5.4.7': 'L',
+          '2.5.4.8': 'ST',
+          '2.5.4.9': 'STREET',
+          '2.5.4.10': 'O',
+          '2.5.4.11': 'OU',
+          '2.5.4.12': 'title',
+          '2.5.4.42': 'GN',
+          '0.9.2342.19200300.100.1.25': 'DC',
+          '1.2.840.113549.1.9.1': 'E',
+          '1.3.6.1.4.1.311.60.2.1.3': 'jurisdictionC'
         };
-      }
 
-      /* ==========================================================
-         文件归一化：PEM / DER
-         ========================================================== */
+        const CURVES = {
+          '1.2.840.10045.3.1.7': 'P-256',
+          '1.3.132.0.34': 'P-384',
+          '1.3.132.0.35': 'P-521'
+        };
 
-      function toDER(bytes) {
-        // 嗅探 PEM
-        const head = new TextDecoder('utf-8', { fatal: false })
-          .decode(bytes.subarray(0, Math.min(bytes.length, 256)));
+        const KEY_ALGS = {
+          '1.2.840.113549.1.1.1': 'RSA',
+          '1.2.840.10045.2.1': 'ECDSA',
+          '1.3.101.112': 'Ed25519',
+          '1.3.101.113': 'Ed448',
+          '1.2.840.113549.1.1.10': 'RSASSA-PSS'
+        };
 
-        if (/-----BEGIN [A-Z ]*CERTIFICATE-----/.test(head)) {
-          const text = new TextDecoder('utf-8').decode(bytes);
-          const m = text.match(/-----BEGIN [A-Z ]*CERTIFICATE-----([\s\S]*?)-----END [A-Z ]*CERTIFICATE-----/);
-          if (!m) throw new Error('PEM 头尾标记不完整');
-          const b64 = m[1].replace(/\s+/g, '');
-          if (!b64) throw new Error('PEM 内容为空');
-          return base64ToBytes(b64);
+        const SIG_ALGS = {
+          '1.2.840.113549.1.1.5': 'SHA-1 with RSA',
+          '1.2.840.113549.1.1.11': 'SHA-256 with RSA',
+          '1.2.840.113549.1.1.12': 'SHA-384 with RSA',
+          '1.2.840.113549.1.1.13': 'SHA-512 with RSA',
+          '1.2.840.10045.4.3.2': 'ECDSA with SHA-256',
+          '1.2.840.10045.4.3.3': 'ECDSA with SHA-384',
+          '1.2.840.10045.4.3.4': 'ECDSA with SHA-512',
+          '1.3.101.112': 'Ed25519'
+        };
+
+        const ROOT_URL = '/src/rootCA.crt';
+
+        /* ==========================================================
+           DOM 引用
+           ========================================================== */
+        const $ = (sel, root) => (root || document).querySelector(sel);
+
+        const rootBadge = $('#rootBadge');
+        const rootBody = $('#rootBody');
+        const fileBadge = $('#fileBadge');
+        const uploadArea = $('#uploadArea');
+        const resultArea = $('#resultArea');
+        const dropzone = $('#dropzone');
+        const fileInput = $('#fileInput');
+        const toastEl = $('#toast');
+        const downloadTop = $('#downloadRootTop');
+        const btnBack = $('#btnBack');
+        const btnTheme = $('#btnTheme');
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+
+        const state = {
+          root: null,
+          rootFingerprint: null,
+          rootErr: null,
+          busy: false
+        };
+
+        /* ==========================================================
+           工具函数
+           ========================================================== */
+
+        function esc(s) {
+          return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+          }[c]));
         }
 
-        // 纯 base64（无头）
-        if (/^[A-Za-z0-9+/\s=]+$/.test(head) && !/^\x30/.test(head)) {
-          const text = new TextDecoder('utf-8').decode(bytes).replace(/\s+/g, '');
-          if (text.length > 100 && /^[A-Za-z0-9+/]+=*$/.test(text)) {
-            try { return base64ToBytes(text); } catch (e) { /* 落到 DER */ }
+        function bytesToHex(bytes) {
+          let out = '';
+          for (let i = 0; i < bytes.length; i++) {
+            out += bytes[i].toString(16).padStart(2, '0');
           }
+          return out.toUpperCase();
         }
 
-        return bytes;
-      }
-
-      /* ==========================================================
-         SHA-256 指纹
-         ========================================================== */
-
-      async function sha256Fingerprint(der) {
-        if (!(window.crypto && window.crypto.subtle)) {
-          throw new Error('当前环境不支持 Web Crypto（需 HTTPS 或 localhost）');
-        }
-        const digest = await crypto.subtle.digest('SHA-256', der);
-        const bytes = new Uint8Array(digest);
-        const parts = [];
-        for (let i = 0; i < bytes.length; i++) {
-          parts.push(bytes[i].toString(16).padStart(2, '0').toUpperCase());
-        }
-        return parts.join(':');
-      }
-
-      /* ==========================================================
-         签名验签
-         ========================================================== */
-
-      function derEcdsaToRaw(sig, curve) {
-        const sizeMap = { 'P-256': 32, 'P-384': 48, 'P-521': 66 };
-        const size = sizeMap[curve];
-        if (!size) throw new Error('未知曲线 ' + curve);
-
-        const seq = readTLV(sig, 0);
-        const rTlv = readTLV(sig, seq.contentStart);
-        const sTlv = readTLV(sig, rTlv.end);
-
-        function pad(bytes) {
-          let i = 0;
-          while (i < bytes.length - 1 && bytes[i] === 0) i++;
-          const src = bytes.subarray(i);
-          if (src.length > size) throw new Error('ECDSA 签名分量长度异常');
-          const out = new Uint8Array(size);
-          out.set(src, size - src.length);
+        function base64ToBytes(b64) {
+          const bin = atob(b64);
+          const out = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
           return out;
         }
 
-        const raw = new Uint8Array(size * 2);
-        raw.set(pad(sig.subarray(rTlv.contentStart, rTlv.end)), 0);
-        raw.set(pad(sig.subarray(sTlv.contentStart, sTlv.end)), size);
-        return raw;
-      }
-
-      async function verifySignature(child, issuer) {
-        if (!(window.crypto && window.crypto.subtle)) {
-          throw new Error('当前环境不支持 Web Crypto');
+        function fmtTime(d) {
+          if (!d || isNaN(d.getTime())) return '—';
+          const p = n => String(n).padStart(2, '0');
+          return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) +
+            ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC';
         }
 
-        const SIG_MAP = {
-          '1.2.840.113549.1.1.5': ['RSASSA-PKCS1-v1_5', 'SHA-1'],
-          '1.2.840.113549.1.1.11': ['RSASSA-PKCS1-v1_5', 'SHA-256'],
-          '1.2.840.113549.1.1.12': ['RSASSA-PKCS1-v1_5', 'SHA-384'],
-          '1.2.840.113549.1.1.13': ['RSASSA-PKCS1-v1_5', 'SHA-512'],
-          '1.2.840.10045.4.3.2': ['ECDSA', 'SHA-256'],
-          '1.2.840.10045.4.3.3': ['ECDSA', 'SHA-384'],
-          '1.2.840.10045.4.3.4': ['ECDSA', 'SHA-512']
-        };
-
-        const entry = SIG_MAP[child.sigAlgOid];
-        if (!entry) {
-          throw new Error('暂不支持的签名算法 OID：' + child.sigAlgOid);
+        let toastTimer = null;
+        function toast(msg, isError) {
+          toastEl.textContent = msg;
+          toastEl.classList.toggle('is-error', !!isError);
+          toastEl.classList.add('is-visible');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => toastEl.classList.remove('is-visible'), 1800);
         }
 
-        const [alg, hash] = entry;
+        /* ==========================================================
+           DER / ASN.1 解析
+           ========================================================== */
 
-        if (alg === 'RSASSA-PKCS1-v1_5') {
+        function readTLV(buf, off) {
+          if (off + 2 > buf.length) throw new Error('DER 数据在偏移 ' + off + ' 处越界');
+          const tag = buf[off];
+          let len = buf[off + 1];
+          let headerLen = 2;
+
+          if (len & 0x80) {
+            const n = len & 0x7f;
+            if (n === 0) throw new Error('不支持的 DER 不定长编码');
+            if (n > 4) throw new Error('DER 长度字段过长');
+            len = 0;
+            for (let i = 0; i < n; i++) len = len * 256 + buf[off + 2 + i];
+            headerLen = 2 + n;
+          }
+
+          const contentStart = off + headerLen;
+          const end = contentStart + len;
+          if (end > buf.length) throw new Error('DER 长度字段与实际数据不符');
+
+          return { tag, headerLen, len, start: off, contentStart, end };
+        }
+
+        function decodeOID(bytes) {
+          if (!bytes.length) return '';
+          const parts = [];
+          const first = bytes[0];
+          parts.push(Math.floor(first / 40), first % 40);
+
+          let value = 0;
+          for (let i = 1; i < bytes.length; i++) {
+            value = value * 128 + (bytes[i] & 0x7f);
+            if (!(bytes[i] & 0x80)) {
+              parts.push(value);
+              value = 0;
+            }
+          }
+          return parts.join('.');
+        }
+
+        function decodeASN1String(buf, tlv) {
+          const bytes = buf.subarray(tlv.contentStart, tlv.end);
+          switch (tlv.tag) {
+            case 0x0C: // UTF8String
+            case 0x13: // PrintableString
+            case 0x16: // IA5String
+            case 0x14: // TeletexString
+            case 0x1A: // VisibleString
+              return new TextDecoder('utf-8').decode(bytes);
+            case 0x1E: { // BMPString (UTF-16BE)
+              let s = '';
+              for (let i = 0; i + 1 < bytes.length; i += 2) {
+                s += String.fromCharCode((bytes[i] << 8) | bytes[i + 1]);
+              }
+              return s;
+            }
+            case 0x1C: { // UniversalString (UTF-32BE)
+              let s = '';
+              for (let i = 0; i + 3 < bytes.length; i += 4) {
+                s += String.fromCodePoint(
+                  (bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]
+                );
+              }
+              return s;
+            }
+            default:
+              return new TextDecoder('utf-8').decode(bytes);
+          }
+        }
+
+        function parseName(buf, nameTlv) {
+          const out = [];
+          let p = nameTlv.contentStart;
+
+          while (p < nameTlv.end) {
+            const rdnSet = readTLV(buf, p);        // SET
+            p = rdnSet.end;
+
+            let q = rdnSet.contentStart;
+            while (q < rdnSet.end) {
+              const atv = readTLV(buf, q);          // SEQUENCE { OID, VALUE }
+              q = atv.end;
+
+              const oidTlv = readTLV(buf, atv.contentStart);
+              const oid = decodeOID(buf.subarray(oidTlv.contentStart, oidTlv.end));
+              const valTlv = readTLV(buf, oidTlv.end);
+              const value = decodeASN1String(buf, valTlv);
+
+              out.push({ oid, key: OID_NAME_ATTR[oid] || oid, value });
+            }
+          }
+          return out;
+        }
+
+        function nameToString(rdns) {
+          if (!rdns || !rdns.length) return '';
+          return rdns.map(r => r.key + '=' + r.value).join(', ');
+        }
+
+        function nameKey(rdns) {
+          if (!rdns) return '';
+          return rdns
+            .map(r => r.oid + '=' + String(r.value).trim().toLowerCase())
+            .sort()
+            .join('|');
+        }
+
+        function parseASN1Time(buf, tlv) {
+          const s = new TextDecoder('utf-8').decode(buf.subarray(tlv.contentStart, tlv.end)).trim();
+
+          if (tlv.tag === 0x17) { // UTCTime  YYMMDDHHMMSS[Z]
+            const m = s.match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?/);
+            if (!m) return null;
+            const yy = parseInt(m[1], 10);
+            const year = yy >= 50 ? 1900 + yy : 2000 + yy;
+            return new Date(Date.UTC(year, +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)));
+          }
+          if (tlv.tag === 0x18) { // GeneralizedTime YYYYMMDDHHMMSS[Z]
+            const m = s.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?/);
+            if (!m) return null;
+            return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)));
+          }
+          return null;
+        }
+
+        /**
+         * 解析 X.509 证书（DER）
+         */
+        function parseCertificate(der) {
+          const cert = readTLV(der, 0);
+          if (cert.tag !== 0x30) throw new Error('根节点不是 SEQUENCE，不是合法的 X.509 证书');
+
+          const tbsTlv = readTLV(der, cert.contentStart);
+          if (tbsTlv.tag !== 0x30) throw new Error('tbsCertificate 结构异常');
+
+          const sigAlgTlv = readTLV(der, tbsTlv.end);
+          const sigValTlv = readTLV(der, sigAlgTlv.end);
+          if (sigValTlv.tag !== 0x03) throw new Error('signatureValue 不是 BIT STRING');
+
+          /* ---- 解析 tbsCertificate ---- */
+          let p = tbsTlv.contentStart;
+          let t = readTLV(der, p);
+
+          let version = 1;
+          if (t.tag === 0xA0) {                       // [0] EXPLICIT Version
+            const inner = readTLV(der, t.contentStart);
+            version = der[inner.contentStart] + 1;
+            p = t.end;
+            t = readTLV(der, p);
+          }
+
+          // serialNumber
+          const serialTlv = t;
+          const serial = bytesToHex(der.subarray(serialTlv.contentStart, serialTlv.end));
+          p = serialTlv.end;
+
+          readTLV(der, p);                            // signature AlgorithmIdentifier（与外部一致，略过）
+          p = readTLV(der, p).end;
+
+          const issuerTlv = readTLV(der, p); p = issuerTlv.end;
+          const validityTlv = readTLV(der, p); p = validityTlv.end;
+          const subjectTlv = readTLV(der, p); p = subjectTlv.end;
+          const spkiTlv = readTLV(der, p); p = spkiTlv.end;
+
+          // validity
+          const nbTlv = readTLV(der, validityTlv.contentStart);
+          const naTlv = readTLV(der, nbTlv.end);
+
+          // subjectPublicKeyInfo
+          const algTlv = readTLV(der, spkiTlv.contentStart);
+          const algOidTlv = readTLV(der, algTlv.contentStart);
+          const keyAlgOid = decodeOID(der.subarray(algOidTlv.contentStart, algOidTlv.end));
+
+          let curveOid = null;
+          if (algOidTlv.end < algTlv.end) {
+            const paramTlv = readTLV(der, algOidTlv.end);
+            if (paramTlv.tag === 0x06) {
+              curveOid = decodeOID(der.subarray(paramTlv.contentStart, paramTlv.end));
+            }
+          }
+
+          // signatureAlgorithm（外部）
+          const sigOidTlv = readTLV(der, sigAlgTlv.contentStart);
+          const sigAlgOid = decodeOID(der.subarray(sigOidTlv.contentStart, sigOidTlv.end));
+
+          // signatureValue
+          const sigBits = der.subarray(sigValTlv.contentStart, sigValTlv.end);
+          const signature = sigBits.subarray(1);      // 跳过 unused bits 计数
+
+          return {
+            raw: der,
+            tbs: der.subarray(tbsTlv.start, tbsTlv.end),
+            version,
+            serial,
+            issuer: parseName(der, issuerTlv),
+            subject: parseName(der, subjectTlv),
+            notBefore: parseASN1Time(der, nbTlv),
+            notAfter: parseASN1Time(der, naTlv),
+            spkiDer: der.subarray(spkiTlv.start, spkiTlv.end),
+            keyAlgOid,
+            curveOid,
+            sigAlgOid,
+            signature
+          };
+        }
+
+        /* ==========================================================
+           文件归一化：PEM / DER
+           ========================================================== */
+
+        function toDER(bytes) {
+          // 嗅探 PEM
+          const head = new TextDecoder('utf-8', { fatal: false })
+            .decode(bytes.subarray(0, Math.min(bytes.length, 256)));
+
+          if (/-----BEGIN [A-Z ]*CERTIFICATE-----/.test(head)) {
+            const text = new TextDecoder('utf-8').decode(bytes);
+            const m = text.match(/-----BEGIN [A-Z ]*CERTIFICATE-----([\s\S]*?)-----END [A-Z ]*CERTIFICATE-----/);
+            if (!m) throw new Error('PEM 头尾标记不完整');
+            const b64 = m[1].replace(/\s+/g, '');
+            if (!b64) throw new Error('PEM 内容为空');
+            return base64ToBytes(b64);
+          }
+
+          // 纯 base64（无头）
+          if (/^[A-Za-z0-9+/\s=]+$/.test(head) && !/^\x30/.test(head)) {
+            const text = new TextDecoder('utf-8').decode(bytes).replace(/\s+/g, '');
+            if (text.length > 100 && /^[A-Za-z0-9+/]+=*$/.test(text)) {
+              try { return base64ToBytes(text); } catch (e) { /* 落到 DER */ }
+            }
+          }
+
+          return bytes;
+        }
+
+        /* ==========================================================
+           SHA-256 指纹
+           ========================================================== */
+
+        async function sha256Fingerprint(der) {
+          if (!(window.crypto && window.crypto.subtle)) {
+            throw new Error('当前环境不支持 Web Crypto（需 HTTPS 或 localhost）');
+          }
+          const digest = await crypto.subtle.digest('SHA-256', der);
+          const bytes = new Uint8Array(digest);
+          const parts = [];
+          for (let i = 0; i < bytes.length; i++) {
+            parts.push(bytes[i].toString(16).padStart(2, '0').toUpperCase());
+          }
+          return parts.join(':');
+        }
+
+        /* ==========================================================
+           签名验签
+           ========================================================== */
+
+        function derEcdsaToRaw(sig, curve) {
+          const sizeMap = { 'P-256': 32, 'P-384': 48, 'P-521': 66 };
+          const size = sizeMap[curve];
+          if (!size) throw new Error('未知曲线 ' + curve);
+
+          const seq = readTLV(sig, 0);
+          const rTlv = readTLV(sig, seq.contentStart);
+          const sTlv = readTLV(sig, rTlv.end);
+
+          function pad(bytes) {
+            let i = 0;
+            while (i < bytes.length - 1 && bytes[i] === 0) i++;
+            const src = bytes.subarray(i);
+            if (src.length > size) throw new Error('ECDSA 签名分量长度异常');
+            const out = new Uint8Array(size);
+            out.set(src, size - src.length);
+            return out;
+          }
+
+          const raw = new Uint8Array(size * 2);
+          raw.set(pad(sig.subarray(rTlv.contentStart, rTlv.end)), 0);
+          raw.set(pad(sig.subarray(sTlv.contentStart, sTlv.end)), size);
+          return raw;
+        }
+
+        async function verifySignature(child, issuer) {
+          if (!(window.crypto && window.crypto.subtle)) {
+            throw new Error('当前环境不支持 Web Crypto');
+          }
+
+          const SIG_MAP = {
+            '1.2.840.113549.1.1.5': ['RSASSA-PKCS1-v1_5', 'SHA-1'],
+            '1.2.840.113549.1.1.11': ['RSASSA-PKCS1-v1_5', 'SHA-256'],
+            '1.2.840.113549.1.1.12': ['RSASSA-PKCS1-v1_5', 'SHA-384'],
+            '1.2.840.113549.1.1.13': ['RSASSA-PKCS1-v1_5', 'SHA-512'],
+            '1.2.840.10045.4.3.2': ['ECDSA', 'SHA-256'],
+            '1.2.840.10045.4.3.3': ['ECDSA', 'SHA-384'],
+            '1.2.840.10045.4.3.4': ['ECDSA', 'SHA-512']
+          };
+
+          const entry = SIG_MAP[child.sigAlgOid];
+          if (!entry) {
+            throw new Error('暂不支持的签名算法 OID：' + child.sigAlgOid);
+          }
+
+          const [alg, hash] = entry;
+
+          if (alg === 'RSASSA-PKCS1-v1_5') {
+            const key = await crypto.subtle.importKey(
+              'spki', issuer.spkiDer,
+              { name: alg, hash },
+              false, ['verify']
+            );
+            return await crypto.subtle.verify(alg, key, child.signature, child.tbs);
+          }
+
+          // ECDSA
+          const curve = CURVES[issuer.curveOid];
+          if (!curve) throw new Error('官方证书曲线不受支持：' + (issuer.curveOid || '未知'));
+
           const key = await crypto.subtle.importKey(
             'spki', issuer.spkiDer,
-            { name: alg, hash },
+            { name: 'ECDSA', namedCurve: curve },
             false, ['verify']
           );
-          return await crypto.subtle.verify(alg, key, child.signature, child.tbs);
+          const rawSig = derEcdsaToRaw(child.signature, curve);
+          return await crypto.subtle.verify({ name: 'ECDSA', hash }, key, rawSig, child.tbs);
         }
 
-        // ECDSA
-        const curve = CURVES[issuer.curveOid];
-        if (!curve) throw new Error('官方证书曲线不受支持：' + (issuer.curveOid || '未知'));
+        /* ==========================================================
+           算法名称
+           ========================================================== */
 
-        const key = await crypto.subtle.importKey(
-          'spki', issuer.spkiDer,
-          { name: 'ECDSA', namedCurve: curve },
-          false, ['verify']
-        );
-        const rawSig = derEcdsaToRaw(child.signature, curve);
-        return await crypto.subtle.verify({ name: 'ECDSA', hash }, key, rawSig, child.tbs);
-      }
-
-      /* ==========================================================
-         算法名称
-         ========================================================== */
-
-      function keyAlgLabel(cert) {
-        const oid = cert.keyAlgOid;
-        const base = KEY_ALGS[oid] || oid || '未知';
-        if (oid === '1.2.840.10045.2.1' && cert.curveOid) {
-          return base + ' (' + (CURVES[cert.curveOid] || cert.curveOid) + ')';
+        function keyAlgLabel(cert) {
+          const oid = cert.keyAlgOid;
+          const base = KEY_ALGS[oid] || oid || '未知';
+          if (oid === '1.2.840.10045.2.1' && cert.curveOid) {
+            return base + ' (' + (CURVES[cert.curveOid] || cert.curveOid) + ')';
+          }
+          return base;
         }
-        return base;
-      }
 
-      function sigAlgLabel(oid) {
-        return SIG_ALGS[oid] || oid || '未知';
-      }
+        function sigAlgLabel(oid) {
+          return SIG_ALGS[oid] || oid || '未知';
+        }
 
-      /* ==========================================================
-         官方证书加载与渲染
-         ========================================================== */
+        /* ==========================================================
+           官方证书加载与渲染
+           ========================================================== */
 
-      async function loadRoot() {
-        try {
-          const res = await fetch(ROOT_URL, { cache: 'no-store' });
-          if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
-
-          const raw = new Uint8Array(await res.arrayBuffer());
-          if (!raw.length) throw new Error('官方证书文件为空');
-
-          const der = toDER(raw);
-          const cert = parseCertificate(der);
-
-          let fp = null;
-          try { fp = await sha256Fingerprint(der); } catch (e) { /* 忽略 */ }
-
-          state.root = cert;
-          state.rootFingerprint = fp;
-
-          renderRoot();
-
-          // 用内存里的字节做下载，避免二次请求
+        async function loadRoot() {
           try {
-            const blob = new Blob([raw], { type: 'application/x-x509-ca-cert' });
-            const url = URL.createObjectURL(blob);
-            downloadTop.href = url;
-          } catch (e) { /* 保留静态链接 */ }
+            const res = await fetch(ROOT_URL, { cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
 
-        } catch (err) {
-          state.rootErr = err && err.message ? err.message : String(err);
-          renderRootError();
+            const raw = new Uint8Array(await res.arrayBuffer());
+            if (!raw.length) throw new Error('官方证书文件为空');
+
+            const der = toDER(raw);
+            const cert = parseCertificate(der);
+
+            let fp = null;
+            try { fp = await sha256Fingerprint(der); } catch (e) { /* 忽略 */ }
+
+            state.root = cert;
+            state.rootFingerprint = fp;
+
+            renderRoot();
+
+            // 用内存里的字节做下载，避免二次请求
+            try {
+              const blob = new Blob([raw], { type: 'application/x-x509-ca-cert' });
+              const url = URL.createObjectURL(blob);
+              downloadTop.href = url;
+            } catch (e) { /* 保留静态链接 */ }
+
+          } catch (err) {
+            state.rootErr = err && err.message ? err.message : String(err);
+            renderRootError();
+          }
         }
-      }
 
-      function kvRow(key, value, mono) {
-        return '<div class="kv__row">' +
-          '<div class="kv__key">' + esc(key) + '</div>' +
-          '<div class="kv__val' + (mono ? ' mono' : '') + '">' + esc(value || '—') + '</div>' +
-          '</div>';
-      }
-
-      function kvHtmlRow(key, html) {
-        return '<div class="kv__row">' +
-          '<div class="kv__key">' + esc(key) + '</div>' +
-          '<div class="kv__val">' + html + '</div>' +
-          '</div>';
-      }
-
-      function nameList(rdns) {
-        if (!rdns || !rdns.length) {
-          return '<span class="kv__key">—</span>';
+        function kvRow(key, value, mono) {
+          return '<div class="kv__row">' +
+            '<div class="kv__key">' + esc(key) + '</div>' +
+            '<div class="kv__val' + (mono ? ' mono' : '') + '">' + esc(value || '—') + '</div>' +
+            '</div>';
         }
-        return '<ul class="name-list">' +
-          rdns.map(function (r) {
-            return '<li class="name-list__item">' +
-              '<span class="name-list__key">' + esc(r.key) + '</span>' +
-              '<span class="name-list__val">' + esc(r.value) + '</span>' +
-              '</li>';
-          }).join('') +
-          '</ul>';
-      }
 
-      function renderRoot() {
-        const c = state.root;
+        function kvHtmlRow(key, html) {
+          return '<div class="kv__row">' +
+            '<div class="kv__key">' + esc(key) + '</div>' +
+            '<div class="kv__val">' + html + '</div>' +
+            '</div>';
+        }
 
-        rootBadge.className = 'tag tag--success';
-        rootBadge.textContent = '已载入';
+        function nameList(rdns) {
+          if (!rdns || !rdns.length) {
+            return '<span class="kv__key">—</span>';
+          }
+          return '<ul class="name-list">' +
+            rdns.map(function (r) {
+              return '<li class="name-list__item">' +
+                '<span class="name-list__key">' + esc(r.key) + '</span>' +
+                '<span class="name-list__val">' + esc(r.value) + '</span>' +
+                '</li>';
+            }).join('') +
+            '</ul>';
+        }
 
-        rootBody.innerHTML =
-          '<div class="kv">' +
-          kvHtmlRow('主体 Subject', nameList(c.subject)) +
-          kvHtmlRow('签发者', nameList(c.issuer)) +
-          kvRow('有效期', fmtTime(c.notBefore) + ' → ' + fmtTime(c.notAfter)) +
-          kvRow('公钥算法', keyAlgLabel(c)) +
-          kvRow('SHA-256', state.rootFingerprint || '不可用', true) +
-          '</div>';
-      }
+        function renderRoot() {
+          const c = state.root;
 
-      function renderRootError() {
-        rootBadge.className = 'tag tag--danger';
-        rootBadge.textContent = '加载失败';
+          rootBadge.className = 'tag tag--success';
+          rootBadge.textContent = '已载入';
 
-        rootBody.innerHTML =
-          '<div class="notice notice--danger">' +
-          '<strong>无法自动加载官方证书</strong>' +
-          '<p>' + esc(state.rootErr) + '</p>' +
-          '<p>你仍然可以点击右上角下载官方证书，但签名验签步骤会被跳过。</p>' +
-          '</div>';
-      }
+          rootBody.innerHTML =
+            '<div class="kv">' +
+            kvHtmlRow('主体 Subject', nameList(c.subject)) +
+            kvHtmlRow('签发者', nameList(c.issuer)) +
+            kvRow('有效期', fmtTime(c.notBefore) + ' → ' + fmtTime(c.notAfter)) +
+            kvRow('公钥算法', keyAlgLabel(c)) +
+            kvRow('SHA-256', state.rootFingerprint || '不可用', true) +
+            '</div>';
+        }
 
-      /* ==========================================================
-         校验流程
-         ========================================================== */
+        function renderRootError() {
+          rootBadge.className = 'tag tag--danger';
+          rootBadge.textContent = '加载失败';
 
-      async function runChecks(cert, fingerprint) {
-        const checks = [];
+          rootBody.innerHTML =
+            '<div class="notice notice--danger">' +
+            '<strong>无法自动加载官方证书</strong>' +
+            '<p>' + esc(state.rootErr) + '</p>' +
+            '<p>你仍然可以点击右上角下载官方证书，但签名验签步骤会被跳过。</p>' +
+            '</div>';
+        }
 
-        /* 1. 结构解析 */
-        checks.push({
-          status: 'pass',
-          title: '证书结构解析',
-          desc: 'DER 结构完整，可作为标准 X.509 证书读取。'
-        });
+        /* ==========================================================
+           校验流程
+           ========================================================== */
 
-        /* 2. 有效期 */
-        const now = new Date();
-        const nb = cert.notBefore;
-        const na = cert.notAfter;
+        async function runChecks(cert, fingerprint) {
+          const checks = [];
 
-        if (!nb || !na) {
-          checks.push({
-            status: 'warn',
-            title: '有效期',
-            desc: '未能读取有效期的起止时间字段。'
-          });
-        } else if (now < nb) {
-          checks.push({
-            status: 'fail',
-            title: '有效期',
-            desc: '证书尚未生效，生效时间：' + fmtTime(nb)
-          });
-        } else if (now > na) {
-          checks.push({
-            status: 'fail',
-            title: '有效期',
-            desc: '证书已过期，过期时间：' + fmtTime(na)
-          });
-        } else {
+          /* 1. 结构解析 */
           checks.push({
             status: 'pass',
-            title: '有效期',
-            desc: '当前时间落在有效期内（' + fmtTime(nb) + ' → ' + fmtTime(na) + '）'
+            title: '证书结构解析',
+            desc: 'DER 结构完整，可作为标准 X.509 证书读取。'
           });
-        }
 
-        /* 3. 官方证书缺失 → 跳过后续 */
-        if (!state.root) {
-          checks.push({
-            status: 'skip',
-            title: '签发者比对',
-            desc: '官方证书未加载，无法比对签发者。'
-          });
-          checks.push({
-            status: 'skip',
-            title: '签名验签',
-            desc: '官方证书未加载，无法执行验签。'
-          });
-          return checks;
-        }
+          /* 2. 有效期 */
+          const now = new Date();
+          const nb = cert.notBefore;
+          const na = cert.notAfter;
 
-        /* 4. 是否为官方证书本身 */
-        if (fingerprint && state.rootFingerprint && fingerprint === state.rootFingerprint) {
-          checks.push({
-            status: 'pass',
-            title: '证书身份',
-            desc: '该证书与内置官方证书完全一致（自签名官方证书）。'
-          });
-        }
-
-        /* 5. 签发者比对 */
-        const issuerKey = nameKey(cert.issuer);
-        const subjectKey = nameKey(state.root.subject);
-
-        if (issuerKey && issuerKey === subjectKey) {
-          checks.push({
-            status: 'pass',
-            title: '签发者匹配',
-            desc: '证书 Issuer 与官方证书 Subject 一致：' + nameToString(state.root.subject)
-          });
-        } else {
-          checks.push({
-            status: 'fail',
-            title: '签发者不匹配',
-            desc: '证书 Issuer：' + (nameToString(cert.issuer) || '（空）') +
-              ' ／ 官方证书 Subject：' + (nameToString(state.root.subject) || '（空）')
-          });
-        }
-
-        /* 6. 签名验签 */
-        try {
-          const ok = await verifySignature(cert, state.root);
-          if (ok) {
+          if (!nb || !na) {
+            checks.push({
+              status: 'warn',
+              title: '有效期',
+              desc: '未能读取有效期的起止时间字段。'
+            });
+          } else if (now < nb) {
+            checks.push({
+              status: 'fail',
+              title: '有效期',
+              desc: '证书尚未生效，生效时间：' + fmtTime(nb)
+            });
+          } else if (now > na) {
+            checks.push({
+              status: 'fail',
+              title: '有效期',
+              desc: '证书已过期，过期时间：' + fmtTime(na)
+            });
+          } else {
             checks.push({
               status: 'pass',
+              title: '有效期',
+              desc: '当前时间落在有效期内（' + fmtTime(nb) + ' → ' + fmtTime(na) + '）'
+            });
+          }
+
+          /* 3. 官方证书缺失 → 跳过后续 */
+          if (!state.root) {
+            checks.push({
+              status: 'skip',
+              title: '签发者比对',
+              desc: '官方证书未加载，无法比对签发者。'
+            });
+            checks.push({
+              status: 'skip',
               title: '签名验签',
-              desc: '使用官方证书公钥验证证书签名，结果为有效。'
+              desc: '官方证书未加载，无法执行验签。'
+            });
+            return checks;
+          }
+
+          /* 4. 是否为官方证书本身 */
+          if (fingerprint && state.rootFingerprint && fingerprint === state.rootFingerprint) {
+            checks.push({
+              status: 'pass',
+              title: '证书身份',
+              desc: '该证书与内置官方证书完全一致（自签名官方证书）。'
+            });
+          }
+
+          /* 5. 签发者比对 */
+          const issuerKey = nameKey(cert.issuer);
+          const subjectKey = nameKey(state.root.subject);
+
+          if (issuerKey && issuerKey === subjectKey) {
+            checks.push({
+              status: 'pass',
+              title: '签发者匹配',
+              desc: '证书 Issuer 与官方证书 Subject 一致：' + nameToString(state.root.subject)
             });
           } else {
             checks.push({
               status: 'fail',
-              title: '签名验签',
-              desc: '签名与官方证书公钥不匹配，该证书并非由内置官方证书签发。'
+              title: '签发者不匹配',
+              desc: '证书 Issuer：' + (nameToString(cert.issuer) || '（空）') +
+                ' ／ 官方证书 Subject：' + (nameToString(state.root.subject) || '（空）')
             });
           }
-        } catch (e) {
-          checks.push({
-            status: 'warn',
-            title: '签名验签',
-            desc: '无法完成验签：' + (e && e.message ? e.message : String(e))
-          });
+
+          /* 6. 签名验签 */
+          try {
+            const ok = await verifySignature(cert, state.root);
+            if (ok) {
+              checks.push({
+                status: 'pass',
+                title: '签名验签',
+                desc: '使用官方证书公钥验证证书签名，结果为有效。'
+              });
+            } else {
+              checks.push({
+                status: 'fail',
+                title: '签名验签',
+                desc: '签名与官方证书公钥不匹配，该证书并非由内置官方证书签发。'
+              });
+            }
+          } catch (e) {
+            checks.push({
+              status: 'warn',
+              title: '签名验签',
+              desc: '无法完成验签：' + (e && e.message ? e.message : String(e))
+            });
+          }
+
+          return checks;
         }
 
-        return checks;
-      }
+        /* ==========================================================
+           结果渲染
+           ========================================================== */
 
-      /* ==========================================================
-         结果渲染
-         ========================================================== */
+        const CHECK_ICON = { pass: '✓', fail: '✕', warn: '!', skip: '–' };
 
-      const CHECK_ICON = { pass: '✓', fail: '✕', warn: '!', skip: '–' };
-
-      const REUPLOAD_BTN =
-        '<button type="button" class="btn btn--secondary btn--sm" data-reupload>' +
-        '<span class="btn__label">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
-        ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/>' +
-        '<path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>' +
-        '</svg>' +
-        '重新上传' +
-        '</span>' +
-        '</button>';
-
-            /* 证书可视化入口：仅在校验通过时显示 */
-      const VIEW_BTN =
-        '<a class="btn btn--primary btn--sm" href="/tools/app/cyber-cert-view.html">' +
-        '<span class="btn__label">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
-        ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/>' +
-        '<circle cx="12" cy="12" r="2.8"/>' +
-        '</svg>' +
-        '证书可视化' +
-        '</span>' +
-        '</a>';
-
-      function showResult(html) {
-        resultArea.innerHTML = html;
-        uploadArea.hidden = true;
-        resultArea.hidden = false;
-        resultArea.classList.remove('result-enter');
-        void resultArea.offsetWidth;   // 强制重排，重启动画
-        resultArea.classList.add('result-enter');
-      }
-
-      function resultHead(pass) {
-        return '<div class="result-head">' +
-          '<h3 class="result-head__title">校验结果</h3>' +
-          '<span class="tag ' + (pass ? 'tag--success' : 'tag--danger') + '">' +
-          (pass ? '通过' : '未通过') +
+        const REUPLOAD_BTN =
+          '<button type="button" class="btn btn--secondary btn--sm" data-reupload>' +
+          '<span class="btn__label">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
+          ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/>' +
+          '<path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>' +
+          '</svg>' +
+          '重新上传' +
           '</span>' +
-          '<div class="spacer"></div>' +
-          (pass ? VIEW_BTN : '') +   /* ← 仅在校验通过时出现 */
-          REUPLOAD_BTN +
-          '</div>';
-      }
+          '</button>';
 
-      function renderResult(cert, fingerprint, checks, filename) {
-        const hasFail = checks.some(c => c.status === 'fail');
-        const hasSkip = checks.some(c => c.status === 'skip');
-        const pass = !hasFail;
+        /* 证书可视化入口：仅在校验通过时显示 */
+        const VIEW_BTN =
+          '<a class="btn btn--primary btn--sm" href="/tools/app/cyber-cert-view.html">' +
+          '<span class="btn__label">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
+          ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/>' +
+          '<circle cx="12" cy="12" r="2.8"/>' +
+          '</svg>' +
+          '证书可视化' +
+          '</span>' +
+          '</a>';
 
-        showResult(
-          resultHead(pass) +
+        function showResult(html) {
+          resultArea.innerHTML = html;
+          uploadArea.hidden = true;
+          resultArea.hidden = false;
+          resultArea.classList.remove('result-enter');
+          void resultArea.offsetWidth;   // 强制重排，重启动画
+          resultArea.classList.add('result-enter');
+        }
 
-          '<div class="verdict verdict--' + (pass ? 'pass' : 'fail') + '">' +
-          '<div class="verdict__icon">' + (pass ? '✓' : '✕') + '</div>' +
-          '<div>' +
-          '<div class="verdict__title">' + (pass ? '鉴定为真' : '鉴定为假') + '</div>' +
-          '<div class="verdict__sub">' +
-          (pass
-            ? (hasSkip
-              ? '基础检查已通过，部分检查因缺少官方证书而跳过。'
-              : '证书结构完整、在有效期内，且由官方证书签发。')
-            : '该证书未通过校验，请确认它是否由本站官方证书签发，或是否已过期。') +
-          '</div>' +
-          '</div>' +
-          '</div>' +
+        function resultHead(pass) {
+          return '<div class="result-head">' +
+            '<h3 class="result-head__title">校验结果</h3>' +
+            '<span class="tag ' + (pass ? 'tag--success' : 'tag--danger') + '">' +
+            (pass ? '通过' : '未通过') +
+            '</span>' +
+            '<div class="spacer"></div>' +
+            (pass ? VIEW_BTN : '') +   /* ← 仅在校验通过时出现 */
+            REUPLOAD_BTN +
+            '</div>';
+        }
 
-          '<div class="result-grid">' +
-          '<div>' +
-          '<h3 class="block-title">校验项</h3>' +
-          '<div class="checks">' +
-          checks.map(c =>
-            '<div class="check check--' + c.status + '">' +
-            '<div class="check__icon">' + CHECK_ICON[c.status] + '</div>' +
+        function renderResult(cert, fingerprint, checks, filename) {
+          const hasFail = checks.some(c => c.status === 'fail');
+          const hasSkip = checks.some(c => c.status === 'skip');
+          const pass = !hasFail;
+
+          showResult(
+            resultHead(pass) +
+
+            '<div class="verdict verdict--' + (pass ? 'pass' : 'fail') + '">' +
+            '<div class="verdict__icon">' + (pass ? '✓' : '✕') + '</div>' +
             '<div>' +
-            '<div class="check__title">' + esc(c.title) + '</div>' +
-            '<div class="check__desc">' + esc(c.desc) + '</div>' +
+            '<div class="verdict__title">' + (pass ? '鉴定为真' : '鉴定为假') + '</div>' +
+            '<div class="verdict__sub">' +
+            (pass
+              ? (hasSkip
+                ? '基础检查已通过，部分检查因缺少官方证书而跳过。'
+                : '证书结构完整、在有效期内，且由官方证书签发。')
+              : '该证书未通过校验，请确认它是否由本站官方证书签发，或是否已过期。') +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+
+            '<div class="result-grid">' +
+            '<div>' +
+            '<h3 class="block-title">校验项</h3>' +
+            '<div class="checks">' +
+            checks.map(c =>
+              '<div class="check check--' + c.status + '">' +
+              '<div class="check__icon">' + CHECK_ICON[c.status] + '</div>' +
+              '<div>' +
+              '<div class="check__title">' + esc(c.title) + '</div>' +
+              '<div class="check__desc">' + esc(c.desc) + '</div>' +
+              '</div>' +
+              '</div>'
+            ).join('') +
+            '</div>' +
+            '</div>' +
+
+            '<div>' +
+            '<h3 class="block-title">证书详情</h3>' +
+            '<div class="kv">' +
+            kvRow('文件名', filename) +
+            kvHtmlRow('主体 Subject', nameList(cert.subject)) +
+            kvHtmlRow('签发者 Issuer', nameList(cert.issuer)) +
+            kvRow('有效期', fmtTime(cert.notBefore) + ' → ' + fmtTime(cert.notAfter)) +
+            kvRow('版本', 'v' + cert.version) +
+            kvRow('序列号', cert.serial, true) +
+            kvRow('签名算法', sigAlgLabel(cert.sigAlgOid)) +
+            kvRow('公钥算法', keyAlgLabel(cert)) +
+            kvRow('SHA-256 指纹', fingerprint || '不可用', true) +
+            '</div>' +
             '</div>' +
             '</div>'
-          ).join('') +
-          '</div>' +
-          '</div>' +
-
-          '<div>' +
-          '<h3 class="block-title">证书详情</h3>' +
-          '<div class="kv">' +
-          kvRow('文件名', filename) +
-          kvHtmlRow('主体 Subject', nameList(cert.subject)) +
-          kvHtmlRow('签发者 Issuer', nameList(cert.issuer)) +
-          kvRow('有效期', fmtTime(cert.notBefore) + ' → ' + fmtTime(cert.notAfter)) +
-          kvRow('版本', 'v' + cert.version) +
-          kvRow('序列号', cert.serial, true) +
-          kvRow('签名算法', sigAlgLabel(cert.sigAlgOid)) +
-          kvRow('公钥算法', keyAlgLabel(cert)) +
-          kvRow('SHA-256 指纹', fingerprint || '不可用', true) +
-          '</div>' +
-          '</div>' +
-          '</div>'
-        );
-      }
-
-      function renderError(title, detail) {
-        showResult(
-          resultHead(false) +
-          '<div class="notice notice--danger">' +
-          '<strong>' + esc(title) + '</strong>' +
-          '<p>' + esc(detail) + '</p>' +
-          '</div>'
-        );
-      }
-
-      /* ==========================================================
-         文件处理
-         ========================================================== */
-
-      function setFileBadge(text, variant) {
-        fileBadge.className = 'tag tag--' + (variant || 'info');
-        fileBadge.textContent = text;
-      }
-
-      async function handleFile(file) {
-        if (state.busy) return;
-        if (!file) return;
-
-        state.busy = true;
-        setFileBadge('校验中…', 'info');
-
-        try {
-          const buf = new Uint8Array(await file.arrayBuffer());
-
-          let der;
-          try {
-            der = toDER(buf);
-          } catch (e) {
-            setFileBadge('读取失败', 'danger');
-            renderError('无法读取文件', e.message || String(e));
-            toast('无法读取文件', true);
-            return;
-          }
-
-          let cert;
-          try {
-            cert = parseCertificate(der);
-          } catch (e) {
-            setFileBadge('解析失败', 'danger');
-            renderError('证书解析失败', '该文件不是合法的 X.509 证书：' + (e.message || String(e)));
-            toast('证书解析失败', true);
-            return;
-          }
-
-          let fingerprint = null;
-          try {
-            fingerprint = await sha256Fingerprint(der);
-          } catch (e) {
-            toast('无法计算指纹：' + e.message, true);
-          }
-
-          const checks = await runChecks(cert, fingerprint);
-          const pass = !checks.some(c => c.status === 'fail');
-
-          setFileBadge(pass ? '校验通过' : '校验未通过', pass ? 'success' : 'danger');
-          renderResult(cert, fingerprint, checks, file.name);
-
-          toast(pass ? '证书校验通过' : '证书校验未通过', !pass);
-
-        } catch (err) {
-          setFileBadge('异常', 'danger');
-          renderError('校验过程出现异常', err && err.message ? err.message : String(err));
-          toast('校验过程出现异常', true);
-        } finally {
-          state.busy = false;
+          );
         }
-      }
 
-      /* ==========================================================
-         事件绑定
-         ========================================================== */
-
-      dropzone.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          fileInput.click();
+        function renderError(title, detail) {
+          showResult(
+            resultHead(false) +
+            '<div class="notice notice--danger">' +
+            '<strong>' + esc(title) + '</strong>' +
+            '<p>' + esc(detail) + '</p>' +
+            '</div>'
+          );
         }
-      });
 
-      fileInput.addEventListener('change', function () {
-        const file = fileInput.files && fileInput.files[0];
-        if (file) handleFile(file);
-        fileInput.value = '';   // 允许重复选择同一文件
-      });
+        /* ==========================================================
+           文件处理
+           ========================================================== */
 
-      resultArea.addEventListener('click', function (e) {
-        if (e.target.closest('[data-reupload]')) {
-          fileInput.click();
+        function setFileBadge(text, variant) {
+          fileBadge.className = 'tag tag--' + (variant || 'info');
+          fileBadge.textContent = text;
         }
-      });
 
-      ['dragenter', 'dragover'].forEach(function (ev) {
-        dropzone.addEventListener(ev, function (e) {
+        async function handleFile(file) {
+          if (state.busy) return;
+          if (!file) return;
+
+          state.busy = true;
+          setFileBadge('校验中…', 'info');
+
+          try {
+            const buf = new Uint8Array(await file.arrayBuffer());
+
+            let der;
+            try {
+              der = toDER(buf);
+            } catch (e) {
+              setFileBadge('读取失败', 'danger');
+              renderError('无法读取文件', e.message || String(e));
+              toast('无法读取文件', true);
+              return;
+            }
+
+            let cert;
+            try {
+              cert = parseCertificate(der);
+            } catch (e) {
+              setFileBadge('解析失败', 'danger');
+              renderError('证书解析失败', '该文件不是合法的 X.509 证书：' + (e.message || String(e)));
+              toast('证书解析失败', true);
+              return;
+            }
+
+            let fingerprint = null;
+            try {
+              fingerprint = await sha256Fingerprint(der);
+            } catch (e) {
+              toast('无法计算指纹：' + e.message, true);
+            }
+
+            const checks = await runChecks(cert, fingerprint);
+            const pass = !checks.some(c => c.status === 'fail');
+
+            setFileBadge(pass ? '校验通过' : '校验未通过', pass ? 'success' : 'danger');
+            renderResult(cert, fingerprint, checks, file.name);
+
+            toast(pass ? '证书校验通过' : '证书校验未通过', !pass);
+
+          } catch (err) {
+            setFileBadge('异常', 'danger');
+            renderError('校验过程出现异常', err && err.message ? err.message : String(err));
+            toast('校验过程出现异常', true);
+          } finally {
+            state.busy = false;
+          }
+        }
+
+        /* ==========================================================
+           事件绑定
+           ========================================================== */
+
+        dropzone.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInput.click();
+          }
+        });
+
+        fileInput.addEventListener('change', function () {
+          const file = fileInput.files && fileInput.files[0];
+          if (file) handleFile(file);
+          fileInput.value = '';   // 允许重复选择同一文件
+        });
+
+        resultArea.addEventListener('click', function (e) {
+          if (e.target.closest('[data-reupload]')) {
+            fileInput.click();
+          }
+        });
+
+        ['dragenter', 'dragover'].forEach(function (ev) {
+          dropzone.addEventListener(ev, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('is-over');
+          });
+        });
+
+        ['dragleave', 'dragend'].forEach(function (ev) {
+          dropzone.addEventListener(ev, function (e) {
+            e.preventDefault();
+            dropzone.classList.remove('is-over');
+          });
+        });
+
+        dropzone.addEventListener('drop', function (e) {
           e.preventDefault();
           e.stopPropagation();
-          dropzone.classList.add('is-over');
-        });
-      });
-
-      ['dragleave', 'dragend'].forEach(function (ev) {
-        dropzone.addEventListener(ev, function (e) {
-          e.preventDefault();
           dropzone.classList.remove('is-over');
-        });
-      });
 
-      dropzone.addEventListener('drop', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove('is-over');
-
-        const dt = e.dataTransfer;
-        if (dt && dt.files && dt.files.length) {
-          handleFile(dt.files[0]);
-        }
-      });
-
-      // 阻止在页面其他区域拖入文件时浏览器直接打开文件
-      window.addEventListener('dragover', function (e) { e.preventDefault(); });
-      window.addEventListener('drop', function (e) { e.preventDefault(); });
-
-      /* ==========================================================
-         返回按钮
-         ========================================================== */
-
-      if (btnBack) {
-        btnBack.addEventListener('click', function () {
-          if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            location.href = '/tools/';
+          const dt = e.dataTransfer;
+          if (dt && dt.files && dt.files.length) {
+            handleFile(dt.files[0]);
           }
         });
-      }
 
-      /* ==========================================================
-         主题切换
-         ========================================================== */
+        // 阻止在页面其他区域拖入文件时浏览器直接打开文件
+        window.addEventListener('dragover', function (e) { e.preventDefault(); });
+        window.addEventListener('drop', function (e) { e.preventDefault(); });
 
-      const rootEl = document.documentElement;
+        /* ==========================================================
+           返回按钮
+           ========================================================== */
 
-      function isDark() { return rootEl.getAttribute('data-theme') === 'dark'; }
-
-      function syncThemeBtn() {
-        const dark = isDark();
-        if (btnTheme) {
-          const label = dark ? '切换到浅色模式' : '切换到深色模式';
-          btnTheme.setAttribute('aria-label', label);
-          btnTheme.setAttribute('title', label);
-          btnTheme.setAttribute('aria-pressed', dark ? 'true' : 'false');
-        }
-        if (metaThemeColor) {
-          metaThemeColor.setAttribute('content', dark ? '#12161F' : '#21a5e3');
-        }
-      }
-
-      function applyTheme(theme, persist) {
-        rootEl.setAttribute('data-theme', theme);
-        if (persist) {
-          try { localStorage.setItem('theme', theme); } catch (e) { /* 忽略 */ }
-        }
-        syncThemeBtn();
-      }
-
-      syncThemeBtn();
-
-      if (btnTheme) {
-        btnTheme.addEventListener('click', function () {
-          const theme = isDark() ? 'light' : 'dark';
-          if (typeof document.startViewTransition === 'function') {
-            document.startViewTransition(function () { applyTheme(theme, true); });
-          } else {
-            applyTheme(theme, true);
-          }
-        });
-      }
-
-      /* ==========================================================
-         入场揭示
-         ========================================================== */
-
-      function initReveal() {
-        const els = document.querySelectorAll('.reveal');
-
-        if (!('IntersectionObserver' in window)) {
-          els.forEach(function (el) { el.classList.add('is-visible'); });
-          return;
-        }
-
-        const io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
-            const el = entry.target;
-            const delay = parseInt(el.dataset.delay || '0', 10);
-            setTimeout(function () { el.classList.add('is-visible'); }, delay);
-            io.unobserve(el);
+        if (btnBack) {
+          btnBack.addEventListener('click', function () {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              location.href = '/tools/';
+            }
           });
-        }, { threshold: 0.06 });
+        }
 
-        els.forEach(function (el) { io.observe(el); });
-      }
+        /* ==========================================================
+           主题切换
+           ========================================================== */
 
-      /* ==========================================================
-         启动
-         ========================================================== */
+        const rootEl = document.documentElement;
 
-      initReveal();
-      loadRoot();
+        function isDark() { return rootEl.getAttribute('data-theme') === 'dark'; }
 
-    })();
-  </script>
+        function syncThemeBtn() {
+          const dark = isDark();
+          if (btnTheme) {
+            const label = dark ? '切换到浅色模式' : '切换到深色模式';
+            btnTheme.setAttribute('aria-label', label);
+            btnTheme.setAttribute('title', label);
+            btnTheme.setAttribute('aria-pressed', dark ? 'true' : 'false');
+          }
+          if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', dark ? '#12161F' : '#21a5e3');
+          }
+        }
+
+        function applyTheme(theme, persist) {
+          rootEl.setAttribute('data-theme', theme);
+          if (persist) {
+            try { localStorage.setItem('theme', theme); } catch (e) { /* 忽略 */ }
+          }
+          syncThemeBtn();
+        }
+
+        syncThemeBtn();
+
+        if (btnTheme) {
+          btnTheme.addEventListener('click', function () {
+            const theme = isDark() ? 'light' : 'dark';
+            if (typeof document.startViewTransition === 'function') {
+              document.startViewTransition(function () { applyTheme(theme, true); });
+            } else {
+              applyTheme(theme, true);
+            }
+          });
+        }
+
+        /* ==========================================================
+           入场揭示
+           ========================================================== */
+
+        function initReveal() {
+          const els = document.querySelectorAll('.reveal');
+
+          if (!('IntersectionObserver' in window)) {
+            els.forEach(function (el) { el.classList.add('is-visible'); });
+            return;
+          }
+
+          const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              const el = entry.target;
+              const delay = parseInt(el.dataset.delay || '0', 10);
+              setTimeout(function () { el.classList.add('is-visible'); }, delay);
+              io.unobserve(el);
+            });
+          }, { threshold: 0.06 });
+
+          els.forEach(function (el) { io.observe(el); });
+        }
+
+        /* ==========================================================
+           启动
+           ========================================================== */
+
+        initReveal();
+        loadRoot();
+
+      })();
+    </script>
 </body>
 
 </html>

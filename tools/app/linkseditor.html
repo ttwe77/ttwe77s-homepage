@@ -827,7 +827,7 @@
       }
     }
 
-        @media (max-width: 640px) {
+    @media (max-width: 640px) {
       .topbar__logo {
         width: 62px;
         height: 28px;
@@ -923,8 +923,29 @@
       opacity: .5;
     }
 
+    /* 公安备案：图标 + 文字对齐，避免基线错位 */
+    .site-foot__police {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      vertical-align: middle;
+    }
+
+    .site-foot__police img {
+      display: block;
+      height: 12px;
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 560px) {
+      .site-foot__police img {
+        height: 11px;
+      }
+    }
+
     /* ============ 深色模式 ============ */
-        :root[data-theme="dark"] .topbar__logo img {
+    :root[data-theme="dark"] .topbar__logo img {
       filter: invert(1) hue-rotate(180deg) brightness(1.2);
     }
 
@@ -1163,7 +1184,8 @@
       --scrollbar-thumb-hover: rgba(171, 215, 255, .5);
       --scrollbar-thumb-active: rgba(171, 215, 255, .7);
     }
-        /* ---------- 顶栏图标按钮（返回 / 主题） ---------- */
+
+    /* ---------- 顶栏图标按钮（返回 / 主题） ---------- */
     .icon-btn {
       display: inline-flex;
       align-items: center;
@@ -1197,6 +1219,7 @@
       background: #3f568c;
       color: #fff;
     }
+
     .icon-btn--back:hover {
       background: #2d4070;
       color: #fff;
@@ -1224,9 +1247,8 @@
   <!-- ============ 顶栏 ============ -->
   <header class="topbar">
     <button class="icon-btn icon-btn--back" type="button" id="btn-back" aria-label="返回" title="返回">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5"
-           stroke-linecap="round" stroke-linejoin="round">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 12H5M12 19l-7-7 7-7" />
       </svg>
     </button>
@@ -1393,6 +1415,9 @@
     <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
       桂ICP备2026023217号-1
     </a>
+    <span class="site-foot__sep" aria-hidden="true">|</span>
+    <a class="site-foot__police" href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311" target="_blank"
+      rel="noreferrer"><img src="/src/beian.png" alt="公安备案">桂公网安备45020002000311号</a>
   </footer>
 
   <script>

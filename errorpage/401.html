@@ -19,6 +19,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="theme-color" content="#EAF4FC">
     <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/src/favicon.svg">
     <title>401 · 认证失败 | 七七的折腾笔记</title>
     <script type="module">
         import { BAClickFX } from '/libs/ba-click-fx.js';
@@ -836,6 +837,40 @@
             color: #B9E2FF;
             border-bottom-color: #B9E2FF;
         }
+
+        /* ============ 公安备案链接 ============ */
+        .meta__police {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(63, 169, 245, .35);
+            padding-bottom: 1px;
+            transition: color .2s ease, border-color .2s ease;
+        }
+
+        .meta__police img {
+            display: block;
+            height: 12px;
+            width: auto;
+            flex: 0 0 auto;
+        }
+
+        .meta__police:hover {
+            color: var(--ba-blue);
+            border-bottom-color: var(--ba-blue);
+        }
+
+        :root[data-theme="dark"] .meta__police {
+            color: #8FC9F0;
+            border-bottom-color: rgba(143, 201, 240, .35);
+        }
+
+        :root[data-theme="dark"] .meta__police:hover {
+            color: #B9E2FF;
+            border-bottom-color: #B9E2FF;
+        }
     </style>
 </head>
 
@@ -921,6 +956,9 @@
             <span>备案号：<a class="meta__link" href="https://beian.miit.gov.cn/" target="_blank"
                     rel="noopener noreferrer">桂ICP备2026023217号-1</a></span>
             <span class="meta__sep" aria-hidden="true">/</span>
+            <span><a class="meta__police" href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311"
+                    target="_blank" rel="noreferrer"><img src="/src/beian.png"
+                        alt="公安备案">桂公网安备45020002000311号</a></span>
             <span>若仍无法访问，请联系管理员。邮箱：<a class="meta__link" href="mailto:ttwe77@yeah.net">ttwe77@yeah.net</a></span>
         </footer>
     </main>

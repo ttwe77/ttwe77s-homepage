@@ -5,8 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#21a5e3">
-
-  <!-- 主题初始化：在样式解析前决定深色 / 浅色，避免刷新时闪白 -->
+    <!-- 主题初始化：在样式解析前决定深色 / 浅色，避免刷新时闪白 -->
   <script>
     (function () {
       try {
@@ -20,7 +19,6 @@
       }
     })();
   </script>
-
   <title>友情链接 · 七七的折腾笔记</title>
   <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
@@ -949,6 +947,27 @@
       color: var(--color-primary);
     }
 
+    /* 公安备案：图标 + 文字对齐，避免基线错位 */
+    .footer__police {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      vertical-align: middle;
+    }
+
+    .footer__police img {
+      display: block;
+      height: 12px;
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      .footer__police img {
+        height: 11px;
+      }
+    }
+
     .footer__links {
       display: flex;
       gap: 18px;
@@ -1427,7 +1446,7 @@
       transform: translate(2px, -2px);
     }
 
-    /* ============ 深色模式 ============ */
+        /* ============ 深色模式 ============ */
     .icon-btn__moon {
       display: none;
     }
@@ -1658,7 +1677,7 @@
 
     <div class="topbar__spacer"></div>
 
-    <button class="icon-btn" type="button" id="btn-theme" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
+        <button class="icon-btn" type="button" id="btn-theme" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
       <svg class="icon-btn__sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <circle cx="12" cy="12" r="4.5" />
@@ -1754,36 +1773,28 @@
 
     <section class="friends reveal" id="thanks" aria-label="特别鸣谢列表">
       <!-- THANKS:START -->
-      <a class="friend" href="https://space.bilibili.com/1530325561" target="_blank" rel="noopener noreferrer"
-        style="--c1:#8AB4F8;--c2:#5E8BFF;--i:0">
-        <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/tempting.avif" alt="" width="50"
-            height="50" loading="lazy" onerror="this.remove()"><span>T</span></span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">Tempting</span>
-          </span>
-          <span class="friend__desc" title="学工程的，土木工程计算机工程铁道工程...啥工程都会">学工程的，土木工程计算机工程铁道工程...啥工程都会</span>
-          <span class="friend__tags"><span class="chip">非男同</span><span class="chip">技术党</span><span
-              class="chip">冲浪</span></span>
-        </span>
-        <span class="friend__go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M8 7h9v9" />
-          </svg></span>
-      </a>
+      <a class="friend" href="https://space.bilibili.com/1530325561" target="_blank" rel="noopener noreferrer" style="--c1:#8AB4F8;--c2:#5E8BFF;--i:0">
+              <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/tempting.avif" alt="" width="50" height="50" loading="lazy" onerror="this.remove()"><span>T</span></span>
+              <span class="friend__main">
+                <span class="friend__top">
+                  <span class="friend__name">Tempting</span>
+                </span>
+                <span class="friend__desc" title="学工程的，土木工程计算机工程铁道工程...啥工程都会">学工程的，土木工程计算机工程铁道工程...啥工程都会</span>
+                <span class="friend__tags"><span class="chip">非男同</span><span class="chip">技术党</span><span class="chip">冲浪</span></span>
+              </span>
+              <span class="friend__go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>
+            </a>
       <div class="friend friend--static" style="--c1:#7FC4EA;--c2:#21a5e3;--i:1">
-        <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/very.avif" alt="" width="50" height="50"
-            loading="lazy" onerror="this.remove()"><span>V</span></span>
-        <span class="friend__main">
-          <span class="friend__top">
-            <span class="friend__name">VeryStorm</span>
-          </span>
-          <span class="friend__desc" title="游离的魂魄">游离的魂魄</span>
-          <span class="friend__tags"><span class="chip">高三牲</span></span>
-        </span>
-
-      </div>
+              <span class="friend__avatar"><img src="https://www.ttwe77.cn/src/links/very.avif" alt="" width="50" height="50" loading="lazy" onerror="this.remove()"><span>V</span></span>
+              <span class="friend__main">
+                <span class="friend__top">
+                  <span class="friend__name">VeryStorm</span>
+                </span>
+                <span class="friend__desc" title="游离的魂魄">游离的魂魄</span>
+                <span class="friend__tags"><span class="chip">高三牲</span></span>
+              </span>
+        
+            </div>
       <!-- THANKS:END -->
     </section>
 
@@ -1899,6 +1910,8 @@
         <span class="footer__mark">七七的折腾笔记</span>
         <span>© 2026 ttwe77</span>
         <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+        <a class="footer__police" href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311" target="_blank"
+          rel="noreferrer"><img src="/src/beian.png" alt="公安备案">桂公网安备45020002000311号</a>
         <span>本站源码采用 <a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank"
             rel="noopener noreferrer">MIT License</a> 开源协议。</span>
       </div>
@@ -2258,8 +2271,7 @@
 
     })();
   </script>
-
-  <!-- ============ 主题切换 ============ -->
+    <!-- ============ 主题切换 ============ -->
   <script>
     (function () {
       'use strict';
@@ -2348,7 +2360,6 @@
       }
     })();
   </script>
-
 </body>
 
 </html>
