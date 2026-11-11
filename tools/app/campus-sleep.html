@@ -1,1625 +1,300 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>校园睡 · 娱乐睡眠打卡</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#e9eaf2;color:#1c1c28}
-#app{max-width:480px;margin:0 auto;min-height:100vh;background:#f2f3f8;position:relative;overflow-x:hidden}
-.hidden{display:none!important}
-input,button{font-family:inherit}
-::-webkit-scrollbar{width:0}
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <title>校园睡 · 娱乐睡眠打卡</title>
+    <script type="module">
+    import { BAClickFX } from '/libs/ba-click-fx.js';
+    const fx = new BAClickFX();
+    fx.setCompositingReference({ hostCompositing: 'screen' });
+    fx.setThemeColor('#80c1ff');
+    </script>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bedBg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237C6CF0'/%3E%3Cstop offset='1' stop-color='%235142C9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23bedBg)'/%3E%3Cpath d='M42 12h8l-8 10h8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' opacity='.95'/%3E%3Cpath d='M51 7h5l-5 6h5' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' opacity='.65'/%3E%3Crect x='11' y='30' width='42' height='6' rx='3' fill='%23fff' opacity='.95'/%3E%3Crect x='14' y='26' width='13' height='8' rx='4' fill='%23fff'/%3E%3Crect x='11' y='36' width='42' height='10' rx='5' fill='%23fff' opacity='.8'/%3E%3Crect x='13' y='46' width='3' height='6' rx='1.5' fill='%23fff' opacity='.75'/%3E%3Crect x='48' y='46' width='3' height='6' rx='1.5' fill='%23fff' opacity='.75'/%3E%3C/svg%3E">
+    <style>
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#e9eaf2;color:#1c1c28}
+    #app{max-width:480px;margin:0 auto;min-height:100vh;background:#f2f3f8;position:relative;overflow-x:hidden}
+    .hidden{display:none!important}
+    input,button{font-family:inherit}
+    ::-webkit-scrollbar{width:0}
 
-/* ============ 通用 ============ */
-.page{padding-bottom:92px;min-height:100vh}
-.page-inner{padding:16px 16px 0}
-.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 6px 20px rgba(30,30,60,.05);margin-top:14px}
-.card-head{font-size:13px;font-weight:700;color:#5a5a72;margin-bottom:12px;letter-spacing:.5px}
-.mt{margin-top:14px}
-.btn-primary{width:100%;border:none;background:linear-gradient(135deg,#7C6CF0,#5B4BD6);color:#fff;font-size:16px;font-weight:700;padding:15px;border-radius:14px;margin-top:16px;cursor:pointer;box-shadow:0 8px 20px rgba(108,92,231,.28);transition:.15s}
-.btn-primary:active{transform:scale(.98)}
-.btn-ghost{width:100%;border:1.5px dashed #d6d2ee;background:#faf9ff;color:#6C5CE7;font-size:14px;font-weight:600;padding:13px;border-radius:14px;margin-top:10px;cursor:pointer;transition:.15s}
-.btn-ghost:active{transform:scale(.98)}
-.btn-ghost.danger{color:#e03131;border-color:#ffd6d6;background:#fff5f5}
-.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(10px);background:rgba(28,28,40,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:.25s;z-index:500;white-space:nowrap;max-width:90vw}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    /* ============ 通用 ============ */
+    .page{padding-bottom:92px;min-height:100vh}
+    .page-inner{padding:16px 16px 0}
+    .card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 6px 20px rgba(30,30,60,.05);margin-top:14px}
+    .card-head{font-size:13px;font-weight:700;color:#5a5a72;margin-bottom:12px;letter-spacing:.5px}
+    .mt{margin-top:14px}
+    .btn-primary{width:100%;border:none;background:linear-gradient(135deg,#7C6CF0,#5B4BD6);color:#fff;font-size:16px;font-weight:700;padding:15px;border-radius:14px;margin-top:16px;cursor:pointer;box-shadow:0 8px 20px rgba(108,92,231,.28);transition:.15s}
+    .btn-primary:active{transform:scale(.98)}
+    .btn-ghost{width:100%;border:1.5px dashed #d6d2ee;background:#faf9ff;color:#6C5CE7;font-size:14px;font-weight:600;padding:13px;border-radius:14px;margin-top:10px;cursor:pointer;transition:.15s}
+    .btn-ghost:active{transform:scale(.98)}
+    .btn-ghost.danger{color:#e03131;border-color:#ffd6d6;background:#fff5f5}
+    .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(10px);background:rgba(28,28,40,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:.25s;z-index:500;white-space:nowrap;max-width:90vw}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ============ 注册 ============ */
-.reg-wrap{padding:46px 20px 40px}
-.reg-logo{font-size:58px;text-align:center;line-height:1;filter:drop-shadow(0 8px 16px rgba(108,92,231,.3))}
-.reg-title{text-align:center;font-size:28px;font-weight:800;margin:12px 0 6px;letter-spacing:3px}
-.reg-sub{text-align:center;color:#8a8aa0;font-size:13px;margin-bottom:26px}
-.reg-card{background:#fff;border-radius:22px;padding:22px 18px;box-shadow:0 10px 34px rgba(30,30,60,.08)}
-.reg-card label{display:block;font-size:12px;color:#8a8aa0;margin:14px 0 6px;font-weight:600;letter-spacing:.5px}
-.reg-card label:first-child{margin-top:0}
-.reg-card input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:13px 14px;font-size:15px;outline:none;transition:.2s;color:#1c1c28}
-.reg-card input:focus{border-color:#6C5CE7;background:#fff}
-.fine{font-size:11px;color:#a8a8bc;text-align:center;line-height:1.7;margin:16px 0 0}
+    /* ============ 注册 ============ */
+    .reg-wrap{padding:46px 20px 40px}
+    .reg-logo{font-size:58px;text-align:center;line-height:1;filter:drop-shadow(0 8px 16px rgba(108,92,231,.3))}
+    .reg-title{text-align:center;font-size:28px;font-weight:800;margin:12px 0 6px;letter-spacing:3px}
+    .reg-sub{text-align:center;color:#8a8aa0;font-size:13px;margin-bottom:26px}
+    .reg-card{background:#fff;border-radius:22px;padding:22px 18px;box-shadow:0 10px 34px rgba(30,30,60,.08)}
+    .reg-card label{display:block;font-size:12px;color:#8a8aa0;margin:14px 0 6px;font-weight:600;letter-spacing:.5px}
+    .reg-card label:first-child{margin-top:0}
+    .reg-card input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:13px 14px;font-size:15px;outline:none;transition:.2s;color:#1c1c28}
+    .reg-card input:focus{border-color:#6C5CE7;background:#fff}
+    .fine{font-size:11px;color:#a8a8bc;text-align:center;line-height:1.7;margin:16px 0 0}
 
-/* ============ 顶部栏 ============ */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
-.hi{font-size:20px;font-weight:800;letter-spacing:.5px}
-.hi-sub{font-size:12px;color:#8a8aa0;margin-top:4px}
-.logo-mini{font-size:28px;line-height:1}
+    /* ============ 顶部栏 ============ */
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
+    .hi{font-size:20px;font-weight:800;letter-spacing:.5px}
+    .hi-sub{font-size:12px;color:#8a8aa0;margin-top:4px}
+    .logo-mini{font-size:28px;line-height:1}
 
-/* ============ 进展页 ============ */
-.hero-card{background:linear-gradient(150deg,#6C5CE7,#8B7BF0 60%,#9F8CF5);border-radius:22px;padding:22px 20px 18px;color:#fff;box-shadow:0 14px 32px rgba(108,92,231,.32);position:relative;overflow:hidden}
-.hero-card::after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.09);right:-70px;top:-80px}
-.hero-row{display:flex;align-items:baseline;gap:10px;position:relative;z-index:1}
-.hero-num{font-size:56px;font-weight:800;line-height:1;letter-spacing:-2.5px;font-variant-numeric:tabular-nums}
-.hero-goal{font-size:14px;font-weight:600;color:rgba(255,255,255,.75);line-height:1.3}
-.hero-goal span{display:block;font-size:11px;font-weight:400;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:1px}
-.hero-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.22);margin:16px 0 14px;overflow:hidden}
-.hero-bar i{display:block;height:100%;border-radius:6px;background:#fff;transition:width .5s ease}
-.hero-meta{display:flex;justify-content:space-between;position:relative;z-index:1}
-.hero-meta>div{display:flex;flex-direction:column;gap:3px}
-.hero-meta b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
-.hero-meta span{font-size:10.5px;color:rgba(255,255,255,.62)}
+    /* ============ 进展页 ============ */
+    .hero-card{background:linear-gradient(150deg,#6C5CE7,#8B7BF0 60%,#9F8CF5);border-radius:22px;padding:22px 20px 18px;color:#fff;box-shadow:0 14px 32px rgba(108,92,231,.32);position:relative;overflow:hidden}
+    .hero-card::after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.09);right:-70px;top:-80px}
+    .hero-row{display:flex;align-items:baseline;gap:10px;position:relative;z-index:1}
+    .hero-num{font-size:56px;font-weight:800;line-height:1;letter-spacing:-2.5px;font-variant-numeric:tabular-nums}
+    .hero-goal{font-size:14px;font-weight:600;color:rgba(255,255,255,.75);line-height:1.3}
+    .hero-goal span{display:block;font-size:11px;font-weight:400;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:1px}
+    .hero-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.22);margin:16px 0 14px;overflow:hidden}
+    .hero-bar i{display:block;height:100%;border-radius:6px;background:#fff;transition:width .5s ease}
+    .hero-meta{display:flex;justify-content:space-between;position:relative;z-index:1}
+    .hero-meta>div{display:flex;flex-direction:column;gap:3px}
+    .hero-meta b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+    .hero-meta span{font-size:10.5px;color:rgba(255,255,255,.62)}
 
-.tip-banner{margin-top:14px;border:1.5px solid #b6e8d2;background:#effcf6;border-radius:16px;padding:14px 16px}
-.tip-banner>div{font-size:13.5px;font-weight:600;color:#0e7a56;line-height:1.5}
-.tip-banner button{margin-top:10px;width:100%;border:none;border-radius:11px;background:linear-gradient(135deg,#22c98d,#12b886);color:#fff;font-size:13.5px;font-weight:700;padding:11px;cursor:pointer;box-shadow:0 6px 16px rgba(18,184,134,.28)}
-.tip-banner button:active{transform:scale(.98)}
+    .tip-banner{margin-top:14px;border:1.5px solid #b6e8d2;background:#effcf6;border-radius:16px;padding:14px 16px}
+    .tip-banner>div{font-size:13.5px;font-weight:600;color:#0e7a56;line-height:1.5}
+    .tip-banner button{margin-top:10px;width:100%;border:none;border-radius:11px;background:linear-gradient(135deg,#22c98d,#12b886);color:#fff;font-size:13.5px;font-weight:700;padding:11px;cursor:pointer;box-shadow:0 6px 16px rgba(18,184,134,.28)}
+    .tip-banner button:active{transform:scale(.98)}
 
-.best-row{display:flex;gap:10px}
-.best-box{flex:1;background:#f7f7fd;border-radius:14px;padding:14px 6px;text-align:center}
-.best-box .bv{font-size:17px;font-weight:800;color:#3b3b58;font-variant-numeric:tabular-nums}
-.best-box .bl{font-size:10.5px;color:#9a9ab0;margin-top:6px}
+    .best-row{display:flex;gap:10px}
+    .best-box{flex:1;background:#f7f7fd;border-radius:14px;padding:14px 6px;text-align:center}
+    .best-box .bv{font-size:17px;font-weight:800;color:#3b3b58;font-variant-numeric:tabular-nums}
+    .best-box .bl{font-size:10.5px;color:#9a9ab0;margin-top:6px}
 
-.ad-banner{margin-top:14px;border-radius:18px;padding:18px 18px;background:linear-gradient(115deg,#ff7a59,#ff9f43 55%,#ffd166);color:#fff;box-shadow:0 12px 28px rgba(255,122,89,.32);cursor:pointer;position:relative;overflow:hidden}
-.ad-banner::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.16);right:-50px;bottom:-70px}
-.ad-main{font-size:19px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 6px rgba(180,60,0,.2)}
-.ad-sub{font-size:12px;margin-top:7px;opacity:.92;font-weight:600}
+    .ad-banner{margin-top:14px;border-radius:18px;padding:18px 18px;background:linear-gradient(115deg,#ff7a59,#ff9f43 55%,#ffd166);color:#fff;box-shadow:0 12px 28px rgba(255,122,89,.32);cursor:pointer;position:relative;overflow:hidden}
+    .ad-banner::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.16);right:-50px;bottom:-70px}
+    .ad-main{font-size:19px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 6px rgba(180,60,0,.2)}
+    .ad-sub{font-size:12px;margin-top:7px;opacity:.92;font-weight:600}
 
-.rec-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #f2f2f8}
-.rec-row:last-child{border-bottom:none}
-.rec-icon{width:36px;height:36px;border-radius:12px;background:#f4f2ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
-.rec-main{flex:1;min-width:0}
-.rec-date{font-size:12.5px;font-weight:600;color:#3b3b58}
-.rec-loc{font-size:11px;color:#9a9ab0;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rec-val{font-size:14px;font-weight:800;color:#3b3b58;font-variant-numeric:tabular-nums;text-align:right}
-.rec-val.bad{color:#f03e3e}
-.rec-val.warn{color:#f59f00}
-.rec-tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;vertical-align:middle}
-.rec-tag.bad{background:#ffe3e3;color:#f03e3e}
-.rec-tag.warn{background:#fff4e0;color:#e8890c}
-.foot-note{text-align:center;font-size:10.5px;color:#b0b0c4;padding:22px 0 10px;letter-spacing:.5px}
+    .rec-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #f2f2f8}
+    .rec-row:last-child{border-bottom:none}
+    .rec-icon{width:36px;height:36px;border-radius:12px;background:#f4f2ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+    .rec-main{flex:1;min-width:0}
+    .rec-date{font-size:12.5px;font-weight:600;color:#3b3b58}
+    .rec-loc{font-size:11px;color:#9a9ab0;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rec-val{font-size:14px;font-weight:800;color:#3b3b58;font-variant-numeric:tabular-nums;text-align:right}
+    .rec-val.bad{color:#f03e3e}
+    .rec-val.warn{color:#f59f00}
+    .rec-tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;vertical-align:middle}
+    .rec-tag.bad{background:#ffe3e3;color:#f03e3e}
+    .rec-tag.warn{background:#fff4e0;color:#e8890c}
+    .foot-note{text-align:center;font-size:10.5px;color:#b0b0c4;padding:22px 0 10px;letter-spacing:.5px}
 
-/* ============ 睡觉页 ============ */
-.loc-bar{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 6px 20px rgba(30,30,60,.05);display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:1.5px solid transparent;transition:.2s}
-.loc-bar:active{transform:scale(.99);border-color:#ded9f8}
-.loc-text{font-size:13.5px;font-weight:600;color:#3b3b58;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.loc-edit{font-size:11px;color:#6C5CE7;background:#f2efff;padding:3px 9px;border-radius:8px;font-weight:700}
-.loc-quick{width:100%;margin-top:10px;border:1.5px dashed #d6d2ee;background:#faf9ff;color:#6C5CE7;font-size:13px;font-weight:700;padding:12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
-.loc-quick:active{transform:scale(.99)}
-.loc-quick:disabled{opacity:.55;cursor:not-allowed;background:#f3f3f8;color:#a8a8bc;border-color:#e6e6f0}
-.dial-wrap{display:flex;justify-content:center;align-items:center;padding:46px 0 30px}
-.dial{width:246px;height:246px;border-radius:50%;background:linear-gradient(150deg,#8B7BF0,#6C5CE7 45%,#5142C9);display:flex;align-items:center;justify-content:center;box-shadow:0 22px 48px rgba(108,92,231,.38),inset 0 -8px 24px rgba(0,0,0,.12);cursor:pointer;transition:.25s;position:relative;user-select:none}
-.dial:active{transform:scale(.97)}
-.dial.sleeping{background:linear-gradient(150deg,#2E4BA8,#1B2A6B 55%,#101B4A);box-shadow:0 22px 48px rgba(27,42,107,.45),inset 0 -8px 24px rgba(0,0,0,.25)}
-.dial.sleeping::before{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(46,75,168,.28);animation:pulseRing 2.4s ease-out infinite}
-@keyframes pulseRing{0%{transform:scale(.96);opacity:.9}100%{transform:scale(1.16);opacity:0}}
-.dial-inner{text-align:center;color:#fff;position:relative;z-index:1;padding:0 14px}
-.dial-timer{font-size:36px;font-weight:800;letter-spacing:1px;font-variant-numeric:tabular-nums;line-height:1;transition:color .3s}
-.dial-timer.over{color:#ff6b6b;animation:blink 1.2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
-.dial-label{font-size:24px;font-weight:900;letter-spacing:3px;margin-top:12px}
-.dial-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:8px;letter-spacing:1px}
-.dial-tip{text-align:center;font-size:11.5px;color:#a0a0b6;line-height:1.7;padding:0 30px;min-height:32px}
-.hint-line{font-size:12.5px;color:#7a7a92;line-height:2}
+    /* ============ 睡觉页 ============ */
+    .loc-bar{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 6px 20px rgba(30,30,60,.05);display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:1.5px solid transparent;transition:.2s}
+    .loc-bar:active{transform:scale(.99);border-color:#ded9f8}
+    .loc-text{font-size:13.5px;font-weight:600;color:#3b3b58;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .loc-edit{font-size:11px;color:#6C5CE7;background:#f2efff;padding:3px 9px;border-radius:8px;font-weight:700}
+    .loc-quick{width:100%;margin-top:10px;border:1.5px dashed #d6d2ee;background:#faf9ff;color:#6C5CE7;font-size:13px;font-weight:700;padding:12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s}
+    .loc-quick:active{transform:scale(.99)}
+    .loc-quick:disabled{opacity:.55;cursor:not-allowed;background:#f3f3f8;color:#a8a8bc;border-color:#e6e6f0}
+    .dial-wrap{display:flex;justify-content:center;align-items:center;padding:46px 0 30px}
+    .dial{width:246px;height:246px;border-radius:50%;background:linear-gradient(150deg,#8B7BF0,#6C5CE7 45%,#5142C9);display:flex;align-items:center;justify-content:center;box-shadow:0 22px 48px rgba(108,92,231,.38),inset 0 -8px 24px rgba(0,0,0,.12);cursor:pointer;transition:.25s;position:relative;user-select:none}
+    .dial:active{transform:scale(.97)}
+    .dial.sleeping{background:linear-gradient(150deg,#2E4BA8,#1B2A6B 55%,#101B4A);box-shadow:0 22px 48px rgba(27,42,107,.45),inset 0 -8px 24px rgba(0,0,0,.25)}
+    .dial.sleeping::before{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(46,75,168,.28);animation:pulseRing 2.4s ease-out infinite}
+    @keyframes pulseRing{0%{transform:scale(.96);opacity:.9}100%{transform:scale(1.16);opacity:0}}
+    .dial-inner{text-align:center;color:#fff;position:relative;z-index:1;padding:0 14px}
+    .dial-timer{font-size:36px;font-weight:800;letter-spacing:1px;font-variant-numeric:tabular-nums;line-height:1;transition:color .3s}
+    .dial-timer.over{color:#ff6b6b;animation:blink 1.2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+    .dial-label{font-size:24px;font-weight:900;letter-spacing:3px;margin-top:12px}
+    .dial-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:8px;letter-spacing:1px}
+    .dial-tip{text-align:center;font-size:11.5px;color:#a0a0b6;line-height:1.7;padding:0 30px;min-height:32px}
+    .hint-line{font-size:12.5px;color:#7a7a92;line-height:2}
 
-/* ============ 广场页 ============ */
-.sq-tabs{display:flex;background:#fff;border-radius:14px;padding:5px;box-shadow:0 6px 20px rgba(30,30,60,.05);margin-bottom:14px}
-.sq-tab{flex:1;text-align:center;font-size:12.5px;font-weight:700;color:#8a8aa0;padding:10px 4px;border-radius:10px;cursor:pointer;transition:.2s}
-.sq-tab.on{background:linear-gradient(135deg,#7C6CF0,#5B4BD6);color:#fff;box-shadow:0 6px 14px rgba(108,92,231,.3)}
-.board-list{background:#fff;border-radius:18px;padding:6px 14px;box-shadow:0 6px 20px rgba(30,30,60,.05)}
-.rank-row{display:flex;align-items:center;gap:11px;padding:12px 2px;border-bottom:1px solid #f4f4fa}
-.rank-row:last-child{border-bottom:none}
-.rank-row.me{background:linear-gradient(90deg,#f6f3ff,#fbfaff);border-radius:12px;padding-left:8px;padding-right:8px;margin:4px -6px;border-bottom:none}
-.rank-no{width:26px;text-align:center;font-size:13px;font-weight:800;color:#b6b6cc;flex:none}
-.rank-row:nth-child(1) .rank-no,.rank-row:nth-child(2) .rank-no,.rank-row:nth-child(3) .rank-no{font-size:18px}
-.rank-av{width:34px;height:34px;border-radius:50%;background:#f4f2ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
-.rank-name{flex:1;font-size:13.5px;font-weight:600;color:#3b3b58;display:flex;align-items:center;gap:6px;min-width:0}
-.rank-name span.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.me-tag{background:#6C5CE7;color:#fff;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;flex:none}
-.rank-val{font-size:14px;font-weight:800;color:#3b3b58;font-variant-numeric:tabular-nums;white-space:nowrap}
-.rank-val.warn{color:#f03e3e}
-.swap-btn{width:100%;margin-top:16px;border:none;background:#fff;border-radius:14px;padding:14px;font-size:13.5px;font-weight:700;color:#6C5CE7;cursor:pointer;box-shadow:0 6px 20px rgba(30,30,60,.05)}
-.swap-btn:active{transform:scale(.99)}
+    /* ============ 广场页 ============ */
+    .sq-tabs{display:flex;background:#fff;border-radius:14px;padding:5px;box-shadow:0 6px 20px rgba(30,30,60,.05);margin-bottom:14px}
+    .sq-tab{flex:1;text-align:center;font-size:12.5px;font-weight:700;color:#8a8aa0;padding:10px 4px;border-radius:10px;cursor:pointer;transition:.2s}
+    .sq-tab.on{background:linear-gradient(135deg,#7C6CF0,#5B4BD6);color:#fff;box-shadow:0 6px 14px rgba(108,92,231,.3)}
+    .board-list{background:#fff;border-radius:18px;padding:6px 14px;box-shadow:0 6px 20px rgba(30,30,60,.05)}
+    .rank-row{display:flex;align-items:center;gap:11px;padding:12px 2px;border-bottom:1px solid #f4f4fa}
+    .rank-row:last-child{border-bottom:none}
+    .rank-row.me{background:linear-gradient(90deg,#f6f3ff,#fbfaff);border-radius:12px;padding-left:8px;padding-right:8px;margin:4px -6px;border-bottom:none}
+    .rank-no{width:26px;text-align:center;font-size:13px;font-weight:800;color:#b6b6cc;flex:none}
+    .rank-row:nth-child(1) .rank-no,.rank-row:nth-child(2) .rank-no,.rank-row:nth-child(3) .rank-no{font-size:18px}
+    .rank-av{width:34px;height:34px;border-radius:50%;background:#f4f2ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+    .rank-name{flex:1;font-size:13.5px;font-weight:600;color:#3b3b58;display:flex;align-items:center;gap:6px;min-width:0}
+    .rank-name span.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .me-tag{background:#6C5CE7;color:#fff;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;flex:none}
+    .rank-val{font-size:14px;font-weight:800;color:#3b3b58;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .rank-val.warn{color:#f03e3e}
+    .swap-btn{width:100%;margin-top:16px;border:none;background:#fff;border-radius:14px;padding:14px;font-size:13.5px;font-weight:700;color:#6C5CE7;cursor:pointer;box-shadow:0 6px 20px rgba(30,30,60,.05)}
+    .swap-btn:active{transform:scale(.99)}
 
-/* ============ 我的页 ============ */
-.profile-card{background:linear-gradient(140deg,#fff,#f8f6ff);border-radius:20px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 6px 20px rgba(30,30,60,.05)}
-.avatar{width:56px;height:56px;border-radius:18px;background:linear-gradient(140deg,#8B7BF0,#5B4BD6);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none;box-shadow:0 8px 18px rgba(108,92,231,.3)}
-.pf-name{font-size:17px;font-weight:800;letter-spacing:.5px}
-.pf-sub{font-size:11.5px;color:#8a8aa0;margin-top:5px;line-height:1.5}
-.pf-edit{margin-left:auto;font-size:11px;font-weight:700;color:#6C5CE7;background:#f2efff;padding:8px 12px;border-radius:10px;cursor:pointer;flex:none}
-.ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.ach{background:#f7f7fd;border-radius:14px;padding:10px 4px 8px;text-align:center;position:relative;opacity:.42;filter:grayscale(1);transition:.25s;cursor:pointer}
-.ach.on{opacity:1;filter:none;background:linear-gradient(160deg,#f2efff,#fff);box-shadow:0 4px 12px rgba(108,92,231,.12)}
-.ach-icon{font-size:22px;line-height:1.2}
-.ach-name{font-size:9.5px;font-weight:700;color:#5a5a72;margin-top:5px;line-height:1.25;letter-spacing:-.2px}
-.ach-lock{position:absolute;top:4px;right:5px;font-size:9px}
-.dev-entry{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:#b0b0c4;font-weight:700;cursor:pointer;letter-spacing:1px}
-.dev-entry span{font-size:11px;color:#c8c8da;font-weight:600}
-.dev-body{margin-top:14px;padding-top:14px;border-top:1px dashed #ececf6}
-.dev-body label{display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px}
-.dev-body label:first-child{margin-top:0}
-.dev-body input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none;color:#1c1c28}
-.dev-body input:focus{border-color:#6C5CE7;background:#fff}
-.disclaimer{font-size:10px;color:#b8b8ca;line-height:1.9;padding:22px 6px 10px;text-align:center}
+    /* ============ 我的页 ============ */
+    .profile-card{background:linear-gradient(140deg,#fff,#f8f6ff);border-radius:20px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 6px 20px rgba(30,30,60,.05)}
+    .avatar{width:56px;height:56px;border-radius:18px;background:linear-gradient(140deg,#8B7BF0,#5B4BD6);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none;box-shadow:0 8px 18px rgba(108,92,231,.3)}
+    .pf-name{font-size:17px;font-weight:800;letter-spacing:.5px}
+    .pf-sub{font-size:11.5px;color:#8a8aa0;margin-top:5px;line-height:1.5}
+    .pf-edit{margin-left:auto;font-size:11px;font-weight:700;color:#6C5CE7;background:#f2efff;padding:8px 12px;border-radius:10px;cursor:pointer;flex:none}
+    .ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .ach{background:#f7f7fd;border-radius:14px;padding:10px 4px 8px;text-align:center;position:relative;opacity:.42;filter:grayscale(1);transition:.25s;cursor:pointer}
+    .ach.on{opacity:1;filter:none;background:linear-gradient(160deg,#f2efff,#fff);box-shadow:0 4px 12px rgba(108,92,231,.12)}
+    .ach-icon{font-size:22px;line-height:1.2}
+    .ach-name{font-size:9.5px;font-weight:700;color:#5a5a72;margin-top:5px;line-height:1.25;letter-spacing:-.2px}
+    .ach-lock{position:absolute;top:4px;right:5px;font-size:9px}
+    .dev-entry{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:#b0b0c4;font-weight:700;cursor:pointer;letter-spacing:1px}
+    .dev-entry span{font-size:11px;color:#c8c8da;font-weight:600}
+    .dev-body{margin-top:14px;padding-top:14px;border-top:1px dashed #ececf6}
+    .dev-body label{display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px}
+    .dev-body label:first-child{margin-top:0}
+    .dev-body input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none;color:#1c1c28}
+    .dev-body input:focus{border-color:#6C5CE7;background:#fff}
+    .disclaimer{font-size:10px;color:#b8b8ca;line-height:1.9;padding:22px 6px 10px;text-align:center}
 
-/* ============ 弹窗 ============ */
-.modal-mask{position:fixed;inset:0;background:rgba(15,15,35,.52);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:200;animation:fadeIn .2s}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal-card{background:#fff;border-radius:22px;width:100%;max-width:370px;max-height:84vh;overflow-y:auto;padding:22px;animation:pop .26s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-head{font-size:16px;font-weight:800;margin-bottom:6px;letter-spacing:.5px}
-.modal-sub{font-size:12px;color:#9a9ab0;line-height:1.6;margin-bottom:14px}
-.loc-item{display:flex;align-items:center;gap:11px;padding:12px;border-radius:14px;background:#f8f8fd;margin-bottom:9px;cursor:pointer;border:1.5px solid transparent;transition:.15s}
-.loc-item.on{border-color:#6C5CE7;background:#f4f1ff}
-.loc-item:active{transform:scale(.99)}
-.li-icon{font-size:19px;width:26px;text-align:center;flex:none}
-.li-main{flex:1;min-width:0}
-.li-name{font-size:13.5px;font-weight:700;color:#3b3b58;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.li-sub{font-size:10.5px;color:#a8a8bc;margin-top:3px}
-.li-check{font-size:14px;color:#6C5CE7;font-weight:800;opacity:0}
-.loc-item.on .li-check{opacity:1}
-.divider{font-size:11.5px;color:#a8a8bc;font-weight:700;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
-.divider::after{content:"";flex:1;height:1px;background:#f0f0f8}
-.type-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-.chip{font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:11px;background:#f6f6fc;color:#7a7a92;cursor:pointer;border:1.5px solid transparent;transition:.15s}
-.chip.on{background:#f2efff;color:#6C5CE7;border-color:#c9c0f8}
-.gps-status{font-size:11.5px;color:#8a8aa0;line-height:1.6;margin-top:8px;min-height:16px}
+    /* ============ 弹窗 ============ */
+    .modal-mask{position:fixed;inset:0;background:rgba(15,15,35,.52);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:200;animation:fadeIn .2s}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-card{background:#fff;border-radius:22px;width:100%;max-width:370px;max-height:84vh;overflow-y:auto;padding:22px;animation:pop .26s cubic-bezier(.2,.9,.3,1.2)}
+    @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+    .modal-head{font-size:16px;font-weight:800;margin-bottom:6px;letter-spacing:.5px}
+    .modal-sub{font-size:12px;color:#9a9ab0;line-height:1.6;margin-bottom:14px}
+    .loc-item{display:flex;align-items:center;gap:11px;padding:12px;border-radius:14px;background:#f8f8fd;margin-bottom:9px;cursor:pointer;border:1.5px solid transparent;transition:.15s}
+    .loc-item.on{border-color:#6C5CE7;background:#f4f1ff}
+    .loc-item:active{transform:scale(.99)}
+    .li-icon{font-size:19px;width:26px;text-align:center;flex:none}
+    .li-main{flex:1;min-width:0}
+    .li-name{font-size:13.5px;font-weight:700;color:#3b3b58;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .li-sub{font-size:10.5px;color:#a8a8bc;margin-top:3px}
+    .li-check{font-size:14px;color:#6C5CE7;font-weight:800;opacity:0}
+    .loc-item.on .li-check{opacity:1}
+    .divider{font-size:11.5px;color:#a8a8bc;font-weight:700;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+    .divider::after{content:"";flex:1;height:1px;background:#f0f0f8}
+    .type-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+    .chip{font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:11px;background:#f6f6fc;color:#7a7a92;cursor:pointer;border:1.5px solid transparent;transition:.15s}
+    .chip.on{background:#f2efff;color:#6C5CE7;border-color:#c9c0f8}
+    .gps-status{font-size:11.5px;color:#8a8aa0;line-height:1.6;margin-top:8px;min-height:16px}
 
-/* 战报海报 */
-.poster{background:linear-gradient(160deg,#1B2A6B,#2E4BA8 55%,#6C5CE7);border-radius:18px;padding:24px 20px;color:#fff;text-align:center;position:relative;overflow:hidden}
-.poster::after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08);right:-60px;top:-70px}
-.poster-title{font-size:12px;letter-spacing:4px;color:rgba(255,255,255,.7);font-weight:700}
-.poster-num{font-size:48px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin:14px 0 4px;font-variant-numeric:tabular-nums;position:relative;z-index:1}
-.poster-num small{font-size:16px;font-weight:700;opacity:.7;margin-left:4px}
-.poster-date{font-size:11px;color:rgba(255,255,255,.62);letter-spacing:.5px}
-.poster-loc{font-size:12px;color:rgba(255,255,255,.82);margin-top:12px}
-.poster-line{height:1px;background:rgba(255,255,255,.16);margin:16px 0}
-.poster-award{font-size:13px;line-height:1.8;color:rgba(255,255,255,.94);position:relative;z-index:1}
-.poster-award b{font-size:15px;color:#ffd166}
-.poster-foot{font-size:9.5px;color:rgba(255,255,255,.45);margin-top:16px;letter-spacing:1px}
-.screenshot-tip{font-size:11.5px;color:#f59f00;background:#fff8e6;border-radius:11px;padding:10px 12px;text-align:center;margin-top:14px;font-weight:600;line-height:1.6}
-.ad-emoji{font-size:52px;text-align:center;line-height:1}
-.ad-modal h3{text-align:center;font-size:19px;margin:12px 0 8px;letter-spacing:1px}
-.ad-modal p{text-align:center;font-size:13px;color:#6a6a82;line-height:1.8;margin:0}
-.ad-modal p.small{font-size:11px;color:#b0b0c4;margin-top:10px}
+    /* 战报海报 */
+    .poster{background:linear-gradient(160deg,#1B2A6B,#2E4BA8 55%,#6C5CE7);border-radius:18px;padding:24px 20px;color:#fff;text-align:center;position:relative;overflow:hidden}
+    .poster::after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08);right:-60px;top:-70px}
+    .poster-title{font-size:12px;letter-spacing:4px;color:rgba(255,255,255,.7);font-weight:700}
+    .poster-num{font-size:48px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin:14px 0 4px;font-variant-numeric:tabular-nums;position:relative;z-index:1}
+    .poster-num small{font-size:16px;font-weight:700;opacity:.7;margin-left:4px}
+    .poster-date{font-size:11px;color:rgba(255,255,255,.62);letter-spacing:.5px}
+    .poster-loc{font-size:12px;color:rgba(255,255,255,.82);margin-top:12px}
+    .poster-line{height:1px;background:rgba(255,255,255,.16);margin:16px 0}
+    .poster-award{font-size:13px;line-height:1.8;color:rgba(255,255,255,.94);position:relative;z-index:1}
+    .poster-award b{font-size:15px;color:#ffd166}
+    .poster-foot{font-size:9.5px;color:rgba(255,255,255,.45);margin-top:16px;letter-spacing:1px}
+    .screenshot-tip{font-size:11.5px;color:#f59f00;background:#fff8e6;border-radius:11px;padding:10px 12px;text-align:center;margin-top:14px;font-weight:600;line-height:1.6}
+    .ad-emoji{font-size:52px;text-align:center;line-height:1}
+    .ad-modal h3{text-align:center;font-size:19px;margin:12px 0 8px;letter-spacing:1px}
+    .ad-modal p{text-align:center;font-size:13px;color:#6a6a82;line-height:1.8;margin:0}
+    .ad-modal p.small{font-size:11px;color:#b0b0c4;margin-top:10px}
 
-/* ============ 底部 Tab ============ */
-.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:64px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid #ececf6;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:#a8a8bc;transition:.2s}
-.tab-item span{font-size:20px;line-height:1;filter:grayscale(.6);transition:.2s}
-.tab-item b{font-size:10px;font-weight:700;letter-spacing:.5px}
-.tab-item.on{color:#6C5CE7}
-.tab-item.on span{filter:none;transform:translateY(-1px) scale(1.08)}
-.li-main{cursor:pointer}
-.li-op{width:30px;height:30px;border-radius:10px;border:none;background:#eef0ff;color:#5B4BD6;font-size:13px;cursor:pointer;flex:none;padding:0;display:flex;align-items:center;justify-content:center;line-height:1}
-.li-op.danger{background:#fff0f0;color:#e03131}
-.li-op:active{transform:scale(.93)}
-.coord-row{display:flex;gap:9px}
-.coord-row>div{flex:1;min-width:0}
-.coord-row label{display:block;font-size:11px;color:#8a8aa0;font-weight:600;margin:0 0 6px}
-.coord-row input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 12px;font-size:13.5px;outline:none;color:#1c1c28}
-.coord-row input:focus{border-color:#6C5CE7;background:#fff}
-.nearby-tip{font-size:12.5px;color:#0e7a56;background:#effcf6;border:1.5px solid #b6e8d2;border-radius:12px;padding:10px 12px;margin-top:10px;line-height:1.6}
-</style>
-</head>
-<body>
-<div id="app">
+    /* ============ 底部 Tab ============ */
+    .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:64px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid #ececf6;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+    .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:#a8a8bc;transition:.2s}
+    .tab-item span{font-size:20px;line-height:1;filter:grayscale(.6);transition:.2s}
+    .tab-item b{font-size:10px;font-weight:700;letter-spacing:.5px}
+    .tab-item.on{color:#6C5CE7}
+    .tab-item.on span{filter:none;transform:translateY(-1px) scale(1.08)}
+    .li-main{cursor:pointer}
+    .li-op{width:30px;height:30px;border-radius:10px;border:none;background:#eef0ff;color:#5B4BD6;font-size:13px;cursor:pointer;flex:none;padding:0;display:flex;align-items:center;justify-content:center;line-height:1}
+    .li-op.danger{background:#fff0f0;color:#e03131}
+    .li-op:active{transform:scale(.93)}
+    .coord-row{display:flex;gap:9px}
+    .coord-row>div{flex:1;min-width:0}
+    .coord-row label{display:block;font-size:11px;color:#8a8aa0;font-weight:600;margin:0 0 6px}
+    .coord-row input{width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 12px;font-size:13.5px;outline:none;color:#1c1c28}
+    .coord-row input:focus{border-color:#6C5CE7;background:#fff}
+    .nearby-tip{font-size:12.5px;color:#0e7a56;background:#effcf6;border:1.5px solid #b6e8d2;border-radius:12px;padding:10px 12px;margin-top:10px;line-height:1.6}
+    </style>
+    </head>
+    <body>
+    <div id="app">
 
-  <!-- ================= 注册页 ================= -->
-  <div id="registerScreen" class="screen">
-    <div class="reg-wrap">
-      <div class="reg-logo">😴</div>
-      <div class="reg-title">校园睡</div>
-      <div class="reg-sub">用校园跑的方式，认真睡觉</div>
-      <div class="reg-card">
-        <label>学校</label>
-        <input id="regSchool" placeholder="例：霍格沃茨魔法学院" autocomplete="off">
-        <label>学院</label>
-        <input id="regCollege" placeholder="例：睡觉系" autocomplete="off">
-        <label>学号</label>
-        <input id="regId" placeholder="例：000000" autocomplete="off">
-        <label>昵称</label>
-        <input id="regNick" placeholder="例：匿名睡友" autocomplete="off">
-        <button id="presetBtn" class="btn-ghost" onclick="fillPreset()">✨ 填入预设信息</button>
-        <button class="btn-primary" onclick="doRegister()">进入校园睡</button>
-        <p class="fine">本产品纯属娱乐，不接入任何教务系统<br>昵称可匿名，不强制真实姓名</p>
-      </div>
+    <!-- ================= 注册页 ================= -->
+    <div id="registerScreen" class="screen">
+        <div class="reg-wrap">
+        <div class="reg-logo">😴</div>
+        <div class="reg-title">校园睡</div>
+        <div class="reg-sub">用校园跑的方式，认真睡觉</div>
+        <div class="reg-card">
+            <label>学校</label>
+            <input id="regSchool" placeholder="例：霍格沃茨魔法学院" autocomplete="off">
+            <label>学院</label>
+            <input id="regCollege" placeholder="例：睡觉系" autocomplete="off">
+            <label>学号</label>
+            <input id="regId" placeholder="例：000000" autocomplete="off">
+            <label>昵称</label>
+            <input id="regNick" placeholder="例：匿名睡友" autocomplete="off">
+            <button id="presetBtn" class="btn-ghost" onclick="fillPreset()">✨ 填入预设信息</button>
+            <button class="btn-primary" onclick="doRegister()">进入校园睡</button>
+            <p class="fine">本产品纯属娱乐，不接入任何教务系统<br>昵称可匿名，不强制真实姓名</p>
+        </div>
+        </div>
     </div>
-  </div>
 
-  <!-- ================= 主界面 ================= -->
-  <div id="mainScreen" class="screen hidden">
-    <div class="page" id="page-progress"></div>
-    <div class="page hidden" id="page-sleep"></div>
-    <div class="page hidden" id="page-square"></div>
-    <div class="page hidden" id="page-me"></div>
-
-    <nav class="tabbar">
-      <div class="tab-item" data-tab="progress" onclick="switchTab('progress')"><span>📊</span><b>进展</b></div>
-      <div class="tab-item" data-tab="sleep" onclick="switchTab('sleep')"><span>😴</span><b>睡觉</b></div>
-      <div class="tab-item" data-tab="square" onclick="switchTab('square')"><span>🏆</span><b>广场</b></div>
-      <div class="tab-item" data-tab="me" onclick="switchTab('me')"><span>👤</span><b>我的</b></div>
-    </nav>
-  </div>
-
-  <div id="modalRoot"></div>
-  <div id="toast" class="toast"></div>
-</div>
-
-<script>
-/* ==================================================================
-   校园睡 · 纯前端娱乐睡眠打卡
-   ================================================================== */
-
-var LS_KEY = 'campus_sleep_v1';
-
-var LOC_TYPES = {
-  '宿舍': '🛏',
-  '教学楼': '🏫',
-  '食堂': '🍜',
-  '图书馆': '📚',
-  '操场': '🏃',
-  '其他': '📍'
-};
-
-var PRESETS = [
-  { school:'霍格沃茨魔法学院', college:'睡觉系', studentId:'000000', nickname:'匿名睡友' },
-  { school:'加里敦大学',       college:'躺平与养生学院', studentId:'250250', nickname:'床垫守护者' },
-  { school:'早八逃生学院',     college:'赖床动力学系', studentId:'080808', nickname:'被窝封印师' },
-  { school:'深夜食堂大学',     college:'碳水快乐学院', studentId:'996699', nickname:'夜宵特派员' },
-  { school:'宇宙第一躺平学院', college:'午睡工程系',   studentId:'123456', nickname:'睡神本神' }
-];
-
-var V_NAMES = ['匿名睡友A','匿名睡友B','卷王克星','被窝战神','早八逃兵','图书馆钉子户','床帘隐士','梦话主播',
-  '闹钟绝缘体','凌晨四点半','保温杯泡枸杞','周末昏迷者','午睡特长生','枕头骑手','断电幸存者','棉被管理员',
-  '深夜泡面侠','赖床博士','闹钟粉碎机','清醒的少数人','枕头山大王','熬夜冠军','闭眼速度王','宿舍冥想师'];
-
-var V_AVATARS = ['🐷','🐻','🦊','🐼','🐨','🐯','🐸','🦉','🐙','🐧','🦄','🐳','🐰','🐹','🦥','🐢'];
-
-/* ---------------- 状态 ---------------- */
-var state = {
-  user: null,
-  settings: { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
-  sessions: [],
-  active: null,
-  locations: [],
-  currentLocId: null,
-  board: null,
-  boardTab: 'duration',
-  tab: 'progress',
-  presetIdx: 0,
-  showAllRecords: false
-};
-
-var devOpen = false;
-var pendingCoord = null;   // 正在编辑的坐标 {lat,lng} 或 null
-var pendingType  = '宿舍';
-var pendingName  = '';
-
-/* ---------------- 存取 ---------------- */
-function save() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
-}
-function load() {
-  try {
-    var raw = localStorage.getItem(LS_KEY);
-    if (!raw) return;
-    var d = JSON.parse(raw);
-    if (!d) return;
-    state.user       = d.user || null;
-    state.sessions   = d.sessions || [];
-    state.active     = d.active || null;
-    state.locations  = d.locations || [];
-    state.currentLocId = d.currentLocId || null;
-    state.board      = d.board || null;
-    state.boardTab   = d.boardTab || 'duration';
-    state.tab        = d.tab || 'progress';
-    state.presetIdx  = d.presetIdx || 0;
-    state.settings = Object.assign(
-      { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
-      d.settings || {}
-    );
-  } catch (e) {}
-}
-
-/* ---------------- 小工具 ---------------- */
-function $(s){ return document.querySelector(s); }
-function pad(n){ return n < 10 ? '0' + n : '' + n; }
-function esc(s){
-  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-  });
-}
-function toast(msg){
-  var t = $('#toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._tm);
-  t._tm = setTimeout(function(){ t.classList.remove('show'); }, 1900);
-}
-function dateKey(ts){
-  var d = new Date(ts);
-  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
-}
-function parseKey(k){
-  var p = k.split('-');
-  return new Date(+p[0], +p[1]-1, +p[2]).getTime();
-}
-function fmtHMS(ms){
-  var t = Math.max(0, Math.floor(ms / 1000));
-  var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
-  return pad(h) + ':' + pad(m) + ':' + pad(s);
-}
-function fmtDur(ms){
-  var m = Math.round(ms / 60000);
-  var h = Math.floor(m / 60), mm = m % 60;
-  return (h > 0 ? h + 'h ' : '') + mm + 'm';
-}
-function fmtDateTime(ts){
-  var d = new Date(ts);
-  return pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-function startOfWeek(ts){
-  var d = new Date(ts);
-  var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  var day = (x.getDay() + 6) % 7;
-  x.setDate(x.getDate() - day);
-  return x.getTime();
-}
-/* 入睡时刻映射：把 0:00-11:59 视作次日，方便比较"早晚" */
-function bedMinOf(ts){
-  var d = new Date(ts);
-  var m = d.getHours() * 60 + d.getMinutes();
-  if (m < 720) m += 1440;
-  return m;
-}
-function wakeMinOf(ts){
-  var d = new Date(ts);
-  var m = d.getHours() * 60 + d.getMinutes();
-  if (m < 720) m += 1440;
-  return m;
-}
-function minToHM(m){
-  if (m == null || m === 9999) return '--';
-  m = m % 1440;
-  return pad(Math.floor(m / 60)) + ':' + pad(m % 60);
-}
-
-/* ---------------- 单条记录计算 ---------------- */
-function calcSession(s){
-  var ms = Math.max(0, s.end - s.start);
-  var hrs = ms / 3600000;
-  var tooLong  = hrs > (+state.settings.maxSleep || 12);
-  var tooShort = ms < (+state.settings.minSleep || 15) * 60000;
-  return { ms: ms, hours: hrs, tooLong: tooLong, tooShort: tooShort, counted: !tooLong && !tooShort };
-}
-
-/* ---------------- 连续天数 ---------------- */
-function streakInfo(){
-  var daysSet = {};
-  state.sessions.forEach(function(s){
-    if (s.end) daysSet[dateKey(s.start)] = 1;
-  });
-  var days = Object.keys(daysSet).sort();
-  if (!days.length) return { current: 0, max: 0 };
-
-  var max = 1, run = 1;
-  for (var i = 1; i < days.length; i++) {
-    if (parseKey(days[i]) - parseKey(days[i-1]) === 86400000) { run++; if (run > max) max = run; }
-    else run = 1;
-  }
-
-  var today = dateKey(Date.now());
-  var yest  = dateKey(Date.now() - 86400000);
-  var last  = days[days.length - 1];
-  if (last !== today && last !== yest) return { current: 0, max: max };
-
-  var cur = 1;
-  for (var j = days.length - 1; j > 0; j--) {
-    if (parseKey(days[j]) - parseKey(days[j-1]) === 86400000) cur++;
-    else break;
-  }
-  return { current: cur, max: max };
-}
-
-/* ---------------- 统计 ---------------- */
-function computeStats(){
-  var all = state.sessions.filter(function(s){ return s.end; });
-  var ss = state.settings.semesterStart;
-  var se = state.settings.semesterEnd;
-  var monday = startOfWeek(Date.now());
-
-  var totalMs = 0, semMs = 0, weekMs = 0, count = all.length;
-  var longest = 0, earliest = null, latest = null;
-
-  all.forEach(function(s){
-    var c = calcSession(s);
-    totalMs += c.ms;
-
-    var k = dateKey(s.start);
-    var inSem = (!ss || k >= ss) && (!se || k <= se);
-    if (inSem && c.counted) semMs += c.ms;
-
-    if (s.start >= monday) {
-      weekMs += c.ms;
-      if (c.hours > longest) longest = c.hours;
-      var b = bedMinOf(s.start);
-      if (earliest === null || b < earliest) earliest = b;
-      var w = wakeMinOf(s.end);
-      if (latest === null || w > latest) latest = w;
-    }
-  });
-
-  return {
-    totalMs: totalMs, semMs: semMs, weekMs: weekMs, count: count,
-    weekBest: { longest: longest, earliest: earliest, latest: latest }
-  };
-}
-function totalMsAll(){
-  return state.sessions.reduce(function(a, s){
-    return a + (s.end ? Math.max(0, s.end - s.start) : 0);
-  }, 0);
-}
-
-/* ---------------- 成就 ---------------- */
-var ACHIEVEMENTS = [
-  { id:'first',   name:'初次入睡', icon:'🌙', desc:'完成第一次睡眠打卡',
-    check: function(){ return state.sessions.some(function(s){ return s.end; }); } },
-  { id:'streak3', name:'连睡3天', icon:'🔥', desc:'连续打卡 3 天',
-    check: function(){ return streakInfo().max >= 3; } },
-  { id:'streak7', name:'连睡7天', icon:'🏅', desc:'连续打卡 7 天',
-    check: function(){ return streakInfo().max >= 7; } },
-  { id:'early8',  name:'早八幸存者', icon:'☀️', desc:'一次睡眠在 6:00-9:00 醒来且睡够 5 小时',
-    check: function(){
-      return state.sessions.some(function(s){
-        if (!s.end) return false;
-        var h = new Date(s.end).getHours();
-        return calcSession(s).hours >= 5 && h >= 6 && h < 9;
-      });
-    } },
-  { id:'owl',     name:'熬夜修仙党', icon:'🦉', desc:'在凌晨 0:00-4:00 入睡',
-    check: function(){
-      return state.sessions.some(function(s){
-        var h = new Date(s.start).getHours();
-        return h >= 0 && h < 4;
-      });
-    } },
-  { id:'god',     name:'睡神', icon:'😴', desc:'单次睡眠满 14 小时',
-    check: function(){
-      return state.sessions.some(function(s){ return s.end && calcSession(s).hours >= 14; });
-    } },
-  { id:'energy',  name:'节能标兵', icon:'🔋', desc:'累计睡眠满 10 小时',
-    check: function(){ return totalMsAll() >= 10 * 3600000; } },
-  { id:'nail',    name:'宿舍钉子户', icon:'🏠', desc:'累计睡眠满 50 小时',
-    check: function(){ return totalMsAll() >= 50 * 3600000; } },
-  { id:'dash',    name:'秒睡选手', icon:'⚡', desc:'单次睡眠不足 15 分钟',
-    check: function(){
-      return state.sessions.some(function(s){ return s.end && calcSession(s).tooShort; });
-    } },
-  { id:'clock20', name:'打卡狂魔', icon:'📅', desc:'累计打卡 20 次',
-    check: function(){ return state.sessions.filter(function(s){ return s.end; }).length >= 20; } },
-  { id:'regular', name:'作息标兵', icon:'⏰', desc:'连续 3 天在 23:00 前入睡',
-    check: function(){
-      var map = {};
-      state.sessions.forEach(function(s){
-        if (!s.end) return;
-        var d = new Date(s.start);
-        var h = d.getHours() + d.getMinutes() / 60;
-        if (h < 18 || h >= 23) return;
-        var k = dateKey(s.start);
-        if (map[k] === undefined || h < map[k]) map[k] = h;
-      });
-      var days = Object.keys(map).sort();
-      var run = 0;
-      for (var i = 0; i < days.length; i++) {
-        if (i > 0 && parseKey(days[i]) - parseKey(days[i-1]) === 86400000) run++;
-        else run = 1;
-        if (run >= 3) return true;
-      }
-      return false;
-    } },
-  { id:'term',    name:'学期达标', icon:'🎓', desc:'学期计入时长达到目标',
-    check: function(){
-      return computeStats().semMs / 3600000 >= (+state.settings.target || 100);
-    } }
-];
-
-/* ==================================================================
-   渲染
-   ================================================================== */
-function renderAll(){
-  if (!state.user) {
-    $('#registerScreen').classList.remove('hidden');
-    $('#mainScreen').classList.add('hidden');
-    return;
-  }
-  $('#registerScreen').classList.add('hidden');
-  $('#mainScreen').classList.remove('hidden');
-  renderProgress();
-  renderSleep();
-  renderSquare();
-  renderMe();
-  switchTab(state.tab, true);
-}
-
-function switchTab(t, silent){
-  state.tab = t;
-  save();
-  ['progress','sleep','square','me'].forEach(function(p){
-    var el = document.getElementById('page-' + p);
-    if (el) el.classList.toggle('hidden', p !== t);
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('.tab-item'), function(el){
-    el.classList.toggle('on', el.getAttribute('data-tab') === t);
-  });
-  if (t === 'progress') renderProgress();
-  if (t === 'sleep')    renderSleep();
-  if (t === 'square')   renderSquare();
-  if (t === 'me')       renderMe();
-  window.scrollTo(0, 0);
-}
-
-/* ---------------- 进展页 ---------------- */
-function renderProgress(){
-  var st = computeStats();
-  var target = +state.settings.target || 100;
-  var semH = st.semMs / 3600000;
-  var pct = Math.min(100, semH / target * 100);
-  var bw = st.weekBest;
-  var si = streakInfo();
-
-  var all = state.sessions.filter(function(s){ return s.end; })
-                          .sort(function(a, b){ return b.start - a.start; });
-  var shown = state.showAllRecords ? all : all.slice(0, 5);
-
-  var recHtml = shown.map(function(s){
-    var c = calcSession(s);
-    var tag = '', cls = '';
-    if (c.tooLong)  { tag = '<span class="rec-tag bad">昏迷</span>';  cls = 'bad'; }
-    if (c.tooShort) { tag = '<span class="rec-tag warn">秒睡</span>'; cls = 'warn'; }
-    var locTxt = s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName || '') : '📍 未记录位置';
-    return '<div class="rec-row">' +
-      '<div class="rec-icon">🌙</div>' +
-      '<div class="rec-main">' +
-        '<div class="rec-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
-        '<div class="rec-loc">' + locTxt + '</div>' +
-      '</div>' +
-      '<div class="rec-val ' + cls + '">' + fmtDur(c.ms) + tag + '</div>' +
-    '</div>';
-  }).join('');
-
-  if (!all.length) {
-    recHtml = '<div class="hint-line" style="text-align:center;padding:12px 0;color:#b0b0c4">还没有睡眠记录，去「睡觉」页开睡吧 🌙</div>';
-  }
-
-  var moreBtn = all.length > 5
-    ? '<button class="btn-ghost" style="margin-top:12px" onclick="toggleRecords()">' +
-      (state.showAllRecords ? '收起记录' : '查看全部 ' + all.length + ' 条记录') + '</button>'
-    : '';
-
-  $('#page-progress').innerHTML =
-  '<div class="page-inner">' +
-
-    '<div class="topbar">' +
-      '<div>' +
-        '<div class="hi">Hi，' + esc(state.user.nickname) + '</div>' +
-        '<div class="hi-sub">' + esc(state.user.college || '未设置学院') + ' · ' + esc(state.user.studentId || '------') + '</div>' +
-      '</div>' +
-      '<div class="logo-mini">😴</div>' +
-    '</div>' +
-
-    '<div class="hero-card">' +
-      '<div class="hero-row">' +
-        '<div class="hero-num">' + semH.toFixed(2) + '</div>' +
-        '<div class="hero-goal">/ ' + target + ' Hour<span>学期目标</span></div>' +
-      '</div>' +
-      '<div class="hero-bar"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="hero-meta">' +
-        '<div><b>' + (st.totalMs / 3600000).toFixed(2) + '</b><span>累计睡眠(h)</span></div>' +
-        '<div><b>' + (st.weekMs / 3600000).toFixed(2) + '</b><span>本周睡眠(h)</span></div>' +
-        '<div><b>' + si.current + '</b><span>连续天数</span></div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="tip-banner">' +
-      '<div>✨ 想要合理规划自己的学期睡眠计划？</div>' +
-      '<button onclick="showPlanPopup()">🎯 获取我的专属睡眠规划</button>' +
-    '</div>' +
-
-    '<div class="card">' +
-      '<div class="card-head">最佳记录（本周）</div>' +
-      '<div class="best-row">' +
-        '<div class="best-box"><div class="bv">' + (bw.longest ? bw.longest.toFixed(2) + 'h' : '--') + '</div><div class="bl">最长睡眠</div></div>' +
-        '<div class="best-box"><div class="bv">' + minToHM(bw.earliest) + '</div><div class="bl">最早入睡</div></div>' +
-        '<div class="best-box"><div class="bv">' + minToHM(bw.latest) + '</div><div class="bl">最晚起床</div></div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="ad-banner" onclick="showAd()">' +
-      '<div class="ad-main">躺平！免早八通道开放</div>' +
-      '<div class="ad-sub">床铺面积争霸赛同步报名中 →</div>' +
-    '</div>' +
-
-    '<div class="card">' +
-      '<div class="card-head">睡眠记录</div>' +
-      recHtml + moreBtn +
-    '</div>' +
-
-    '<div class="foot-note">校园睡 · 娱乐产品，不构成健康建议</div>' +
-  '</div>';
-}
-
-function toggleRecords(){
-  state.showAllRecords = !state.showAllRecords;
-  renderProgress();
-}
-
-/* ---------------- 睡觉页 ---------------- */
-function getCurrentLocation(){
-  for (var i = 0; i < state.locations.length; i++) {
-    if (state.locations[i].id === state.currentLocId) return state.locations[i];
-  }
-  return null;
-}
-
-function renderSleep(){
-  var active = state.active;
-  var loc = getCurrentLocation();
-  var locHtml = loc
-    ? '<span>' + (LOC_TYPES[loc.type] || '📍') + '</span> ' + esc(loc.type) + ' · ' + esc(loc.name) +
-      '<span class="loc-edit">切换</span>'
-    : '<span>📍</span> 未设置位置<span class="loc-edit">点击设置</span>';
-
-  var timerHtml = active
-    ? '<div class="dial-timer" id="dialTimer">' + fmtHMS(Date.now() - active.start) + '</div>'
-    : '';
-
-  $('#page-sleep').innerHTML =
-  '<div class="page-inner">' +
-
-    '<div class="topbar">' +
-      '<div>' +
-        '<div class="hi">睡觉</div>' +
-        '<div class="hi-sub">今天也要认真睡觉</div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="loc-bar" onclick="openLocPicker()">' +
-      '<div class="loc-text">' + locHtml + '</div>' +
-    '</div>' +
-
-    '<button class="loc-quick" id="quickLocBtn" onclick="quickLocate()"' +
-      (active ? ' disabled' : '') + '>' +
-      (active ? '😴 睡眠中，先结账才能切位置' : '📍 定位匹配最近位置') +
-    '</button>' +
-
-    '<div class="dial-wrap">' +
-      '<div class="dial ' + (active ? 'sleeping' : '') + '" onclick="' + (active ? 'endSleep()' : 'startSleep()') + '">' +
-        '<div class="dial-inner">' +
-          timerHtml +
-          '<div class="dial-label">' + (active ? '起床' : '开睡') + '</div>' +
-          '<div class="dial-sub">' + (active ? '轻触结束本次睡眠' : '轻触开始本次睡眠') + '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="dial-tip" id="dialTip">注意：单次睡眠上限 ' + state.settings.maxSleep +
-      ' 小时，超时将按「昏迷」处理。</div>' +
-
-    '<div class="card mt">' +
-      '<div class="card-head">小提示</div>' +
-      '<div class="hint-line">🌙 睡眠中可关闭页面，重新打开会自动继续计时。</div>' +
-      '<div class="hint-line">📸 结账后生成睡眠战报，手动截图即可分享。</div>' +
-      '<div class="hint-line">🔒 定位仅保存在本机，界面只显示位置类型和名称。</div>' +
-    '</div>' +
-  '</div>';
-
-  if (active) {
-    var el = document.getElementById('dialTimer');
-    if (el) {
-      var over = (Date.now() - active.start) / 3600000 > (+state.settings.maxSleep || 12);
-      el.classList.toggle('over', over);
-      if (over) {
-        var tip = document.getElementById('dialTip');
-        if (tip) tip.textContent = '⚠️ 已超过上限，本次将按「昏迷」记录，不计入学期成绩';
-      }
-    }
-  }
-}
-
-/* ---------------- 开始/结束睡眠 ---------------- */
-function startSleep(){
-  var loc = getCurrentLocation();
-  if (!loc) {
-    toast('请先选择你的睡眠位置');
-    openLocPicker();
-    return;
-  }
-  state.active = {
-    start: Date.now(),
-    locType: loc.type,
-    locName: loc.name,
-    coord: loc.coord || null
-  };
-  save();
-  renderSleep();
-  toast('开始睡觉，晚安 🌙');
-}
-
-function endSleep(){
-  if (!state.active) return;
-  var a = state.active;
-  var end = Date.now();
-
-  if (end - a.start < 60 * 1000) {
-    if (!confirm('才睡了不到 1 分钟，确定要结束吗？')) return;
-  }
-
-  var s = {
-    id: 's' + Date.now(),
-    start: a.start,
-    end: end,
-    locType: a.locType,
-    locName: a.locName
-  };
-  state.sessions.push(s);
-  state.active = null;
-  save();
-  renderAll();
-  showReport(s);
-}
-
-/* ---------------- 战报海报 ---------------- */
-function showReport(s){
-  var c = calcSession(s);
-  var hours = c.hours;
-  var kwh = (hours * 1.2).toFixed(1);
-
-  var award, tagColor;
-  if (c.tooLong) {
-    award = '荣获 <b>「昏迷不醒」</b> 称号<br>系统温馨提示：你真的睡太久了';
-    tagColor = '#ff8787';
-  } else if (c.tooShort) {
-    award = '荣获 <b>「秒睡冠军」</b> 称号<br>眼睛一闭一睁就结束了';
-    tagColor = '#ffd43b';
-  } else {
-    award = '今日为' + esc(s.locType || '宿舍') + '节省了 <b>' + kwh + '</b> 度电<br>荣获 <b>「节能标兵」</b> 称号';
-    tagColor = '#69db7c';
-  }
-
-  openModal(
-    '<div class="poster">' +
-      '<div class="poster-title">睡 眠 战 报</div>' +
-      '<div class="poster-num">' + hours.toFixed(2) + '<small>h</small></div>' +
-      '<div class="poster-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
-      '<div class="poster-loc">' +
-        (s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName) : '📍 未记录位置') +
-      '</div>' +
-      '<div class="poster-line"></div>' +
-      '<div class="poster-award">' + award + '</div>' +
-      '<div class="poster-foot" style="color:' + tagColor + '">' +
-        (c.tooLong ? '😵 昏迷 · 不计入学期成绩' : c.tooShort ? '⚡ 秒睡 · 不计入学期成绩' : '✅ 正常打卡 · 已计入学期成绩') +
-      '</div>' +
-      '<div class="poster-foot">校园睡 · 纯属娱乐</div>' +
-    '</div>' +
-    '<div class="screenshot-tip">📸 手动截图保存这张战报<br>发给你的睡友，比一比谁更能睡</div>' +
-    '<button class="btn-primary" onclick="closeModal()">收下战报</button>'
-  );
-}
-
-/* ==================================================================
-   位置管理（多位置存储 + 定位获取 + 坐标查看/编辑）
-   ================================================================== */
-function getLocById(id){
-  for (var i = 0; i < state.locations.length; i++) {
-    if (state.locations[i].id === id) return state.locations[i];
-  }
-  return null;
-}
-
-/* ---- 距离计算（米），用于“查找附近已存位置” ---- */
-function distanceM(a, b){
-  if (!a || !b) return Infinity;
-  var R = 6371000, rad = Math.PI / 180;
-  var dLat = (b.lat - a.lat) * rad;
-  var dLng = (b.lng - a.lng) * rad;
-  var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(a.lat * rad) * Math.cos(b.lat * rad) *
-          Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
-}
-function findNearbyLoc(coord, radius){
-  if (!coord) return null;
-  var best = null, bestD = radius;
-  state.locations.forEach(function(l){
-    if (!l.coord) return;
-    var d = distanceM(coord, l.coord);
-    if (d <= bestD) { bestD = d; best = l; }
-  });
-  return best;
-}
-
-/* ---- 坐标输入框读写 ---- */
-function parseCoord(latId, lngId){
-  var la = document.getElementById(latId), ln = document.getElementById(lngId);
-  if (!la || !ln) return null;
-  var a = parseFloat(la.value), b = parseFloat(ln.value);
-  if (isNaN(a) || isNaN(b)) return null;
-  if (a < -90 || a > 90 || b < -180 || b > 180) return null;
-  return { lat: +a.toFixed(5), lng: +b.toFixed(5) };
-}
-function coordEmpty(latId, lngId){
-  var la = document.getElementById(latId), ln = document.getElementById(lngId);
-  if (!la || !ln) return true;
-  return !la.value.trim() && !ln.value.trim();
-}
-function coordRowHtml(latId, lngId, coord){
-  var la = (coord && coord.lat != null) ? coord.lat : '';
-  var ln = (coord && coord.lng != null) ? coord.lng : '';
-  return '<div class="coord-row" style="margin-top:10px">' +
-    '<div><label>纬度 lat</label>' +
-      '<input id="' + latId + '" type="number" step="0.00001" placeholder="30.12345" value="' + la + '"' +
-      (latId === 'locLat' ? ' oninput="onCoordInput()"' : '') + '></div>' +
-    '<div><label>经度 lng</label>' +
-      '<input id="' + lngId + '" type="number" step="0.00001" placeholder="120.12345" value="' + ln + '"' +
-      (lngId === 'locLng' ? ' oninput="onCoordInput()"' : '') + '></div>' +
-  '</div>';
-}
-function typeChipsHtml(){
-  return '<div class="type-chips">' + Object.keys(LOC_TYPES).map(function(t){
-    return '<div class="chip ' + (t === pendingType ? 'on' : '') + '" onclick="selectLocType(\'' + t + '\')">' +
-      LOC_TYPES[t] + ' ' + t + '</div>';
-  }).join('') + '</div>';
-}
-
-/* ---- 打开位置选择面板 ---- */
-function openLocPicker(){
-  pendingCoord = null;
-  pendingType = '宿舍';
-  pendingName = '';
-  renderLocPicker();
-}
-
-function renderLocPicker(){
-  var listHtml = state.locations.map(function(l){
-    var coordTxt = l.coord
-      ? '📍 纬度 ' + l.coord.lat.toFixed(5) + ' · 经度 ' + l.coord.lng.toFixed(5)
-      : '未绑定坐标';
-    return '<div class="loc-item ' + (l.id === state.currentLocId ? 'on' : '') + '">' +
-      '<div class="li-icon">' + (LOC_TYPES[l.type] || '📍') + '</div>' +
-      '<div class="li-main" onclick="pickLoc(\'' + l.id + '\')">' +
-        '<div class="li-name">' + esc(l.type) + ' · ' + esc(l.name) + '</div>' +
-        '<div class="li-sub">' + coordTxt + '</div>' +
-      '</div>' +
-      '<button class="li-op" onclick="openLocEditor(\'' + l.id + '\')">✎</button>' +
-      '<button class="li-op danger" onclick="deleteLoc(\'' + l.id + '\')">🗑</button>' +
-      '<div class="li-check">✓</div>' +
-    '</div>';
-  }).join('');
-
-  if (!state.locations.length) {
-    listHtml = '<div class="li-sub" style="padding:6px 2px 10px">还没有常用位置，先在下面添加一个吧</div>';
-  }
-
-  openModal(
-    '<div class="modal-head">选择睡眠位置</div>' +
-    '<div class="modal-sub">可保存多个位置。位置仅保存在本机浏览器，界面只显示类型和名称。</div>' +
-    listHtml +
-    '<div class="divider">新增常用位置</div>' +
-    typeChipsHtml() +
-    '<input id="newLocName" placeholder="给位置起个名，如：3号楼402床" autocomplete="off" ' +
-      'value="' + esc(pendingName || '') + '" ' +
-      'style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#1c1c28">' +
-    '<button class="btn-ghost" onclick="grabGPS()">📍 点击定位，获取并存储当前位置</button>' +
-    '<div class="gps-status" id="gpsStatus"></div>' +
-    '<div id="nearbyBox"></div>' +
-    coordRowHtml('locLat', 'locLng', pendingCoord) +
-    '<button class="btn-primary" onclick="saveNewLoc()">保存并使用</button>' +
-    (state.locations.length ? '<button class="btn-ghost" onclick="closeModal()">取消</button>' : '')
-  );
-
-  if (pendingCoord) {
-    var st = document.getElementById('gpsStatus');
-    if (st) st.textContent = '✅ 当前坐标：' + pendingCoord.lat.toFixed(5) + ', ' + pendingCoord.lng.toFixed(5);
-    showNearbyMatch();
-  }
-}
-
-/* ---- 类型选择 ---- */
-function selectLocType(t){
-  pendingType = t;
-  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(el){
-    el.classList.toggle('on', el.textContent.indexOf(t) > -1);
-  });
-}
-
-/* ---- 定位：获取当前位置 → 查找附近已存位置 → 填入坐标 ---- */
-function grabGPS(latId, lngId, statusId){
-  latId    = latId    || 'locLat';
-  lngId    = lngId    || 'locLng';
-  statusId = statusId || 'gpsStatus';
-
-  var el = document.getElementById(statusId);
-  if (!el) return;
-
-  if (!navigator.geolocation) {
-    el.textContent = '❌ 当前浏览器不支持定位，可手动填写经纬度';
-    return;
-  }
-
-  el.textContent = '⏳ 正在获取你的位置…';
-
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      var lat = +pos.coords.latitude.toFixed(5);
-      var lng = +pos.coords.longitude.toFixed(5);
-      var acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
-
-      var la = document.getElementById(latId);
-      var ln = document.getElementById(lngId);
-      if (la) la.value = lat;
-      if (ln) ln.value = lng;
-
-      if (latId === 'locLat') {
-        pendingCoord = { lat: lat, lng: lng };
-        showNearbyMatch();
-      }
-
-      el.textContent = '✅ 已获取：' + lat + ', ' + lng +
-        (acc ? '（精度约 ' + acc + ' 米）' : '') + '，可直接保存';
-    },
-    function(err){
-      var msg = '❌ 定位失败';
-      if (err && err.code === 1) msg = '❌ 你拒绝了定位授权';
-      else if (err && err.code === 2) msg = '❌ 暂时无法获取位置';
-      else if (err && err.code === 3) msg = '❌ 定位超时';
-      el.textContent = msg + '，可手动填写经纬度或选择已有位置';
-    },
-    { timeout: 12000, maximumAge: 0, enableHighAccuracy: true }
-  );
-}
-
-/* ---- 定位后：查找附近已存位置（300 米内） ---- */
-function showNearbyMatch(){
-  var box = document.getElementById('nearbyBox');
-  if (!box) return;
-  var m = findNearbyLoc(pendingCoord, 300);
-  if (!m) { box.innerHTML = ''; return; }
-  box.innerHTML =
-    '<div class="nearby-tip">📍 这附近你已经存过位置：<b>' +
-      (LOC_TYPES[m.type] || '📍') + ' ' + esc(m.type) + ' · ' + esc(m.name) + '</b></div>' +
-    '<button class="btn-ghost" onclick="pickLoc(\'' + m.id + '\')">直接使用这个已存位置</button>';
-}
-
-/* ---- 手动改坐标时实时同步 ---- */
-function onCoordInput(){
-  var c = parseCoord('locLat', 'locLng');
-  pendingCoord = c;
-  var st = document.getElementById('gpsStatus');
-  if (st) st.textContent = c
-    ? '✅ 当前坐标：' + c.lat.toFixed(5) + ', ' + c.lng.toFixed(5)
-    : '';
-  if (c) showNearbyMatch();
-  else {
-    var box = document.getElementById('nearbyBox');
-    if (box) box.innerHTML = '';
-  }
-}
-
-/* ---- 新增位置 ---- */
-function saveNewLoc(){
-  var input = document.getElementById('newLocName');
-  var name = (input && input.value || '').trim();
-  if (!name) { toast('给位置起个名字吧'); return; }
-
-  var coord = null;
-  if (!coordEmpty('locLat', 'locLng')) {
-    coord = parseCoord('locLat', 'locLng');
-    if (!coord) { toast('经纬度格式不正确（或两栏都清空）'); return; }
-  }
-
-  var loc = {
-    id: 'loc' + Date.now(),
-    type: pendingType,
-    name: name,
-    coord: coord
-  };
-  state.locations.push(loc);
-  state.currentLocId = loc.id;
-  pendingCoord = null;
-  pendingType = '宿舍';
-  pendingName = '';
-  save();
-  closeModal();
-  renderSleep();
-  renderMe();
-  toast('位置已保存：' + loc.type + ' · ' + loc.name);
-}
-
-/* ---- 编辑已有位置（含查看/改经纬度） ---- */
-function openLocEditor(id){
-  var l = getLocById(id);
-  if (!l) return;
-  pendingType = l.type || '宿舍';
-  pendingCoord = l.coord ? { lat: l.coord.lat, lng: l.coord.lng } : null;
-
-  openModal(
-    '<div class="modal-head">编辑位置</div>' +
-    '<div class="modal-sub">可修改类型、名称和经纬度。</div>' +
-    typeChipsHtml() +
-    '<input id="editLocName" placeholder="位置名称" autocomplete="off" ' +
-      'value="' + esc(l.name) + '" ' +
-      'style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#1c1c28">' +
-    '<button class="btn-ghost" onclick="grabGPS(\'eLat\',\'eLng\',\'editGpsStatus\')">📍 重新定位并填入</button>' +
-    '<div class="gps-status" id="editGpsStatus"></div>' +
-    coordRowHtml('eLat', 'eLng', pendingCoord) +
-    '<button class="btn-ghost" onclick="clearLocCoord()">清空坐标</button>' +
-    '<button class="btn-primary" onclick="saveLocEdit(\'' + id + '\')">保存修改</button>' +
-    '<button class="btn-ghost" onclick="openLocPicker()">返回列表</button>'
-  );
-}
-
-function clearLocCoord(){
-  var a = document.getElementById('eLat'), b = document.getElementById('eLng');
-  if (a) a.value = '';
-  if (b) b.value = '';
-  pendingCoord = null;
-  var st = document.getElementById('editGpsStatus');
-  if (st) st.textContent = '坐标已清空，保存后该位置不带坐标';
-}
-
-function saveLocEdit(id){
-  var l = getLocById(id);
-  if (!l) return;
-
-  var nameEl = document.getElementById('editLocName');
-  var name = (nameEl && nameEl.value || '').trim();
-  if (!name) { toast('给位置起个名字吧'); return; }
-
-  var coord = null;
-  if (!coordEmpty('eLat', 'eLng')) {
-    coord = parseCoord('eLat', 'eLng');
-    if (!coord) { toast('经纬度格式不正确（或两栏都清空）'); return; }
-  }
-
-  l.name  = name;
-  l.type  = pendingType;
-  l.coord = coord;
-  save();
-  renderSleep();
-  toast('位置已更新');
-  pendingCoord = null;
-  pendingType = '宿舍';
-  openLocPicker();
-}
-
-/* ---- 删除位置 ---- */
-function deleteLoc(id){
-  var l = getLocById(id);
-  if (!l) return;
-  if (!confirm('删除位置「' + l.type + ' · ' + l.name + '」？')) return;
-
-  state.locations = state.locations.filter(function(x){ return x.id !== id; });
-  if (state.currentLocId === id) {
-    state.currentLocId = state.locations.length ? state.locations[0].id : null;
-  }
-  save();
-  renderLocPicker();
-  renderSleep();
-  renderMe();
-  toast('已删除该位置');
-}
-
-/* ---- 选中某位置 ---- */
-function pickLoc(id){
-  state.currentLocId = id;
-  save();
-  closeModal();
-  renderSleep();
-  var l = getCurrentLocation();
-  if (l) toast('当前位置：' + l.type + ' · ' + l.name);
-}
-
-/* ---- 睡觉页一键定位：匹配最近已存位置 ---- */
-var MATCH_RADIUS = 800; // 800 米内自动切换，超过则弹窗确认
-
-function quickLocate(){
-  if (state.active) { toast('睡眠中不能切换位置，请先结账'); return; }
-
-  if (!state.locations.length) {
-    toast('还没有保存的位置，先添加一个吧');
-    openLocPicker();
-    return;
-  }
-  if (!navigator.geolocation) {
-    toast('当前浏览器不支持定位，请手动选择位置');
-    return;
-  }
-
-  var btn = document.getElementById('quickLocBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ 正在获取你的位置…'; }
-
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      var me = {
-        lat: +pos.coords.latitude.toFixed(5),
-        lng: +pos.coords.longitude.toFixed(5)
-      };
-
-      // 在所有已存位置中找最近的
-      var best = null, bestD = Infinity;
-      state.locations.forEach(function(l){
-        if (!l.coord) return;
-        var d = distanceM(me, l.coord);
-        if (d < bestD) { bestD = d; best = l; }
-      });
-
-      restoreQuickBtn();
-
-      if (!best) {
-        toast('已存位置都没有坐标，点「切换」进去补个定位吧');
-        return;
-      }
-
-      if (bestD <= MATCH_RADIUS) {
-        state.currentLocId = best.id;
-        save();
-        renderSleep();
-        toast('已定位到最近位置：' + best.type + ' · ' + best.name +
-              '（约 ' + Math.round(bestD) + ' 米）');
-      } else {
-        openModal(
-          '<div class="modal-head">最近的建筑有点远</div>' +
-          '<div class="modal-sub">离你最近的已存位置是：' +
-            (LOC_TYPES[best.type] || '📍') + ' ' + esc(best.type) + ' · ' + esc(best.name) +
-            '，约 <b>' + Math.round(bestD) + '</b> 米。<br>要使用它，还是添加一个新位置？</div>' +
-          '<button class="btn-primary" onclick="pickLoc(\'' + best.id + '\')">就选这个（' + Math.round(bestD) + ' 米）</button>' +
-          '<button class="btn-ghost" onclick="closeModal();openLocPicker()">添加新位置</button>'
-        );
-      }
-    },
-    function(err){
-      restoreQuickBtn();
-      var msg = '定位失败或未授权，请手动选择位置';
-      if (err && err.code === 1) msg = '你拒绝了定位授权，请手动选择位置';
-      else if (err && err.code === 3) msg = '定位超时，请手动选择位置';
-      toast(msg);
-    },
-    { timeout: 12000, maximumAge: 0, enableHighAccuracy: true }
-  );
-
-  function restoreQuickBtn(){
-    var b = document.getElementById('quickLocBtn');
-    if (b) {
-      b.disabled = false;
-      b.textContent = '📍 定位匹配最近位置';
-    }
-  }
-}
-
-/* ==================================================================
-   广场
-   ================================================================== */
-function ensureBoard(){
-  if (!state.board || !state.board.list || !state.board.list.length) {
-    state.board = { list: genBoard() };
-    save();
-  }
-}
-
-function genBoard(){
-  var names = V_NAMES.slice();
-  for (var i = names.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = names[i]; names[i] = names[j]; names[j] = tmp;
-  }
-  var out = [];
-  for (var k = 0; k < 14; k++) {
-    out.push({
-      id: 'v' + k,
-      name: names[k],
-      avatar: V_AVATARS[Math.floor(Math.random() * V_AVATARS.length)],
-      maxSleep: +(4 + Math.random() * 13).toFixed(1),
-      bedMin: Math.floor(1140 + Math.random() * 480),   // 19:00 ~ 03:00
-      streak: Math.floor(Math.random() * 22)
-    });
-  }
-  return out;
-}
-
-function buildBoardRows(tab){
-  ensureBoard();
-  var rows = state.board.list.map(function(v){
-    return {
-      id: v.id,
-      name: v.name,
-      avatar: v.avatar,
-      isMe: false,
-      value: tab === 'duration' ? v.maxSleep : (tab === 'early' ? v.bedMin : v.streak)
+    <!-- ================= 主界面 ================= -->
+    <div id="mainScreen" class="screen hidden">
+        <div class="page" id="page-progress"></div>
+        <div class="page hidden" id="page-sleep"></div>
+        <div class="page hidden" id="page-square"></div>
+        <div class="page hidden" id="page-me"></div>
+
+        <nav class="tabbar">
+        <div class="tab-item" data-tab="progress" onclick="switchTab('progress')"><span>📊</span><b>进展</b></div>
+        <div class="tab-item" data-tab="sleep" onclick="switchTab('sleep')"><span>😴</span><b>睡觉</b></div>
+        <div class="tab-item" data-tab="square" onclick="switchTab('square')"><span>🏆</span><b>广场</b></div>
+        <div class="tab-item" data-tab="me" onclick="switchTab('me')"><span>👤</span><b>我的</b></div>
+        </nav>
+    </div>
+
+    <div id="modalRoot"></div>
+    <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+    /* ==================================================================
+    校园睡 · 纯前端娱乐睡眠打卡
+    ================================================================== */
+
+    var LS_KEY = 'campus_sleep_v1';
+
+    var LOC_TYPES = {
+    '宿舍': '🛏',
+    '教学楼': '🏫',
+    '食堂': '🍜',
+    '图书馆': '📚',
+    '操场': '🏃',
+    '其他': '📍'
     };
-  });
 
-  var all = state.sessions.filter(function(s){ return s.end; });
-  var myMax = 0;
-  all.forEach(function(s){
-    var h = calcSession(s).hours;
-    if (h > myMax) myMax = h;
-  });
-  var myBed = null;
-  all.forEach(function(s){
-    var b = bedMinOf(s.start);
-    if (myBed === null || b < myBed) myBed = b;
-  });
-  var myStreak = streakInfo().current;
+    var PRESETS = [
+    { school:'霍格沃茨魔法学院', college:'睡觉系', studentId:'000000', nickname:'匿名睡友' },
+    { school:'加里敦大学',       college:'躺平与养生学院', studentId:'250250', nickname:'床垫守护者' },
+    { school:'早八逃生学院',     college:'赖床动力学系', studentId:'080808', nickname:'被窝封印师' },
+    { school:'深夜食堂大学',     college:'碳水快乐学院', studentId:'996699', nickname:'夜宵特派员' },
+    { school:'宇宙第一躺平学院', college:'午睡工程系',   studentId:'123456', nickname:'睡神本神' }
+    ];
 
-  var myValue;
-  if (tab === 'duration') myValue = myMax;
-  else if (tab === 'early') myValue = (myBed === null ? 9999 : myBed);
-  else myValue = myStreak;
+    var V_NAMES = ['匿名睡友A','匿名睡友B','卷王克星','被窝战神','早八逃兵','图书馆钉子户','床帘隐士','梦话主播',
+    '闹钟绝缘体','凌晨四点半','保温杯泡枸杞','周末昏迷者','午睡特长生','枕头骑手','断电幸存者','棉被管理员',
+    '深夜泡面侠','赖床博士','闹钟粉碎机','清醒的少数人','枕头山大王','熬夜冠军','闭眼速度王','宿舍冥想师'];
 
-  rows.push({
-    id: 'me',
-    name: state.user.nickname,
-    avatar: '😴',
-    isMe: true,
-    value: myValue,
-    hasData: all.length > 0
-  });
+    var V_AVATARS = ['🐷','🐻','🦊','🐼','🐨','🐯','🐸','🦉','🐙','🐧','🦄','🐳','🐰','🐹','🦥','🐢'];
 
-  rows.sort(function(a, b){
-    return tab === 'early' ? a.value - b.value : b.value - a.value;
-  });
-  return rows;
-}
-
-function renderSquare(){
-  ensureBoard();
-  var tab = state.boardTab;
-  var rows = buildBoardRows(tab);
-
-  var html = rows.map(function(r, i){
-    var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-    var valHtml = '', warnCls = '';
-
-    if (!r.isMe || r.hasData !== false) {
-      if (tab === 'duration') {
-        if (r.value > 0) {
-          valHtml = r.value.toFixed(1) + 'h';
-          if (r.value > (+state.settings.maxSleep || 12)) { valHtml += ' ⚠️'; warnCls = 'warn'; }
-        } else valHtml = '--';
-      } else if (tab === 'early') {
-        valHtml = (r.value >= 9999 || r.value === 0) ? '--' : minToHM(r.value);
-      } else {
-        valHtml = r.value > 0 ? r.value + '天' : '--';
-      }
-    } else {
-      valHtml = '--';
-    }
-
-    return '<div class="rank-row ' + (r.isMe ? 'me' : '') + '">' +
-      '<div class="rank-no">' + medal + '</div>' +
-      '<div class="rank-av">' + r.avatar + '</div>' +
-      '<div class="rank-name"><span class="nm">' + esc(r.name) + '</span>' +
-        (r.isMe ? '<span class="me-tag">我</span>' : '') + '</div>' +
-      '<div class="rank-val ' + warnCls + '">' + valHtml + '</div>' +
-    '</div>';
-  }).join('');
-
-  $('#page-square').innerHTML =
-  '<div class="page-inner">' +
-    '<div class="topbar">' +
-      '<div>' +
-        '<div class="hi">广场</div>' +
-        '<div class="hi-sub">虚拟睡友，仅供娱乐</div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="sq-tabs">' +
-      '<div class="sq-tab ' + (tab === 'duration' ? 'on' : '') + '" onclick="setBoardTab(\'duration\')">睡眠时长榜</div>' +
-      '<div class="sq-tab ' + (tab === 'early' ? 'on' : '') + '" onclick="setBoardTab(\'early\')">最早入睡榜</div>' +
-      '<div class="sq-tab ' + (tab === 'streak' ? 'on' : '') + '" onclick="setBoardTab(\'streak\')">连续天数榜</div>' +
-    '</div>' +
-
-    '<div class="board-list">' + html + '</div>' +
-
-    '<button class="swap-btn" onclick="swapBoard()">🔄 换一批睡友</button>' +
-    '<div class="foot-note">榜单数据为随机生成的虚拟数据<br>换一批后本轮榜单将固定保存</div>' +
-  '</div>';
-}
-
-function setBoardTab(t){
-  state.boardTab = t;
-  save();
-  renderSquare();
-}
-
-function swapBoard(){
-  state.board = { list: genBoard() };
-  save();
-  renderSquare();
-  toast('已换一批睡友 🔄');
-}
-
-/* ==================================================================
-   我的
-   ================================================================== */
-function renderMe(){
-  var achs = ACHIEVEMENTS.map(function(a){
-    return { id: a.id, name: a.name, icon: a.icon, desc: a.desc, unlocked: a.check() };
-  });
-  var unlockedCount = achs.filter(function(a){ return a.unlocked; }).length;
-  var si = streakInfo();
-
-  var achHtml = achs.map(function(a){
-    return '<div class="ach ' + (a.unlocked ? 'on' : '') + '" onclick="showAch(\'' + a.id + '\')">' +
-      '<div class="ach-icon">' + a.icon + '</div>' +
-      '<div class="ach-name">' + a.name + '</div>' +
-      (a.unlocked ? '' : '<div class="ach-lock">🔒</div>') +
-    '</div>';
-  }).join('');
-
-  var st = state.settings;
-  var devHtml = devOpen
-    ? '<div class="dev-body">' +
-        '<label>学期目标（小时）</label>' +
-        '<input type="number" id="setTarget" value="' + st.target + '" min="1">' +
-        '<label>单次睡眠上限（小时）</label>' +
-        '<input type="number" id="setMax" value="' + st.maxSleep + '" min="1">' +
-        '<label>单次最低睡眠时长（分钟）</label>' +
-        '<input type="number" id="setMin" value="' + st.minSleep + '" min="0">' +
-        '<label>学期开始日期</label>' +
-        '<input type="date" id="setStart" value="' + (st.semesterStart || '') + '">' +
-        '<label>学期结束日期</label>' +
-        '<input type="date" id="setEnd" value="' + (st.semesterEnd || '') + '">' +
-        '<button class="btn-primary" onclick="saveSettings()">保存设置</button>' +
-        '<button class="btn-ghost danger" onclick="clearAll()">清空全部记录</button>' +
-      '</div>'
-    : '';
-
-  $('#page-me').innerHTML =
-  '<div class="page-inner">' +
-
-    '<div class="topbar">' +
-      '<div>' +
-        '<div class="hi">我的</div>' +
-        '<div class="hi-sub">连睡 ' + si.current + ' 天 · 累计打卡 ' + state.sessions.filter(function(s){return s.end;}).length + ' 次</div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="profile-card">' +
-      '<div class="avatar">😴</div>' +
-      '<div>' +
-        '<div class="pf-name">' + esc(state.user.nickname) + '</div>' +
-        '<div class="pf-sub">' + esc(state.user.school || '未设置学校') + '<br>' +
-          esc(state.user.college || '未设置学院') + ' · ' + esc(state.user.studentId || '------') + '</div>' +
-      '</div>' +
-      '<div class="pf-edit" onclick="openEditProfile()">编辑</div>' +
-    '</div>' +
-
-    '<div class="card">' +
-      '<div class="card-head">成就墙 · ' + unlockedCount + '/' + achs.length + '</div>' +
-      '<div class="ach-grid">' + achHtml + '</div>' +
-    '</div>' +
-
-    '<div class="card">' +
-      '<div class="dev-entry" onclick="toggleDev()">🛠 我是校长 <span>' + (devOpen ? '收起' : '展开') + '</span></div>' +
-      devHtml +
-    '</div>' +
-
-    '<div class="card">' +
-      '<div class="card-head">数据管理</div>' +
-      '<button class="btn-ghost" style="margin-top:0" onclick="exportData()">📤 导出数据到剪贴板</button>' +
-      '<button class="btn-ghost" onclick="openImport()">📥 导入数据（Base64）</button>' +
-      '<button class="btn-ghost danger" onclick="logout()">🚪 注销账号并清空数据</button>' +
-    '</div>' +
-
-    '<div class="disclaimer">' +
-      '校园睡纯属娱乐，不接入教务系统，不提供叫醒服务，睡过头挂科概不负责。<br>' +
-      '所有数据仅保存在本机浏览器，定位信息不会上传服务器。' +
-    '</div>' +
-  '</div>';
-}
-
-function showAch(id){
-  var a = null;
-  ACHIEVEMENTS.forEach(function(x){ if (x.id === id) a = x; });
-  if (!a) return;
-  var unlocked = a.check();
-  openModal(
-    '<div style="text-align:center">' +
-      '<div style="font-size:52px;line-height:1;' + (unlocked ? '' : 'filter:grayscale(1);opacity:.4') + '">' + a.icon + '</div>' +
-      '<div style="font-size:17px;font-weight:800;margin-top:12px">' + a.name + '</div>' +
-      '<div style="font-size:12.5px;color:#8a8aa0;margin-top:10px;line-height:1.8">' + a.desc + '</div>' +
-      '<div style="font-size:12px;font-weight:800;margin-top:14px;color:' + (unlocked ? '#12b886' : '#c0c0d0') + '">' +
-        (unlocked ? '✅ 已点亮' : '🔒 未点亮') + '</div>' +
-    '</div>' +
-    '<button class="btn-primary" onclick="closeModal()">知道啦</button>'
-  );
-}
-
-function toggleDev(){
-  devOpen = !devOpen;
-  renderMe();
-}
-
-function saveSettings(){
-  var t  = +document.getElementById('setTarget').value;
-  var mx = +document.getElementById('setMax').value;
-  var mn = +document.getElementById('setMin').value;
-
-  if (t > 0)  state.settings.target   = t;
-  if (mx > 0) state.settings.maxSleep = mx;
-  if (mn >= 0) state.settings.minSleep = mn;
-  state.settings.semesterStart = document.getElementById('setStart').value || '';
-  state.settings.semesterEnd   = document.getElementById('setEnd').value || '';
-
-  save();
-  renderAll();
-  devOpen = true;
-  renderMe();
-  toast('设置已保存 ✅');
-}
-
-function clearAll(){
-  if (!confirm('确定清空全部睡眠记录吗？此操作不可恢复。')) return;
-  state.sessions = [];
-  state.active = null;
-  state.showAllRecords = false;
-  save();
-  renderAll();
-  toast('记录已清空');
-}
-
-/* ---------------- 数据管理：导出 / 导入 / 注销 ---------------- */
-
-/* 中文安全 Base64 编解码 */
-function b64Encode(str){
-  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p){
-    return String.fromCharCode(parseInt(p, 16));
-  }));
-}
-function b64Decode(str){
-  return decodeURIComponent(atob(str).split('').map(function(c){
-    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
-}
-
-/* 复制到剪贴板（含降级方案） */
-function copyText(text){
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text);
-  }
-  return new Promise(function(resolve, reject){
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.position = 'fixed';
-    ta.style.top = '-9999px';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    ta.setSelectionRange(0, text.length);
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
-    document.body.removeChild(ta);
-    ok ? resolve() : reject(new Error('copy failed'));
-  });
-}
-
-/* 导出：整个 state 序列化后 Base64 复制到剪贴板 */
-function exportData(){
-  if (!state.user) { toast('当前没有可导出的数据'); return; }
-
-  var payload;
-  try {
-    payload = b64Encode(JSON.stringify(state));
-  } catch(e) {
-    toast('导出失败，请稍后重试');
-    return;
-  }
-
-  copyText(payload).then(function(){
-    toast('已复制到剪贴板，共 ' + payload.length + ' 字符');
-  }).catch(function(){
-    openModal(
-      '<div class="modal-head">手动复制</div>' +
-      '<div class="modal-sub">自动复制失败，请长按下方文本框全选后复制。</div>' +
-      '<textarea id="exportArea" readonly style="width:100%;min-height:110px;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:10px;font-size:12px;color:#1c1c28;outline:none;resize:vertical;word-break:break-all">' + payload + '</textarea>' +
-      '<button class="btn-primary" onclick="closeModal()">完成</button>'
-    );
-    var el = document.getElementById('exportArea');
-    if (el) { el.focus(); el.select(); }
-  });
-}
-
-/* 打开导入面板 */
-function openImport(){
-  openModal(
-    '<div class="modal-head">导入数据</div>' +
-    '<div class="modal-sub">粘贴之前导出的 Base64 字符串。<b style="color:#e03131">导入会覆盖本机现有数据</b>，请谨慎操作。</div>' +
-    '<textarea id="importArea" placeholder="在此粘贴 Base64 数据…" style="width:100%;min-height:110px;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:10px;font-size:12px;color:#1c1c28;outline:none;resize:vertical;word-break:break-all"></textarea>' +
-    '<button class="btn-ghost" onclick="pasteFromClipboard()">📋 从剪贴板读取</button>' +
-    '<button class="btn-primary" onclick="doImport()">确认导入</button>' +
-    '<button class="btn-ghost" onclick="closeModal()">取消</button>'
-  );
-}
-
-function pasteFromClipboard(){
-  if (!navigator.clipboard || !navigator.clipboard.readText) {
-    toast('当前浏览器不支持读取剪贴板，请手动粘贴');
-    return;
-  }
-  navigator.clipboard.readText().then(function(txt){
-    var el = document.getElementById('importArea');
-    if (el) el.value = (txt || '').trim();
-    toast('已读取剪贴板内容');
-  }).catch(function(){
-    toast('读取失败，请手动粘贴');
-  });
-}
-
-/* 执行导入 */
-function doImport(){
-  var el = document.getElementById('importArea');
-  var raw = ((el && el.value) || '').replace(/\s+/g, '');
-  if (!raw) { toast('请先粘贴导出的数据'); return; }
-
-  var d = null;
-  try {
-    d = JSON.parse(b64Decode(raw));
-  } catch(e) {
-    toast('数据无法解析，请检查是否完整');
-    return;
-  }
-  if (!d || typeof d !== 'object' || Array.isArray(d)) {
-    toast('数据格式不正确');
-    return;
-  }
-  if (!('user' in d) && !('sessions' in d)) {
-    toast('这似乎不是「校园睡」的数据');
-    return;
-  }
-
-  if (!confirm('导入将覆盖当前本机所有数据，确定继续吗？')) return;
-
-  state.user         = d.user || null;
-  state.sessions     = Array.isArray(d.sessions) ? d.sessions : [];
-  state.active       = d.active || null;
-  state.locations    = Array.isArray(d.locations) ? d.locations : [];
-  state.currentLocId = d.currentLocId || null;
-  state.board        = d.board || null;
-  state.boardTab     = d.boardTab || 'duration';
-  state.tab          = d.tab || 'progress';
-  state.presetIdx    = d.presetIdx || 0;
-  state.showAllRecords = false;
-  state.settings = Object.assign(
-    { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
-    d.settings || {}
-  );
-
-  save();
-  closeModal();
-  renderAll();
-  toast(state.user ? '导入成功 ✅' : '导入完成，请重新填写信息');
-}
-
-/* 注销：清空全部本机数据 */
-function logout(){
-  if (!confirm('注销将清空本机的账号信息、睡眠记录、位置和设置，且无法恢复。确定注销吗？')) return;
-  if (!confirm('再次确认：真的要清空全部数据吗？')) return;
-
-  try { localStorage.removeItem(LS_KEY); } catch(e){}
-
-  state = {
+    /* ---------------- 状态 ---------------- */
+    var state = {
     user: null,
     settings: { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
     sessions: [],
@@ -1631,200 +306,1533 @@ function logout(){
     tab: 'progress',
     presetIdx: 0,
     showAllRecords: false
-  };
+    };
 
-  devOpen = false;
-  pendingCoord = null;
-  pendingType = '宿舍';
-  pendingName = '';
+    var devOpen = false;
+    var pendingCoord = null;   // 正在编辑的坐标 {lat,lng} 或 null
+    var pendingType  = '宿舍';
+    var pendingName  = '';
 
-  closeModal();
-
-  ['regSchool','regCollege','regId','regNick'].forEach(function(id){
-    var i = document.getElementById(id);
-    if (i) i.value = '';
-  });
-  var pb = document.getElementById('presetBtn');
-  if (pb) pb.textContent = '✨ 填入预设信息';
-
-  renderAll();
-  window.scrollTo(0, 0);
-  toast('已注销，数据已清空');
-}
-
-/* ---------------- 编辑个人信息 ---------------- */
-function openEditProfile(){
-  openModal(
-    '<div class="modal-head">编辑个人信息</div>' +
-    '<div class="modal-sub">昵称可匿名，不强制真实姓名。</div>' +
-        '<button class="btn-ghost" id="editPresetBtn" style="margin-top:2px" onclick="fillPresetForEdit()">✨ 填入预设信息</button>' +
-    '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学校</label>' +
-    '<input id="epSchool" value="' + esc(state.user.school || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
-    '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学院</label>' +
-    '<input id="epCollege" value="' + esc(state.user.college || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
-    '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学号</label>' +
-    '<input id="epId" value="' + esc(state.user.studentId || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
-    '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">昵称</label>' +
-    '<input id="epNick" value="' + esc(state.user.nickname || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
-    '<button class="btn-primary" onclick="saveProfile()">保存</button>' +
-    '<button class="btn-ghost" onclick="closeModal()">取消</button>'
-  );
-}
-
-function saveProfile(){
-  var nick = (document.getElementById('epNick').value || '').trim();
-  if (!nick) { toast('昵称不能为空'); return; }
-  state.user = {
-    school: (document.getElementById('epSchool').value || '').trim(),
-    college: (document.getElementById('epCollege').value || '').trim(),
-    studentId: (document.getElementById('epId').value || '').trim(),
-    nickname: nick
-  };
-  save();
-  closeModal();
-  renderAll();
-  toast('已保存');
-}
-
-/* ==================================================================
-   弹窗
-   ================================================================== */
-function openModal(html){
-  $('#modalRoot').innerHTML =
-    '<div class="modal-mask" onclick="if(event.target===this)closeModal()">' +
-      '<div class="modal-card">' + html + '</div>' +
-    '</div>';
-}
-function closeModal(){
-  $('#modalRoot').innerHTML = '';
-}
-
-/* ---------------- 搞笑弹窗 ---------------- */
-function showPlanPopup(){
-  var msgs = [
-    '系统判定你无需规划，直接睡即可。',
-    '规划已生成：①闭眼 ②睡着 ③别定闹钟。',
-    '经过 0.3 秒深度分析：建议今晚 22:30 上床、23:00 入睡、次日 7:00 起床。<br><span style="font-size:11px;color:#b0b0c4">（本建议由随机数生成，不构成任何健康建议）</span>',
-    '规划失败：床太舒服了，系统也想睡。',
-    '检测到你的睡眠天赋点已满，建议直接躺平，无需规划。'
-  ];
-  var m = msgs[Math.floor(Math.random() * msgs.length)];
-  openModal(
-    '<div class="ad-modal">' +
-      '<div class="ad-emoji">🎯</div>' +
-      '<h3>专属睡眠规划</h3>' +
-      '<p>' + m + '</p>' +
-      '<button class="btn-primary" onclick="closeModal()">好的，我去睡了</button>' +
-    '</div>'
-  );
-}
-
-function showAd(){
-  openModal(
-    '<div class="ad-modal">' +
-      '<div class="ad-emoji">🛏️</div>' +
-      '<h3>躺平！免早八通道</h3>' +
-      '<p>恭喜你获得「免早八体验券」×1<br>有效期：永久（仅限本页面）</p>' +
-      '<p class="small">本券不具备任何实际效力，早八该上还得上。</p>' +
-      '<button class="btn-primary" onclick="closeModal()">知道了，我去睡了</button>' +
-    '</div>'
-  );
-}
-
-/* ==================================================================
-   注册
-   ================================================================== */
-function fillPreset(){
-  var p = PRESETS[state.presetIdx % PRESETS.length];
-  state.presetIdx++;
-  document.getElementById('regSchool').value  = p.school;
-  document.getElementById('regCollege').value = p.college;
-  document.getElementById('regId').value      = p.studentId;
-  document.getElementById('regNick').value    = p.nickname;
-  document.getElementById('presetBtn').textContent =
-    state.presetIdx > 0 ? '🔄 换一版' : '✨ 填入预设信息';
-}
-
-function fillPresetForEdit(){
-  var p = PRESETS[state.presetIdx % PRESETS.length];
-  state.presetIdx++;
-  save();
-
-  document.getElementById('epSchool').value  = p.school;
-  document.getElementById('epCollege').value = p.college;
-  document.getElementById('epId').value      = p.studentId;
-  document.getElementById('epNick').value    = p.nickname;
-
-  var btn = document.getElementById('editPresetBtn');
-  if (btn) btn.textContent = '🔄 换一版';
-
-  toast('已填入预设信息，记得点「保存」哦');
-}
-
-function doRegister(){
-  var school  = (document.getElementById('regSchool').value || '').trim();
-  var college = (document.getElementById('regCollege').value || '').trim();
-  var sid     = (document.getElementById('regId').value || '').trim();
-  var nick    = (document.getElementById('regNick').value || '').trim();
-
-  if (!nick) { toast('给自己起个昵称吧 🙂'); return; }
-
-  state.user = {
-    school: school || '社会大学',
-    college: college || '躺平学院',
-    studentId: sid || '------',
-    nickname: nick
-  };
-  save();
-  renderAll();
-  toast('欢迎来到校园睡 🌙');
-}
-
-/* ==================================================================
-   实时计时器
-   ================================================================== */
-setInterval(function(){
-  if (!state.active) return;
-  var el = document.getElementById('dialTimer');
-  if (!el) return;
-
-  var ms = Date.now() - state.active.start;
-  el.textContent = fmtHMS(ms);
-
-  var maxH = +state.settings.maxSleep || 12;
-  var over = ms / 3600000 > maxH;
-  el.classList.toggle('over', over);
-
-  var tip = document.getElementById('dialTip');
-  if (tip) {
-    tip.textContent = over
-      ? '⚠️ 已超过上限，本次将按「昏迷」记录，不计入学期成绩'
-      : '注意：单次睡眠上限 ' + maxH + ' 小时，超时将按「昏迷」处理。';
-  }
-}, 500);
-
-/* ==================================================================
-   启动
-   ================================================================== */
-(function init(){
-  load();
-  if (state.user) {
-    renderAll();
-  } else {
-    $('#registerScreen').classList.remove('hidden');
-    $('#mainScreen').classList.add('hidden');
-  }
-  // 防意外退出丢失进行中的睡眠：每次进入都检查
-  if (state.active) {
-    var hrs = (Date.now() - state.active.start) / 3600000;
-    if (hrs > 48) {
-      // 极端异常情况（电脑长期挂起），提示用户
-      setTimeout(function(){ toast('检测到一条超长睡眠记录，记得去结账 😴'); }, 800);
+    /* ---------------- 存取 ---------------- */
+    function save() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
     }
-  }
-})();
+    function load() {
+    try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d) return;
+        state.user       = d.user || null;
+        state.sessions   = d.sessions || [];
+        state.active     = d.active || null;
+        state.locations  = d.locations || [];
+        state.currentLocId = d.currentLocId || null;
+        state.board      = d.board || null;
+        state.boardTab   = d.boardTab || 'duration';
+        state.tab        = d.tab || 'progress';
+        state.presetIdx  = d.presetIdx || 0;
+        state.settings = Object.assign(
+        { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
+        d.settings || {}
+        );
+    } catch (e) {}
+    }
 
-window.addEventListener('beforeunload', save);
-</script>
-</body>
-</html>
+    /* ---------------- 小工具 ---------------- */
+    function $(s){ return document.querySelector(s); }
+    function pad(n){ return n < 10 ? '0' + n : '' + n; }
+    function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+    }
+    function toast(msg){
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function(){ t.classList.remove('show'); }, 1900);
+    }
+    function dateKey(ts){
+    var d = new Date(ts);
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+    }
+    function parseKey(k){
+    var p = k.split('-');
+    return new Date(+p[0], +p[1]-1, +p[2]).getTime();
+    }
+    function fmtHMS(ms){
+    var t = Math.max(0, Math.floor(ms / 1000));
+    var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+    return pad(h) + ':' + pad(m) + ':' + pad(s);
+    }
+    function fmtDur(ms){
+    var m = Math.round(ms / 60000);
+    var h = Math.floor(m / 60), mm = m % 60;
+    return (h > 0 ? h + 'h ' : '') + mm + 'm';
+    }
+    function fmtDateTime(ts){
+    var d = new Date(ts);
+    return pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+    function startOfWeek(ts){
+    var d = new Date(ts);
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = (x.getDay() + 6) % 7;
+    x.setDate(x.getDate() - day);
+    return x.getTime();
+    }
+    /* 入睡时刻映射：把 0:00-11:59 视作次日，方便比较"早晚" */
+    function bedMinOf(ts){
+    var d = new Date(ts);
+    var m = d.getHours() * 60 + d.getMinutes();
+    if (m < 720) m += 1440;
+    return m;
+    }
+    function wakeMinOf(ts){
+    var d = new Date(ts);
+    var m = d.getHours() * 60 + d.getMinutes();
+    if (m < 720) m += 1440;
+    return m;
+    }
+    function minToHM(m){
+    if (m == null || m === 9999) return '--';
+    m = m % 1440;
+    return pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+    }
+
+    /* ---------------- 单条记录计算 ---------------- */
+    function calcSession(s){
+    var ms = Math.max(0, s.end - s.start);
+    var hrs = ms / 3600000;
+    var tooLong  = hrs > (+state.settings.maxSleep || 12);
+    var tooShort = ms < (+state.settings.minSleep || 15) * 60000;
+    return { ms: ms, hours: hrs, tooLong: tooLong, tooShort: tooShort, counted: !tooLong && !tooShort };
+    }
+
+    /* ---------------- 连续天数 ---------------- */
+    function streakInfo(){
+    var daysSet = {};
+    state.sessions.forEach(function(s){
+        if (s.end) daysSet[dateKey(s.start)] = 1;
+    });
+    var days = Object.keys(daysSet).sort();
+    if (!days.length) return { current: 0, max: 0 };
+
+    var max = 1, run = 1;
+    for (var i = 1; i < days.length; i++) {
+        if (parseKey(days[i]) - parseKey(days[i-1]) === 86400000) { run++; if (run > max) max = run; }
+        else run = 1;
+    }
+
+    var today = dateKey(Date.now());
+    var yest  = dateKey(Date.now() - 86400000);
+    var last  = days[days.length - 1];
+    if (last !== today && last !== yest) return { current: 0, max: max };
+
+    var cur = 1;
+    for (var j = days.length - 1; j > 0; j--) {
+        if (parseKey(days[j]) - parseKey(days[j-1]) === 86400000) cur++;
+        else break;
+    }
+    return { current: cur, max: max };
+    }
+
+    /* ---------------- 统计 ---------------- */
+    function computeStats(){
+    var all = state.sessions.filter(function(s){ return s.end; });
+    var ss = state.settings.semesterStart;
+    var se = state.settings.semesterEnd;
+    var monday = startOfWeek(Date.now());
+
+    var totalMs = 0, semMs = 0, weekMs = 0, count = all.length;
+    var longest = 0, earliest = null, latest = null;
+
+    all.forEach(function(s){
+        var c = calcSession(s);
+        totalMs += c.ms;
+
+        var k = dateKey(s.start);
+        var inSem = (!ss || k >= ss) && (!se || k <= se);
+        if (inSem && c.counted) semMs += c.ms;
+
+        if (s.start >= monday) {
+        weekMs += c.ms;
+        if (c.hours > longest) longest = c.hours;
+        var b = bedMinOf(s.start);
+        if (earliest === null || b < earliest) earliest = b;
+        var w = wakeMinOf(s.end);
+        if (latest === null || w > latest) latest = w;
+        }
+    });
+
+    return {
+        totalMs: totalMs, semMs: semMs, weekMs: weekMs, count: count,
+        weekBest: { longest: longest, earliest: earliest, latest: latest }
+    };
+    }
+    function totalMsAll(){
+    return state.sessions.reduce(function(a, s){
+        return a + (s.end ? Math.max(0, s.end - s.start) : 0);
+    }, 0);
+    }
+
+    /* ---------------- 成就 ---------------- */
+    var ACHIEVEMENTS = [
+    { id:'first',   name:'初次入睡', icon:'🌙', desc:'完成第一次睡眠打卡',
+        check: function(){ return state.sessions.some(function(s){ return s.end; }); } },
+    { id:'streak3', name:'连睡3天', icon:'🔥', desc:'连续打卡 3 天',
+        check: function(){ return streakInfo().max >= 3; } },
+    { id:'streak7', name:'连睡7天', icon:'🏅', desc:'连续打卡 7 天',
+        check: function(){ return streakInfo().max >= 7; } },
+    { id:'early8',  name:'早八幸存者', icon:'☀️', desc:'一次睡眠在 6:00-9:00 醒来且睡够 5 小时',
+        check: function(){
+        return state.sessions.some(function(s){
+            if (!s.end) return false;
+            var h = new Date(s.end).getHours();
+            return calcSession(s).hours >= 5 && h >= 6 && h < 9;
+        });
+        } },
+    { id:'owl',     name:'熬夜修仙党', icon:'🦉', desc:'在凌晨 0:00-4:00 入睡',
+        check: function(){
+        return state.sessions.some(function(s){
+            var h = new Date(s.start).getHours();
+            return h >= 0 && h < 4;
+        });
+        } },
+    { id:'god',     name:'睡神', icon:'😴', desc:'单次睡眠满 14 小时',
+        check: function(){
+        return state.sessions.some(function(s){ return s.end && calcSession(s).hours >= 14; });
+        } },
+    { id:'energy',  name:'节能标兵', icon:'🔋', desc:'累计睡眠满 10 小时',
+        check: function(){ return totalMsAll() >= 10 * 3600000; } },
+    { id:'nail',    name:'宿舍钉子户', icon:'🏠', desc:'累计睡眠满 50 小时',
+        check: function(){ return totalMsAll() >= 50 * 3600000; } },
+    { id:'dash',    name:'秒睡选手', icon:'⚡', desc:'单次睡眠不足 15 分钟',
+        check: function(){
+        return state.sessions.some(function(s){ return s.end && calcSession(s).tooShort; });
+        } },
+    { id:'clock20', name:'打卡狂魔', icon:'📅', desc:'累计打卡 20 次',
+        check: function(){ return state.sessions.filter(function(s){ return s.end; }).length >= 20; } },
+    { id:'regular', name:'作息标兵', icon:'⏰', desc:'连续 3 天在 23:00 前入睡',
+        check: function(){
+        var map = {};
+        state.sessions.forEach(function(s){
+            if (!s.end) return;
+            var d = new Date(s.start);
+            var h = d.getHours() + d.getMinutes() / 60;
+            if (h < 18 || h >= 23) return;
+            var k = dateKey(s.start);
+            if (map[k] === undefined || h < map[k]) map[k] = h;
+        });
+        var days = Object.keys(map).sort();
+        var run = 0;
+        for (var i = 0; i < days.length; i++) {
+            if (i > 0 && parseKey(days[i]) - parseKey(days[i-1]) === 86400000) run++;
+            else run = 1;
+            if (run >= 3) return true;
+        }
+        return false;
+        } },
+    { id:'term',    name:'学期达标', icon:'🎓', desc:'学期计入时长达到目标',
+        check: function(){
+        return computeStats().semMs / 3600000 >= (+state.settings.target || 100);
+        } }
+    ];
+
+    /* ==================================================================
+    渲染
+    ================================================================== */
+    function renderAll(){
+    if (!state.user) {
+        $('#registerScreen').classList.remove('hidden');
+        $('#mainScreen').classList.add('hidden');
+        return;
+    }
+    $('#registerScreen').classList.add('hidden');
+    $('#mainScreen').classList.remove('hidden');
+    renderProgress();
+    renderSleep();
+    renderSquare();
+    renderMe();
+    switchTab(state.tab, true);
+    }
+
+    function switchTab(t, silent){
+    state.tab = t;
+    save();
+    ['progress','sleep','square','me'].forEach(function(p){
+        var el = document.getElementById('page-' + p);
+        if (el) el.classList.toggle('hidden', p !== t);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.tab-item'), function(el){
+        el.classList.toggle('on', el.getAttribute('data-tab') === t);
+    });
+    if (t === 'progress') renderProgress();
+    if (t === 'sleep')    renderSleep();
+    if (t === 'square')   renderSquare();
+    if (t === 'me')       renderMe();
+    window.scrollTo(0, 0);
+    }
+
+    /* ---------------- 进展页 ---------------- */
+    function renderProgress(){
+    var st = computeStats();
+    var target = +state.settings.target || 100;
+    var semH = st.semMs / 3600000;
+    var pct = Math.min(100, semH / target * 100);
+    var bw = st.weekBest;
+    var si = streakInfo();
+
+    var all = state.sessions.filter(function(s){ return s.end; })
+                            .sort(function(a, b){ return b.start - a.start; });
+    var shown = state.showAllRecords ? all : all.slice(0, 5);
+
+    var recHtml = shown.map(function(s){
+        var c = calcSession(s);
+        var tag = '', cls = '';
+        if (c.tooLong)  { tag = '<span class="rec-tag bad">昏迷</span>';  cls = 'bad'; }
+        if (c.tooShort) { tag = '<span class="rec-tag warn">秒睡</span>'; cls = 'warn'; }
+        var locTxt = s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName || '') : '📍 未记录位置';
+        return '<div class="rec-row">' +
+        '<div class="rec-icon">🌙</div>' +
+        '<div class="rec-main">' +
+            '<div class="rec-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
+            '<div class="rec-loc">' + locTxt + '</div>' +
+        '</div>' +
+        '<div class="rec-val ' + cls + '">' + fmtDur(c.ms) + tag + '</div>' +
+        '</div>';
+    }).join('');
+
+    if (!all.length) {
+        recHtml = '<div class="hint-line" style="text-align:center;padding:12px 0;color:#b0b0c4">还没有睡眠记录，去「睡觉」页开睡吧 🌙</div>';
+    }
+
+    var moreBtn = all.length > 5
+        ? '<button class="btn-ghost" style="margin-top:12px" onclick="toggleRecords()">' +
+        (state.showAllRecords ? '收起记录' : '查看全部 ' + all.length + ' 条记录') + '</button>'
+        : '';
+
+    $('#page-progress').innerHTML =
+    '<div class="page-inner">' +
+
+        '<div class="topbar">' +
+        '<div>' +
+            '<div class="hi">Hi，' + esc(state.user.nickname) + '</div>' +
+            '<div class="hi-sub">' + esc(state.user.college || '未设置学院') + ' · ' + esc(state.user.studentId || '------') + '</div>' +
+        '</div>' +
+        '<div class="logo-mini">😴</div>' +
+        '</div>' +
+
+        '<div class="hero-card">' +
+        '<div class="hero-row">' +
+            '<div class="hero-num">' + semH.toFixed(2) + '</div>' +
+            '<div class="hero-goal">/ ' + target + ' Hour<span>学期目标</span></div>' +
+        '</div>' +
+        '<div class="hero-bar"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="hero-meta">' +
+            '<div><b>' + (st.totalMs / 3600000).toFixed(2) + '</b><span>累计睡眠(h)</span></div>' +
+            '<div><b>' + (st.weekMs / 3600000).toFixed(2) + '</b><span>本周睡眠(h)</span></div>' +
+            '<div><b>' + si.current + '</b><span>连续天数</span></div>' +
+        '</div>' +
+        '</div>' +
+
+        '<div class="tip-banner">' +
+        '<div>✨ 想要合理规划自己的学期睡眠计划？</div>' +
+        '<button onclick="showPlanPopup()">🎯 获取我的专属睡眠规划</button>' +
+        '</div>' +
+
+        '<div class="card">' +
+        '<div class="card-head">最佳记录（本周）</div>' +
+        '<div class="best-row">' +
+            '<div class="best-box"><div class="bv">' + (bw.longest ? bw.longest.toFixed(2) + 'h' : '--') + '</div><div class="bl">最长睡眠</div></div>' +
+            '<div class="best-box"><div class="bv">' + minToHM(bw.earliest) + '</div><div class="bl">最早入睡</div></div>' +
+            '<div class="best-box"><div class="bv">' + minToHM(bw.latest) + '</div><div class="bl">最晚起床</div></div>' +
+        '</div>' +
+        '</div>' +
+
+        '<div class="ad-banner" onclick="showAd()">' +
+        '<div class="ad-main">躺平！免早八通道开放</div>' +
+        '<div class="ad-sub">床铺面积争霸赛同步报名中 →</div>' +
+        '</div>' +
+
+        '<div class="card">' +
+        '<div class="card-head">睡眠记录</div>' +
+        recHtml + moreBtn +
+        '</div>' +
+
+        '<div class="foot-note">校园睡 · 娱乐产品，不构成健康建议</div>' +
+    '</div>';
+    }
+
+    function toggleRecords(){
+    state.showAllRecords = !state.showAllRecords;
+    renderProgress();
+    }
+
+    /* ---------------- 睡觉页 ---------------- */
+    function getCurrentLocation(){
+    for (var i = 0; i < state.locations.length; i++) {
+        if (state.locations[i].id === state.currentLocId) return state.locations[i];
+    }
+    return null;
+    }
+
+    function renderSleep(){
+    var active = state.active;
+    var loc = getCurrentLocation();
+    var locHtml = loc
+        ? '<span>' + (LOC_TYPES[loc.type] || '📍') + '</span> ' + esc(loc.type) + ' · ' + esc(loc.name) +
+        '<span class="loc-edit">切换</span>'
+        : '<span>📍</span> 未设置位置<span class="loc-edit">点击设置</span>';
+
+    var timerHtml = active
+        ? '<div class="dial-timer" id="dialTimer">' + fmtHMS(Date.now() - active.start) + '</div>'
+        : '';
+
+    $('#page-sleep').innerHTML =
+    '<div class="page-inner">' +
+
+        '<div class="topbar">' +
+        '<div>' +
+            '<div class="hi">睡觉</div>' +
+            '<div class="hi-sub">今天也要认真睡觉</div>' +
+        '</div>' +
+        '</div>' +
+
+        '<div class="loc-bar" onclick="openLocPicker()">' +
+        '<div class="loc-text">' + locHtml + '</div>' +
+        '</div>' +
+
+        '<button class="loc-quick" id="quickLocBtn" onclick="quickLocate()"' +
+        (active ? ' disabled' : '') + '>' +
+        (active ? '😴 睡眠中，先结账才能切位置' : '📍 定位匹配最近位置') +
+        '</button>' +
+
+        '<div class="dial-wrap">' +
+        '<div class="dial ' + (active ? 'sleeping' : '') + '" onclick="' + (active ? 'endSleep()' : 'startSleep()') + '">' +
+            '<div class="dial-inner">' +
+            timerHtml +
+            '<div class="dial-label">' + (active ? '起床' : '开睡') + '</div>' +
+            '<div class="dial-sub">' + (active ? '轻触结束本次睡眠' : '轻触开始本次睡眠') + '</div>' +
+            '</div>' +
+        '</div>' +
+        '</div>' +
+
+        '<div class="dial-tip" id="dialTip">注意：单次睡眠上限 ' + state.settings.maxSleep +
+        ' 小时，超时将按「昏迷」处理。</div>' +
+
+        '<div class="card mt">' +
+        '<div class="card-head">小提示</div>' +
+        '<div class="hint-line">🌙 睡眠中可关闭页面，重新打开会自动继续计时。</div>' +
+        '<div class="hint-line">📸 结账后生成睡眠战报，手动截图即可分享。</div>' +
+        '<div class="hint-line">🔒 定位仅保存在本机，界面只显示位置类型和名称。</div>' +
+        '</div>' +
+    '</div>';
+
+    if (active) {
+        var el = document.getElementById('dialTimer');
+        if (el) {
+        var over = (Date.now() - active.start) / 3600000 > (+state.settings.maxSleep || 12);
+        el.classList.toggle('over', over);
+        if (over) {
+            var tip = document.getElementById('dialTip');
+            if (tip) tip.textContent = '⚠️ 已超过上限，本次将按「昏迷」记录，不计入学期成绩';
+        }
+        }
+    }
+    }
+
+    /* ---------------- 开始/结束睡眠 ---------------- */
+    function startSleep(){
+    var loc = getCurrentLocation();
+    if (!loc) {
+        toast('请先选择你的睡眠位置');
+        openLocPicker();
+        return;
+    }
+    state.active = {
+        start: Date.now(),
+        locType: loc.type,
+        locName: loc.name,
+        coord: loc.coord || null
+    };
+    save();
+    renderSleep();
+    toast('开始睡觉，晚安 🌙');
+    }
+
+    function endSleep(){
+    if (!state.active) return;
+    var a = state.active;
+    var end = Date.now();
+
+    if (end - a.start < 60 * 1000) {
+        if (!confirm('才睡了不到 1 分钟，确定要结束吗？')) return;
+    }
+
+    var s = {
+        id: 's' + Date.now(),
+        start: a.start,
+        end: end,
+        locType: a.locType,
+        locName: a.locName
+    };
+    state.sessions.push(s);
+    state.active = null;
+    save();
+    renderAll();
+    showReport(s);
+    }
+
+    /* ---------------- 战报海报 ---------------- */
+    function showReport(s){
+    var c = calcSession(s);
+    var hours = c.hours;
+    var kwh = (hours * 1.2).toFixed(1);
+
+    var award, tagColor;
+    if (c.tooLong) {
+        award = '荣获 <b>「昏迷不醒」</b> 称号<br>系统温馨提示：你真的睡太久了';
+        tagColor = '#ff8787';
+    } else if (c.tooShort) {
+        award = '荣获 <b>「秒睡冠军」</b> 称号<br>眼睛一闭一睁就结束了';
+        tagColor = '#ffd43b';
+    } else {
+        award = '今日为' + esc(s.locType || '宿舍') + '节省了 <b>' + kwh + '</b> 度电<br>荣获 <b>「节能标兵」</b> 称号';
+        tagColor = '#69db7c';
+    }
+
+    openModal(
+        '<div class="poster">' +
+        '<div class="poster-title">睡 眠 战 报</div>' +
+        '<div class="poster-num">' + hours.toFixed(2) + '<small>h</small></div>' +
+        '<div class="poster-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
+        '<div class="poster-loc">' +
+            (s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName) : '📍 未记录位置') +
+        '</div>' +
+        '<div class="poster-line"></div>' +
+        '<div class="poster-award">' + award + '</div>' +
+        '<div class="poster-foot" style="color:' + tagColor + '">' +
+            (c.tooLong ? '😵 昏迷 · 不计入学期成绩' : c.tooShort ? '⚡ 秒睡 · 不计入学期成绩' : '✅ 正常打卡 · 已计入学期成绩') +
+        '</div>' +
+        '<div class="poster-foot">校园睡 · 纯属娱乐</div>' +
+        '</div>' +
+        '<div class="screenshot-tip">📸 手动截图保存这张战报<br>发给你的睡友，比一比谁更能睡</div>' +
+        '<button class="btn-primary" onclick="closeModal()">收下战报</button>'
+    );
+    }
+
+    /* ==================================================================
+    位置管理（多位置存储 + 定位获取 + 坐标查看/编辑）
+    ================================================================== */
+    function getLocById(id){
+    for (var i = 0; i < state.locations.length; i++) {
+        if (state.locations[i].id === id) return state.locations[i];
+    }
+    return null;
+    }
+
+    /* ---- 距离计算（米），用于“查找附近已存位置” ---- */
+    function distanceM(a, b){
+    if (!a || !b) return Infinity;
+    var R = 6371000, rad = Math.PI / 180;
+    var dLat = (b.lat - a.lat) * rad;
+    var dLng = (b.lng - a.lng) * rad;
+    var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(a.lat * rad) * Math.cos(b.lat * rad) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+    }
+    function findNearbyLoc(coord, radius){
+    if (!coord) return null;
+    var best = null, bestD = radius;
+    state.locations.forEach(function(l){
+        if (!l.coord) return;
+        var d = distanceM(coord, l.coord);
+        if (d <= bestD) { bestD = d; best = l; }
+    });
+    return best;
+    }
+
+    /* ---- 坐标输入框读写 ---- */
+    function parseCoord(latId, lngId){
+    var la = document.getElementById(latId), ln = document.getElementById(lngId);
+    if (!la || !ln) return null;
+    var a = parseFloat(la.value), b = parseFloat(ln.value);
+    if (isNaN(a) || isNaN(b)) return null;
+    if (a < -90 || a > 90 || b < -180 || b > 180) return null;
+    return { lat: +a.toFixed(5), lng: +b.toFixed(5) };
+    }
+    function coordEmpty(latId, lngId){
+    var la = document.getElementById(latId), ln = document.getElementById(lngId);
+    if (!la || !ln) return true;
+    return !la.value.trim() && !ln.value.trim();
+    }
+    function coordRowHtml(latId, lngId, coord){
+    var la = (coord && coord.lat != null) ? coord.lat : '';
+    var ln = (coord && coord.lng != null) ? coord.lng : '';
+    return '<div class="coord-row" style="margin-top:10px">' +
+        '<div><label>纬度 lat</label>' +
+        '<input id="' + latId + '" type="number" step="0.00001" placeholder="30.12345" value="' + la + '"' +
+        (latId === 'locLat' ? ' oninput="onCoordInput()"' : '') + '></div>' +
+        '<div><label>经度 lng</label>' +
+        '<input id="' + lngId + '" type="number" step="0.00001" placeholder="120.12345" value="' + ln + '"' +
+        (lngId === 'locLng' ? ' oninput="onCoordInput()"' : '') + '></div>' +
+    '</div>';
+    }
+    function typeChipsHtml(){
+    return '<div class="type-chips">' + Object.keys(LOC_TYPES).map(function(t){
+        return '<div class="chip ' + (t === pendingType ? 'on' : '') + '" onclick="selectLocType(\'' + t + '\')">' +
+        LOC_TYPES[t] + ' ' + t + '</div>';
+    }).join('') + '</div>';
+    }
+
+    /* ---- 打开位置选择面板 ---- */
+    function openLocPicker(){
+    pendingCoord = null;
+    pendingType = '宿舍';
+    pendingName = '';
+    renderLocPicker();
+    }
+
+    function renderLocPicker(){
+    var listHtml = state.locations.map(function(l){
+        var coordTxt = l.coord
+        ? '📍 纬度 ' + l.coord.lat.toFixed(5) + ' · 经度 ' + l.coord.lng.toFixed(5)
+        : '未绑定坐标';
+        return '<div class="loc-item ' + (l.id === state.currentLocId ? 'on' : '') + '">' +
+        '<div class="li-icon">' + (LOC_TYPES[l.type] || '📍') + '</div>' +
+        '<div class="li-main" onclick="pickLoc(\'' + l.id + '\')">' +
+            '<div class="li-name">' + esc(l.type) + ' · ' + esc(l.name) + '</div>' +
+            '<div class="li-sub">' + coordTxt + '</div>' +
+        '</div>' +
+        '<button class="li-op" onclick="openLocEditor(\'' + l.id + '\')">✎</button>' +
+        '<button class="li-op danger" onclick="deleteLoc(\'' + l.id + '\')">🗑</button>' +
+        '<div class="li-check">✓</div>' +
+        '</div>';
+    }).join('');
+
+    if (!state.locations.length) {
+        listHtml = '<div class="li-sub" style="padding:6px 2px 10px">还没有常用位置，先在下面添加一个吧</div>';
+    }
+
+    openModal(
+        '<div class="modal-head">选择睡眠位置</div>' +
+        '<div class="modal-sub">可保存多个位置。位置仅保存在本机浏览器，界面只显示类型和名称。</div>' +
+        listHtml +
+        '<div class="divider">新增常用位置</div>' +
+        typeChipsHtml() +
+        '<input id="newLocName" placeholder="给位置起个名，如：3号楼402床" autocomplete="off" ' +
+        'value="' + esc(pendingName || '') + '" ' +
+        'style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#1c1c28">' +
+        '<button class="btn-ghost" onclick="grabGPS()">📍 点击定位，获取并存储当前位置</button>' +
+        '<div class="gps-status" id="gpsStatus"></div>' +
+        '<div id="nearbyBox"></div>' +
+        coordRowHtml('locLat', 'locLng', pendingCoord) +
+        '<button class="btn-primary" onclick="saveNewLoc()">保存并使用</button>' +
+        (state.locations.length ? '<button class="btn-ghost" onclick="closeModal()">取消</button>' : '')
+    );
+
+    if (pendingCoord) {
+        var st = document.getElementById('gpsStatus');
+        if (st) st.textContent = '✅ 当前坐标：' + pendingCoord.lat.toFixed(5) + ', ' + pendingCoord.lng.toFixed(5);
+        showNearbyMatch();
+    }
+    }
+
+    /* ---- 类型选择 ---- */
+    function selectLocType(t){
+    pendingType = t;
+    Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(el){
+        el.classList.toggle('on', el.textContent.indexOf(t) > -1);
+    });
+    }
+
+    /* ---- 定位：获取当前位置 → 查找附近已存位置 → 填入坐标 ---- */
+    function grabGPS(latId, lngId, statusId){
+    latId    = latId    || 'locLat';
+    lngId    = lngId    || 'locLng';
+    statusId = statusId || 'gpsStatus';
+
+    var el = document.getElementById(statusId);
+    if (!el) return;
+
+    if (!navigator.geolocation) {
+        el.textContent = '❌ 当前浏览器不支持定位，可手动填写经纬度';
+        return;
+    }
+
+    el.textContent = '⏳ 正在获取你的位置…';
+
+    navigator.geolocation.getCurrentPosition(
+        function(pos){
+        var lat = +pos.coords.latitude.toFixed(5);
+        var lng = +pos.coords.longitude.toFixed(5);
+        var acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+
+        var la = document.getElementById(latId);
+        var ln = document.getElementById(lngId);
+        if (la) la.value = lat;
+        if (ln) ln.value = lng;
+
+        if (latId === 'locLat') {
+            pendingCoord = { lat: lat, lng: lng };
+            showNearbyMatch();
+        }
+
+        el.textContent = '✅ 已获取：' + lat + ', ' + lng +
+            (acc ? '（精度约 ' + acc + ' 米）' : '') + '，可直接保存';
+        },
+        function(err){
+        var msg = '❌ 定位失败';
+        if (err && err.code === 1) msg = '❌ 你拒绝了定位授权';
+        else if (err && err.code === 2) msg = '❌ 暂时无法获取位置';
+        else if (err && err.code === 3) msg = '❌ 定位超时';
+        el.textContent = msg + '，可手动填写经纬度或选择已有位置';
+        },
+        { timeout: 12000, maximumAge: 0, enableHighAccuracy: true }
+    );
+    }
+
+    /* ---- 定位后：查找附近已存位置（300 米内） ---- */
+    function showNearbyMatch(){
+    var box = document.getElementById('nearbyBox');
+    if (!box) return;
+    var m = findNearbyLoc(pendingCoord, 300);
+    if (!m) { box.innerHTML = ''; return; }
+    box.innerHTML =
+        '<div class="nearby-tip">📍 这附近你已经存过位置：<b>' +
+        (LOC_TYPES[m.type] || '📍') + ' ' + esc(m.type) + ' · ' + esc(m.name) + '</b></div>' +
+        '<button class="btn-ghost" onclick="pickLoc(\'' + m.id + '\')">直接使用这个已存位置</button>';
+    }
+
+    /* ---- 手动改坐标时实时同步 ---- */
+    function onCoordInput(){
+    var c = parseCoord('locLat', 'locLng');
+    pendingCoord = c;
+    var st = document.getElementById('gpsStatus');
+    if (st) st.textContent = c
+        ? '✅ 当前坐标：' + c.lat.toFixed(5) + ', ' + c.lng.toFixed(5)
+        : '';
+    if (c) showNearbyMatch();
+    else {
+        var box = document.getElementById('nearbyBox');
+        if (box) box.innerHTML = '';
+    }
+    }
+
+    /* ---- 新增位置 ---- */
+    function saveNewLoc(){
+    var input = document.getElementById('newLocName');
+    var name = (input && input.value || '').trim();
+    if (!name) { toast('给位置起个名字吧'); return; }
+
+    var coord = null;
+    if (!coordEmpty('locLat', 'locLng')) {
+        coord = parseCoord('locLat', 'locLng');
+        if (!coord) { toast('经纬度格式不正确（或两栏都清空）'); return; }
+    }
+
+    var loc = {
+        id: 'loc' + Date.now(),
+        type: pendingType,
+        name: name,
+        coord: coord
+    };
+    state.locations.push(loc);
+    state.currentLocId = loc.id;
+    pendingCoord = null;
+    pendingType = '宿舍';
+    pendingName = '';
+    save();
+    closeModal();
+    renderSleep();
+    renderMe();
+    toast('位置已保存：' + loc.type + ' · ' + loc.name);
+    }
+
+    /* ---- 编辑已有位置（含查看/改经纬度） ---- */
+    function openLocEditor(id){
+    var l = getLocById(id);
+    if (!l) return;
+    pendingType = l.type || '宿舍';
+    pendingCoord = l.coord ? { lat: l.coord.lat, lng: l.coord.lng } : null;
+
+    openModal(
+        '<div class="modal-head">编辑位置</div>' +
+        '<div class="modal-sub">可修改类型、名称和经纬度。</div>' +
+        typeChipsHtml() +
+        '<input id="editLocName" placeholder="位置名称" autocomplete="off" ' +
+        'value="' + esc(l.name) + '" ' +
+        'style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;color:#1c1c28">' +
+        '<button class="btn-ghost" onclick="grabGPS(\'eLat\',\'eLng\',\'editGpsStatus\')">📍 重新定位并填入</button>' +
+        '<div class="gps-status" id="editGpsStatus"></div>' +
+        coordRowHtml('eLat', 'eLng', pendingCoord) +
+        '<button class="btn-ghost" onclick="clearLocCoord()">清空坐标</button>' +
+        '<button class="btn-primary" onclick="saveLocEdit(\'' + id + '\')">保存修改</button>' +
+        '<button class="btn-ghost" onclick="openLocPicker()">返回列表</button>'
+    );
+    }
+
+    function clearLocCoord(){
+    var a = document.getElementById('eLat'), b = document.getElementById('eLng');
+    if (a) a.value = '';
+    if (b) b.value = '';
+    pendingCoord = null;
+    var st = document.getElementById('editGpsStatus');
+    if (st) st.textContent = '坐标已清空，保存后该位置不带坐标';
+    }
+
+    function saveLocEdit(id){
+    var l = getLocById(id);
+    if (!l) return;
+
+    var nameEl = document.getElementById('editLocName');
+    var name = (nameEl && nameEl.value || '').trim();
+    if (!name) { toast('给位置起个名字吧'); return; }
+
+    var coord = null;
+    if (!coordEmpty('eLat', 'eLng')) {
+        coord = parseCoord('eLat', 'eLng');
+        if (!coord) { toast('经纬度格式不正确（或两栏都清空）'); return; }
+    }
+
+    l.name  = name;
+    l.type  = pendingType;
+    l.coord = coord;
+    save();
+    renderSleep();
+    toast('位置已更新');
+    pendingCoord = null;
+    pendingType = '宿舍';
+    openLocPicker();
+    }
+
+    /* ---- 删除位置 ---- */
+    function deleteLoc(id){
+    var l = getLocById(id);
+    if (!l) return;
+    if (!confirm('删除位置「' + l.type + ' · ' + l.name + '」？')) return;
+
+    state.locations = state.locations.filter(function(x){ return x.id !== id; });
+    if (state.currentLocId === id) {
+        state.currentLocId = state.locations.length ? state.locations[0].id : null;
+    }
+    save();
+    renderLocPicker();
+    renderSleep();
+    renderMe();
+    toast('已删除该位置');
+    }
+
+    /* ---- 选中某位置 ---- */
+    function pickLoc(id){
+    state.currentLocId = id;
+    save();
+    closeModal();
+    renderSleep();
+    var l = getCurrentLocation();
+    if (l) toast('当前位置：' + l.type + ' · ' + l.name);
+    }
+
+    /* ---- 睡觉页一键定位：匹配最近已存位置 ---- */
+    var MATCH_RADIUS = 800; // 800 米内自动切换，超过则弹窗确认
+
+    function quickLocate(){
+    if (state.active) { toast('睡眠中不能切换位置，请先结账'); return; }
+
+    if (!state.locations.length) {
+        toast('还没有保存的位置，先添加一个吧');
+        openLocPicker();
+        return;
+    }
+    if (!navigator.geolocation) {
+        toast('当前浏览器不支持定位，请手动选择位置');
+        return;
+    }
+
+    var btn = document.getElementById('quickLocBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ 正在获取你的位置…'; }
+
+    navigator.geolocation.getCurrentPosition(
+        function(pos){
+        var me = {
+            lat: +pos.coords.latitude.toFixed(5),
+            lng: +pos.coords.longitude.toFixed(5)
+        };
+
+        // 在所有已存位置中找最近的
+        var best = null, bestD = Infinity;
+        state.locations.forEach(function(l){
+            if (!l.coord) return;
+            var d = distanceM(me, l.coord);
+            if (d < bestD) { bestD = d; best = l; }
+        });
+
+        restoreQuickBtn();
+
+        if (!best) {
+            toast('已存位置都没有坐标，点「切换」进去补个定位吧');
+            return;
+        }
+
+        if (bestD <= MATCH_RADIUS) {
+            state.currentLocId = best.id;
+            save();
+            renderSleep();
+            toast('已定位到最近位置：' + best.type + ' · ' + best.name +
+                '（约 ' + Math.round(bestD) + ' 米）');
+        } else {
+            openModal(
+            '<div class="modal-head">最近的建筑有点远</div>' +
+            '<div class="modal-sub">离你最近的已存位置是：' +
+                (LOC_TYPES[best.type] || '📍') + ' ' + esc(best.type) + ' · ' + esc(best.name) +
+                '，约 <b>' + Math.round(bestD) + '</b> 米。<br>要使用它，还是添加一个新位置？</div>' +
+            '<button class="btn-primary" onclick="pickLoc(\'' + best.id + '\')">就选这个（' + Math.round(bestD) + ' 米）</button>' +
+            '<button class="btn-ghost" onclick="closeModal();openLocPicker()">添加新位置</button>'
+            );
+        }
+        },
+        function(err){
+        restoreQuickBtn();
+        var msg = '定位失败或未授权，请手动选择位置';
+        if (err && err.code === 1) msg = '你拒绝了定位授权，请手动选择位置';
+        else if (err && err.code === 3) msg = '定位超时，请手动选择位置';
+        toast(msg);
+        },
+        { timeout: 12000, maximumAge: 0, enableHighAccuracy: true }
+    );
+
+    function restoreQuickBtn(){
+        var b = document.getElementById('quickLocBtn');
+        if (b) {
+        b.disabled = false;
+        b.textContent = '📍 定位匹配最近位置';
+        }
+    }
+    }
+
+    /* ==================================================================
+    广场
+    ================================================================== */
+    function ensureBoard(){
+    if (!state.board || !state.board.list || !state.board.list.length) {
+        state.board = { list: genBoard() };
+        save();
+    }
+    }
+
+    function genBoard(){
+    var names = V_NAMES.slice();
+    for (var i = names.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = names[i]; names[i] = names[j]; names[j] = tmp;
+    }
+    var out = [];
+    for (var k = 0; k < 14; k++) {
+        out.push({
+        id: 'v' + k,
+        name: names[k],
+        avatar: V_AVATARS[Math.floor(Math.random() * V_AVATARS.length)],
+        maxSleep: +(4 + Math.random() * 13).toFixed(1),
+        bedMin: Math.floor(1140 + Math.random() * 480),   // 19:00 ~ 03:00
+        streak: Math.floor(Math.random() * 22)
+        });
+    }
+    return out;
+    }
+
+    function buildBoardRows(tab){
+    ensureBoard();
+    var rows = state.board.list.map(function(v){
+        return {
+        id: v.id,
+        name: v.name,
+        avatar: v.avatar,
+        isMe: false,
+        value: tab === 'duration' ? v.maxSleep : (tab === 'early' ? v.bedMin : v.streak)
+        };
+    });
+
+    var all = state.sessions.filter(function(s){ return s.end; });
+    var myMax = 0;
+    all.forEach(function(s){
+        var h = calcSession(s).hours;
+        if (h > myMax) myMax = h;
+    });
+    var myBed = null;
+    all.forEach(function(s){
+        var b = bedMinOf(s.start);
+        if (myBed === null || b < myBed) myBed = b;
+    });
+    var myStreak = streakInfo().current;
+
+    var myValue;
+    if (tab === 'duration') myValue = myMax;
+    else if (tab === 'early') myValue = (myBed === null ? 9999 : myBed);
+    else myValue = myStreak;
+
+    rows.push({
+        id: 'me',
+        name: state.user.nickname,
+        avatar: '😴',
+        isMe: true,
+        value: myValue,
+        hasData: all.length > 0
+    });
+
+    rows.sort(function(a, b){
+        return tab === 'early' ? a.value - b.value : b.value - a.value;
+    });
+    return rows;
+    }
+
+    function renderSquare(){
+    ensureBoard();
+    var tab = state.boardTab;
+    var rows = buildBoardRows(tab);
+
+    var html = rows.map(function(r, i){
+        var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+        var valHtml = '', warnCls = '';
+
+        if (!r.isMe || r.hasData !== false) {
+        if (tab === 'duration') {
+            if (r.value > 0) {
+            valHtml = r.value.toFixed(1) + 'h';
+            if (r.value > (+state.settings.maxSleep || 12)) { valHtml += ' ⚠️'; warnCls = 'warn'; }
+            } else valHtml = '--';
+        } else if (tab === 'early') {
+            valHtml = (r.value >= 9999 || r.value === 0) ? '--' : minToHM(r.value);
+        } else {
+            valHtml = r.value > 0 ? r.value + '天' : '--';
+        }
+        } else {
+        valHtml = '--';
+        }
+
+        return '<div class="rank-row ' + (r.isMe ? 'me' : '') + '">' +
+        '<div class="rank-no">' + medal + '</div>' +
+        '<div class="rank-av">' + r.avatar + '</div>' +
+        '<div class="rank-name"><span class="nm">' + esc(r.name) + '</span>' +
+            (r.isMe ? '<span class="me-tag">我</span>' : '') + '</div>' +
+        '<div class="rank-val ' + warnCls + '">' + valHtml + '</div>' +
+        '</div>';
+    }).join('');
+
+    $('#page-square').innerHTML =
+    '<div class="page-inner">' +
+        '<div class="topbar">' +
+        '<div>' +
+            '<div class="hi">广场</div>' +
+            '<div class="hi-sub">虚拟睡友，仅供娱乐</div>' +
+        '</div>' +
+        '</div>' +
+
+        '<div class="sq-tabs">' +
+        '<div class="sq-tab ' + (tab === 'duration' ? 'on' : '') + '" onclick="setBoardTab(\'duration\')">睡眠时长榜</div>' +
+        '<div class="sq-tab ' + (tab === 'early' ? 'on' : '') + '" onclick="setBoardTab(\'early\')">最早入睡榜</div>' +
+        '<div class="sq-tab ' + (tab === 'streak' ? 'on' : '') + '" onclick="setBoardTab(\'streak\')">连续天数榜</div>' +
+        '</div>' +
+
+        '<div class="board-list">' + html + '</div>' +
+
+        '<button class="swap-btn" onclick="swapBoard()">🔄 换一批睡友</button>' +
+        '<div class="foot-note">榜单数据为随机生成的虚拟数据<br>换一批后本轮榜单将固定保存</div>' +
+    '</div>';
+    }
+
+    function setBoardTab(t){
+    state.boardTab = t;
+    save();
+    renderSquare();
+    }
+
+    function swapBoard(){
+    state.board = { list: genBoard() };
+    save();
+    renderSquare();
+    toast('已换一批睡友 🔄');
+    }
+
+    /* ==================================================================
+    我的
+    ================================================================== */
+    function renderMe(){
+    var achs = ACHIEVEMENTS.map(function(a){
+        return { id: a.id, name: a.name, icon: a.icon, desc: a.desc, unlocked: a.check() };
+    });
+    var unlockedCount = achs.filter(function(a){ return a.unlocked; }).length;
+    var si = streakInfo();
+
+    var achHtml = achs.map(function(a){
+        return '<div class="ach ' + (a.unlocked ? 'on' : '') + '" onclick="showAch(\'' + a.id + '\')">' +
+        '<div class="ach-icon">' + a.icon + '</div>' +
+        '<div class="ach-name">' + a.name + '</div>' +
+        (a.unlocked ? '' : '<div class="ach-lock">🔒</div>') +
+        '</div>';
+    }).join('');
+
+    var st = state.settings;
+    var devHtml = devOpen
+        ? '<div class="dev-body">' +
+            '<label>学期目标（小时）</label>' +
+            '<input type="number" id="setTarget" value="' + st.target + '" min="1">' +
+            '<label>单次睡眠上限（小时）</label>' +
+            '<input type="number" id="setMax" value="' + st.maxSleep + '" min="1">' +
+            '<label>单次最低睡眠时长（分钟）</label>' +
+            '<input type="number" id="setMin" value="' + st.minSleep + '" min="0">' +
+            '<label>学期开始日期</label>' +
+            '<input type="date" id="setStart" value="' + (st.semesterStart || '') + '">' +
+            '<label>学期结束日期</label>' +
+            '<input type="date" id="setEnd" value="' + (st.semesterEnd || '') + '">' +
+            '<button class="btn-primary" onclick="saveSettings()">保存设置</button>' +
+            '<button class="btn-ghost danger" onclick="clearAll()">清空全部记录</button>' +
+        '</div>'
+        : '';
+
+    $('#page-me').innerHTML =
+    '<div class="page-inner">' +
+
+        '<div class="topbar">' +
+        '<div>' +
+            '<div class="hi">我的</div>' +
+            '<div class="hi-sub">连睡 ' + si.current + ' 天 · 累计打卡 ' + state.sessions.filter(function(s){return s.end;}).length + ' 次</div>' +
+        '</div>' +
+        '</div>' +
+
+        '<div class="profile-card">' +
+        '<div class="avatar">😴</div>' +
+        '<div>' +
+            '<div class="pf-name">' + esc(state.user.nickname) + '</div>' +
+            '<div class="pf-sub">' + esc(state.user.school || '未设置学校') + '<br>' +
+            esc(state.user.college || '未设置学院') + ' · ' + esc(state.user.studentId || '------') + '</div>' +
+        '</div>' +
+        '<div class="pf-edit" onclick="openEditProfile()">编辑</div>' +
+        '</div>' +
+
+        '<div class="card">' +
+        '<div class="card-head">成就墙 · ' + unlockedCount + '/' + achs.length + '</div>' +
+        '<div class="ach-grid">' + achHtml + '</div>' +
+        '</div>' +
+
+        '<div class="card">' +
+        '<div class="dev-entry" onclick="toggleDev()">🛠 我是校长 <span>' + (devOpen ? '收起' : '展开') + '</span></div>' +
+        devHtml +
+        '</div>' +
+
+        '<div class="card">' +
+        '<div class="card-head">数据管理</div>' +
+        '<button class="btn-ghost" style="margin-top:0" onclick="exportData()">📤 导出数据到剪贴板</button>' +
+        '<button class="btn-ghost" onclick="openImport()">📥 导入数据（Base64）</button>' +
+        '<button class="btn-ghost danger" onclick="logout()">🚪 注销账号并清空数据</button>' +
+        '</div>' +
+
+        '<div class="disclaimer">' +
+        '校园睡纯属娱乐，不接入教务系统，不提供叫醒服务，睡过头挂科概不负责。<br>' +
+        '所有数据仅保存在本机浏览器，定位信息不会上传服务器。' +
+        '</div>' +
+    '</div>';
+    }
+
+    function showAch(id){
+    var a = null;
+    ACHIEVEMENTS.forEach(function(x){ if (x.id === id) a = x; });
+    if (!a) return;
+    var unlocked = a.check();
+    openModal(
+        '<div style="text-align:center">' +
+        '<div style="font-size:52px;line-height:1;' + (unlocked ? '' : 'filter:grayscale(1);opacity:.4') + '">' + a.icon + '</div>' +
+        '<div style="font-size:17px;font-weight:800;margin-top:12px">' + a.name + '</div>' +
+        '<div style="font-size:12.5px;color:#8a8aa0;margin-top:10px;line-height:1.8">' + a.desc + '</div>' +
+        '<div style="font-size:12px;font-weight:800;margin-top:14px;color:' + (unlocked ? '#12b886' : '#c0c0d0') + '">' +
+            (unlocked ? '✅ 已点亮' : '🔒 未点亮') + '</div>' +
+        '</div>' +
+        '<button class="btn-primary" onclick="closeModal()">知道啦</button>'
+    );
+    }
+
+    function toggleDev(){
+    devOpen = !devOpen;
+    renderMe();
+    }
+
+    function saveSettings(){
+    var t  = +document.getElementById('setTarget').value;
+    var mx = +document.getElementById('setMax').value;
+    var mn = +document.getElementById('setMin').value;
+
+    if (t > 0)  state.settings.target   = t;
+    if (mx > 0) state.settings.maxSleep = mx;
+    if (mn >= 0) state.settings.minSleep = mn;
+    state.settings.semesterStart = document.getElementById('setStart').value || '';
+    state.settings.semesterEnd   = document.getElementById('setEnd').value || '';
+
+    save();
+    renderAll();
+    devOpen = true;
+    renderMe();
+    toast('设置已保存 ✅');
+    }
+
+    function clearAll(){
+    if (!confirm('确定清空全部睡眠记录吗？此操作不可恢复。')) return;
+    state.sessions = [];
+    state.active = null;
+    state.showAllRecords = false;
+    save();
+    renderAll();
+    toast('记录已清空');
+    }
+
+    /* ---------------- 数据管理：导出 / 导入 / 注销 ---------------- */
+
+    /* 中文安全 Base64 编解码 */
+    function b64Encode(str){
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p){
+        return String.fromCharCode(parseInt(p, 16));
+    }));
+    }
+    function b64Decode(str){
+    return decodeURIComponent(atob(str).split('').map(function(c){
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    }
+
+    /* 复制到剪贴板（含降级方案） */
+    function copyText(text){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(resolve, reject){
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+        document.body.removeChild(ta);
+        ok ? resolve() : reject(new Error('copy failed'));
+    });
+    }
+
+    /* 导出：整个 state 序列化后 Base64 复制到剪贴板 */
+    function exportData(){
+    if (!state.user) { toast('当前没有可导出的数据'); return; }
+
+    var payload;
+    try {
+        payload = b64Encode(JSON.stringify(state));
+    } catch(e) {
+        toast('导出失败，请稍后重试');
+        return;
+    }
+
+    copyText(payload).then(function(){
+        toast('已复制到剪贴板，共 ' + payload.length + ' 字符');
+    }).catch(function(){
+        openModal(
+        '<div class="modal-head">手动复制</div>' +
+        '<div class="modal-sub">自动复制失败，请长按下方文本框全选后复制。</div>' +
+        '<textarea id="exportArea" readonly style="width:100%;min-height:110px;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:10px;font-size:12px;color:#1c1c28;outline:none;resize:vertical;word-break:break-all">' + payload + '</textarea>' +
+        '<button class="btn-primary" onclick="closeModal()">完成</button>'
+        );
+        var el = document.getElementById('exportArea');
+        if (el) { el.focus(); el.select(); }
+    });
+    }
+
+    /* 打开导入面板 */
+    function openImport(){
+    openModal(
+        '<div class="modal-head">导入数据</div>' +
+        '<div class="modal-sub">粘贴之前导出的 Base64 字符串。<b style="color:#e03131">导入会覆盖本机现有数据</b>，请谨慎操作。</div>' +
+        '<textarea id="importArea" placeholder="在此粘贴 Base64 数据…" style="width:100%;min-height:110px;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:10px;font-size:12px;color:#1c1c28;outline:none;resize:vertical;word-break:break-all"></textarea>' +
+        '<button class="btn-ghost" onclick="pasteFromClipboard()">📋 从剪贴板读取</button>' +
+        '<button class="btn-primary" onclick="doImport()">确认导入</button>' +
+        '<button class="btn-ghost" onclick="closeModal()">取消</button>'
+    );
+    }
+
+    function pasteFromClipboard(){
+    if (!navigator.clipboard || !navigator.clipboard.readText) {
+        toast('当前浏览器不支持读取剪贴板，请手动粘贴');
+        return;
+    }
+    navigator.clipboard.readText().then(function(txt){
+        var el = document.getElementById('importArea');
+        if (el) el.value = (txt || '').trim();
+        toast('已读取剪贴板内容');
+    }).catch(function(){
+        toast('读取失败，请手动粘贴');
+    });
+    }
+
+    /* 执行导入 */
+    function doImport(){
+    var el = document.getElementById('importArea');
+    var raw = ((el && el.value) || '').replace(/\s+/g, '');
+    if (!raw) { toast('请先粘贴导出的数据'); return; }
+
+    var d = null;
+    try {
+        d = JSON.parse(b64Decode(raw));
+    } catch(e) {
+        toast('数据无法解析，请检查是否完整');
+        return;
+    }
+    if (!d || typeof d !== 'object' || Array.isArray(d)) {
+        toast('数据格式不正确');
+        return;
+    }
+    if (!('user' in d) && !('sessions' in d)) {
+        toast('这似乎不是「校园睡」的数据');
+        return;
+    }
+
+    if (!confirm('导入将覆盖当前本机所有数据，确定继续吗？')) return;
+
+    state.user         = d.user || null;
+    state.sessions     = Array.isArray(d.sessions) ? d.sessions : [];
+    state.active       = d.active || null;
+    state.locations    = Array.isArray(d.locations) ? d.locations : [];
+    state.currentLocId = d.currentLocId || null;
+    state.board        = d.board || null;
+    state.boardTab     = d.boardTab || 'duration';
+    state.tab          = d.tab || 'progress';
+    state.presetIdx    = d.presetIdx || 0;
+    state.showAllRecords = false;
+    state.settings = Object.assign(
+        { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
+        d.settings || {}
+    );
+
+    save();
+    closeModal();
+    renderAll();
+    toast(state.user ? '导入成功 ✅' : '导入完成，请重新填写信息');
+    }
+
+    /* 注销：清空全部本机数据 */
+    function logout(){
+    if (!confirm('注销将清空本机的账号信息、睡眠记录、位置和设置，且无法恢复。确定注销吗？')) return;
+    if (!confirm('再次确认：真的要清空全部数据吗？')) return;
+
+    try { localStorage.removeItem(LS_KEY); } catch(e){}
+
+    state = {
+        user: null,
+        settings: { target:100, maxSleep:12, minSleep:5, semesterStart:'', semesterEnd:'' },
+        sessions: [],
+        active: null,
+        locations: [],
+        currentLocId: null,
+        board: null,
+        boardTab: 'duration',
+        tab: 'progress',
+        presetIdx: 0,
+        showAllRecords: false
+    };
+
+    devOpen = false;
+    pendingCoord = null;
+    pendingType = '宿舍';
+    pendingName = '';
+
+    closeModal();
+
+    ['regSchool','regCollege','regId','regNick'].forEach(function(id){
+        var i = document.getElementById(id);
+        if (i) i.value = '';
+    });
+    var pb = document.getElementById('presetBtn');
+    if (pb) pb.textContent = '✨ 填入预设信息';
+
+    renderAll();
+    window.scrollTo(0, 0);
+    toast('已注销，数据已清空');
+    }
+
+    /* ---------------- 编辑个人信息 ---------------- */
+    function openEditProfile(){
+    openModal(
+        '<div class="modal-head">编辑个人信息</div>' +
+        '<div class="modal-sub">昵称可匿名，不强制真实姓名。</div>' +
+            '<button class="btn-ghost" id="editPresetBtn" style="margin-top:2px" onclick="fillPresetForEdit()">✨ 填入预设信息</button>' +
+        '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学校</label>' +
+        '<input id="epSchool" value="' + esc(state.user.school || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
+        '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学院</label>' +
+        '<input id="epCollege" value="' + esc(state.user.college || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
+        '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">学号</label>' +
+        '<input id="epId" value="' + esc(state.user.studentId || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
+        '<label style="display:block;font-size:11.5px;color:#8a8aa0;font-weight:600;margin:12px 0 6px">昵称</label>' +
+        '<input id="epNick" value="' + esc(state.user.nickname || '') + '" style="width:100%;border:1.5px solid #eceaf6;background:#fafaff;border-radius:11px;padding:11px 13px;font-size:14px;outline:none">' +
+        '<button class="btn-primary" onclick="saveProfile()">保存</button>' +
+        '<button class="btn-ghost" onclick="closeModal()">取消</button>'
+    );
+    }
+
+    function saveProfile(){
+    var nick = (document.getElementById('epNick').value || '').trim();
+    if (!nick) { toast('昵称不能为空'); return; }
+    state.user = {
+        school: (document.getElementById('epSchool').value || '').trim(),
+        college: (document.getElementById('epCollege').value || '').trim(),
+        studentId: (document.getElementById('epId').value || '').trim(),
+        nickname: nick
+    };
+    save();
+    closeModal();
+    renderAll();
+    toast('已保存');
+    }
+
+    /* ==================================================================
+    弹窗
+    ================================================================== */
+    function openModal(html){
+    $('#modalRoot').innerHTML =
+        '<div class="modal-mask" onclick="if(event.target===this)closeModal()">' +
+        '<div class="modal-card">' + html + '</div>' +
+        '</div>';
+    }
+    function closeModal(){
+    $('#modalRoot').innerHTML = '';
+    }
+
+    /* ---------------- 搞笑弹窗 ---------------- */
+    function showPlanPopup(){
+    var msgs = [
+        '系统判定你无需规划，直接睡即可。',
+        '规划已生成：①闭眼 ②睡着 ③别定闹钟。',
+        '经过 0.3 秒深度分析：建议今晚 22:30 上床、23:00 入睡、次日 7:00 起床。<br><span style="font-size:11px;color:#b0b0c4">（本建议由随机数生成，不构成任何健康建议）</span>',
+        '规划失败：床太舒服了，系统也想睡。',
+        '检测到你的睡眠天赋点已满，建议直接躺平，无需规划。'
+    ];
+    var m = msgs[Math.floor(Math.random() * msgs.length)];
+    openModal(
+        '<div class="ad-modal">' +
+        '<div class="ad-emoji">🎯</div>' +
+        '<h3>专属睡眠规划</h3>' +
+        '<p>' + m + '</p>' +
+        '<button class="btn-primary" onclick="closeModal()">好的，我去睡了</button>' +
+        '</div>'
+    );
+    }
+
+    function showAd(){
+    openModal(
+        '<div class="ad-modal">' +
+        '<div class="ad-emoji">🛏️</div>' +
+        '<h3>躺平！免早八通道</h3>' +
+        '<p>恭喜你获得「免早八体验券」×1<br>有效期：永久（仅限本页面）</p>' +
+        '<p class="small">本券不具备任何实际效力，早八该上还得上。</p>' +
+        '<button class="btn-primary" onclick="closeModal()">知道了，我去睡了</button>' +
+        '</div>'
+    );
+    }
+
+    /* ==================================================================
+    注册
+    ================================================================== */
+    function fillPreset(){
+    var p = PRESETS[state.presetIdx % PRESETS.length];
+    state.presetIdx++;
+    document.getElementById('regSchool').value  = p.school;
+    document.getElementById('regCollege').value = p.college;
+    document.getElementById('regId').value      = p.studentId;
+    document.getElementById('regNick').value    = p.nickname;
+    document.getElementById('presetBtn').textContent =
+        state.presetIdx > 0 ? '🔄 换一版' : '✨ 填入预设信息';
+    }
+
+    function fillPresetForEdit(){
+    var p = PRESETS[state.presetIdx % PRESETS.length];
+    state.presetIdx++;
+    save();
+
+    document.getElementById('epSchool').value  = p.school;
+    document.getElementById('epCollege').value = p.college;
+    document.getElementById('epId').value      = p.studentId;
+    document.getElementById('epNick').value    = p.nickname;
+
+    var btn = document.getElementById('editPresetBtn');
+    if (btn) btn.textContent = '🔄 换一版';
+
+    toast('已填入预设信息，记得点「保存」哦');
+    }
+
+    function doRegister(){
+    var school  = (document.getElementById('regSchool').value || '').trim();
+    var college = (document.getElementById('regCollege').value || '').trim();
+    var sid     = (document.getElementById('regId').value || '').trim();
+    var nick    = (document.getElementById('regNick').value || '').trim();
+
+    if (!nick) { toast('给自己起个昵称吧 🙂'); return; }
+
+    state.user = {
+        school: school || '社会大学',
+        college: college || '躺平学院',
+        studentId: sid || '------',
+        nickname: nick
+    };
+    save();
+    renderAll();
+    toast('欢迎来到校园睡 🌙');
+    }
+
+    /* ==================================================================
+    实时计时器
+    ================================================================== */
+    setInterval(function(){
+    if (!state.active) return;
+    var el = document.getElementById('dialTimer');
+    if (!el) return;
+
+    var ms = Date.now() - state.active.start;
+    el.textContent = fmtHMS(ms);
+
+    var maxH = +state.settings.maxSleep || 12;
+    var over = ms / 3600000 > maxH;
+    el.classList.toggle('over', over);
+
+    var tip = document.getElementById('dialTip');
+    if (tip) {
+        tip.textContent = over
+        ? '⚠️ 已超过上限，本次将按「昏迷」记录，不计入学期成绩'
+        : '注意：单次睡眠上限 ' + maxH + ' 小时，超时将按「昏迷」处理。';
+    }
+    }, 500);
+
+    /* ==================================================================
+    启动
+    ================================================================== */
+    (function init(){
+    load();
+    if (state.user) {
+        renderAll();
+    } else {
+        $('#registerScreen').classList.remove('hidden');
+        $('#mainScreen').classList.add('hidden');
+    }
+    // 防意外退出丢失进行中的睡眠：每次进入都检查
+    if (state.active) {
+        var hrs = (Date.now() - state.active.start) / 3600000;
+        if (hrs > 48) {
+        // 极端异常情况（电脑长期挂起），提示用户
+        setTimeout(function(){ toast('检测到一条超长睡眠记录，记得去结账 😴'); }, 800);
+        }
+    }
+    })();
+
+    window.addEventListener('beforeunload', save);
+    </script>
+    </body>
+    </html>
