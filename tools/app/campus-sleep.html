@@ -706,7 +706,7 @@ function renderSleep(){
       '<div class="dial ' + (active ? 'sleeping' : '') + '" onclick="' + (active ? 'endSleep()' : 'startSleep()') + '">' +
         '<div class="dial-inner">' +
           timerHtml +
-          '<div class="dial-label">' + (active ? '醒醒（结账）' : '开睡') + '</div>' +
+          '<div class="dial-label">' + (active ? '起床' : '开睡') + '</div>' +
           '<div class="dial-sub">' + (active ? '轻触结束本次睡眠' : '轻触开始本次睡眠') + '</div>' +
         '</div>' +
       '</div>' +
@@ -1415,6 +1415,13 @@ function renderMe(){
       devHtml +
     '</div>' +
 
+    '<div class="card">' +
+      '<div class="card-head">数据管理</div>' +
+      '<button class="btn-ghost" style="margin-top:0" onclick="exportData()">📤 导出数据到剪贴板</button>' +
+      '<button class="btn-ghost" onclick="openImport()">📥 导入数据（Base64）</button>' +
+      '<button class="btn-ghost danger" onclick="logout()">🚪 注销账号并清空数据</button>' +
+    '</div>' +
+
     '<div class="disclaimer">' +
       '校园睡纯属娱乐，不接入教务系统，不提供叫醒服务，睡过头挂科概不负责。<br>' +
       '所有数据仅保存在本机浏览器，定位信息不会上传服务器。' +
@@ -1470,6 +1477,179 @@ function clearAll(){
   save();
   renderAll();
   toast('记录已清空');
+}
+
+/* ---------------- 数据管理：导出 / 导入 / 注销 ---------------- */
+
+/* 中文安全 Base64 编解码 */
+function b64Encode(str){
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p){
+    return String.fromCharCode(parseInt(p, 16));
+  }));
+}
+function b64Decode(str){
+  return decodeURIComponent(atob(str).split('').map(function(c){
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+}
+
+/* 复制到剪贴板（含降级方案） */
+function copyText(text){
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise(function(resolve, reject){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-9999px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    ok ? resolve() : reject(new Error('copy failed'));
+  });
+}
+
+/* 导出：整个 state 序列化后 Base64 复制到剪贴板 */
+function exportData(){
+  if (!state.user) { toast('当前没有可导出的数据'); return; }
+
+  var payload;
+  try {
+    payload = b64Encode(JSON.stringify(state));
+  } catch(e) {
+    toast('导出失败，请稍后重试');
+    return;
+  }
+
+  copyText(payload).then(function(){
+    toast('已复制到剪贴板，共 ' + payload.length + ' 字符');
+  }).catch(function(){
+    openModal(
+      '<div class="modal-head">手动复制</div>' +
+      '<div class="modal-sub">自动复制失败，请长按下方文本框全选后复制。</div>' +
+      '<textarea id="exportArea" readonly style="width:100%;min-height:110px;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:10px;font-size:12px;color:#1c1c28;outline:none;resize:vertical;word-break:break-all">' + payload + '</textarea>' +
+      '<button class="btn-primary" onclick="closeModal()">完成</button>'
+    );
+    var el = document.getElementById('exportArea');
+    if (el) { el.focus(); el.select(); }
+  });
+}
+
+/* 打开导入面板 */
+function openImport(){
+  openModal(
+    '<div class="modal-head">导入数据</div>' +
+    '<div class="modal-sub">粘贴之前导出的 Base64 字符串。<b style="color:#e03131">导入会覆盖本机现有数据</b>，请谨慎操作。</div>' +
+    '<textarea id="importArea" placeholder="在此粘贴 Base64 数据…" style="width:100%;min-height:110px;border:1.5px solid #eceaf6;background:#fafaff;border-radius:12px;padding:10px;font-size:12px;color:#1c1c28;outline:none;resize:vertical;word-break:break-all"></textarea>' +
+    '<button class="btn-ghost" onclick="pasteFromClipboard()">📋 从剪贴板读取</button>' +
+    '<button class="btn-primary" onclick="doImport()">确认导入</button>' +
+    '<button class="btn-ghost" onclick="closeModal()">取消</button>'
+  );
+}
+
+function pasteFromClipboard(){
+  if (!navigator.clipboard || !navigator.clipboard.readText) {
+    toast('当前浏览器不支持读取剪贴板，请手动粘贴');
+    return;
+  }
+  navigator.clipboard.readText().then(function(txt){
+    var el = document.getElementById('importArea');
+    if (el) el.value = (txt || '').trim();
+    toast('已读取剪贴板内容');
+  }).catch(function(){
+    toast('读取失败，请手动粘贴');
+  });
+}
+
+/* 执行导入 */
+function doImport(){
+  var el = document.getElementById('importArea');
+  var raw = ((el && el.value) || '').replace(/\s+/g, '');
+  if (!raw) { toast('请先粘贴导出的数据'); return; }
+
+  var d = null;
+  try {
+    d = JSON.parse(b64Decode(raw));
+  } catch(e) {
+    toast('数据无法解析，请检查是否完整');
+    return;
+  }
+  if (!d || typeof d !== 'object' || Array.isArray(d)) {
+    toast('数据格式不正确');
+    return;
+  }
+  if (!('user' in d) && !('sessions' in d)) {
+    toast('这似乎不是「校园睡」的数据');
+    return;
+  }
+
+  if (!confirm('导入将覆盖当前本机所有数据，确定继续吗？')) return;
+
+  state.user         = d.user || null;
+  state.sessions     = Array.isArray(d.sessions) ? d.sessions : [];
+  state.active       = d.active || null;
+  state.locations    = Array.isArray(d.locations) ? d.locations : [];
+  state.currentLocId = d.currentLocId || null;
+  state.board        = d.board || null;
+  state.boardTab     = d.boardTab || 'duration';
+  state.tab          = d.tab || 'progress';
+  state.presetIdx    = d.presetIdx || 0;
+  state.showAllRecords = false;
+  state.settings = Object.assign(
+    { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
+    d.settings || {}
+  );
+
+  save();
+  closeModal();
+  renderAll();
+  toast(state.user ? '导入成功 ✅' : '导入完成，请重新填写信息');
+}
+
+/* 注销：清空全部本机数据 */
+function logout(){
+  if (!confirm('注销将清空本机的账号信息、睡眠记录、位置和设置，且无法恢复。确定注销吗？')) return;
+  if (!confirm('再次确认：真的要清空全部数据吗？')) return;
+
+  try { localStorage.removeItem(LS_KEY); } catch(e){}
+
+  state = {
+    user: null,
+    settings: { target:100, maxSleep:12, minSleep:15, semesterStart:'', semesterEnd:'' },
+    sessions: [],
+    active: null,
+    locations: [],
+    currentLocId: null,
+    board: null,
+    boardTab: 'duration',
+    tab: 'progress',
+    presetIdx: 0,
+    showAllRecords: false
+  };
+
+  devOpen = false;
+  pendingCoord = null;
+  pendingType = '宿舍';
+  pendingName = '';
+
+  closeModal();
+
+  ['regSchool','regCollege','regId','regNick'].forEach(function(id){
+    var i = document.getElementById(id);
+    if (i) i.value = '';
+  });
+  var pb = document.getElementById('presetBtn');
+  if (pb) pb.textContent = '✨ 填入预设信息';
+
+  renderAll();
+  window.scrollTo(0, 0);
+  toast('已注销，数据已清空');
 }
 
 /* ---------------- 编辑个人信息 ---------------- */
