@@ -870,6 +870,85 @@
             transform: scale(.99)
         }
 
+                /* ---- 广场 · 睡友动态 ---- */
+        .feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .feed-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 14px 15px;
+            box-shadow: 0 6px 20px rgba(30, 30, 60, .05)
+        }
+
+        .feed-top {
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .feed-av {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f4f2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex: none
+        }
+
+        .feed-owner {
+            flex: 1;
+            min-width: 0
+        }
+
+        .feed-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3b3b58;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .feed-time {
+            font-size: 10.5px;
+            color: #a8a8bc;
+            margin-top: 2px
+        }
+
+        .feed-tag {
+            background: #f2efff;
+            color: #6C5CE7;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 7px;
+            flex: none
+        }
+
+        .feed-text {
+            font-size: 13px;
+            color: #4a4a66;
+            line-height: 1.75;
+            margin-top: 10px;
+            word-break: break-word
+        }
+
+        .feed-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 11px;
+            font-size: 11px;
+            color: #a8a8bc
+        }
+
         /* ============ 我的页 ============ */
         .profile-card {
             background: linear-gradient(140deg, #fff, #f8f6ff);
@@ -1046,6 +1125,51 @@
             padding: 22px 6px 10px;
             text-align: center
         }
+
+        /* ---- 关于列表 ---- */
+.about-list {
+    padding-top: 12px
+}
+
+.about-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 2px;
+    border-bottom: 1px solid #f4f4fa;
+    font-size: 12.5px;
+    color: #5a5a72;
+    line-height: 1.6;
+    text-decoration: none;
+    transition: color .15s
+}
+
+.about-item:last-child {
+    border-bottom: none
+}
+
+a.about-item:hover {
+    color: #6C5CE7
+}
+
+.about-item .ai-icon {
+    flex: none;
+    width: 18px;
+    text-align: center;
+    font-size: 14px
+}
+
+.about-item .ai-text {
+    flex: 1;
+    min-width: 0;
+    word-break: break-all
+}
+
+.about-item .ai-arrow {
+    flex: none;
+    font-size: 11px;
+    color: #c0c0d0
+}
 
         /* ============ 弹窗 ============ */
         .modal-mask {
@@ -1749,6 +1873,85 @@
             '🦢', '🦜', '🐦', '🦘', '🦦', '🐘', '🦒', '🦓', '🐎', '🐖',
             '🐑', '🦌', '🐈', '🐓', '🐤', '🦩', '🦭', '🐿️', '🦫', '🐌'
         ];
+
+                /* ---------------- 广场 · 网友动态（JSON 硬编码） ---------------- */
+        var FEED_DATA = [
+            {
+                id: 'f1', name: '卷王克星', avatar: '🦥', time: '2 分钟前', tag: '战报', loc: '宿舍',
+                text: '今日战绩：11 小时 42 分。闹钟响了四次，我按了四次「稍后提醒」，第五次它自己放弃了。',
+                likes: 328, comments: 56
+            },
+            {
+                id: 'f2', name: '图书馆钉子户', avatar: '📚', time: '9 分钟前', tag: '学习', loc: '图书馆',
+                text: '在图书馆睡了三小时，醒来发现对面桌换了三批人。我怀疑我是这个自习室唯一没走的常驻居民。',
+                likes: 214, comments: 38
+            },
+            {
+                id: 'f3', name: '早八逃兵', avatar: '🐰', time: '23 分钟前', tag: '求助', loc: '教学楼',
+                text: '今天早八，我在梦里上了。梦里老师还点名了，我答「到」答得特别响亮——然后醒了，发现已经十点半。',
+                likes: 512, comments: 102
+            },
+            {
+                id: 'f4', name: '床垫测试工程师', avatar: '🐼', time: '41 分钟前', tag: '测评', loc: '宿舍',
+                text: '认真测评了宿舍床垫：上铺翻身会晃，下铺翻身会响。结论是只有不动的时候才舒服。建议全校统一换成云朵。',
+                likes: 176, comments: 24
+            },
+            {
+                id: 'f5', name: '深夜泡面侠', avatar: '🍜', time: '1 小时前', tag: '夜宵', loc: '食堂',
+                text: '凌晨一点半的泡面，是校园里最伟大的发明。热量是白天的三倍，幸福感是白天的三十倍。',
+                likes: 289, comments: 61
+            },
+            {
+                id: 'f6', name: '上铺哲学家', avatar: '🦉', time: '2 小时前', tag: '思考', loc: '宿舍',
+                text: '躺在床上盯着天花板，突然想明白一个道理：只要我不起来，今天就没有真正开始，所以也不算失败。',
+                likes: 447, comments: 88
+            },
+            {
+                id: 'f7', name: '闹钟粉碎机', avatar: '🐯', time: '3 小时前', tag: '日常', loc: '宿舍',
+                text: '我手机里有 14 个闹钟，从 6:40 排到 8:00，每 5 分钟一个。它们的共同点是：都没叫醒过我。',
+                likes: 396, comments: 73
+            },
+            {
+                id: 'f8', name: '午睡特长生', avatar: '🐨', time: '4 小时前', tag: '摸鱼', loc: '教学楼',
+                text: '专业课第三排，趴在书上睡着了。醒来看见书上有一滩口水，室友说那是我今天唯一的生产成果。',
+                likes: 203, comments: 31
+            },
+            {
+                id: 'f9', name: '断电幸存者', avatar: '🦇', time: '5 小时前', tag: '求助', loc: '其他',
+                text: '宿舍 23:00 断电，全宿舍五个人同时发出惨叫。三秒后，五部手机的手电筒同时亮起——这就是当代大学生。',
+                likes: 601, comments: 134
+            },
+            {
+                id: 'f10', name: '梦话主播', avatar: '🦊', time: '6 小时前', tag: '名场面', loc: '宿舍',
+                text: '室友说我昨晚梦话喊了一句「这题我会」。第二天他问我是什么题，我说我也不知道，我在梦里也没做出来。',
+                likes: 355, comments: 67
+            },
+            {
+                id: 'f11', name: '闭眼即睡星人', avatar: '🐨', time: '8 小时前', tag: '日常', loc: '图书馆',
+                text: '我的特殊技能：坐下就困，躺下就清醒。椅子是我的天敌，床是我的敌人。',
+                likes: 268, comments: 42
+            },
+            {
+                id: 'f12', name: '早起失败者', avatar: '🐔', time: '10 小时前', tag: '立flag', loc: '宿舍',
+                text: '今晚一定 11 点睡。如果做不到，就在明天的动态里再立一次 flag。反正我已经连续立了 37 天了。',
+                likes: 489, comments: 95
+            },
+            {
+                id: 'f13', name: '凌晨四点半', avatar: '🐺', time: '昨天 23:47', tag: '修仙', loc: '其他',
+                text: '从图书馆走出来，天边开始泛白。我说我学了一整夜，其实中间睡了两个小时，另外三个小时在看手机。',
+                likes: 152, comments: 28
+            },
+            {
+                id: 'f14', name: '枕头山大王', avatar: '🦁', time: '昨天 22:10', tag: '战报', loc: '宿舍',
+                text: '今天在宿舍完成了 14 小时连续睡眠，创下个人新高。室友说我这不叫休息，叫冬眠。我说这叫充电，充到 200%。',
+                likes: 233, comments: 44
+            },
+            {
+                id: 'f15', name: '咖啡续命选手', avatar: '🐨', time: '昨天 20:35', tag: '日常', loc: '教学楼',
+                text: '今天第三杯美式。现在心跳很快，但我依然困。原来咖啡对我唯一的帮助，是让我清醒地感受到困。',
+                likes: 402, comments: 81
+            }
+        ];
         /* ---------------- 状态 ---------------- */
         var state = {
             user: null,
@@ -1770,6 +1973,7 @@
         var pendingType = '宿舍';
         var pendingName = '';
         var advOpen = false;
+        var aboutOpen = false;
 
         /* ---------------- 存取 ---------------- */
         function save() {
@@ -2816,9 +3020,60 @@
             return rows;
         }
 
+        function squareTabsHtml(tab) {
+            return '<div class="sq-tabs">' +
+                '<div class="sq-tab ' + (tab === 'feed' ? 'on' : '') + '" onclick="setBoardTab(\'feed\')">睡友动态</div>' +
+                '<div class="sq-tab ' + (tab === 'duration' ? 'on' : '') + '" onclick="setBoardTab(\'duration\')">睡眠时长榜</div>' +
+                '<div class="sq-tab ' + (tab === 'early' ? 'on' : '') + '" onclick="setBoardTab(\'early\')">最早入睡榜</div>' +
+                '<div class="sq-tab ' + (tab === 'streak' ? 'on' : '') + '" onclick="setBoardTab(\'streak\')">连续天数榜</div>' +
+                '</div>';
+        }
+
+        function feedListHtml() {
+            return '<div class="feed-list">' + FEED_DATA.map(function (f) {
+                return '<div class="feed-card">' +
+                    '<div class="feed-top">' +
+                    '<div class="feed-av">' + f.avatar + '</div>' +
+                    '<div class="feed-owner">' +
+                    '<div class="feed-name">' + esc(f.name) + '</div>' +
+                    '<div class="feed-time">' + esc(f.time) + '</div>' +
+                    '</div>' +
+                    (f.tag ? '<div class="feed-tag">' + esc(f.tag) + '</div>' : '') +
+                    '</div>' +
+                    '<div class="feed-text">' + esc(f.text) + '</div>' +
+                    '<div class="feed-meta">' +
+                    (f.loc ? '<span>📍 ' + esc(f.loc) + '</span>' : '') +
+                    '<span>👍 ' + f.likes + '</span>' +
+                    '<span>💬 ' + f.comments + '</span>' +
+                    '</div>' +
+                    '</div>';
+            }).join('') + '</div>';
+        }
+
         function renderSquare() {
-            ensureBoard();
             var tab = state.boardTab;
+
+            var head =
+                '<div class="page-inner">' +
+                '<div class="topbar">' +
+                '<div>' +
+                '<div class="hi">广场</div>' +
+                '<div class="hi-sub">虚拟睡友，仅供娱乐</div>' +
+                '</div>' +
+                '</div>' +
+                squareTabsHtml(tab);
+
+            /* ---- 睡友动态 ---- */
+            if (tab === 'feed') {
+                $('#page-square').innerHTML = head +
+                    feedListHtml() +
+                    '<div class="foot-note">动态内容均为虚构，仅供娱乐<br>如有雷同，说明你也是这么睡的</div>' +
+                    '</div>';
+                return;
+            }
+
+            /* ---- 排行榜 ---- */
+            ensureBoard();
             var rows = buildBoardRows(tab);
 
             var html = rows.map(function (r, i) {
@@ -2849,23 +3104,8 @@
                     '</div>';
             }).join('');
 
-            $('#page-square').innerHTML =
-                '<div class="page-inner">' +
-                '<div class="topbar">' +
-                '<div>' +
-                '<div class="hi">广场</div>' +
-                '<div class="hi-sub">虚拟睡友，仅供娱乐</div>' +
-                '</div>' +
-                '</div>' +
-
-                '<div class="sq-tabs">' +
-                '<div class="sq-tab ' + (tab === 'duration' ? 'on' : '') + '" onclick="setBoardTab(\'duration\')">睡眠时长榜</div>' +
-                '<div class="sq-tab ' + (tab === 'early' ? 'on' : '') + '" onclick="setBoardTab(\'early\')">最早入睡榜</div>' +
-                '<div class="sq-tab ' + (tab === 'streak' ? 'on' : '') + '" onclick="setBoardTab(\'streak\')">连续天数榜</div>' +
-                '</div>' +
-
+            $('#page-square').innerHTML = head +
                 '<div class="board-list">' + html + '</div>' +
-
                 '<button class="swap-btn" onclick="swapBoard()">🔄 换一批睡友</button>' +
                 '<div class="foot-note">榜单数据为随机生成的虚拟数据<br>换一批后本轮榜单将固定保存</div>' +
                 '</div>';
@@ -2964,6 +3204,21 @@
                 '</div>' +
                 '</div>' +
 
+                                '<div class="card">' +
+                '<div class="dev-entry" onclick="toggleAbout()">ℹ️ 关于 <span id="aboutArrow">' + (aboutOpen ? '收起' : '展开') + '</span></div>' +
+                '<div class="collapse ' + (aboutOpen ? 'open' : '') + '" id="aboutBox">' +
+                '<div class="collapse-inner">' +
+                '<div class="about-list">' +
+                '<a class="about-item" href="https://www.ttwe77.cn/ttwe77.html"><span class="ai-icon">✍️</span><span class="ai-text">作者：ttwe77</span><span class="ai-arrow">↗</span></a>' +
+                '<a class="about-item" href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank" rel="noopener noreferrer"><span class="ai-icon">📜</span><span class="ai-text">本页面使用 MIT 协议开源</span><span class="ai-arrow">↗</span></a>' +
+                '<a class="about-item" href="https://www.ttwe77.cn" target="_blank" rel="noopener noreferrer"><span class="ai-icon">🏠</span><span class="ai-text">回到主站</span><span class="ai-arrow">↗</span></a>' +
+                '<a class="about-item" href="https://www.ttwe77.cn/blog/campus-sleep.html" target="_blank" rel="noopener noreferrer"><span class="ai-icon">📖</span><span class="ai-text">查看折腾经过</span><span class="ai-arrow">↗</span></a>' +
+                '<a class="about-item" href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/app/campus-sleep.html" target="_blank" rel="noopener noreferrer"><span class="ai-icon">💻</span><span class="ai-text">查看本页源代码</span><span class="ai-arrow">↗</span></a>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+
                 '<div class="disclaimer">' +
                 '校园睡纯属娱乐，不接入教务系统，不提供叫醒服务，睡过头挂科概不负责。<br>' +
                 '所有数据仅保存在本机浏览器，定位信息不会上传服务器。' +
@@ -3007,6 +3262,14 @@
             if (box) box.classList.toggle('open', dataOpen);
             var arrow = document.getElementById('dataArrow');
             if (arrow) arrow.textContent = dataOpen ? '收起' : '展开';
+        }
+
+                function toggleAbout() {
+            aboutOpen = !aboutOpen;
+            var box = document.getElementById('aboutBox');
+            if (box) box.classList.toggle('open', aboutOpen);
+            var arrow = document.getElementById('aboutArrow');
+            if (arrow) arrow.textContent = aboutOpen ? '收起' : '展开';
         }
 
         function saveSettings() {
