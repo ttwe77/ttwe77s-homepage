@@ -58,6 +58,30 @@
             padding-bottom: 92px;
             min-height: 100vh
         }
+
+        /* ==== 页面切换动画 ==== */
+        .page.page-in {
+            animation: pageIn .5s cubic-bezier(.22, .9, .3, 1) both;
+        }
+
+        @keyframes pageIn {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 0, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        /* 无障碍：系统开启"减少动态效果"时直接关掉 */
+        @media (prefers-reduced-motion: reduce) {
+            .page.page-in {
+                animation: none !important;
+            }
+        }
+
         .page-inner {
             padding: 16px 16px 0
         }
@@ -1562,6 +1586,10 @@
             width: auto;
             flex: 0 0 auto;
         }
+
+        #registerScreen:not(.hidden) {
+            animation: pageIn .3s cubic-bezier(.22, .9, .3, 1) both;
+        }
     </style>
 </head>
 
@@ -1938,16 +1966,36 @@
             switchTab(state.tab, true);
         }
 
+        var TAB_ORDER = ['progress', 'sleep', 'square', 'me'];
+
         function switchTab(t, silent) {
+            var oldIdx = TAB_ORDER.indexOf(state.tab);
+            var newIdx = TAB_ORDER.indexOf(t);
             state.tab = t;
             save();
-            ['progress', 'sleep', 'square', 'me'].forEach(function (p) {
+
+            // 向右切 tab → 新页面从右侧滑入；向左切 → 从左侧滑入
+            var dir = (newIdx >= oldIdx) ? 1 : -1;
+
+            TAB_ORDER.forEach(function (p) {
                 var el = document.getElementById('page-' + p);
-                if (el) el.classList.toggle('hidden', p !== t);
+                if (!el) return;
+                if (p === t) {
+                    el.classList.remove('hidden');
+                    el.classList.remove('page-in');
+                    void el.offsetWidth;                 // 强制重排，让动画能重播
+                    el.style.setProperty('--in-x', (dir * 16) + 'px');
+                    el.classList.add('page-in');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('page-in');
+                }
             });
+
             Array.prototype.forEach.call(document.querySelectorAll('.tab-item'), function (el) {
                 el.classList.toggle('on', el.getAttribute('data-tab') === t);
             });
+
             if (t === 'progress') renderProgress();
             if (t === 'sleep') renderSleep();
             if (t === 'square') renderSquare();
@@ -3183,7 +3231,7 @@
             );
         }
 
-                /* ---------------- 搞笑弹窗 ---------------- */
+        /* ---------------- 搞笑弹窗 ---------------- */
         var NOTICES = [
             {
                 emoji: '🛏️', title: '躺平！免早八通道',
