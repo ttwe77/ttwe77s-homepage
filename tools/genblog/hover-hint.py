@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QFileDialog, QSizePolicy
 )
 from PyQt5.QtCore import Qt, QRect, QSize
-from PyQt5.QtGui import QFont, QTextCursor, QPainter, QColor
+from PyQt5.QtGui import QFont, QTextCursor, QPainter, QColor, QTextDocument
 
 class ClickSelectAllLineEdit(QLineEdit):
     """点击时自动全选内容"""
@@ -110,8 +110,8 @@ class MainWindow(QMainWindow):
 
         # 搜索会话状态
         self.search_term = None        # None 表示当前没有活动会话
-        self.next_search_start = 0     # 下一次查找的起始偏移
-        self._session_start = 0        # 本轮会话起始偏移（用于检测绕一圈）
+        self.search_cursor = None      # 下一次查找的起始光标 (QTextCursor)
+        self._session_start = 0        # 本轮会话起始位置（用于检测绕一圈）
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -298,7 +298,8 @@ class MainWindow(QMainWindow):
 
         # 新会话：每次都从文档开头查找
         self.search_term = display
-        self.next_search_start = 0
+        self.search_cursor = self.editor.textCursor()
+        self.search_cursor.movePosition(QTextCursor.Start)
         self._session_start = 0
 
         self._find_and_prompt()
@@ -306,35 +307,36 @@ class MainWindow(QMainWindow):
     def _find_and_prompt(self):
         """查找下一处匹配 → 定位选中 → 弹窗询问用户。"""
         display = self.search_term
-        text = self.editor.toPlainText()
-
-        idx = text.find(display, self.next_search_start)
         wrapped = False
 
-        if idx < 0:
+        # 使用文档自带的 find 方法进行查找（避免编码位置偏移问题）
+        cursor = self.search_cursor
+        found = self.editor.document().find(display, cursor, QTextDocument.FindCaseSensitively)
+        
+        if found.isNull():
             # 尝试从头循环
-            idx = text.find(display, 0)
+            start_cursor = self.editor.textCursor()
+            start_cursor.movePosition(QTextCursor.Start)
+            found = self.editor.document().find(display, start_cursor, QTextDocument.FindCaseSensitively)
             wrapped = True
-            if idx < 0:
+            
+            if found.isNull():
                 QMessageBox.information(self, "未找到",
                                         f"文档中未找到“{display}”。")
                 self.search_term = None
                 return
-            if idx >= self._session_start:
+            if found.selectionStart() >= self._session_start:
                 QMessageBox.information(self, "已完成",
                                         f"已完成一轮搜索，未找到更多“{display}”。")
                 self.search_term = None
                 return
 
         # 在编辑器中选中并滚动到目标位置
-        cursor = self.editor.textCursor()
-        cursor.setPosition(idx)
-        cursor.setPosition(idx + len(display), QTextCursor.KeepAnchor)
-        self.editor.setTextCursor(cursor)
+        self.editor.setTextCursor(found)
         self.editor.ensureCursorVisible()
         self.editor.setFocus()
 
-        line_no = text[:idx].count("\n") + 1
+        line_no = found.blockNumber() + 1
 
         # 询问用户
         box = QMessageBox(self)
@@ -350,9 +352,9 @@ class MainWindow(QMainWindow):
 
         clicked = box.clickedButton()
         if clicked == btn_replace:
-            self._perform_replace(idx, display)
+            self._perform_replace(found, display)
         elif clicked == btn_next:
-            self.next_search_start = idx + len(display)
+            self.search_cursor = found
             self._find_and_prompt()
         else:
             # 取消 / 关闭对话框：光标折叠到选区末尾，方便下次从那里继续
@@ -362,7 +364,7 @@ class MainWindow(QMainWindow):
                 self.editor.setTextCursor(cur)
             self.search_term = None
 
-    def _perform_replace(self, idx, display):
+    def _perform_replace(self, found_cursor, display):
         title = self.title_edit.text() or display
         content = self.content_edit.text()
 
@@ -373,15 +375,13 @@ class MainWindow(QMainWindow):
             f'</span></span>'
         )
 
-        cursor = self.editor.textCursor()
-        cursor.setPosition(idx)
-        cursor.setPosition(idx + len(display), QTextCursor.KeepAnchor)
-        cursor.insertText(replacement)
-        self.editor.setTextCursor(cursor)          # 光标落在替换内容末尾
+        # 直接使用查找到的光标替换选中部分
+        found_cursor.insertText(replacement)
+        self.editor.setTextCursor(found_cursor)          # 光标落在替换内容末尾
         self.editor.ensureCursorVisible()
 
         self.search_term = None                    # 结束会话
-        line_no = self.editor.toPlainText()[:cursor.position()].count("\n") + 1
+        line_no = found_cursor.blockNumber() + 1
         self.statusBar().showMessage(f"已替换（第 {line_no} 行）", 4000)
 
     def do_undo(self):

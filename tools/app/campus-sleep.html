@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-    <title>校园睡 · 娱乐睡眠打卡</title>
+    <title>校园睡</title>
     <script type="module">
         import { BAClickFX } from '/libs/ba-click-fx.js';
         const fx = new BAClickFX();
@@ -399,7 +399,7 @@
             margin-top: 6px
         }
 
-        .ad-banner {
+        .notice-banner {
             margin-top: 14px;
             border-radius: 18px;
             padding: 18px 18px;
@@ -411,7 +411,7 @@
             overflow: hidden
         }
 
-        .ad-banner::after {
+        .notice-banner::after {
             content: "";
             position: absolute;
             width: 150px;
@@ -422,14 +422,14 @@
             bottom: -70px
         }
 
-        .ad-main {
+        .notice-main {
             font-size: 19px;
             font-weight: 900;
             letter-spacing: 1px;
             text-shadow: 0 2px 6px rgba(180, 60, 0, .2)
         }
 
-        .ad-sub {
+        .notice-sub {
             font-size: 12px;
             margin-top: 7px;
             opacity: .92;
@@ -1268,20 +1268,20 @@
             line-height: 1.6
         }
 
-        .ad-emoji {
+        .notice-emoji {
             font-size: 52px;
             text-align: center;
             line-height: 1
         }
 
-        .ad-modal h3 {
+        .notice-modal h3 {
             text-align: center;
             font-size: 19px;
             margin: 12px 0 8px;
             letter-spacing: 1px
         }
 
-        .ad-modal p {
+        .notice-modal p {
             text-align: center;
             font-size: 13px;
             color: #6a6a82;
@@ -1289,7 +1289,7 @@
             margin: 0
         }
 
-        .ad-modal p.small {
+        .notice-modal p.small {
             font-size: 11px;
             color: #b0b0c4;
             margin-top: 10px
@@ -2032,10 +2032,10 @@
                 '</div>' +
                 '</div>' +
 
-                '<div class="ad-banner" onclick="showAd()">' +
-                '<div class="ad-main">躺平！免早八通道开放</div>' +
-                '<div class="ad-sub">床铺面积争霸赛同步报名中 →</div>' +
-                '</div>' +
+'<div class="notice-banner" onclick="showNotice()">' +
+'<div class="notice-main">躺平！免早八通道开放</div>' +
+'<div class="notice-sub">床铺面积争霸赛同步报名中 →</div>' +
+'</div>' +
 
                 '<div class="card">' +
                 '<div class="card-head">睡眠记录</div>' +
@@ -3133,7 +3133,7 @@
             );
         }
 
-        function showAd() {
+        function showNotice() {
             openModal(
                 '<div class="ad-modal">' +
                 '<div class="ad-emoji">🛏️</div>' +

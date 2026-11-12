@@ -18,10 +18,56 @@
       <title>七七的折腾笔记</title>
       <link>https://www.ttwe77.cn</link>
     </image>
-    <pubDate>Fri, 06 Nov 2026 23:47:30 +0800</pubDate>
-    <lastBuildDate>Fri, 06 Nov 2026 23:47:30 +0800</lastBuildDate>
+    <pubDate>Thu, 12 Nov 2026 23:47:02 +0800</pubDate>
+    <lastBuildDate>Thu, 12 Nov 2026 23:47:02 +0800</lastBuildDate>
     <generator>genrss.py</generator>
     <atom:link href="https://www.ttwe77.cn/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>从“校园跑”到“校园睡”：我用 AI 做了个睡觉打卡 Web 页面</title>
+      <link>https://www.ttwe77.cn/blog/campus-sleep.html</link>
+      <guid isPermaLink="true">https://www.ttwe77.cn/blog/campus-sleep.html</guid>
+      <pubDate>Thu, 12 Nov 2026 23:47:02 +0800</pubDate>
+      <atom:updated>2026-11-12T23:47:02+08:00</atom:updated>
+      <category domain="urn:ttwe77:category">前端</category>
+      <category domain="urn:ttwe77:tag">校园睡</category>
+      <category domain="urn:ttwe77:tag">AI</category>
+      <category domain="urn:ttwe77:tag">Web</category>
+      <category domain="urn:ttwe77:tag">前端</category>
+      <category domain="urn:ttwe77:tag">打卡</category>
+      <description>记录用 AI 开发一个娱乐向“校园睡”睡觉打卡 Web 页面的过程，包含需求拆解、核心功能、交互逻辑、UI 设计与后续迭代。</description>
+      <dc:creator>ttwe77</dc:creator>
+    </item>
+    <item>
+      <title>签赛博证书，过赛博人生</title>
+      <link>https://www.ttwe77.cn/blog/cyber-cert.html</link>
+      <guid isPermaLink="true">https://www.ttwe77.cn/blog/cyber-cert.html</guid>
+      <pubDate>Tue, 10 Nov 2026 17:12:15 +0800</pubDate>
+      <atom:updated>2026-11-10T17:12:15+08:00</atom:updated>
+      <category domain="urn:ttwe77:category">安全</category>
+      <category domain="urn:ttwe77:tag">OpenSSL</category>
+      <category domain="urn:ttwe77:tag">数字证书</category>
+      <category domain="urn:ttwe77:tag">CA</category>
+      <category domain="urn:ttwe77:tag">CRL</category>
+      <category domain="urn:ttwe77:tag">X.509</category>
+      <category domain="urn:ttwe77:tag">赛博证书</category>
+      <description>记录一次自建 CA、签发 X.509 证书并折腾 CRL 吊销服务的完整经历，从失败放弃到重新简化流程，附 Windows 下 OpenSSL 签发客户端证书的保姆级教程。</description>
+      <dc:creator>ttwe77</dc:creator>
+    </item>
+    <item>
+      <title>在线测试有感</title>
+      <link>https://www.ttwe77.cn/blog/web-exam.html</link>
+      <guid isPermaLink="true">https://www.ttwe77.cn/blog/web-exam.html</guid>
+      <pubDate>Mon, 09 Nov 2026 00:20:55 +0800</pubDate>
+      <atom:updated>2026-11-09T00:20:55+08:00</atom:updated>
+      <category domain="urn:ttwe77:category">前端</category>
+      <category domain="urn:ttwe77:tag">JavaScript</category>
+      <category domain="urn:ttwe77:tag">反作弊</category>
+      <category domain="urn:ttwe77:tag">前端安全</category>
+      <category domain="urn:ttwe77:tag">在线测试</category>
+      <category domain="urn:ttwe77:tag">Canvas</category>
+      <description>记录一次在线测试中被判定违规的经历，从 DevTools 窥见的“陷阱属性”钓鱼检测出发，探讨前端反作弊的运行原理、复制粘贴拦截、Canvas 绘制题目、切屏检测、调试陷阱等实现思路，以及一个“让作弊变麻烦并留下痕迹”的在线问答演示。</description>
+      <dc:creator>ttwe77</dc:creator>
+    </item>
     <item>
       <title>前面的传感器区域，Safari 以后再来探索吧？</title>
       <link>https://www.ttwe77.cn/blog/sensor-area-ahead-but-Safari.html</link>
