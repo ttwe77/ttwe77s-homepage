@@ -69,6 +69,7 @@
                 opacity: 0;
                 transform: translate3d(0, 0, 0);
             }
+
             to {
                 opacity: 1;
                 transform: translate3d(0, 0, 0);
@@ -1015,6 +1016,29 @@
             background: #fff
         }
 
+        /* ---- 折叠面板：展开 / 收起动画 ---- */
+        .collapse {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 1.5s cubic-bezier(.22, .9, .3, 1);
+        }
+
+        .collapse.open {
+            grid-template-rows: 1fr;
+        }
+
+        .collapse>.collapse-inner {
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* 无障碍：系统开启「减少动态效果」时直接关掉 */
+        @media (prefers-reduced-motion: reduce) {
+            .collapse {
+                transition: none !important;
+            }
+        }
+
         .disclaimer {
             font-size: 10px;
             color: #b8b8ca;
@@ -1604,11 +1628,11 @@
                 <div class="reg-sub">用校园跑的方式，认真睡觉</div>
                 <div class="reg-card">
                     <label>学校</label>
-                    <input id="regSchool" placeholder="例：霍格沃茨魔法学院" autocomplete="off">
+                    <input id="regSchool" placeholder="例：霍格沃茨魔法学校" autocomplete="off">
                     <label>学院</label>
-                    <input id="regCollege" placeholder="例：睡觉系" autocomplete="off">
+                    <input id="regCollege" placeholder="例：赫奇帕奇学院" autocomplete="off">
                     <label>学号</label>
-                    <input id="regId" placeholder="例：000000" autocomplete="off">
+                    <input id="regId" placeholder="例：777777" autocomplete="off">
                     <label>昵称</label>
                     <input id="regNick" placeholder="例：匿名睡友" autocomplete="off">
                     <button id="presetBtn" class="btn-ghost" onclick="fillPreset()">✨ 填入预设信息</button>
@@ -1662,19 +1686,69 @@
         };
 
         var PRESETS = [
-            { school: '霍格沃茨魔法学院', college: '睡觉系', studentId: '000000', nickname: '匿名睡友' },
+            { school: '霍格沃茨魔法学校', college: '赫奇帕奇学院', studentId: '777777', nickname: '匿名睡友' },
+            { school: '海拉鲁骑士学院', college: '旷野之息系', studentId: '19860221', nickname: '呀哈哈收集者' },
+            { school: '蘑菇王国水管工学院', college: '跳跃与踩怪系', studentId: '19850913', nickname: '公主我来啦' },
+            { school: '绿色山丘速度学院', college: '音速奔跑系', studentId: '19910623', nickname: '金环收藏家' },
+            { school: '凯尔莫罕猎魔人学院', college: '昆特牌系', studentId: '20071026', nickname: '白狼打桩机' },
+            { school: '寄叶部队寄宿学院', college: '人造人战斗系', studentId: '20170223', nickname: '摘眼罩的2B' },
+            { school: '千禧年科学学院', college: '特异现象调查部', studentId: '10135', nickname: '天童 凯伊' },
+            { school: '须弥教令院', college: '教令院', studentId: '202211021027', nickname: '纳西妲' },
+            { school: '须弥教令院', college: '刹诃伐罗学院', studentId: '114514', nickname: '多托雷' },
+            { school: '须弥教令院', college: '阿弥利多学院', studentId: '20220824', nickname: '提纳里' },
+            { school: '圣三一综合学院', college: '补课部', studentId: '10019', nickname: '白洲 梓' },
+            { school: '圣三一综合学院', college: '茶话会', studentId: '10059', nickname: '圣园 未花' },
+            { school: '千禧年科学学院', college: '游戏开发部', studentId: '10134', nickname: '天童 爱丽丝' },
+            { school: '格黑娜学院', college: '风纪委员会', studentId: '10004', nickname: '空崎 日奈' },
             { school: '加里敦大学', college: '躺平与养生学院', studentId: '250250', nickname: '床垫守护者' },
             { school: '早八逃生学院', college: '赖床动力学系', studentId: '080808', nickname: '被窝封印师' },
             { school: '深夜食堂大学', college: '碳水快乐学院', studentId: '996699', nickname: '夜宵特派员' },
             { school: '宇宙第一躺平学院', college: '午睡工程系', studentId: '123456', nickname: '睡神本神' }
         ];
 
-        var V_NAMES = ['匿名睡友A', '匿名睡友B', '卷王克星', '被窝战神', '早八逃兵', '图书馆钉子户', '床帘隐士', '梦话主播',
-            '闹钟绝缘体', '凌晨四点半', '保温杯泡枸杞', '周末昏迷者', '午睡特长生', '枕头骑手', '断电幸存者', '棉被管理员',
-            '深夜泡面侠', '赖床博士', '闹钟粉碎机', '清醒的少数人', '枕头山大王', '熬夜冠军', '闭眼速度王', '宿舍冥想师'];
+        /* ---------------- 虚拟睡友昵称池 ---------------- */
+        var V_NAMES = [
+            // —— 匿名系列 ——
+            '匿名睡友A', '匿名睡友B', '匿名睡友C', '匿名睡友D', '匿名睡友E',
 
-        var V_AVATARS = ['🐷', '🐻', '🦊', '🐼', '🐨', '🐯', '🐸', '🦉', '🐙', '🐧', '🦄', '🐳', '🐰', '🐹', '🦥', '🐢'];
+            // —— 躺平 / 睡眠主题 ——
+            '卷王克星', '被窝战神', '早八逃兵', '图书馆钉子户', '床帘隐士',
+            '梦话主播', '闹钟绝缘体', '凌晨四点半', '保温杯泡枸杞', '周末昏迷者',
+            '午睡特长生', '枕头骑手', '断电幸存者', '棉被管理员', '深夜泡面侠',
+            '赖床博士', '闹钟粉碎机', '清醒的少数人', '枕头山大王', '熬夜冠军',
+            '闭眼速度王', '宿舍冥想师', '深度睡眠者', '睡神候选人', '梦中数学家',
+            '睡眠观察员', '熬夜受害人', '早起失败者', '被子鉴赏家', '床铺钉子户',
+            '闭眼即睡星人', '午休马拉松选手', '不用闹钟星人', '睡到自然醒会员', '最后一秒起床王',
 
+            // —— 宿舍 / 床位主题 ——
+            '上铺哲学家', '下铺梦想家', '床单艺术家', '睡姿收藏家', '起床困难户',
+            '被窝封印师', '熄灯巡逻员', '床垫测试工程师', '床帘拉手专家', '台灯关灯大师',
+            '铺位考古学家', '宿舍长驻居民', '上铺的兄弟', '下铺的姐妹', '靠墙铺VIP',
+            '靠窗铺VIP', '门口铺哨兵', '暖气片爱好者', '天花板凝视者', '被子边界守卫',
+            '枕头正中心', '半夜起夜冠军', '梦游路线规划师', '磨牙伴奏家', '呼噜节拍器',
+            '翻身频率记录员', '翻身运动员', '睡姿扭曲大师', '宿舍灵魂画家', '打鼾交响乐指挥',
+
+            // —— 熬夜 / 早八主题 ——
+            '深夜思考者', '早餐错过者', '第一节幽灵', '期末渡劫者', '图书馆呼噜王',
+            '教室后排常客', '晚自习睡觉王', '早八闹钟受害者', '第一节课出勤冠军', '点名幸存者',
+            '辅导员重点关注对象', '熄灯后的光', '厕所刷手机冠军', '阳台吹风爱好者', '天亮见证者',
+            '晨光观察员', '早餐第一人', '通宵战斗机', '睡眠不足样本', '黑眼圈代言人',
+            '咖啡续命选手', '浓茶上瘾者', '昼夜颠倒艺术家', '生物钟失灵患者', '时差感患者',
+            '赖床冠军候选', '修仙党代表', '凌晨三点朋友圈', '枕边书收藏家', '床上办公一族',
+
+            // —— 摸鱼 / 拖延主题 ——
+            '被窝外卖特派员', '凌晨外卖鉴赏家', '睡前刷手机冠军', '再刷五分钟选手', '明天一定早睡',
+            '下次一定早起', '早睡计划第十版', '睡眠账户透支者', '欠觉十万小时', '梦境记录员'
+        ];
+
+        /* ---------------- 虚拟睡友头像池 ---------------- */
+        var V_AVATARS = [
+            '🐷', '🐻', '🦊', '🐼', '🐨', '🐯', '🐸', '🦉', '🐙', '🐧',
+            '🦄', '🐳', '🐰', '🐹', '🦥', '🐢', '🐮', '🐵', '🐔', '🐴',
+            '🦝', '🦔', '🦇', '🐺', '🐗', '🐝', '🐍', '🦎', '🦅', '🦆',
+            '🦢', '🦜', '🐦', '🦘', '🦦', '🐘', '🦒', '🦓', '🐎', '🐖',
+            '🐑', '🦌', '🐈', '🐓', '🐤', '🦩', '🦭', '🐿️', '🦫', '🐌'
+        ];
         /* ---------------- 状态 ---------------- */
         var state = {
             user: null,
@@ -1691,6 +1765,7 @@
         };
 
         var devOpen = false;
+        var dataOpen = false;
         var pendingCoord = null;   // 正在编辑的坐标 {lat,lng} 或 null
         var pendingType = '宿舍';
         var pendingName = '';
@@ -1901,7 +1976,7 @@
                 }
             },
             {
-                id: 'energy', name: '节能标兵', icon: '🔋', desc: '累计睡眠满 10 小时',
+                id: 'energy', name: '充电小能手', icon: '🔋', desc: '累计睡眠满 10 小时',
                 check: function () { return totalMsAll() >= 10 * 3600000; }
             },
             {
@@ -1909,7 +1984,7 @@
                 check: function () { return totalMsAll() >= 50 * 3600000; }
             },
             {
-                id: 'dash', name: '秒睡选手', icon: '⚡', desc: '单次睡眠不足 15 分钟',
+                id: 'dash', name: '闪电小憩', icon: '⚡', desc: '单次睡眠不足 15 分钟',
                 check: function () {
                     return state.sessions.some(function (s) { return s.end && calcSession(s).tooShort; });
                 }
@@ -2020,7 +2095,7 @@
                 var c = calcSession(s);
                 var tag = '', cls = '';
                 if (c.tooLong) { tag = '<span class="rec-tag bad">昏迷</span>'; cls = 'bad'; }
-                if (c.tooShort) { tag = '<span class="rec-tag warn">秒睡</span>'; cls = 'warn'; }
+                if (c.tooShort) { tag = '<span class="rec-tag warn">小憩</span>'; cls = 'warn'; }
                 var locTxt = s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName || '') : '📍 未记录位置';
                 return '<div class="rec-row">' +
                     '<div class="rec-icon">🌙</div>' +
@@ -2224,10 +2299,11 @@
                 award = '荣获 <b>「昏迷不醒」</b> 称号<br>系统温馨提示：你真的睡太久了';
                 tagColor = '#ff8787';
             } else if (c.tooShort) {
-                award = '荣获 <b>「秒睡冠军」</b> 称号<br>眼睛一闭一睁就结束了';
+                award = '荣获 <b>「打了个盹」</b> 称号<br>（可能点错了，也可能被室友的闹钟叫走了）';
                 tagColor = '#ffd43b';
             } else {
-                award = '今日为' + esc(s.locType || '宿舍') + '节省了 <b>' + kwh + '</b> 度电<br>荣获 <b>「节能标兵」</b> 称号';
+                award = '本次睡眠为身体充入 <b>' + charge + '%</b> 电量<br>荣获 <b>「' +
+                    (charge >= 100 ? '满电续航' : '续航补给') + '」</b> 称号';
                 tagColor = '#69db7c';
             }
 
@@ -2242,7 +2318,7 @@
                 '<div class="poster-line"></div>' +
                 '<div class="poster-award">' + award + '</div>' +
                 '<div class="poster-foot" style="color:' + tagColor + '">' +
-                (c.tooLong ? '😵 昏迷 · 不计入学期成绩' : c.tooShort ? '⚡ 秒睡 · 不计入学期成绩' : '✅ 正常打卡 · 已计入学期成绩') +
+                (c.tooLong ? '😵 昏迷 · 不计入学期成绩' : c.tooShort ? '⚡ 小憩 · 不计入学期成绩' : '✅ 正常打卡 · 已计入学期成绩') +
                 '</div>' +
                 '<div class="poster-foot">校园睡 · 纯属娱乐</div>' +
                 '</div>' +
@@ -2679,14 +2755,14 @@
                 var tmp = names[i]; names[i] = names[j]; names[j] = tmp;
             }
             var out = [];
-            for (var k = 0; k < 14; k++) {
+            for (var k = 0; k < 29; k++) {
                 out.push({
                     id: 'v' + k,
                     name: names[k],
                     avatar: V_AVATARS[Math.floor(Math.random() * V_AVATARS.length)],
                     maxSleep: +(4 + Math.random() * 13).toFixed(1),
                     bedMin: Math.floor(1140 + Math.random() * 480),   // 19:00 ~ 03:00
-                    streak: Math.floor(Math.random() * 22)
+                    streak: Math.floor(Math.random() * 120)
                 });
             }
             return out;
@@ -2713,6 +2789,9 @@
             var myBed = null;
             all.forEach(function (s) {
                 var b = bedMinOf(s.start);
+                // 仅统计 19:00 ~ 03:00 入睡的记录
+                // bedMinOf 规则：19:00 = 1140，23:59 = 1439，00:00 = 1440，03:00 = 1620
+                if (b < 1140 || b > 1620) return;
                 if (myBed === null || b < myBed) myBed = b;
             });
             var myStreak = streakInfo().current;
@@ -2824,8 +2903,8 @@
             }).join('');
 
             var st = state.settings;
-            var devHtml = devOpen
-                ? '<div class="dev-body">' +
+            var devBodyHtml =
+                '<div class="dev-body">' +
                 '<label>学期目标（小时）</label>' +
                 '<input type="number" id="setTarget" value="' + st.target + '" min="1">' +
                 '<label>单次睡眠上限（小时）</label>' +
@@ -2838,8 +2917,7 @@
                 '<input type="date" id="setEnd" value="' + (st.semesterEnd || '') + '">' +
                 '<button class="btn-primary" onclick="saveSettings()">保存设置</button>' +
                 '<button class="btn-ghost danger" onclick="clearAll()">清空全部记录</button>' +
-                '</div>'
-                : '';
+                '</div>';
 
             $('#page-me').innerHTML =
                 '<div class="page-inner">' +
@@ -2867,15 +2945,23 @@
                 '</div>' +
 
                 '<div class="card">' +
-                '<div class="dev-entry" onclick="toggleDev()">🛠 我是校长 <span>' + (devOpen ? '收起' : '展开') + '</span></div>' +
-                devHtml +
+                '<div class="dev-entry" onclick="toggleDev()">🛠 我是校长 <span id="devArrow">' + (devOpen ? '收起' : '展开') + '</span></div>' +
+                '<div class="collapse ' + (devOpen ? 'open' : '') + '" id="devBox">' +
+                '<div class="collapse-inner">' + devBodyHtml + '</div>' +
+                '</div>' +
                 '</div>' +
 
                 '<div class="card">' +
-                '<div class="card-head">数据管理</div>' +
+                '<div class="dev-entry" onclick="toggleDataMgr()">🗂 数据管理 <span id="dataArrow">' + (dataOpen ? '收起' : '展开') + '</span></div>' +
+                '<div class="collapse ' + (dataOpen ? 'open' : '') + '" id="dataBox">' +
+                '<div class="collapse-inner">' +
+                '<div style="padding-top:12px">' +
                 '<button class="btn-ghost" style="margin-top:0" onclick="exportData()">📤 导出数据到剪贴板</button>' +
                 '<button class="btn-ghost" onclick="openImport()">📥 导入数据（Base64）</button>' +
                 '<button class="btn-ghost danger" onclick="logout()">🚪 注销账号并清空数据</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
                 '</div>' +
 
                 '<div class="disclaimer">' +
@@ -2909,7 +2995,18 @@
 
         function toggleDev() {
             devOpen = !devOpen;
-            renderMe();
+            var box = document.getElementById('devBox');
+            if (box) box.classList.toggle('open', devOpen);
+            var arrow = document.getElementById('devArrow');
+            if (arrow) arrow.textContent = devOpen ? '收起' : '展开';
+        }
+
+        function toggleDataMgr() {
+            dataOpen = !dataOpen;
+            var box = document.getElementById('dataBox');
+            if (box) box.classList.toggle('open', dataOpen);
+            var arrow = document.getElementById('dataArrow');
+            if (arrow) arrow.textContent = dataOpen ? '收起' : '展开';
         }
 
         function saveSettings() {
@@ -2924,8 +3021,8 @@
             state.settings.semesterEnd = document.getElementById('setEnd').value || '';
 
             save();
-            renderAll();
             devOpen = true;
+            renderAll();
             renderMe();
             toast('设置已保存 ✅');
         }
@@ -3095,6 +3192,7 @@
             };
 
             devOpen = false;
+            dataOpen = false;
             pendingCoord = null;
             pendingType = '宿舍';
             pendingName = '';
