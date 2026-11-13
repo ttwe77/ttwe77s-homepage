@@ -870,7 +870,7 @@
             transform: scale(.99)
         }
 
-                /* ---- 广场 · 睡友动态 ---- */
+        /* ---- 广场 · 睡友动态 ---- */
         .feed-list {
             display: flex;
             flex-direction: column;
@@ -947,6 +947,101 @@
             margin-top: 11px;
             font-size: 11px;
             color: #a8a8bc
+        }
+
+        /* ---- 广场 · 动态互动（点赞 / 踩 / 举报） ---- */
+        .feed-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 11px;
+            padding-top: 10px;
+            border-top: 1px dashed #f2f2f8;
+            overflow: hidden
+        }
+
+        .feed-act {
+            flex: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: none;
+            background: #f7f7fd;
+            color: #9a9ab0;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: .15s;
+            font-family: inherit
+        }
+
+        .feed-act:active {
+            transform: scale(.94)
+        }
+
+        .feed-act.on {
+            background: #f2efff;
+            color: #6C5CE7
+        }
+
+        .feed-act.on.down {
+            background: #fff0f0;
+            color: #e03131
+        }
+
+        .feed-act.on.report {
+            background: #fff4e0;
+            color: #e8890c
+        }
+
+        .feed-meta-right {
+            margin-left: auto;
+            min-width: 0;
+            font-size: 11px;
+            color: #a8a8bc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 0 1 auto
+        }
+
+        .feed-folded {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 10px;
+            padding: 13px;
+            border-radius: 12px;
+            background: #f7f7fd;
+            font-size: 12.5px;
+            color: #a0a0b6;
+            line-height: 1.6
+        }
+
+        .feed-folded .ff-icon {
+            flex: none;
+            font-size: 13px;
+            color: #b0b0c4
+        }
+
+        .feed-folded .ff-text {
+            flex: 1;
+            min-width: 0
+        }
+
+        .feed-folded .ff-undo {
+            flex: none;
+            border: none;
+            background: none;
+            color: #6C5CE7;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 3px 4px;
+            font-family: inherit
         }
 
         /* ============ 我的页 ============ */
@@ -1127,49 +1222,49 @@
         }
 
         /* ---- 关于列表 ---- */
-.about-list {
-    padding-top: 12px
-}
+        .about-list {
+            padding-top: 12px
+        }
 
-.about-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 11px 2px;
-    border-bottom: 1px solid #f4f4fa;
-    font-size: 12.5px;
-    color: #5a5a72;
-    line-height: 1.6;
-    text-decoration: none;
-    transition: color .15s
-}
+        .about-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 2px;
+            border-bottom: 1px solid #f4f4fa;
+            font-size: 12.5px;
+            color: #5a5a72;
+            line-height: 1.6;
+            text-decoration: none;
+            transition: color .15s
+        }
 
-.about-item:last-child {
-    border-bottom: none
-}
+        .about-item:last-child {
+            border-bottom: none
+        }
 
-a.about-item:hover {
-    color: #6C5CE7
-}
+        a.about-item:hover {
+            color: #6C5CE7
+        }
 
-.about-item .ai-icon {
-    flex: none;
-    width: 18px;
-    text-align: center;
-    font-size: 14px
-}
+        .about-item .ai-icon {
+            flex: none;
+            width: 18px;
+            text-align: center;
+            font-size: 14px
+        }
 
-.about-item .ai-text {
-    flex: 1;
-    min-width: 0;
-    word-break: break-all
-}
+        .about-item .ai-text {
+            flex: 1;
+            min-width: 0;
+            word-break: break-all
+        }
 
-.about-item .ai-arrow {
-    flex: none;
-    font-size: 11px;
-    color: #c0c0d0
-}
+        .about-item .ai-arrow {
+            flex: none;
+            font-size: 11px;
+            color: #c0c0d0
+        }
 
         /* ============ 弹窗 ============ */
         .modal-mask {
@@ -1230,6 +1325,49 @@ a.about-item:hover {
             color: #9a9ab0;
             line-height: 1.6;
             margin-bottom: 14px
+        }
+
+        /* 举报理由列表：限高独立滚动，滚动条明显可见 */
+        .report-reasons {
+            max-height: 44vh;
+            overflow-y: auto;
+            margin: 0 -4px;
+            padding: 2px 4px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+
+            /* 右侧留出一条滚动条专用位，避免遮住内容 */
+            scrollbar-width: thin;
+            /* Firefox */
+            scrollbar-color: #6C5CE7 #eceaf6;
+            /* Firefox：滑块 / 轨道 */
+        }
+
+        /* WebKit：把被全局隐藏的滚动条重新显示出来 */
+        .report-reasons::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .report-reasons::-webkit-scrollbar-track {
+            background: #eceaf6;
+            border-radius: 8px;
+        }
+
+        .report-reasons::-webkit-scrollbar-thumb {
+            background: linear-gradient(#8B7BF0, #6C5CE7);
+            border-radius: 8px;
+            border: 2px solid #eceaf6;
+            /* 让滑块细一点、有留白 */
+            background-clip: padding-box;
+        }
+
+        .report-reasons::-webkit-scrollbar-thumb:hover {
+            background: #5B4BD6;
+            background-clip: padding-box;
+        }
+
+        .report-reasons .loc-item:last-child {
+            margin-bottom: 0;
         }
 
         .loc-item {
@@ -1874,7 +2012,7 @@ a.about-item:hover {
             '🐑', '🦌', '🐈', '🐓', '🐤', '🦩', '🦭', '🐿️', '🦫', '🐌'
         ];
 
-                /* ---------------- 广场 · 网友动态（JSON 硬编码） ---------------- */
+        /* ---------------- 广场 · 网友动态（JSON 硬编码） ---------------- */
         var FEED_DATA = [
             {
                 id: 'f1', name: '卷王克星', avatar: '🦥', time: '2 分钟前', tag: '战报', loc: '宿舍',
@@ -1962,10 +2100,56 @@ a.about-item:hover {
             currentLocId: null,
             board: null,
             boardTab: 'duration',
+            feedReactions: {},
             tab: 'progress',
             presetIdx: 0,
             showAllRecords: false
         };
+
+        /* ---------------- 举报理由 ---------------- */
+        var REPORT_REASONS = [
+            '没什么，单纯急了',
+            '哥们真的破防了',
+
+            // —— 嫉妒/破防类 ——
+            '他睡得比我好，我不服',
+            '我睡不着，他也别想好',
+            '举报理由：嫉妒',
+            '睡这么香，考虑过失眠人的感受吗',
+            '这个作息太健康了，看着就来气',
+            '我上早八，他睡觉，不公平',
+            '他睡相太好，影响我摆烂',
+            '单纯看不惯别人能睡',
+            '举报理由：我酸了',
+            '疑似在用睡眠嘲讽我',
+
+            // —— 涉嫌造假类 ——
+            '内容引起极度不适（指太舒服了）',
+            '涉嫌炫耀睡眠质量',
+            '这睡眠时长远超宿舍平均水平，疑似造假',
+            '建议严查，可能是 AI 睡的',
+            '疑似假睡，请求彻查',
+            '睡得太沉，怀疑已进入昏迷状态',
+            '睡着了还发动态，涉嫌梦游',
+            '他立 flag 的样子太像我，举报',
+
+            // —— 伤害/冒犯类 ——
+            '内容过于真实，造成本人二次伤害',
+            '这条动态比我早八的闹钟还刺耳',
+            '我熬夜看到的，眼睛疼',
+            '举报他早睡，卷到我了',
+            '在图书馆睡觉不叫我',
+            '打个盹就打个盹，写得这么有文采',
+            '我闹钟响了八次没起来，他一次就起了',
+            '举报该用户起床太快，涉嫌作弊',
+            '他的人生过于顺利，我不平衡',
+            '举报：他梦到我，没经过我同意',
+            '看完了，更困了，举报'
+        ];
+        var selectedReportReason = 0;
+
+        var devOpen = false;
+        var dataOpen = false;
 
         var devOpen = false;
         var dataOpen = false;
@@ -1992,6 +2176,8 @@ a.about-item:hover {
                 state.currentLocId = d.currentLocId || null;
                 state.board = d.board || null;
                 state.boardTab = d.boardTab || 'duration';
+                state.feedReactions = d.feedReactions || {};
+                state.feedReactions = d.feedReactions || {};
                 state.tab = d.tab || 'progress';
                 state.presetIdx = d.presetIdx || 0;
                 state.settings = Object.assign(
@@ -3029,8 +3215,31 @@ a.about-item:hover {
                 '</div>';
         }
 
+        /* ---- 睡友动态：渲染（含点赞 / 踩 / 举报） ---- */
+        function getFeedReaction(id) {
+            if (!state.feedReactions) state.feedReactions = {};
+            if (!state.feedReactions[id]) {
+                state.feedReactions[id] = { like: false, dislike: false, report: false, reportReason: '' };
+            }
+            return state.feedReactions[id];
+        }
+
         function feedListHtml() {
             return '<div class="feed-list">' + FEED_DATA.map(function (f) {
+                var r = getFeedReaction(f.id);
+                var folded = !!(r.dislike || r.report);
+                var likeCount = f.likes + (r.like ? 1 : 0);
+
+                var bodyHtml = folded
+                    ? '<div class="feed-folded">' +
+                    '<span class="ff-icon">ⓘ</span>' +
+                    '<span class="ff-text">该内容已折叠，将不会为您优化后续评论展示</span>' +
+                    '<button class="ff-undo" onclick="undoFeedFold(\'' + f.id + '\')">' +
+                    (r.report ? '撤销举报' : '取消踩') +
+                    '</button>' +
+                    '</div>'
+                    : '<div class="feed-text">' + esc(f.text) + '</div>';
+
                 return '<div class="feed-card">' +
                     '<div class="feed-top">' +
                     '<div class="feed-av">' + f.avatar + '</div>' +
@@ -3040,14 +3249,101 @@ a.about-item:hover {
                     '</div>' +
                     (f.tag ? '<div class="feed-tag">' + esc(f.tag) + '</div>' : '') +
                     '</div>' +
-                    '<div class="feed-text">' + esc(f.text) + '</div>' +
-                    '<div class="feed-meta">' +
-                    (f.loc ? '<span>📍 ' + esc(f.loc) + '</span>' : '') +
-                    '<span>👍 ' + f.likes + '</span>' +
-                    '<span>💬 ' + f.comments + '</span>' +
+                    bodyHtml +
+                    '<div class="feed-actions">' +
+                    '<button class="feed-act like' + (r.like ? ' on' : '') + '" onclick="toggleFeedLike(\'' + f.id + '\')">👍 ' + likeCount + '</button>' +
+                    '<button class="feed-act down' + (r.dislike ? ' on' : '') + '" onclick="toggleFeedDislike(\'' + f.id + '\')">👎 ' + (r.dislike ? '已踩' : '踩') + '</button>' +
+                    '<button class="feed-act report' + (r.report ? ' on' : '') + '" onclick="openFeedReport(\'' + f.id + '\')">🚩 ' + (r.report ? '已举报' : '举报') + '</button>' +
+                    '<span class="feed-meta-right">' + (f.loc ? '📍 ' + esc(f.loc) + ' · ' : '') + '💬 ' + f.comments + '</span>' +
                     '</div>' +
                     '</div>';
             }).join('') + '</div>';
+        }
+
+        /* ---- 点赞 ---- */
+        function toggleFeedLike(id) {
+            var r = getFeedReaction(id);
+            r.like = !r.like;
+            if (r.like) r.dislike = false;   // 点赞与踩互斥
+            save();
+            renderSquare();
+            toast(r.like ? '已点赞 👍' : '已取消点赞');
+        }
+
+        /* ---- 踩（踩后折叠内容） ---- */
+        function toggleFeedDislike(id) {
+            var r = getFeedReaction(id);
+            r.dislike = !r.dislike;
+            if (r.dislike) r.like = false;   // 点赞与踩互斥
+            save();
+            renderSquare();
+            toast(r.dislike ? '已踩，内容已折叠' : '已取消踩');
+        }
+
+        /* ---- 举报入口：已举报则撤销，未举报则选理由 ---- */
+        function openFeedReport(id) {
+            var r = getFeedReaction(id);
+
+            if (r.report) {
+                if (!confirm('撤销对该内容的举报？')) return;
+                r.report = false;
+                r.reportReason = '';
+                save();
+                renderSquare();
+                toast('已撤销举报');
+                return;
+            }
+
+            selectedReportReason = 0;
+            openModal(
+                '<div class="modal-head">举报该动态</div>' +
+                '<div class="modal-sub">请选择举报理由（纯属娱乐，不会提交给任何人）。</div>' +
+                '<div class="report-reasons">' +
+                REPORT_REASONS.map(function (t, i) {
+                    return '<div class="loc-item' + (i === selectedReportReason ? ' on' : '') + '" id="reportReason' + i + '" onclick="selectReportReason(' + i + ')">' +
+                        '<div class="li-icon">🚩</div>' +
+                        '<div class="li-main"><div class="li-name">' + esc(t) + '</div></div>' +
+                        '<div class="li-check">✓</div>' +
+                        '</div>';
+                }).join('') +
+                '</div>' +
+                '<button class="btn-primary" onclick="submitFeedReport(\'' + id + '\')">提交举报</button>' +
+                '<button class="btn-ghost" onclick="closeModal()">取消</button>'
+            );
+        }
+
+        function selectReportReason(i) {
+            selectedReportReason = i;
+            REPORT_REASONS.forEach(function (_, k) {
+                var el = document.getElementById('reportReason' + k);
+                if (el) el.classList.toggle('on', k === i);
+            });
+        }
+
+        /* ---- 提交举报：折叠内容 ---- */
+        function submitFeedReport(id) {
+            var r = getFeedReaction(id);
+            r.report = true;
+            r.reportReason = REPORT_REASONS[selectedReportReason] || REPORT_REASONS[0];
+            save();
+            closeModal();
+            renderSquare();
+            toast('举报已提交，内容已折叠');
+        }
+
+        /* ---- 折叠条上的撤销：优先撤销举报，其次取消踩 ---- */
+        function undoFeedFold(id) {
+            var r = getFeedReaction(id);
+            if (r.report) {
+                r.report = false;
+                r.reportReason = '';
+                toast('已撤销举报');
+            } else {
+                r.dislike = false;
+                toast('已取消踩');
+            }
+            save();
+            renderSquare();
         }
 
         function renderSquare() {
@@ -3204,7 +3500,7 @@ a.about-item:hover {
                 '</div>' +
                 '</div>' +
 
-                                '<div class="card">' +
+                '<div class="card">' +
                 '<div class="dev-entry" onclick="toggleAbout()">ℹ️ 关于 <span id="aboutArrow">' + (aboutOpen ? '收起' : '展开') + '</span></div>' +
                 '<div class="collapse ' + (aboutOpen ? 'open' : '') + '" id="aboutBox">' +
                 '<div class="collapse-inner">' +
@@ -3264,7 +3560,7 @@ a.about-item:hover {
             if (arrow) arrow.textContent = dataOpen ? '收起' : '展开';
         }
 
-                function toggleAbout() {
+        function toggleAbout() {
             aboutOpen = !aboutOpen;
             var box = document.getElementById('aboutBox');
             if (box) box.classList.toggle('open', aboutOpen);
@@ -3449,6 +3745,7 @@ a.about-item:hover {
                 currentLocId: null,
                 board: null,
                 boardTab: 'duration',
+                feedReactions: {},
                 tab: 'progress',
                 presetIdx: 0,
                 showAllRecords: false
