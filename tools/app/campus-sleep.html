@@ -937,16 +937,17 @@
             color: #4a4a66;
             line-height: 1.75;
             margin-top: 10px;
-            word-break: break-word
+            word-break: break-word;
+            overflow: hidden;
+            transition: max-height .38s cubic-bezier(.22, .9, .3, 1)
         }
 
-        /* 长动态折叠：默认 6 行 */
-        .feed-text.folded {
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 6;
-            line-clamp: 6;
-            overflow: hidden;
+        /* 长动态折叠：默认 6 行（折叠高度由 JS 按行高计算，见 applyFeedFold） */
+        /* 无障碍：系统开启「减少动态效果」时关掉过渡 */
+        @media (prefers-reduced-motion: reduce) {
+            .feed-text {
+                transition: none !important;
+            }
         }
 
         .feed-expand {
@@ -2260,9 +2261,8 @@ var FEED_DATA = [
             locations: [],
             currentLocId: null,
             board: null,
-            boardTab: 'duration',
+            boardTab: 'feed',
             feedReactions: {},
-            feedExpanded: {},
             tab: 'progress',
             presetIdx: 0,
             showAllRecords: false
@@ -2315,6 +2315,7 @@ var FEED_DATA = [
 
         var devOpen = false;
         var dataOpen = false;
+        var feedExpanded = {};     // 仅内存保存，不写入 localStorage（刷新即重置）
         var pendingCoord = null;   // 正在编辑的坐标 {lat,lng} 或 null
         var pendingType = '宿舍';
         var pendingName = '';
@@ -2337,10 +2338,8 @@ var FEED_DATA = [
                 state.locations = d.locations || [];
                 state.currentLocId = d.currentLocId || null;
                 state.board = d.board || null;
-                state.boardTab = d.boardTab || 'duration';
+                state.boardTab = d.boardTab || 'feed';
                 state.feedReactions = d.feedReactions || {};
-                state.feedReactions = d.feedReactions || {};
-                state.feedExpanded = d.feedExpanded || {};
                 state.tab = d.tab || 'progress';
                 state.presetIdx = d.presetIdx || 0;
                 state.settings = Object.assign(
@@ -2600,6 +2599,7 @@ var FEED_DATA = [
             var oldIdx = TAB_ORDER.indexOf(state.tab);
             var newIdx = TAB_ORDER.indexOf(t);
             state.tab = t;
+            if (t === 'square') state.boardTab = 'feed';
             save();
 
             // 向右切 tab → 新页面从右侧滑入；向左切 → 从左侧滑入
@@ -2762,7 +2762,7 @@ var FEED_DATA = [
 
                 '<button class="loc-quick" id="quickLocBtn" onclick="quickLocate()"' +
                 (active ? ' disabled' : '') + '>' +
-                (active ? '😴 睡眠中，先结账才能切位置' : '📍 定位匹配最近位置') +
+                (active ? '😴 睡眠中，先起床才能切位置' : '📍 定位匹配最近位置') +
                 '</button>' +
 
                 '<div class="dial-wrap">' +
@@ -2781,7 +2781,7 @@ var FEED_DATA = [
                 '<div class="card mt">' +
                 '<div class="card-head">小提示</div>' +
                 '<div class="hint-line">🌙 睡眠中可关闭页面，重新打开会自动继续计时。</div>' +
-                '<div class="hint-line">📸 结账后生成睡眠战报，手动截图即可分享。</div>' +
+                '<div class="hint-line">📸 起床后生成睡眠战报，手动截图即可分享。</div>' +
                 '<div class="hint-line">🔒 定位仅保存在本机，界面只显示位置类型和名称。</div>' +
                 '</div>' +
                 '</div>';
@@ -3218,7 +3218,7 @@ var FEED_DATA = [
         var MATCH_RADIUS = 800; // 800 米内自动切换，超过则弹窗确认
 
         function quickLocate() {
-            if (state.active) { toast('睡眠中不能切换位置，请先结账'); return; }
+            if (state.active) { toast('睡眠中不能切换位置，请先起床'); return; }
 
             if (!state.locations.length) {
                 toast('还没有保存的位置，先添加一个吧（需要绑定坐标）');
@@ -3389,7 +3389,7 @@ var FEED_DATA = [
 
         /* ---- 长动态折叠 ---- */
         function feedTextHtml(f) {
-            var expanded = !!(state.feedExpanded && state.feedExpanded[f.id]);
+            var expanded = !!feedExpanded[f.id];
             return '<div class="feed-text' + (expanded ? '' : ' folded') + '"' +
                 ' id="feedText-' + f.id + '" data-fid="' + f.id + '">' +
                 esc(f.text) +
@@ -3400,17 +3400,40 @@ var FEED_DATA = [
                 '</button>';
         }
 
-        function toggleFeedExpand(id) {
-            if (!state.feedExpanded) state.feedExpanded = {};
-            var on = !state.feedExpanded[id];
-            state.feedExpanded[id] = on;
-            save();
+        function foldedHeight(el) {
+            var lh = parseFloat(getComputedStyle(el).lineHeight);
+            if (!lh || isNaN(lh)) lh = 22.75;   // 13px * 1.75 的兜底
+            return lh * 6;                       // 折叠 6 行
+        }
 
+        function toggleFeedExpand(id) {
             var el = document.getElementById('feedText-' + id);
             var btn = document.getElementById('feedExpand-' + id);
-            if (el) el.classList.toggle('folded', !on);
+            if (!el) return;
+
+            var on = !feedExpanded[id];
+            feedExpanded[id] = on;               // 只存内存，不 save()
+
+            if (on) {
+                // 展开：从 6 行高度过渡到完整高度
+                var full = el.scrollHeight;
+                el.classList.remove('folded');
+                el.style.maxHeight = full + 'px';
+
+                // 过渡结束后解除限制，避免窗口缩放后内容被截断
+                clearTimeout(el._mhTimer);
+                el._mhTimer = setTimeout(function () {
+                    if (feedExpanded[id]) el.style.maxHeight = 'none';
+                }, 420);
+            } else {
+                // 收起：先落到完整高度，再过渡回 6 行
+                el.style.maxHeight = el.scrollHeight + 'px';
+                void el.offsetHeight;            // 强制重排，保证过渡生效
+                el.classList.add('folded');
+                el.style.maxHeight = foldedHeight(el) + 'px';
+            }
+
             if (btn) btn.textContent = on ? '收起' : '展开全文';
-            if (!on) requestAnimationFrame(applyFeedFold);
         }
 
         /* 渲染后检测：只有真正溢出才显示「展开全文」 */
@@ -3422,12 +3445,31 @@ var FEED_DATA = [
                 if (!btn) return;
                 if (el.offsetParent === null) return;          // 页面不可见，跳过
 
-                var expanded = !!(state.feedExpanded && state.feedExpanded[id]);
-                if (expanded) { btn.style.display = ''; return; }
+                // 先解除高度限制，测得完整内容高度
+                el.style.maxHeight = 'none';
+                var full = el.scrollHeight;
+                var foldedH = foldedHeight(el);
+                var expanded = !!feedExpanded[id];
 
-                var overflow = el.scrollHeight - el.clientHeight > 2;
-                btn.style.display = overflow ? '' : 'none';
-                if (!overflow) el.classList.remove('folded');
+                // 内容不超过 6 行：不折叠、不显示按钮
+                if (full <= foldedH + 2) {
+                    el.classList.remove('folded');
+                    el.style.maxHeight = '';
+                    btn.style.display = 'none';
+                    return;
+                }
+
+                btn.style.display = '';
+                btn.textContent = expanded ? '收起' : '展开全文';
+
+                if (expanded) {
+                    el.classList.remove('folded');
+                    el.style.maxHeight = 'none';
+                } else {
+                    // 初始折叠：从 none 到具体值不会触发过渡，直接落位
+                    el.classList.add('folded');
+                    el.style.maxHeight = foldedH + 'px';
+                }
             });
         }
 
@@ -3921,8 +3963,9 @@ var FEED_DATA = [
             state.locations = Array.isArray(d.locations) ? d.locations : [];
             state.currentLocId = d.currentLocId || null;
             state.board = d.board || null;
-            state.boardTab = d.boardTab || 'duration';
+            state.boardTab = d.boardTab || 'feed';
             state.tab = d.tab || 'progress';
+            feedExpanded = {};
             state.presetIdx = d.presetIdx || 0;
             state.showAllRecords = false;
             state.settings = Object.assign(
@@ -3951,7 +3994,7 @@ var FEED_DATA = [
                 locations: [],
                 currentLocId: null,
                 board: null,
-                boardTab: 'duration',
+                boardTab: 'feed',
                 feedReactions: {},
                 tab: 'progress',
                 presetIdx: 0,
@@ -3960,6 +4003,7 @@ var FEED_DATA = [
 
             devOpen = false;
             dataOpen = false;
+            feedExpanded = {};
             pendingCoord = null;
             pendingType = '宿舍';
             pendingName = '';
@@ -4277,7 +4321,7 @@ var FEED_DATA = [
                 var hrs = (Date.now() - state.active.start) / 3600000;
                 if (hrs > 48) {
                     // 极端异常情况（电脑长期挂起），提示用户
-                    setTimeout(function () { toast('检测到一条超长睡眠记录，记得去结账 😴'); }, 800);
+                    setTimeout(function () { toast('检测到一条超长睡眠记录，记得去起床 😴'); }, 800);
                 }
             }
         })();
