@@ -1935,6 +1935,14 @@
             color: #ffa8a8
         }
 
+        /* 评级依据：结论行 */
+        .pr-block .pr-reason-final {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(255, 255, 255, .16);
+            color: rgba(255, 255, 255, .95)
+        }
+
         .pr-chips {
             display: flex;
             align-items: center;
@@ -3907,27 +3915,83 @@
             return Math.max(0, Math.min(100, Math.round((m - 1320) / 300 * 100)));
         }
 
-        /* 综合评级：区分上课睡眠与晚上睡眠 */
-        function gradeOf(c, cyc, bed, isClass, periods) {
-            var g;
+        /* 档位名：1~6 档 */
+        function gradeName(idx) {
+            return GRADE_LIST[Math.max(1, Math.min(6, idx)) - 1];
+        }
+
+        /* 夜间睡眠时长所属区间（用于展示评级依据） */
+        function hourBandLabel(h) {
+            if (h < 5) return '不足 5h';
+            if (h < 7) return '5–7h';
+            if (h < 8) return '7–8h';
+            if (h < 9) return '8–9h';
+            if (h < 10) return '9–10h';
+            return '10h 以上';
+        }
+
+        /* 综合评级：区分上课睡眠与晚上睡眠，同时返回评级依据供战报展示 */
+        function gradeCalc(c, cyc, bed, isClass, periods) {
+            var g, base, steps = [];
             if (isClass) {
                 // 课时数可能带小数（如 1.7 节课），先取整再映射档位，否则查表得到 undefined
-                g = Math.min(6, Math.floor(periods));
+                base = Math.min(6, Math.floor(periods));
+                g = base;
+                steps.push({
+                    cls: '', txt: '上课睡眠 <b>' + periods.toFixed(1) + '</b> 节课（' +
+                        (+state.settings.classMin || 40) + ' 分钟/节，已扣课间）' +
+                        (base < 1 ? '→ 不足 1 档，按最低档计' : '→ 按 <b>' + gradeName(base) + '</b> 档计')
+                });
+                steps.push({ cls: 'mid', txt: '上课睡眠不参与周期 / 入睡时段加成' });
             } else {
-                g = c.hours < 5 ? 1
+                base = c.hours < 5 ? 1
                     : c.hours < 7 ? 2
                         : c.hours < 8 ? 3
                             : c.hours < 9 ? 4
                                 : c.hours < 10 ? 5
                                     : 6;
-                if (cyc.rem === 0 || cyc.rem >= 75) g++;
-                else if (cyc.rem <= 15) g--;
-                if (bed.txt === '早睡标兵') g++;
-                else if (bed.txt === '修仙党') g--;
-                if (c.tooLong) g = 1;
+                g = base;
+                steps.push({
+                    cls: '', txt: '睡眠 <b>' + c.hours.toFixed(1) + 'h</b>（' + hourBandLabel(c.hours) +
+                        '）→ 基础 <b>' + gradeName(base) + '</b>'
+                });
+                steps.push({ cls: 'mid', txt: '睡眠周期：' + cyc.status + ' → 不参与评级' });
+                if (bed.txt === '早睡标兵') {
+                    g++;
+                    steps.push({ cls: 'good', txt: '入睡时段：' + bed.txt + ' → <b>+1</b>' });
+                } else if (bed.txt === '修仙党' || bed.txt === '熬夜边缘') {
+                    g--;
+                    steps.push({ cls: 'bad', txt: '入睡时段：' + bed.txt + ' → <b>-1</b>' });
+                } else {
+                    steps.push({ cls: 'mid', txt: '入睡时段：' + bed.txt + ' → 不加减' });
+                }
+                if (c.tooLong) {
+                    g = 1;
+                    steps.push({
+                        cls: 'bad', txt: '睡眠超过 ' + (+state.settings.maxSleep || 12) +
+                            'h 上限 → 判为昏迷，直接最低档'
+                    });
+                }
             }
-            if (c.tooShort) g = 1;
-            return GRADE_LIST[Math.max(1, Math.min(6, g)) - 1];
+            if (c.tooShort) {
+                g = 1;
+                steps.push({
+                    cls: 'bad', txt: '睡眠不足 ' + (+state.settings.minSleep || 15) +
+                        ' 分钟 → 直接最低档'
+                });
+            }
+
+            var idx = Math.max(1, Math.min(6, g));
+            var baseIdx = Math.max(1, Math.min(6, base));
+            var grade = gradeName(idx);
+            var finalTxt;
+            if (idx > baseIdx) finalTxt = '最终由 ' + gradeName(baseIdx) + ' 提升至 <b>' + grade + '</b>';
+            else if (idx < baseIdx) finalTxt = '最终由 ' + gradeName(baseIdx) + ' 降为 <b>' + grade + '</b>';
+            else finalTxt = '最终评级 <b>' + grade + '</b>';
+            if (g > 6) finalTxt += '（已达最高档）';
+            if (g < 1) finalTxt += '（已取最低档）';
+
+            return { grade: grade, base: base, idx: idx, raw: g, steps: steps, finalTxt: finalTxt };
         }
 
         /* ---------------- 战报海报 ---------------- */
@@ -3944,7 +4008,8 @@
             var isClass = isClassSleep(s);
             var periods = isClass ? classPeriods(c.ms) : 0;
             var periodsText = periods.toFixed(1);
-            var grade = gradeOf(c, cyc, bed, isClass, periods);
+            var gc = gradeCalc(c, cyc, bed, isClass, periods);
+            var grade = gc.grade;
             var adv = wakeAdvice(s, cyc);
             var ls = locStatsOf(s);
             var si = streakInfo();
@@ -4025,8 +4090,17 @@
                 (isClass ? '上课睡眠 · ' + periodsText + ' 节课' : '晚上睡眠') + '</b></div>' +
                 '</div>';
 
+            var reasonHtml = '<div class="pr-block pr-reason">' +
+                '<div class="pr-block-title">评级依据 · ' + grade + '</div>' +
+                gc.steps.map(function (st) {
+                    return '<p class="pr-state ' + st.cls + '">' + st.txt + '</p>';
+                }).join('') +
+                '<p class="pr-reason-final">' + gc.finalTxt + '</p>' +
+                '</div>';
+
             // 将详细统计集中起来
             var detailHtml =
+                reasonHtml +
                 cycleHtml +
                 classHtml +
                 statsHtml +
