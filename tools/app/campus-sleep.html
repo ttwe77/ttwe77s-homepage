@@ -472,6 +472,15 @@
             border-bottom: none
         }
 
+        .rec-row {
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .rec-row:active {
+            background: #f7f5ff;
+        }
+
         .rec-icon {
             width: 36px;
             height: 36px;
@@ -2040,7 +2049,7 @@
         ];
 
         /* ---------------- 广场 · 网友动态（JSON 硬编码） ---------------- */
-var FEED_DATA = [
+        var FEED_DATA = [
             {
                 id: '4393d506-8a8b-4abd-a146-fe0d78a6a966', name: '卷王克星', avatar: '🦥', tag: '战报', loc: '宿舍',
                 text: '今日战绩：11 小时 42 分。闹钟响了四次，我按了四次「稍后提醒」，第五次它自己放弃了。',
@@ -2650,7 +2659,7 @@ var FEED_DATA = [
                 if (c.tooLong) { tag = '<span class="rec-tag bad">昏迷</span>'; cls = 'bad'; }
                 if (c.tooShort) { tag = '<span class="rec-tag warn">小憩</span>'; cls = 'warn'; }
                 var locTxt = s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName || '') : '📍 未记录位置';
-                return '<div class="rec-row">' +
+                return '<div class="rec-row" onclick="openHistoryReport(\'' + s.id + '\')">' +
                     '<div class="rec-icon">🌙</div>' +
                     '<div class="rec-main">' +
                     '<div class="rec-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
@@ -2816,6 +2825,16 @@ var FEED_DATA = [
             save();
             renderSleep();
             toast('开始睡觉，晚安 🌙');
+        }
+
+        /* 历史记录复盘：复用起床战报 */
+        function openHistoryReport(id) {
+            var s = null;
+            for (var i = 0; i < state.sessions.length; i++) {
+                if (state.sessions[i].id === id) { s = state.sessions[i]; break; }
+            }
+            if (!s || !s.end) { toast('记录不存在'); return; }
+            showReport(s);   // 与 endSleep() 里调用的完全同一个函数
         }
 
         function endSleep() {
