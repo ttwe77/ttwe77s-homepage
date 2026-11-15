@@ -1044,6 +1044,133 @@
             flex: 0 1 auto
         }
 
+        /* ---- 广场 · 动态评论（默认折叠，点击展开/收起） ---- */
+        .feed-comment-toggle {
+            flex: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: none;
+            background: #f2efff;
+            color: #6C5CE7;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            transition: .15s
+        }
+
+        .feed-comment-toggle:active {
+            transform: scale(.94)
+        }
+
+        .feed-comment-toggle.on {
+            background: #6C5CE7;
+            color: #fff
+        }
+
+        .feed-comment-toggle .fc-caret {
+            display: inline-block;
+            font-size: 9px;
+            transition: transform .2s
+        }
+
+        .feed-comment-toggle.on .fc-caret {
+            transform: rotate(180deg)
+        }
+
+        .feed-comments {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height .3s ease, opacity .22s ease
+        }
+
+        .feed-comments.open {
+            max-height: 1000px;
+            opacity: 1
+        }
+
+        .feed-comments-inner {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #f8f8fc
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .feed-comments {
+                transition: none
+            }
+        }
+
+        .feed-cmt-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            color: #b0b0c4;
+            padding-bottom: 2px
+        }
+
+        .feed-cmt {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0
+        }
+
+        .feed-cmt+.feed-cmt {
+            border-top: 1px dashed #ececf5
+        }
+
+        .feed-cmt-av {
+            flex: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px
+        }
+
+        .feed-cmt-body {
+            flex: 1;
+            min-width: 0
+        }
+
+        .feed-cmt-head {
+            display: flex;
+            align-items: baseline;
+            gap: 6px
+        }
+
+        .feed-cmt-name {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #6a6a84;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .feed-cmt-time {
+            flex: none;
+            font-size: 10px;
+            color: #b8b8c8
+        }
+
+        .feed-cmt-text {
+            margin-top: 2px;
+            font-size: 12.5px;
+            line-height: 1.55;
+            color: #55556b;
+            word-break: break-word
+        }
+
         .feed-folded {
             display: flex;
             align-items: center;
@@ -1240,6 +1367,65 @@
         .collapse>.collapse-inner {
             overflow: hidden;
             min-height: 0;
+        }
+
+        /* ============ 睡眠战报详细数据动画 ============ */
+
+        .report-details-collapse {
+            margin-top: 0;
+            transition:
+                grid-template-rows .55s cubic-bezier(.22, .9, .3, 1),
+                margin-top .55s cubic-bezier(.22, .9, .3, 1);
+        }
+
+        .report-details-collapse.open {
+            margin-top: 10px;
+        }
+
+        /* 详细数据卡片逐个淡入、上浮 */
+        @keyframes reportDetailIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 所有详细数据块 */
+        .report-details-collapse.open .report-details>.pr-block {
+            animation: reportDetailIn .42s cubic-bezier(.22, .9, .3, 1) both;
+        }
+
+        /* 依次错开，实现逐个出现的效果 */
+        .report-details-collapse.open .report-details>.pr-block:nth-of-type(2) {
+            animation-delay: .04s;
+        }
+
+        .report-details-collapse.open .report-details>.pr-block:nth-of-type(3) {
+            animation-delay: .10s;
+        }
+
+        .report-details-collapse.open .report-details>.pr-block:nth-of-type(4) {
+            animation-delay: .16s;
+        }
+
+        .report-details-collapse.open .report-details>.pr-block:nth-of-type(5) {
+            animation-delay: .22s;
+        }
+
+        .report-details-collapse.open .report-details>.pr-block:nth-of-type(6) {
+            animation-delay: .28s;
+        }
+
+        /* 尊重系统减少动态效果设置 */
+        @media (prefers-reduced-motion: reduce) {
+            .report-details-collapse.open .report-details>.pr-block {
+                animation: none !important;
+            }
         }
 
         /* 无障碍：系统开启「减少动态效果」时直接关掉 */
@@ -1717,7 +1903,7 @@
             color: rgba(255, 255, 255, .9)
         }
 
-        .pr-block p + p {
+        .pr-block p+p {
             margin-top: 2px
         }
 
@@ -2078,6 +2264,41 @@
         #registerScreen:not(.hidden) {
             animation: pageIn .3s cubic-bezier(.22, .9, .3, 1) both;
         }
+
+        /* 精简版战报 */
+        .poster-summary {
+            padding: 20px 18px;
+        }
+
+        .poster-summary .poster-num {
+            margin: 10px 0 2px;
+        }
+
+        .poster-summary .poster-loc {
+            margin-top: 8px;
+        }
+
+        .poster-summary .poster-line {
+            margin: 12px 0;
+        }
+
+        .poster-summary .pr-tl {
+            margin-top: 10px;
+        }
+
+        .poster-summary .poster-foot {
+            margin-top: 10px;
+        }
+
+        /* 详细数据面板 */
+        .report-details {
+            margin-top: 12px;
+            text-align: left;
+        }
+
+        .report-details .poster-title {
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 
@@ -2151,6 +2372,10 @@
 
         var PRESETS = [
             { school: '霍格沃茨魔法学校', college: '赫奇帕奇学院', studentId: '777777', nickname: '匿名睡友' },
+            { school: '加里敦大学', college: '躺平与养生学院', studentId: '250250', nickname: '床垫守护者' },
+            { school: '早八逃生学院', college: '赖床动力学系', studentId: '080808', nickname: '被窝封印师' },
+            { school: '深夜食堂大学', college: '碳水快乐学院', studentId: '996699', nickname: '夜宵特派员' },
+            { school: '宇宙第一躺平学院', college: '午睡工程系', studentId: '123456', nickname: '睡神本神' },
             { school: '海拉鲁骑士学院', college: '旷野之息系', studentId: '19860221', nickname: '呀哈哈收集者' },
             { school: '蘑菇王国水管工学院', college: '跳跃与踩怪系', studentId: '19850913', nickname: '公主我来啦' },
             { school: '绿色山丘速度学院', college: '音速奔跑系', studentId: '19910623', nickname: '金环收藏家' },
@@ -2163,11 +2388,7 @@
             { school: '圣三一综合学院', college: '补课部', studentId: '10019', nickname: '白洲 梓' },
             { school: '圣三一综合学院', college: '茶话会', studentId: '10059', nickname: '圣园 未花' },
             { school: '千禧年科学学院', college: '游戏开发部', studentId: '10134', nickname: '天童 爱丽丝' },
-            { school: '格黑娜学院', college: '风纪委员会', studentId: '10004', nickname: '空崎 日奈' },
-            { school: '加里敦大学', college: '躺平与养生学院', studentId: '250250', nickname: '床垫守护者' },
-            { school: '早八逃生学院', college: '赖床动力学系', studentId: '080808', nickname: '被窝封印师' },
-            { school: '深夜食堂大学', college: '碳水快乐学院', studentId: '996699', nickname: '夜宵特派员' },
-            { school: '宇宙第一躺平学院', college: '午睡工程系', studentId: '123456', nickname: '睡神本神' }
+            { school: '格黑娜学院', college: '风纪委员会', studentId: '10004', nickname: '空崎 日奈' }
         ];
 
         /* ---------------- 虚拟睡友昵称池 ---------------- */
@@ -2425,8 +2646,543 @@
                 id: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80', name: '第一节幽灵', avatar: '🐓', tag: '日常', loc: '教学楼',
                 text: '关于早八，我有太多话想说。我的闹钟从 6:40 开始，每五分钟响一次，一直排到 7:50，它们的分工是这样的：6:40 那个叫「温柔提醒」，声音很轻，像妈妈在叫你起床；7:00 那个叫「正式通知」，音量翻倍，配上一段很有节奏感的铃声；7:20 那个叫「最后通牒」，用的是警报音；7:40 那个叫「绝望」，我把它设成了我最讨厌的一首歌，这样我就会因为不想听而爬起来关掉它。但事实证明，人类对声音的适应能力是惊人的：一个月之后，这四个闹钟我一个都听不见了，我的室友们倒是全醒了。早八的教室有一种独特的气氛：前排永远坐着几个精神抖擞的人，中间是勉强维持清醒的人，后排是已经进入梦乡的人。老师讲到精彩之处，后排会传来一声悠长的呼吸声，全班安静，老师也停顿了一下，然后若无其事地继续讲。我曾经认真算过一笔账：一个学期十六周，每周两次早八，一次一个半小时，总共四十八小时；而我为了这四十八小时少睡的时间，大概是一百二十个小时。但我还是每次都去，因为点名册上那个红勾，是当代大学生最后的尊严。',
                 likes: 1287, comments: 342
+            },
+            {
+                id: '3f7c9a1e-6b2d-4e8a-9c41-5d0f8b7a2e61', name: '雨声收藏家', avatar: '🌧️', tag: '思考', loc: '宿舍',
+                text: '我们宿舍有一条不成文的规矩：谁先睡着，谁负责叫醒其他人。但这规矩从来没执行过，因为没人知道自己是什么时候睡着的。真正陪我入睡的是窗外的雨。天气预报说这周有五天雨，我竟然有点高兴。雨声的好处在宿舍里体现得特别明显：它盖住了室友的键盘声、走廊的脚步声、隔壁楼的水管声，还有自己脑子里那个停不下来的声音。我试过用耳机放白噪音，但耳机线会在半夜缠住脖子，蓝牙耳机第二天总会出现在被子里某个神秘的角落。所以最后我选择听真的雨——它免费、稳定、不需要充电，唯一的问题是雨停了之后，安静会变得特别响。有一次凌晨三点雨突然停了，我醒过来，听见整栋楼的声音：有人在小声打电话，有人在翻身，还有人在阳台上咳嗽。那一刻我意识到，原来大家都在同一个雨夜里假装睡着。后来又下雨了，声音重新把世界盖住，我也就重新睡着了。所以我现在的助眠方案很简单：不戴耳机，不看手机，把窗帘拉开一条缝，等雨来。雨不来的时候，就等自己。',
+                likes: 763, comments: 168
+            },
+            {
+                id: '4a8d0b2f-7c3e-4f9b-8d52-6e1a9c8b3f72', name: '短视频时间黑洞', avatar: '📱', tag: '日常', loc: '宿舍',
+                text: '计划：十一点放下手机。实际：十一点零一分刷到一个「看完这条就睡」的视频。现在是凌晨一点四十，我已经看完了三十七条「看完这条就睡」的视频，而手机说我今晚的屏幕使用时间比昨天多了百分之六十。明天继续早睡。',
+                likes: 634, comments: 152
+            },
+            {
+                id: '5b9e1c3a-8d4f-4a0c-9e63-7f2b0d9c4a83', name: '耳塞十级学者', avatar: '🎧', tag: '测评', loc: '宿舍',
+                text: '作为一个被室友呼噜折磨了两年的人，我可以出一本耳塞测评手册。入门款是药店买的黄色海绵耳塞，便宜、软、异物感小，缺点是隔音有限，它能把呼噜从「打雷」降成「远处有辆卡车」；进阶级是硅胶耳塞，贴合度高，翻身不容易掉，但戴久了耳道会痒；专业级是那种带滤芯的音乐人耳塞，神奇之处在于能过滤掉高频噪音却保留闹钟，用了两个月之后我甚至能听见自己的心跳；至于传说级的隔音耳罩，戴上之后确实安静，但侧睡会硌脸，而且听不见闹钟，有一次我戴着它睡了十四个小时，醒来时全宿舍都在等我，因为没人能把我叫醒。后来我总结出一个更朴素的方案：和室友开诚布公地聊一次。我们宿舍现在定了三条规矩——打呼的人先睡、翻身轻一点、谁熬夜谁戴耳机。效果比任何耳塞都好。当然，黄色海绵那副我还留着，毕竟规矩这种东西，就像耳塞一样，需要的时候还是得有。',
+                likes: 588, comments: 126
+            },
+            {
+                id: '6c0f2d4b-9e5a-4b1d-8f74-8a3c1e0d5b94', name: '校车睡过站选手', avatar: '🚌', tag: '求助', loc: '其他',
+                text: '早八那天我在校车上补了个觉，醒来发现车停在终点站，司机师傅正在锁门。我问他这是哪儿，他说这是停车场，同学，你已经坐完两趟了。我看了眼时间，第二节课都开始了。后来我把这事发到宿舍群，室友们的回复整齐划一：你居然还去了第一节课？',
+                likes: 471, comments: 93
+            },
+            {
+                id: '7d1a3e5c-a6f7-4c2e-9a85-9b4d2f1e6ca5', name: '被子换季总监', avatar: '🧣', tag: '日常', loc: '宿舍',
+                text: '今天完成了宿舍年度大工程——换被子。夏天的薄毯收进柜子，冬天的厚被搬出来晒。晒被子的时候全楼都在抢晾衣杆，场面堪比抢课。抱着晒过的被子回宿舍那一瞬间，我觉得自己拥有整个世界。',
+                likes: 356, comments: 71
+            },
+            {
+                id: '8e2b4f6d-b7a8-4d3f-8b96-0c5e3a2f7db6', name: '睡前数羊失败员', avatar: '🐑', tag: '思考', loc: '其他',
+                text: '昨晚失眠，我决定认真数一次羊，就像小时候那样。一只羊、两只羊、三只羊……数到第二十三只的时候，我开始想：这些羊是什么品种？它们要跳过栅栏，那我站的位置算不算侵犯私人领地？数到第五十只，我发现自己在给每只羊起名字。数到第八十只，我开始担心这么多羊挤在一起，会不会有一只跳不过去，于是我停下来等它，结果后面就乱了。数到第一百只，我彻底清醒了，因为我意识到「数羊」这个方法根本就是骗人的——它把注意力集中在数字上，但数字是最容易引发联想的东西，从羊群联想到草原，从草原联想到旅行，从旅行联想到假期，从假期联想到作业，从作业联想到明天，从明天联想到闹钟。最后我放弃了数羊，改成数呼吸，数到第七次就睡着了。所以我想给所有失眠的人一个建议：不要数羊，羊只会让你更清醒。数呼吸，或者干脆什么都不数——因为真正让人入睡的，从来不是数字，而是不再追问自己为什么还醒着。',
+                likes: 912, comments: 237
+            },
+            {
+                id: '9f3c5a7e-c8b9-4e4a-9c07-1d6f4b3a8ec7', name: '通宵看球替补', avatar: '⚽', tag: '修仙', loc: '其他',
+                text: '昨晚的比赛是凌晨三点，我定了两点五十的闹钟，泡好了面，还特意把音量调到最小。结果比赛第十分钟，我就睡着了，面也没吃，手机屏幕一直亮到早上。第二天室友问我比分，我说不知道，他说那你定闹钟干嘛。我说这是仪式感。',
+                likes: 289, comments: 58
+            },
+            {
+                id: '0a4d6b8f-d9ca-4f5b-8d18-2e7a5c4b9fd8', name: '体育课补觉代表', avatar: '🏃', tag: '摸鱼', loc: '其他',
+                text: '体育课自由活动时间，我躺在操场的草坪上，看着天上的云，想着正在跑八百米的同学。那一刻我觉得躺着也是一种运动——至少我的心脏在认真地跳。老师路过看了我一眼，说：同学，你这也算参与。我说我这是恢复训练。他笑了笑走开了。我觉得他懂了。',
+                likes: 397, comments: 74
+            },
+            {
+                id: '1b5e7c90-0a1b-4a6c-9e29-3f8b6d5c0ae9', name: '睡眠手环受害者', avatar: '⌚', tag: '测评', loc: '宿舍',
+                text: '手环说昨晚我深睡三个小时，浅睡四个半小时，中途醒来两次。我看着这份报告想了很久：我明明一整夜都觉得自己没睡着，它却给我打了个八十九分。后来我明白了，它测的不是我的睡眠，是我不动的时长。于是我研究了它的算法，也研究了怎么「刷分」：提前上床、少翻身、别看手机。结果那几天我睡得比谁都差，因为我要一直记着别动。最夸张的一次，我为了保住一个高分，硬躺到凌晨两点，醒来第一件事不是看时间，是看分数掉没掉。后来有一天我把手环摘下来放在桌上，那一晚我睡得很好。第二天手环显示：未佩戴。我忽然觉得，这可能是它这一年来最准确的一次报告。',
+                likes: 706, comments: 151
+            },
+            {
+                id: '2c6f8d01-1b2c-4b7d-8f3a-4a9c7e6d1bfa', name: '睡前emo电台', avatar: '📻', tag: '思考', loc: '其他',
+                text: '宿舍熄灯之后，我常常开一个只有自己的电台。没有声音，也没有听众，就是躺在床上，把白天的事重播一遍。白天在课上没回答上来的问题，某个同学说的那句话，晚饭时食堂阿姨多给的那勺菜，还有一条没发出去的消息。这些事在白天都很小，小到我甚至不会多想，但一到晚上就会被放大，像宿舍窗外那棵树，白天只是树，晚上就变成了一团摇晃的影子。我知道这个时候不该想事情，但大脑好像一到这个点就开始上班，专门负责把我以前忽略的东西一件件翻出来。后来我学会了一招：把想的事记在手机备忘录里，写完就关掉。它们并不会消失，但它们被放进了一个地方，我就不用一直抱着了。这个办法用了大概两个月，备忘录里已经有两百多条。有一天我翻了一下，发现绝大多数事情都没那么重要，重要的事情我一件都没忘。所以现在的我，会在关灯前把手机放在枕头边，备忘录打开，等那些念头来。它们来了，我记下，它们就走了。晚安，这里是只属于我的电台，今天的节目就到这里。',
+                likes: 845, comments: 203
+            },
+            {
+                id: '3d7a9e12-2c3d-4c8e-9a4b-5b0d8f7e2c0b', name: '梦游点单人', avatar: '🐧', tag: '名场面', loc: '宿舍',
+                text: '室友昨晚梦游，起身穿好衣服，拿上手机，说了句「我下去拿个外卖」，然后就往门口走。我们赶紧把他拉住。第二天告诉他，他完全不信，直到我们翻出他的手机——他在凌晨两点真的下了一单，备注写着：放楼下就行，尽量别按门铃。',
+                likes: 673, comments: 144
+            },
+            {
+                id: '4e8b0f23-3d4e-4d9f-8b5c-6c1e9a8f3d1c', name: '考前一晚速成选手', avatar: '📝', tag: '学习', loc: '图书馆',
+                text: '考前一晚，我在图书馆用两小时看完了整个学期的 PPT，并且第一次发现：原来这门课有这么多内容。以前每次上课我都坐在后排，把老师的讲台看成远处的一个白点。现在那些白点变成了公式、定义和例题，密密麻麻地挤在五十页幻灯片里。我一边看一边做笔记，一边在心里跟老师道歉。凌晨两点时我合上电脑，觉得自己已经掌握了这门课百分之六十的内容。第二天考试，卷子发下来，第一道题的题干我确实认识，剩下的部分我们互相看得有点陌生。但没关系——考完出来，阳光很好，我决定先睡一觉，把没考完的那百分之四十在梦里补上。',
+                likes: 531, comments: 112
+            },
+            {
+                id: '5f9c1a34-4e5f-4e0a-9c6d-7d2f0b9a4e2d', name: '连续早睡打卡员', avatar: '🐦', tag: '立flag', loc: '宿舍',
+                text: '早睡打卡第三天。前两天的记录是这样的：第一天 23:10 上床，凌晨 1:20 睡着；第二天 23:00 上床，凌晨 0:50 睡着。今天目标：不管几点睡着，都要在 23:00 前上床。目前进度：23:04，我还在写这条动态。请各位睡友监督——不过你们大概也都还醒着。',
+                likes: 486, comments: 97
+            },
+            {
+                id: '6a0d2b45-5f6a-4f1b-8d7e-8e3a1c0b5f3e', name: '被窝温度研究员', avatar: '🌡️', tag: '测评', loc: '宿舍',
+                text: '被窝预热实验报告：进入被窝时温度约为室温，体感偏冷；三分钟后出现第一丝暖意，需要保持不动；十分钟后达到最佳状态，此时任何翻身都会重新开始计时；二十分钟后开始犯困，这是一天中最危险的时刻，因为你可能会为了不破坏这个状态而决定不去洗澡。结论：被窝不是用来睡觉的，是用来把你自己哄睡的。',
+                likes: 342, comments: 66
+            },
+            {
+                id: 'b3d5f7a9-1c2e-4b6d-8f0a-2c4e6a8b0d1f', name: '闹钟铃声选择困难户', avatar: '🎵', tag: '日常', loc: '宿舍',
+                text: '为了找一首能叫醒自己的闹钟铃声，我试了三十多首。结论是：能叫醒我的铃声，会让我一整天心情极差；好听的铃声，我听着听着又睡着了。所以我现在用的是一首我最讨厌的歌——它有效，但代价是我每天醒来都在生气。',
+                likes: 312, comments: 54
+            },
+            {
+                id: 'c4e6a8b0-2d3f-4c7e-9a1b-3d5f7b9c1e2a', name: '闭馆音乐幻听者', avatar: '🦌', tag: '名场面', loc: '图书馆',
+                text: '闭馆回宿舍之后，我躺在床上又听见了《回家》的旋律。我以为幻听了，结果发现是室友的手机铃声。我们四个人同时抬头，然后一起笑了——原来大家脑子里都还在播那首歌。',
+                likes: 268, comments: 47
+            },
+            {
+                id: 'd5f7b9c1-3e4a-4d8f-8b2c-4e6a8c0d2f3b', name: '咖啡因代谢异常', avatar: '☕', tag: '测评', loc: '教学楼',
+                text: '上午十点一杯拿铁，中午十二点困得抬不起头，下午三点精神抖擞，晚上十一点躺下睁眼到两点。我怀疑我的咖啡因不是提神，是帮我调时差。',
+                likes: 389, comments: 72
+            },
+            {
+                id: 'e6a8c0d2-4f5b-4e9a-9c3d-5f7b9d1e3a4c', name: '洗澡中途断热水', avatar: '🚿', tag: '求助', loc: '宿舍',
+                text: '洗到一半，热水没了。我顶着满身泡沫站在浴室里，听见外面室友在喊「热水卡没钱了」。我说那你怎么不去充，他说等你洗完。我们隔着一扇门沉默了三秒，然后我开始用冷水冲——冲完那一瞬间，我觉得自己整个人都升华了。',
+                likes: 476, comments: 98
+            },
+            {
+                id: 'f7b9d1e3-5a6c-4f0b-8d4e-6a8c0e2f4b5d', name: '期末掉发观察员', avatar: '💇', tag: '思考', loc: '图书馆',
+                text: '期末周开始前，我数了一下枕头上的头发，大概二十根。现在是第三天，我已经数不过来了。室友说头发是被知识挤掉的，我说那我这学期应该早就秃了。',
+                likes: 294, comments: 51
+            },
+            {
+                id: 'a8c0e2f4-6b7d-4a1c-9e5f-7b9d1f3a5c6e', name: '代占座专业户', avatar: '📖', tag: '日常', loc: '教学楼',
+                text: '我每天早上七点二十到教室，占六个座位，然后给五个室友发消息「到了」。他们九点才来，来了第一句话是「你怎么这么早」。我说我怕位置没了，他们说「没了就没了呗」。明年我决定只占一个。',
+                likes: 421, comments: 83
+            },
+            {
+                id: 'b9d1f3a5-7c8e-4b2d-8f6a-8c0e2a4b6d7f', name: '食堂阿姨手抖观测员', avatar: '🍚', tag: '测评', loc: '食堂',
+                text: '长期观察食堂打菜：手抖是有规律的。抖得最厉害的是肉，抖得最不厉害的是土豆和汤。由此可以得出结论——土豆和汤的质量非常稳定，稳定到阿姨都不需要用力。',
+                likes: 358, comments: 66
+            },
+            {
+                id: 'c0e2a4b6-8d9f-4c3e-9a7b-9d1f3b5c7e8a', name: '凌晨三点朋友圈清空者', avatar: '📱', tag: '修仙', loc: '宿舍',
+                text: '凌晨三点，我把三天的朋友圈都刷完了。刷到最后一条是三天前的，我甚至想往下滑，看看有没有更早的。那一刻我意识到，我不是失眠，我是没内容了。',
+                likes: 337, comments: 61
+            },
+            {
+                id: 'd1f3b5c7-9e0a-4d4f-8b8c-0e2a4c6d8f9b', name: '耳机线打结大师', avatar: '🎧', tag: '日常', loc: '宿舍',
+                text: '每天早上醒来，我的有线耳机都会打成一个我从没见过的结。我怀疑它晚上自己动过。更奇怪的是，我每次都能解开，但我完全想不起是怎么解的。所以我相信，睡着的我比醒着的我聪明。',
+                likes: 251, comments: 44
+            },
+            {
+                id: 'e2a4c6d8-0f1b-4e5a-9c9d-1f3b5d7e9a0c', name: '宿舍WiFi抢修员', avatar: '🦫', tag: '求助', loc: '宿舍',
+                text: '宿舍网断了。我们五个人轮流重启路由器、拔插网线、对着路由器说好话。最后还是下铺同学用手机热点救了我们。他说这是今晚第三次开热点，第一次是因为断电，第二次是因为他忘了关。',
+                likes: 503, comments: 117
+            },
+            {
+                id: 'f3b5d7e9-1a2c-4f6b-8d0e-2a4c6e8f0b1d', name: '自习室咳嗽乐团', avatar: '🦉', tag: '摸鱼', loc: '图书馆',
+                text: '期末周的图书馆有一种奇特的声音分布：东边咳一声，西边咳两声，中间那位一咳嗽就是一段完整的旋律。我怀疑我们不是在学习，是在合唱。',
+                likes: 276, comments: 48
+            },
+            {
+                id: 'a4c6e8f0-2b3d-4a7c-9e1f-3b5d7f9a1c2e', name: '冬天起床倒计时', avatar: '🐔', tag: '立flag', loc: '宿舍',
+                text: '冬天的起床流程已经变成倒计时：闹钟响，倒数五秒必须坐起来，否则一定失败。今天是第十五天，成功率百分之二十。剩下那百分之八十，我都在倒数到三的时候重新睡着了。',
+                likes: 467, comments: 91
+            },
+            {
+                id: 'b5d7f9a1-3c4e-4b8d-8f2a-4c6e8a0b2d3f', name: '楼梯间打电话选手', avatar: '🦊', tag: '日常', loc: '其他',
+                text: '宿舍里没法打电话，于是楼梯间成了全校最私密的地方。这里有谈恋爱的，有跟家里报平安的，有哭的，也有背英语的。我见过一个人蹲在台阶上，用特别温柔的声音说「妈，我最近挺好的」，然后挂了电话叹了口气。',
+                likes: 548, comments: 126
+            },
+            {
+                id: 'c6e8a0b2-4d5f-4c9e-9a3b-5d7f9b1c3e4a', name: '被窝伸手够灯者', avatar: '🦥', tag: '日常', loc: '宿舍',
+                text: '上床之后发现灯没关，这是当代大学生最经典的困境。解决方案有三种：自己下去关（正确但不情愿）、叫室友关（需要友情余额）、用脚够（需要柔韧性）。我一般选择第四种——就这样睡着，让灯亮一夜。',
+                likes: 392, comments: 74
+            },
+            {
+                id: 'd7f9b1c3-5e6a-4d0f-8b4c-6e8a0c2d4f5b', name: '早八空位统计员', avatar: '🐢', tag: '学习', loc: '教学楼',
+                text: '早八的座位规律：第一排永远空着两个位置，中间第三排永远坐满，最后一排永远有人在补觉。我统计了两周，结论是大家不是不想坐前排，是不想坐第一排。',
+                likes: 305, comments: 56
+            },
+            {
+                id: 'e8a0c2d4-6f7b-4e1a-9c5d-7f9b1d3e5a6c', name: '洗澡时唱歌选手', avatar: '🦆', tag: '名场面', loc: '宿舍',
+                text: '我在浴室唱歌，以为只有自己听得见。直到有一天室友说：你昨天那首歌唱到副歌就断了，是不是忘词了？我说你怎么知道。他说：整层楼都在等下一句。',
+                likes: 579, comments: 132
+            },
+            {
+                id: 'f9b1d3e5-7a8c-4f2b-8d6e-8a0c2e4f6b7d', name: '半夜饿醒后不吃选手', avatar: '🍜', tag: '思考', loc: '宿舍',
+                text: '半夜一点饿醒，我在「起来吃」和「继续睡」之间纠结了四十分钟。最后我选择继续睡，因为我发现纠结本身已经消耗了足够的能量——虽然它并不能真的当饭吃。',
+                likes: 283, comments: 52
+            },
+            {
+                id: 'a0c2e4f6-8b9d-4a3c-9e7f-9b1d3f5a7c8e', name: '校车座位继承者', avatar: '🚌', tag: '日常', loc: '其他',
+                text: '校车有个隐藏规则：坐靠窗位置的人，下车后位置会被后面那个人继承。我连续三周坐同一个位置，直到有一天我上车发现有人坐在那儿，还对我笑了一下。我知道，我的时代结束了。',
+                likes: 246, comments: 43
             }
         ];
+
+        /* ---------------- 广场 · 动态评论（JSON 硬编码，按动态 id 索引） ---------------- */
+        var FEED_COMMENTS = {
+            '4393d506-8a8b-4abd-a146-fe0d78a6a966': [
+                { name: '睡眠监督员', avatar: '🐹', time: '3 小时前', text: '11 小时 42 分，差不多是我这周的累计时长。' },
+                { name: '焦虑型选手', avatar: '🦊', time: '4 小时前', text: '闹钟第五次放弃，说明它已经学会接受现实了。' },
+                { name: '起名困难户', avatar: '🐢', time: '昨天 23:10', text: '建议申请吉尼斯，项目名就叫「人类充电纪录」。' }
+            ],
+            '0a1b2c3d-4e5f-4a6b-7c8d-9e0f1a2b3c4d': [
+                { name: '阿姨的女儿', avatar: '🍜', time: '2 小时前', text: '我妈说，那个点还来吃饭的孩子，都得多给一勺。' },
+                { name: '夜宵同好', avatar: '🦉', time: '3 小时前', text: '那句「晚安」我懂，凌晨食堂的人自动结盟。' },
+                { name: '减肥失败者', avatar: '🐺', time: '5 小时前', text: '看完这段我下床煮了包面，谢谢你。' }
+            ],
+            '519edc99-9a37-4224-b64c-063655ddc2a5': [
+                { name: '自习室常驻', avatar: '🐼', time: '1 小时前', text: '我是那三批人里的第二批，我们对视过。' },
+                { name: '睡眠研究员', avatar: '🦥', time: '2 小时前', text: '三小时？你这是把图书馆当钟点房了。' },
+                { name: '抢座失败者', avatar: '📚', time: '4 小时前', text: '难怪我找不到座，原来被占着睡。' }
+            ],
+            '0c7ee6bc-45e7-4afd-a4b4-67fd7ed3bd0e': [
+                { name: '点名恐惧症', avatar: '🐔', time: '1 小时前', text: '梦里答「到」是当代大学生的肌肉记忆。' },
+                { name: '室友本人', avatar: '🦆', time: '2 小时前', text: '十点半我叫过你，你说再睡五分钟。' },
+                { name: '清醒的少数', avatar: '🐧', time: '6 小时前', text: '梦里的课，出勤率比现实高。' }
+            ],
+            '2e4a6c80-b7d9-4c1f-9a3b-d1f3b5c7e901': [
+                { name: '同类患者', avatar: '🦎', time: '2 小时前', text: '我的生物钟已经买好返程票，但一直改签。' },
+                { name: '早八受害者', avatar: '🐰', time: '3 小时前', text: '开学第一周，我每天下午三点吃早饭。' },
+                { name: '夜行动物', avatar: '🦉', time: '昨天 22:48', text: '它只是提前适应了寒假。' }
+            ],
+            '0e4f9b01-f0e9-4cee-a0a3-994577ce9899': [
+                { name: '下铺居民', avatar: '🐼', time: '2 小时前', text: '下铺不是会响，是会报警。' },
+                { name: '上铺攀岩者', avatar: '🦫', time: '3 小时前', text: '云朵不行，会漏下去，建议换成防弹棉。' },
+                { name: '寝室长', avatar: '🛏️', time: '5 小时前', text: '结论正确，预算为零。' }
+            ],
+            'a24068b4-e7b5-411b-9853-60905c0aa1ae': [
+                { name: '泡面学者', avatar: '🍜', time: '1 小时前', text: '三倍热量，三十倍幸福，零倍后悔。' },
+                { name: '夜宵搭子', avatar: '🦊', time: '2 小时前', text: '汤别喝完，明天还要泡饭。' },
+                { name: '外卖鉴赏家', avatar: '🐙', time: '4 小时前', text: '泡面是夜宵的底座，万物皆可加。' }
+            ],
+            '1404044b-253d-4c5c-9dba-071bfba4383b': [
+                { name: '同款哲学家', avatar: '🦉', time: '1 小时前', text: '只要不起床，失败就还在加载中。' },
+                { name: '现实主义', avatar: '🐢', time: '2 小时前', text: '但饿会先到。' },
+                { name: '躺平大师', avatar: '🦥', time: '5 小时前', text: '这句话我抄在床板上了。' }
+            ],
+            '55e949e8-fcec-4d76-b419-387b9a6c9b1e': [
+                { name: '同款机型', avatar: '🐯', time: '1 小时前', text: '14 个闹钟，是一个成年人最后的倔强。' },
+                { name: '早八生', avatar: '🐔', time: '3 小时前', text: '建议再加一个 8:30 的，纯属心理安慰。' },
+                { name: '闹钟绝缘体', avatar: '🦩', time: '4 小时前', text: '我的闹钟现在只负责吵醒室友。' }
+            ],
+            'cda4fa46-6e66-4b73-9bb5-2ec84fc48708': [
+                { name: '同期特长生', avatar: '🐨', time: '1 小时前', text: '口水是努力过的证据。' },
+                { name: '同桌', avatar: '📖', time: '2 小时前', text: '书上那滩，老师上课时还看了一眼。' },
+                { name: '摸鱼专家', avatar: '🦊', time: '5 小时前', text: '第三排是黄金位置，我懂。' }
+            ],
+            'e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8091': [
+                { name: '上铺住户', avatar: '🐌', time: '2 小时前', text: '梯子上那条反光条，是血泪经验。' },
+                { name: '靠门铺', avatar: '🦫', time: '3 小时前', text: '听声辨人那段太真实，我现在能听出外卖是哪家。' },
+                { name: '中间铺', avatar: '🐼', time: '6 小时前', text: '「没有特点就是最好的特点」，我哭了。' }
+            ],
+            '40562739-44ea-471c-9963-3c1abc9148f2': [
+                { name: '同栋居民', avatar: '🦇', time: '1 小时前', text: '手电筒亮起那一刻，像开演唱会。' },
+                { name: '楼下宿舍', avatar: '🦊', time: '2 小时前', text: '我们这栋 22:30 断，更早，更痛。' },
+                { name: '充电宝大户', avatar: '🔋', time: '4 小时前', text: '两万毫安，宿舍和平的基石。' }
+            ],
+            '5c09886d-d68d-473f-bb5c-d6552aa3f65b': [
+                { name: '室友', avatar: '🦊', time: '1 小时前', text: '你昨晚还喊了一句「别关灯」。' },
+                { name: '梦话记录员', avatar: '🐺', time: '2 小时前', text: '建议装个录音，一学期能剪成播客。' },
+                { name: '清醒的', avatar: '🦉', time: '5 小时前', text: '梦里会做的题，醒了还是不会。' }
+            ],
+            '2980212e-fd99-4a04-92f0-f9da6a1eee0b': [
+                { name: '同款星人', avatar: '🐨', time: '1 小时前', text: '椅子是安眠药，床是咖啡。' },
+                { name: '躺平专家', avatar: '🦥', time: '2 小时前', text: '所以我选择坐着睡，站着醒。' },
+                { name: '楼上', avatar: '🦊', time: '3 小时前', text: '图书馆沙发区欢迎你。' }
+            ],
+            '54bb97cf-a5a3-4b00-b354-6cd3b13a5737': [
+                { name: '立 flag 同行', avatar: '🐔', time: '1 小时前', text: '37 天，你已经比大部分人有毅力了。' },
+                { name: '旁观者', avatar: '🦆', time: '2 小时前', text: 'flag 立得比早八还准时。' },
+                { name: '早起成功一次', avatar: '🐰', time: '4 小时前', text: '我成功过一次，那天是因为没睡。' }
+            ],
+            '91ba2df9-4c55-4ef9-a79f-8f222cebd85e': [
+                { name: '同类', avatar: '🐺', time: '1 小时前', text: '泛白的天是最贵的滤镜。' },
+                { name: '图书馆常客', avatar: '🦉', time: '2 小时前', text: '那睡着的两个小时才是重点。' },
+                { name: '路过', avatar: '🐧', time: '5 小时前', text: '看手机三小时，也算完成学习时长统计。' }
+            ],
+            'b04eaadb-07ad-49b2-9882-0483632c85e1': [
+                { name: '冬眠选手', avatar: '🐼', time: '1 小时前', text: '14 小时，醒来直接吃晚饭。' },
+                { name: '宿舍居民', avatar: '🦫', time: '2 小时前', text: '充到 200%，然后一周都充不进。' },
+                { name: '羡慕', avatar: '🦥', time: '4 小时前', text: '我也想有这种续航。' }
+            ],
+            'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e': [
+                { name: '同馆', avatar: '🦌', time: '2 小时前', text: '「人在梦里」那张纸条我见过，至今佩服。' },
+                { name: '占座新手', avatar: '📚', time: '3 小时前', text: '原来放书只是基本操作，我学到了。' },
+                { name: '闭馆音乐', avatar: '🦉', time: '6 小时前', text: '音乐一响，全场抬头，像集体重启。' }
+            ],
+            '9c2801c0-ecaa-44e3-8da7-e4c2cd14d96f': [
+                { name: '三杯选手', avatar: '☕', time: '1 小时前', text: '「清醒地感受困」，说得太准了。' },
+                { name: '同款', avatar: '🐨', time: '2 小时前', text: '第四杯之后就只剩心慌。' },
+                { name: '白开水派', avatar: '🦊', time: '4 小时前', text: '喝热水也有仪式感，只是没那么苦。' }
+            ],
+            '7d3b91a4-2c68-4f57-8e19-5b0c9a1d7e42': [
+                { name: '靠墙铺', avatar: '🐿️', time: '1 小时前', text: '冬天墙冰，但确实不翻身。' },
+                { name: '中间铺', avatar: '🦫', time: '2 小时前', text: '我那段稳定关系是手机。' },
+                { name: '上铺', avatar: '🐼', time: '5 小时前', text: '墙不会翻身，但会掉灰。' }
+            ],
+            'b5e2c847-91a3-4d6f-b081-3a7e5c9d2f16': [
+                { name: '隔壁桌', avatar: '🦉', time: '1 小时前', text: '那个人是我，耳机救了我，也救不了我。' },
+                { name: '管理员', avatar: '🐢', time: '2 小时前', text: '建议去靠窗那排，声音能散开。' },
+                { name: '笑到', avatar: '🦊', time: '3 小时前', text: '「犹豫三秒」这段有画面。' }
+            ],
+            '1f8c4a63-d205-4b9e-87c2-6e91d3a75b08': [
+                { name: '同款', avatar: '🦝', time: '1 小时前', text: '对视那一眼，是凌晨最深的交流。' },
+                { name: '夜猫子', avatar: '🐺', time: '2 小时前', text: '我们宿舍的默契是互相不举报。' },
+                { name: '睡着的那个', avatar: '🐼', time: '5 小时前', text: '其实我也醒着，只是没敢说话。' }
+            ],
+            '9a7e1d52-6b48-4c03-a25f-8d1e4b7c9063': [
+                { name: '同栋', avatar: '🦇', time: '1 小时前', text: '阿姨这句「星空」太会了。' },
+                { name: '五号床', avatar: '✨', time: '2 小时前', text: '我这团光最晚灭，也最亮。' },
+                { name: '隔壁', avatar: '🦉', time: '4 小时前', text: '从楼外看，真的像星星在换位置。' }
+            ],
+            'c2d4e6f8-1a3b-4c5d-9e7f-2b4d6f8a0c13': [
+                { name: '后排同好', avatar: '🐢', time: '1 小时前', text: '白噪音是真的助眠。' },
+                { name: '前排', avatar: '🦊', time: '2 小时前', text: '每次回头，后排都像在集体冥想。' },
+                { name: '同桌', avatar: '📖', time: '4 小时前', text: '我帮你看老师，你帮我看梦。' }
+            ],
+            'e3f5a7c9-2b4d-4e6f-8a0c-1d3f5b7e9a21': [
+                { name: '夜宵常客', avatar: '🍜', time: '1 小时前', text: '「我先睡了」这句直接破防。' },
+                { name: '外卖鉴赏家', avatar: '🐙', time: '2 小时前', text: '最后一份总是最好吃。' },
+                { name: '阿姨粉', avatar: '🦊', time: '6 小时前', text: '她一定记得你。' }
+            ],
+            '4a6c8e02-3d5f-4b71-9c83-5e7a9c1b3d45': [
+                { name: '同类', avatar: '🦅', time: '1 小时前', text: '眼前一黑再一坐，是熟悉的感觉。' },
+                { name: '睡眠研究员', avatar: '🦉', time: '2 小时前', text: '第三天开始，困是底噪，清醒是幻觉。' },
+                { name: '劝退组', avatar: '🐧', time: '4 小时前', text: '再这样下去，轮盘会停在你不想要的那格。' }
+            ],
+            '8b0d2f46-5e7a-4c93-b1d5-7f9b1d3a5c67': [
+                { name: '产品经理', avatar: '🐰', time: '1 小时前', text: '建议 v10.1 只修一个问题：把手机放客厅。' },
+                { name: '用户', avatar: '🦊', time: '2 小时前', text: '「已知问题」写得很诚实。' },
+                { name: '更新日志', avatar: '🦥', time: '3 小时前', text: '我这边已经迭代到 v23 了。' }
+            ],
+            '2c4e6a80-7b9d-4e15-a3c7-9b1d3f5a7c89': [
+                { name: '同款', avatar: '🐵', time: '1 小时前', text: '「到」是条件反射，不是清醒证明。' },
+                { name: '室友', avatar: '🦆', time: '2 小时前', text: '踹你那一脚，我脚也麻了。' },
+                { name: '老师视角', avatar: '🐧', time: '5 小时前', text: '带梦话味道的「到」，我也听过。' }
+            ],
+            'f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8091a2': [
+                { name: '同款绝缘体', avatar: '🦩', time: '2 小时前', text: '把手机放三米外，我练出了躺着够手机的本事。' },
+                { name: '数学闹钟受害者', avatar: '🦉', time: '3 小时前', text: '半睡半醒解出二次方程，清醒后反而不行。' },
+                { name: '早起失败者', avatar: '🐔', time: '6 小时前', text: '「唯一诚实的谎言」这话太狠了。' }
+            ],
+            '6e8a0c24-9d1f-4a37-b5d9-1c3e5a7b9d01': [
+                { name: '同款', avatar: '🐼', time: '1 小时前', text: '半径 4 厘米，还要算上头发。' },
+                { name: '侧睡党', avatar: '🦫', time: '2 小时前', text: '侧睡的人只有一条线。' },
+                { name: '颈椎病患者', avatar: '🛏️', time: '4 小时前', text: '所以我现在睡地板，没有黄金位。' }
+            ],
+            '0a2c4e68-b1d3-4c59-97ab-3d5f7b9c1e23': [
+                { name: '同款', avatar: '🦥', time: '1 小时前', text: '站着趴桌上，是最高难度平衡术。' },
+                { name: '尝试者', avatar: '🦊', time: '2 小时前', text: '试过，醒来腰断了。' },
+                { name: '医学生', avatar: '🐧', time: '5 小时前', text: '这叫体位性困意，课本上没有。' }
+            ],
+            '4e6a8c02-d3f5-4e7b-a91d-5f7b9d1c3e45': [
+                { name: '同款', avatar: '🦊', time: '1 小时前', text: '因为冷能让你清醒，被子能让你安全。' },
+                { name: '楼上', avatar: '🐧', time: '2 小时前', text: '我看到你裹被子站那儿了，像一根柱子。' },
+                { name: '哲学家', avatar: '🦉', time: '4 小时前', text: '出来清醒，顺便带走睡眠装备。' }
+            ],
+            '8a0c2e46-f5b7-4a9d-c13f-7b9d1c3e5a67': [
+                { name: '同宿舍', avatar: '🐗', time: '1 小时前', text: '第四种声音是我敲的，我承认了。' },
+                { name: '宿舍长', avatar: '🦫', time: '2 小时前', text: '建议把四人会议改成每周固定节目。' },
+                { name: '楼上宿舍', avatar: '🦊', time: '5 小时前', text: '我们这层能听见你们的「演出」。' }
+            ],
+            '6a8c0e24-d9f1-4e3b-a75d-f3b5c7e90123': [
+                { name: '深睡选手', avatar: '🐨', time: '1 小时前', text: '「深度战略休息」这个词我记下了。' },
+                { name: '同类', avatar: '🦥', time: '2 小时前', text: '二十分钟的午睡，从来只是开场。' },
+                { name: '室友', avatar: '🦆', time: '4 小时前', text: '我能证明他一直在打呼。' }
+            ],
+            '0e2a4c68-f1b3-4a5d-97f9-b5c7e9012345': [
+                { name: '同款', avatar: '🐔', time: '1 小时前', text: '「然后发现今天没课」是全场最佳。' },
+                { name: '秒表党', avatar: '⏱️', time: '2 小时前', text: '7:59:59 进教室，才算真正的高手。' },
+                { name: '早到十分钟', avatar: '🦊', time: '5 小时前', text: '我 7:45 到，是为了占后排。' }
+            ],
+            '4c6e8a02-b3d5-4c7f-a19b-c7e901234567': [
+                { name: '同款', avatar: '🦔', time: '1 小时前', text: '30 度倾斜，我练到第六级就洒了。' },
+                { name: '室友', avatar: '🦫', time: '2 小时前', text: '你上次那声惨叫，整栋都听见了。' },
+                { name: '上铺', avatar: '🐼', time: '4 小时前', text: '上铺吃外卖，是另一种极限运动。' }
+            ],
+            '8e0a2c46-d5f7-4e9b-b1d3-e90123456789': [
+                { name: '同款', avatar: '🦆', time: '1 小时前', text: '看见天亮有两个意思：起得早，或者没睡。' },
+                { name: '靠墙铺', avatar: '🐿️', time: '2 小时前', text: '靠窗至少有风景，靠墙只有灰。' },
+                { name: '晨跑党', avatar: '🌅', time: '3 小时前', text: '我看见日出的时候，是刚醒。' }
+            ],
+            '2a4c6e80-f7b9-4c1d-93e5-0123456789ab': [
+                { name: '对面楼那个', avatar: '🐧', time: '1 小时前', text: '原来那盏灯是你。' },
+                { name: '同类', avatar: '🦉', time: '2 小时前', text: '互不相识，但一起熬到天亮。' },
+                { name: '第三人', avatar: '🦇', time: '4 小时前', text: '还有第三盏，我在楼上。' }
+            ],
+            '6c8e0a24-b9d1-4e3f-a57b-23456789abcd': [
+                { name: '同款', avatar: '🐮', time: '1 小时前', text: '把手机扔下床，是身体自主决策。' },
+                { name: '室友', avatar: '🦆', time: '2 小时前', text: '你下床捡手机那段，我全程围观。' },
+                { name: '早起一次', avatar: '🐔', time: '5 小时前', text: '「我可能有点问题」，这句话太清醒了。' }
+            ],
+            'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d': [
+                { name: '同栋', avatar: '🦫', time: '2 小时前', text: '断电夜的那声哀嚎，我们楼也有。' },
+                { name: '断电幸存者', avatar: '🦇', time: '3 小时前', text: '五根线插一个充电宝，仪式感拉满。' },
+                { name: '文学院', avatar: '🐼', time: '6 小时前', text: '这可以当毕业论文了，题目就叫《断电社会学》。' }
+            ],
+            'c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f': [
+                { name: '同款', avatar: '🦭', time: '2 小时前', text: '隐形型我也练过，最多撑十分钟。' },
+                { name: '趴桌型', avatar: '📚', time: '3 小时前', text: '手臂发麻是午睡税。' },
+                { name: '目击者', avatar: '🦉', time: '5 小时前', text: '沙发型选手确实狠，还会抢。' }
+            ],
+            'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80': [
+                { name: '同款', avatar: '🐓', time: '2 小时前', text: '7:40 那个「绝望」，我也设过。' },
+                { name: '室友', avatar: '🦆', time: '3 小时前', text: '你听不见，我们全听见了。' },
+                { name: '出勤主义者', avatar: '🐔', time: '6 小时前', text: '「红勾是最后的尊严」，泪目。' }
+            ],
+            '3f7c9a1e-6b2d-4e8a-9c41-5d0f8b7a2e61': [
+                { name: '同款', avatar: '🌧️', time: '2 小时前', text: '雨停那一刻的安静，比呼噜还响。' },
+                { name: '白噪音党', avatar: '🎧', time: '3 小时前', text: '蓝牙耳机在被子里失踪过三次，至今没找齐。' },
+                { name: '北方同学', avatar: '❄️', time: '5 小时前', text: '我们这儿下雨少，我准备下载一段循环播放。' }
+            ],
+            '4a8d0b2f-7c3e-4f9b-8d52-6e1a9c8b3f72': [
+                { name: '同款', avatar: '📱', time: '40 分钟前', text: '我手机也说我昨晚进步了，因为刷得比前天少。' },
+                { name: '算法受害者', avatar: '🦊', time: '2 小时前', text: '「看完这条就睡」是全网最大的谎言。' },
+                { name: '已卸载', avatar: '🐢', time: '4 小时前', text: '卸载了三天，现在用网页版刷。' }
+            ],
+            '5b9e1c3a-8d4f-4a0c-9e63-7f2b0d9c4a83': [
+                { name: '同级生', avatar: '🎧', time: '1 小时前', text: '隔音耳罩我也戴过，第二天差点没听见下课铃。' },
+                { name: '室友', avatar: '🐗', time: '2 小时前', text: '谢谢你最后选择先聊聊，而不是继续加购耳塞。' },
+                { name: '宿管', avatar: '🐢', time: '6 小时前', text: '我们楼应该统一采购黄色那款。' }
+            ],
+            '6c0f2d4b-9e5a-4b1d-8f74-8a3c1e0d5b94': [
+                { name: '同款', avatar: '🐮', time: '1 小时前', text: '我坐过三趟，司机师傅后来直接把我叫醒。' },
+                { name: '室友', avatar: '🦆', time: '2 小时前', text: '我们确实只关心你为什么还去了第一节课。' },
+                { name: '司机视角', avatar: '🚌', time: '5 小时前', text: '终点站每天都能捡到两个睡觉的学生。' }
+            ],
+            '7d1a3e5c-a6f7-4c2e-9a85-9b4d2f1e6ca5': [
+                { name: '同款', avatar: '🧣', time: '1 小时前', text: '晒过的被子那股味道，是秋天最好的味道。' },
+                { name: '抢杆选手', avatar: '🦫', time: '2 小时前', text: '今天早上六点半我就在楼下占位了。' },
+                { name: '北方', avatar: '❄️', time: '4 小时前', text: '我们这儿不用换季，直接上羽绒。' }
+            ],
+            '8e2b4f6d-b7a8-4d3f-8b96-0c5e3a2f7db6': [
+                { name: '同款', avatar: '🐑', time: '1 小时前', text: '我数到第一只就开始给它想名字了。' },
+                { name: '医学生', avatar: '🐧', time: '2 小时前', text: '数呼吸这个建议是真的有用，亲测。' },
+                { name: '失眠十年', avatar: '🦉', time: '5 小时前', text: '真正的问题是：为什么我还醒着。这句话我每晚问三遍。' }
+            ],
+            '9f3c5a7e-c8b9-4e4a-9c07-1d6f4b3a8ec7': [
+                { name: '同款', avatar: '⚽', time: '1 小时前', text: '我定了闹钟，醒来的时候是第二天中午。' },
+                { name: '室友', avatar: '🦆', time: '2 小时前', text: '面是我吃的，谢谢你。' },
+                { name: '仪式感', avatar: '🦊', time: '4 小时前', text: '闹钟的唯一作用，是证明你曾经打算看。' }
+            ],
+            '0a4d6b8f-d9ca-4f5b-8d18-2e7a5c4b9fd8': [
+                { name: '同款', avatar: '🏃', time: '1 小时前', text: '我在草坪上睡过一次，醒来同学都跑完了。' },
+                { name: '体育老师', avatar: '🐢', time: '3 小时前', text: '「恢复训练」这个词，我接受。' },
+                { name: '跑八百的', avatar: '🐔', time: '4 小时前', text: '我跑完看你在睡，那一刻是真的羡慕。' }
+            ],
+            '1b5e7c90-0a1b-4a6c-9e29-3f8b6d5c0ae9': [
+                { name: '同款', avatar: '⌚', time: '1 小时前', text: '我为了刷深睡分硬躺到两点，越躺越清醒。' },
+                { name: '不戴了', avatar: '🦥', time: '2 小时前', text: '摘下第一天睡到自然醒，数据为零，睡眠满分。' },
+                { name: '算法工程师', avatar: '🐧', time: '5 小时前', text: '「未佩戴」是我们最诚实的输出。' }
+            ],
+            '2c6f8d01-1b2c-4b7d-8f3a-4a9c7e6d1bfa': [
+                { name: '同款电台', avatar: '📻', time: '1 小时前', text: '我的备忘录已经存到第五百三十条了。' },
+                { name: '隔壁床', avatar: '🦫', time: '2 小时前', text: '难怪你睡前总在打字，我以为你在聊天。' },
+                { name: '收听者', avatar: '🦉', time: '4 小时前', text: '今晚这一期，我听了两遍。' }
+            ],
+            '3d7a9e12-2c3d-4c8e-9a4b-5b0d8f7e2c0b': [
+                { name: '同宿舍', avatar: '🐧', time: '1 小时前', text: '备注那句才是精髓，梦游都记得别吵人。' },
+                { name: '外卖员', avatar: '🛵', time: '3 小时前', text: '那单是我送的，敲门没人应，放门口了。' },
+                { name: '本人', avatar: '😴', time: '5 小时前', text: '面是我早上吃的，我还以为是室友点的。' }
+            ],
+            '4e8b0f23-3d4e-4d9f-8b5c-6c1e9a8f3d1c': [
+                { name: '同款', avatar: '📝', time: '1 小时前', text: '「题干我认识，剩下互相不认识」太真实了。' },
+                { name: '老师视角', avatar: '🐧', time: '3 小时前', text: '所以我出了一道送分题，结果还是没人拿。' },
+                { name: '过来人', avatar: '🦥', time: '6 小时前', text: '那百分之四十在梦里补，第二天还是百分之四十。' }
+            ],
+            '5f9c1a34-4e5f-4e0a-9c6d-7d2f0b9a4e2d': [
+                { name: '监督员', avatar: '🐹', time: '20 分钟前', text: '23:04，打卡失败，明天继续。' },
+                { name: '同款', avatar: '🐔', time: '1 小时前', text: '我连续打卡七天，全是失败记录。' },
+                { name: '睡友', avatar: '🦥', time: '2 小时前', text: '确实还醒着，正在看你的动态。' }
+            ],
+            '6a0d2b45-5f6a-4f1b-8d7e-8e3a1c0b5f3e': [
+                { name: '同款', avatar: '🌡️', time: '1 小时前', text: '为了不破坏被窝温度不洗澡，这事我干过。' },
+                { name: '上铺', avatar: '🐼', time: '2 小时前', text: '上铺预热比下铺快，因为离灯近。' },
+                { name: '物理系', avatar: '🦫', time: '4 小时前', text: '建议补一张「翻身次数与入睡时间」的曲线图。' }
+            ],
+            'b3d5f7a9-1c2e-4b6d-8f0a-2c4e6a8b0d1f': [
+                { name: '同款受害者', avatar: '🎵', time: '1 小时前', text: '我用的是警报音，每天醒来都以为楼里出事了。' },
+                { name: '早起成功者', avatar: '🐔', time: '2 小时前', text: '好听的铃声确实没用，我听过一整首还做了个梦。' },
+                { name: '楼下', avatar: '🦫', time: '4 小时前', text: '你那首我隔一层楼都能跟着唱。' }
+            ],
+            'c4e6a8b0-2d3f-4c7e-9a1b-3d5f7b9c1e2a': [
+                { name: '同馆人', avatar: '🦌', time: '1 小时前', text: '我们宿舍四个人同时哼起来了，然后互相看了一眼。' },
+                { name: '音乐系', avatar: '🎻', time: '2 小时前', text: '《回家》的旋律是全校统一的睡前曲。' },
+                { name: '住在隔壁', avatar: '🐼', time: '3 小时前', text: '你们哼的那句还跑调了。' }
+            ],
+            'd5f7b9c1-3e4a-4d8f-8b2c-4e6a8c0d2f3b': [
+                { name: '同款代谢', avatar: '☕', time: '1 小时前', text: '我下午四点喝的，现在凌晨两点在写这条评论。' },
+                { name: '戒咖啡第三天', avatar: '🦊', time: '2 小时前', text: '戒了之后白天更困，晚上睡得更香，总体不亏。' },
+                { name: '医学生', avatar: '🐧', time: '5 小时前', text: '这叫半衰期个体差异，不是你的错。' }
+            ],
+            'e6a8c0d2-4f5b-4e9a-9c3d-5f7b9d1e3a4c': [
+                { name: '同栋', avatar: '🚿', time: '40 分钟前', text: '建议洗澡前先看余额，就像出门前看天气。' },
+                { name: '冷水洗过的人', avatar: '🦆', time: '1 小时前', text: '冲完那一瞬间，确实会觉得自己升华了。' },
+                { name: '室友本人', avatar: '🦫', time: '2 小时前', text: '我在门外等的那三秒，也很漫长。' }
+            ],
+            'f7b9d1e3-5a6c-4f0b-8d4e-6a8c0e2f4b5d': [
+                { name: '同款', avatar: '💇', time: '1 小时前', text: '我数过，枕头上和键盘上加起来比头上多。' },
+                { name: '生物系', avatar: '🦎', time: '2 小时前', text: '这是压力性休止期脱发，考完会长回来的。' },
+                { name: '已秃', avatar: '🦲', time: '4 小时前', text: '我们宿舍已经默认这是毕业照的造型了。' }
+            ],
+            'a8c0e2f4-6b7d-4a1c-9e5f-7b9d1f3a5c6e': [
+                { name: '被占的那个', avatar: '🐢', time: '1 小时前', text: '谢谢你，我每天都睡到八点五十。' },
+                { name: '同桌', avatar: '📖', time: '2 小时前', text: '明年你只占一个，我们五个就只能站着了。' },
+                { name: '隔壁班', avatar: '🦊', time: '3 小时前', text: '原来那六个位置是你们宿舍的，我们一直以为是没人。' }
+            ],
+            'b9d1f3a5-7c8e-4b2d-8f6a-8c0e2a4b6d7f': [
+                { name: '食堂常客', avatar: '🍚', time: '1 小时前', text: '我总结的是：抖的是肉，稳的是土豆。' },
+                { name: '阿姨粉', avatar: '🦊', time: '2 小时前', text: '阿姨：土豆不需要用力。' },
+                { name: '减肥中', avatar: '🐺', time: '5 小时前', text: '那我以后只点肉，赌她手抖。' }
+            ],
+            'c0e2a4b6-8d9f-4c3e-9a7b-9d1f3b5c7e8a': [
+                { name: '同款', avatar: '📱', time: '30 分钟前', text: '刷到底之后，我开始看自己的旧动态，还挺好看。' },
+                { name: '算法受害者', avatar: '🦊', time: '1 小时前', text: '不是失眠，是内容库存见底了，这句话太准。' },
+                { name: '睡得早的', avatar: '🐼', time: '3 小时前', text: '我早上起来看到你给三天前的动态点了赞。' }
+            ],
+            'd1f3b5c7-9e0a-4d4f-8b8c-0e2a4c6d8f9b': [
+                { name: '同款', avatar: '🎧', time: '1 小时前', text: '我怀疑它晚上打结是为了保暖。' },
+                { name: '换了蓝牙的', avatar: '🦭', time: '2 小时前', text: '换了蓝牙之后，我每天早上都在被子里找耳机。' },
+                { name: '物理系', avatar: '🦫', time: '4 小时前', text: '结是熵增的证明，解结是奇迹。' }
+            ],
+            'e2a4c6d8-0f1b-4e5a-9c9d-1f3b5d7e9a0c': [
+                { name: '同宿舍', avatar: '🦫', time: '1 小时前', text: '第一次断电，第二次忘关，第三次才是我用的。' },
+                { name: '楼下', avatar: '🦇', time: '2 小时前', text: '你们热点名字是不是叫「救救孩子」。' },
+                { name: '网管志愿者', avatar: '🐧', time: '5 小时前', text: '重启路由器前请等三十秒，这三十秒很关键。' }
+            ],
+            'f3b5d7e9-1a2c-4f6b-8d0e-2a4c6e8f0b1d': [
+                { name: '东边那个', avatar: '🦉', time: '1 小时前', text: '我是东边咳一声的，我认了。' },
+                { name: '中间那位', avatar: '🦊', time: '2 小时前', text: '我不是在唱，我是在咳，只是节奏好。' },
+                { name: '管理员', avatar: '🐢', time: '4 小时前', text: '每年这个时候，我都想给你们发润喉糖。' }
+            ],
+            'a4c6e8f0-2b3d-4a7c-9e1f-3b5d7f9a1c2e': [
+                { name: '同款', avatar: '🐔', time: '1 小时前', text: '我倒数到四就躺回去了，比你快。' },
+                { name: '成功者', avatar: '🐰', time: '2 小时前', text: '我成功过一次，那天是因为根本没睡。' },
+                { name: '室友', avatar: '🦆', time: '3 小时前', text: '我能听见你倒数，数到三就没声了。' }
+            ],
+            'b5d7f9a1-3c4e-4b8d-8f2a-4c6e8a0b2d3f': [
+                { name: '同款', avatar: '🦊', time: '1 小时前', text: '那句「我最近挺好的」我也说过，说完就哭了。' },
+                { name: '背单词的', avatar: '📚', time: '2 小时前', text: '我蹲四楼台阶背单词，被路过的人吓到过三次。' },
+                { name: '宿管', avatar: '🐢', time: '5 小时前', text: '楼梯间灯我特意留了一盏，就是给你们的。' }
+            ],
+            'c6e8a0b2-4d5f-4c9e-9a3b-5d7f9b1c3e4a': [
+                { name: '同款', avatar: '🦥', time: '1 小时前', text: '我选第四种，已经连着亮了三晚。' },
+                { name: '下铺', avatar: '🐼', time: '2 小时前', text: '我睡下铺，灯就在我头顶，我最有发言权——但我也没关。' },
+                { name: '用脚够的', avatar: '🦫', time: '4 小时前', text: '练了两年，现在能用脚趾精准按开关。' }
+            ],
+            'd7f9b1c3-5e6a-4d0f-8b4c-6e8a0c2d4f5b': [
+                { name: '后排常客', avatar: '🐢', time: '1 小时前', text: '第一排不是空的，是被默认留给迟到的。' },
+                { name: '前排', avatar: '🦊', time: '2 小时前', text: '坐第三排是因为能听见，又不至于被点名。' },
+                { name: '老师', avatar: '🐧', time: '6 小时前', text: '我其实看得见最后一排在睡。' }
+            ],
+            'e8a0c2d4-6f7b-4e1a-9c5d-7f9b1d3e5a6c': [
+                { name: '隔壁', avatar: '🦫', time: '1 小时前', text: '整层楼都在等下一句，这句太真实了。' },
+                { name: '同层', avatar: '🦆', time: '2 小时前', text: '有一次我接上了下一句，你停顿了一下。' },
+                { name: '楼下', avatar: '🐼', time: '4 小时前', text: '水管传声，我们这层听得最清楚。' }
+            ],
+            'f9b1d3e5-7a8c-4f2b-8d6e-8a0c2e4f6b7d': [
+                { name: '同款', avatar: '🍜', time: '1 小时前', text: '纠结四十分钟，消耗的热量大概够半块饼干。' },
+                { name: '下床吃过', avatar: '🦊', time: '2 小时前', text: '吃了之后更精神，然后又饿了。' },
+                { name: '储备党', avatar: '🦫', time: '5 小时前', text: '我床头常年放着饼干，就是为了避免这种纠结。' }
+            ],
+            'a0c2e4f6-8b9d-4a3c-9e7f-9b1d3f5a7c8e': [
+                { name: '继承人', avatar: '🦆', time: '1 小时前', text: '那个笑是我，抱歉，位置真的很舒服。' },
+                { name: '司机', avatar: '🚌', time: '2 小时前', text: '你们换座位我都看着呢，像传位一样。' },
+                { name: '站着的', avatar: '🐧', time: '4 小时前', text: '我从来没有继承过任何位置。' }
+            ]
+        };
+
         /* ---------------- 状态 ---------------- */
         var state = {
             user: null,
@@ -2491,6 +3247,7 @@
         var devOpen = false;
         var dataOpen = false;
         var feedExpanded = {};     // 仅内存保存，不写入 localStorage（刷新即重置）
+        var feedCommentsOpen = {}; // 评论展开状态，仅内存
         var pendingCoord = null;   // 正在编辑的坐标 {lat,lng} 或 null
         var pendingType = '宿舍';
         var pendingName = '';
@@ -3090,8 +3847,23 @@
         function classPeriods(ms) {
             var cm = +state.settings.classMin || 40;
             var bm = state.settings.breakMin == null ? 5 : +state.settings.breakMin;
+
             if (bm < 0) bm = 0;
-            return Math.max(1, Math.floor((ms / 60000 + bm) / (cm + bm)));
+
+            // 总睡眠分钟数
+            var totalMin = Math.max(0, ms / 60000);
+
+            // 每经过一个完整的「上课 + 课间」周期，扣除课间时间
+            var cycleMin = cm + bm;
+            var breakCount = cycleMin > 0
+                ? Math.floor(totalMin / cycleMin)
+                : 0;
+
+            // 实际上课睡眠时间，不计算课间
+            var classSleepMin = Math.max(0, totalMin - breakCount * bm);
+
+            // 换算成课时，保留真实小数
+            return classSleepMin / cm;
         }
 
         /* 同一位置的累计次数与时长 */
@@ -3155,6 +3927,7 @@
             var wk = wakeLabel(s.end);
             var isClass = isClassSleep(s);
             var periods = isClass ? classPeriods(c.ms) : 0;
+            var periodsText = periods.toFixed(1);
             var grade = gradeOf(c, cyc, bed, isClass, periods);
             var adv = wakeAdvice(s, cyc);
             var ls = locStatsOf(s);
@@ -3202,7 +3975,7 @@
             var classHtml = isClass
                 ? '<div class="pr-block">' +
                 '<div class="pr-block-title">智能上课睡眠</div>' +
-                '<p>你睡了 <b>' + periods + '</b> 节课</p>' +
+                '<p>你睡了 <b>' + periodsText + '</b> 节课</p>' +
                 '<p style="font-size:10.5px;color:rgba(255,255,255,.5)">按每节 ' +
                 (+state.settings.classMin || 40) + ' 分钟 · 课间 ' +
                 (state.settings.breakMin == null ? 5 : +state.settings.breakMin) + ' 分钟计算</p>' +
@@ -3233,34 +4006,98 @@
             var gradeHtml = '<div class="pr-grade">' +
                 '<div class="pr-grade-val">' + grade + '</div>' +
                 '<div class="pr-grade-side"><span>综 合 评 级</span><b>' +
-                (isClass ? '上课睡眠 · ' + periods + ' 节课' : '晚上睡眠') + '</b></div>' +
+                (isClass ? '上课睡眠 · ' + periodsText + ' 节课' : '晚上睡眠') + '</b></div>' +
                 '</div>';
 
-            openModal(
-                '<div class="poster">' +
-                '<div class="poster-title">睡 眠 战 报</div>' +
-                '<div class="poster-num">' + durH + '<small>h</small> ' + durM + '<small>m</small></div>' +
-                '<div class="poster-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
-                '<div class="poster-loc">' +
-                (s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName) : '📍 未记录位置') +
-                '</div>' +
-                '<div class="poster-line"></div>' +
-                '<div class="poster-award">' + award + '</div>' +
-                gradeHtml +
-                tlHtml +
+            // 将详细统计集中起来
+            var detailHtml =
                 cycleHtml +
                 classHtml +
                 statsHtml +
                 locHtml +
-                immortalHtml +
-                '<div class="poster-foot" style="color:' + tagColor + '">' +
-                (c.tooLong ? '😵 昏迷 · 不计入学期成绩' : c.tooShort ? '⚡ 小憩 · 不计入学期成绩' : '✅ 正常打卡 · 已计入学期成绩') +
+                immortalHtml;
+
+            openModal(
+                '<div class="poster poster-summary">' +
+                '<div class="poster-title">睡 眠 战 报</div>' +
+
+                '<div class="poster-num">' +
+                durH + '<small>h</small> ' +
+                durM + '<small>m</small>' +
                 '</div>' +
+
+                '<div class="poster-date">' +
+                fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) +
+                '</div>' +
+
+                '<div class="poster-loc">' +
+                (s.locType
+                    ? (LOC_TYPES[s.locType] || '📍') +
+                    ' ' + esc(s.locType) + ' · ' + esc(s.locName)
+                    : '📍 未记录位置') +
+                '</div>' +
+
+                '<div class="poster-line"></div>' +
+                '<div class="poster-award">' + award + '</div>' +
+
+                gradeHtml +
+                tlHtml +
+
+                '<div class="poster-foot" style="color:' + tagColor + '">' +
+                (c.tooLong
+                    ? '😵 昏迷 · 不计入学期成绩'
+                    : c.tooShort
+                        ? '⚡ 小憩 · 不计入学期成绩'
+                        : '✅ 正常打卡 · 已计入学期成绩') +
+                '</div>' +
+
                 '<div class="poster-foot">校园睡 · 纯属娱乐</div>' +
                 '</div>' +
-                '<div class="screenshot-tip">📸 手动截图保存这张战报<br>发给你的睡友，比一比谁更能睡</div>' +
-                '<button class="btn-primary" onclick="closeModal()">收下战报</button>'
+
+                '<div class="screenshot-tip">' +
+                '📸 截图保存上方精简战报<br>详细分析可以展开查看' +
+                '</div>' +
+
+                '<button class="btn-ghost" type="button" ' +
+                'id="reportDetailsBtn" aria-expanded="false" onclick="toggleReportDetails()">' +
+                '展开详细数据 ▾' +
+                '</button>' +
+
+                // 详细数据默认折叠，使用 grid 高度动画
+                '<div class="collapse report-details-collapse" id="reportDetails">' +
+                '<div class="collapse-inner">' +
+                '<div class="poster report-details">' +
+                '<div class="poster-title">详 细 数 据</div>' +
+                detailHtml +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+
+                '<button class="btn-primary" onclick="closeModal()">' +
+                '收下战报' +
+                '</button>'
             );
+        }
+        // 睡眠战报详细数据展开 / 收起
+        function toggleReportDetails() {
+            var panel = document.getElementById('reportDetails');
+            var btn = document.getElementById('reportDetailsBtn');
+
+            if (!panel || !btn) return;
+
+            // 判断当前是否处于折叠状态
+            var willExpand = !panel.classList.contains('open');
+
+            // 切换展开状态
+            panel.classList.toggle('open', willExpand);
+
+            // 更新按钮文字
+            btn.textContent = willExpand
+                ? '收起详细数据 ▲'
+                : '展开详细数据 ▾';
+
+            // 无障碍状态
+            btn.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
         }
 
         /* ==================================================================
@@ -3856,6 +4693,57 @@
             });
         }
 
+        /* ---- 睡友动态：评论（默认折叠，点击展开） ---- */
+        function feedCommentsHtml(f) {
+            var list = FEED_COMMENTS[f.id] || [];
+            if (!list.length) return '';
+
+            var open = !!feedCommentsOpen[f.id];
+            return '<div class="feed-comments' + (open ? ' open' : '') + '" id="feedComments-' + f.id + '">' +
+                '<div class="feed-comments-inner">' +
+                '<div class="feed-cmt-title">热门评论</div>' +
+                list.map(function (c) {
+                    return '<div class="feed-cmt">' +
+                        '<div class="feed-cmt-av">' + (c.avatar || '🙂') + '</div>' +
+                        '<div class="feed-cmt-body">' +
+                        '<div class="feed-cmt-head">' +
+                        '<span class="feed-cmt-name">' + esc(c.name) + '</span>' +
+                        '<span class="feed-cmt-time">' + esc(c.time || '') + '</span>' +
+                        '</div>' +
+                        '<div class="feed-cmt-text">' + esc(c.text) + '</div>' +
+                        '</div>' +
+                        '</div>';
+                }).join('') +
+                '</div>' +
+                '</div>';
+        }
+
+        function toggleFeedComments(id) {
+            var el = document.getElementById('feedComments-' + id);
+            var btn = document.getElementById('feedCommentBtn-' + id);
+            if (!el) return;
+
+            var on = !feedCommentsOpen[id];
+            feedCommentsOpen[id] = on;            // 只存内存，不 save()
+            if (btn) btn.classList.toggle('on', on);
+
+            clearTimeout(el._mhTimer);
+            if (on) {
+                // 展开：从 0 过渡到内容高度
+                el.classList.add('open');
+                el.style.maxHeight = el.scrollHeight + 'px';
+                el._mhTimer = setTimeout(function () {
+                    if (feedCommentsOpen[id]) el.style.maxHeight = 'none';
+                }, 320);
+            } else {
+                // 收起：先固定当前高度，再过渡回 0
+                el.style.maxHeight = el.scrollHeight + 'px';
+                void el.offsetHeight;            // 强制重排，保证过渡生效
+                el.classList.remove('open');
+                el.style.maxHeight = '0px';
+            }
+        }
+
         function feedListHtml() {
             return '<div class="feed-list">' + FEED_DATA.map(function (f) {
                 var r = getFeedReaction(f.id);
@@ -3885,8 +4773,13 @@
                     '<button class="feed-act like' + (r.like ? ' on' : '') + '" onclick="toggleFeedLike(\'' + f.id + '\')">👍 ' + likeCount + '</button>' +
                     '<button class="feed-act down' + (r.dislike ? ' on' : '') + '" onclick="toggleFeedDislike(\'' + f.id + '\')">👎 ' + (r.dislike ? '已踩' : '踩') + '</button>' +
                     '<button class="feed-act report' + (r.report ? ' on' : '') + '" onclick="openFeedReport(\'' + f.id + '\')">🚩 ' + (r.report ? '已举报' : '举报') + '</button>' +
-                    '<span class="feed-meta-right">' + (f.loc ? '📍 ' + esc(f.loc) + ' · ' : '') + '💬 ' + f.comments + '</span>' +
+                    '<button class="feed-comment-toggle' + (feedCommentsOpen[f.id] ? ' on' : '') + '"' +
+                    ' id="feedCommentBtn-' + f.id + '" onclick="toggleFeedComments(\'' + f.id + '\')">' +
+                    '💬 ' + f.comments + ' <span class="fc-caret">▾</span>' +
+                    '</button>' +
+                    '<span class="feed-meta-right">' + (f.loc ? '📍 ' + esc(f.loc) : '') + '</span>' +
                     '</div>' +
+                    feedCommentsHtml(f) +
                     '</div>';
             }).join('') + '</div>';
         }
