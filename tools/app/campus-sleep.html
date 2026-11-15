@@ -1601,6 +1601,172 @@
             letter-spacing: 1px
         }
 
+        /* 战报扩展：综合评级 / 时间轴 / 周期 / 统计 */
+        .pr-grade {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 4px
+        }
+
+        .pr-grade-val {
+            font-size: 40px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 1px;
+            color: #ffd166;
+            text-shadow: 0 4px 14px rgba(255, 209, 102, .35)
+        }
+
+        .pr-grade-side {
+            text-align: left
+        }
+
+        .pr-grade-side span {
+            display: block;
+            font-size: 9.5px;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, .55)
+        }
+
+        .pr-grade-side b {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 4px
+        }
+
+        .pr-tl {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px
+        }
+
+        .pr-tl-item {
+            flex: 1;
+            background: rgba(255, 255, 255, .09);
+            border-radius: 12px;
+            padding: 8px 6px
+        }
+
+        .pr-tl-item span {
+            display: block;
+            font-size: 9.5px;
+            color: rgba(255, 255, 255, .55)
+        }
+
+        .pr-tl-item b {
+            display: block;
+            font-size: 17px;
+            font-weight: 800;
+            margin: 2px 0 4px;
+            font-variant-numeric: tabular-nums
+        }
+
+        .pr-tl-item i {
+            display: inline-block;
+            font-style: normal;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 8px
+        }
+
+        .pr-tl-arrow {
+            font-size: 14px;
+            color: rgba(255, 255, 255, .35)
+        }
+
+        .good-bg {
+            background: rgba(105, 219, 124, .18);
+            color: #8ce99a
+        }
+
+        .mid-bg {
+            background: rgba(255, 212, 59, .16);
+            color: #ffe066
+        }
+
+        .bad-bg {
+            background: rgba(255, 135, 135, .18);
+            color: #ffa8a8
+        }
+
+        .pr-block {
+            margin-top: 10px;
+            text-align: left;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 12px;
+            padding: 10px 12px
+        }
+
+        .pr-block-title {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, .5);
+            margin-bottom: 5px
+        }
+
+        .pr-block p {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, .9)
+        }
+
+        .pr-block p + p {
+            margin-top: 2px
+        }
+
+        .pr-block b {
+            color: #ffd166;
+            font-variant-numeric: tabular-nums
+        }
+
+        .pr-state.good {
+            color: #8ce99a
+        }
+
+        .pr-state.mid {
+            color: #ffe066
+        }
+
+        .pr-state.bad {
+            color: #ffa8a8
+        }
+
+        .pr-chips {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 7px;
+            flex-wrap: wrap
+        }
+
+        .pr-chips em {
+            font-style: normal;
+            font-size: 9.5px;
+            color: rgba(255, 255, 255, .45)
+        }
+
+        .pr-chips span {
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, .12);
+            font-variant-numeric: tabular-nums
+        }
+
+        .pr-immortal-sub {
+            font-size: 10px;
+            color: rgba(255, 255, 255, .45);
+            margin-left: 6px
+        }
+
         .screenshot-tip {
             font-size: 11.5px;
             color: #f59f00;
@@ -2264,7 +2430,7 @@
         /* ---------------- 状态 ---------------- */
         var state = {
             user: null,
-            settings: { target: 100, maxSleep: 12, minSleep: 15, semesterStart: '', semesterEnd: '' },
+            settings: { target: 100, maxSleep: 12, minSleep: 15, classMin: 40, breakMin: 5, semesterStart: '', semesterEnd: '' },
             sessions: [],
             active: null,
             locations: [],
@@ -2352,7 +2518,7 @@
                 state.tab = d.tab || 'progress';
                 state.presetIdx = d.presetIdx || 0;
                 state.settings = Object.assign(
-                    { target: 100, maxSleep: 12, minSleep: 15, semesterStart: '', semesterEnd: '' },
+                    { target: 100, maxSleep: 12, minSleep: 15, classMin: 40, breakMin: 5, semesterStart: '', semesterEnd: '' },
                     d.settings || {}
                 );
             } catch (e) { }
@@ -2860,11 +3026,145 @@
             showReport(s);
         }
 
+        /* ---------------- 战报扩展：周期 / 评级 / 上课 / 修仙 ---------------- */
+        var CYCLE_MIN = 90;
+        var GRADE_LIST = ['C', 'B', 'A', 'S', 'SS', 'SSS'];
+
+        function clockHM(ts) {
+            var d = new Date(ts);
+            return pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        /* 睡眠周期：每 90 分钟一个周期，看余数判断醒来状态 */
+        function cycleInfo(ms) {
+            var mins = Math.max(0, Math.round(ms / 60000));
+            var cycles = Math.floor(mins / CYCLE_MIN);
+            var rem = mins % CYCLE_MIN;
+            var status, cls;
+            if (rem === 0) { status = '正好睡满整周期，完美收尾'; cls = 'good'; }
+            else if (rem >= 75) { status = '在周期末尾醒来，状态最佳'; cls = 'good'; }
+            else if (rem <= 15) { status = '刚进入新周期被叫醒，容易昏沉'; cls = 'bad'; }
+            else { status = '处于周期中段'; cls = 'mid'; }
+            return { mins: mins, cycles: cycles, rem: rem, status: status, cls: cls };
+        }
+
+        /* 推荐起床点：睡满下一整个周期的时间 */
+        function wakeAdvice(s, cyc) {
+            if (cyc.rem === 0) return null;
+            var n = cyc.cycles + 1;
+            var targetTs = s.start + n * CYCLE_MIN * 60000;
+            var diff = Math.round((targetTs - s.end) / 60000);
+            var pts = [];
+            for (var i = 0; i < 3; i++) {
+                pts.push(clockHM(s.start + (n + i) * CYCLE_MIN * 60000));
+            }
+            return { cycles: n, at: clockHM(targetTs), diff: diff, pts: pts };
+        }
+
+        /* 入睡时刻评级 */
+        function bedRating(ts) {
+            var h = new Date(ts).getHours();
+            if (h >= 6 && h < 20) return { txt: '白天补觉', cls: 'mid', night: false };
+            if (h >= 20 && h < 23) return { txt: '早睡标兵', cls: 'good', night: true };
+            if (h >= 23 || h < 1) return { txt: '正常作息', cls: 'good', night: true };
+            if (h < 3) return { txt: '熬夜边缘', cls: 'mid', night: true };
+            return { txt: '修仙党', cls: 'bad', night: true };
+        }
+
+        /* 起床时段标签 */
+        function wakeLabel(ts) {
+            var h = new Date(ts).getHours();
+            if (h >= 6 && h < 9) return { txt: '早八幸存', cls: 'good' };
+            if (h >= 9 && h < 11) return { txt: '自然醒', cls: 'mid' };
+            if (h >= 11 && h < 13) return { txt: '睡到中午', cls: 'mid' };
+            if (h >= 13 && h < 18) return { txt: '睡到下午', cls: 'bad' };
+            if (h >= 18) return { txt: '睡到夜里', cls: 'bad' };
+            return { txt: '凌晨起床', cls: 'bad' };
+        }
+
+        /* 上课睡眠：8:00-20:00 之间开始的睡眠 */
+        function isClassSleep(s) {
+            var h = new Date(s.start).getHours();
+            return h >= 8 && h < 20;
+        }
+        function classPeriods(ms) {
+            var cm = +state.settings.classMin || 40;
+            var bm = state.settings.breakMin == null ? 5 : +state.settings.breakMin;
+            if (bm < 0) bm = 0;
+            return Math.max(1, Math.floor((ms / 60000 + bm) / (cm + bm)));
+        }
+
+        /* 同一位置的累计次数与时长 */
+        function locStatsOf(s) {
+            var key = (s.locType || '') + '|' + (s.locName || '');
+            var count = 0, ms = 0;
+            state.sessions.forEach(function (x) {
+                if (!x.end) return;
+                if (((x.locType || '') + '|' + (x.locName || '')) !== key) return;
+                count++;
+                ms += Math.max(0, x.end - x.start);
+            });
+            return { count: count, hours: ms / 3600000 };
+        }
+
+        /* 学期进度：按学期起止日期计算，未设置时退回学期目标进度 */
+        function semesterProgress() {
+            var ss = state.settings.semesterStart, se = state.settings.semesterEnd;
+            if (!ss || !se) return null;
+            var a = parseKey(ss), b = parseKey(se) + 86400000;
+            if (b <= a) return null;
+            return Math.max(0, Math.min(100, (Date.now() - a) / (b - a) * 100));
+        }
+
+        /* 修仙值：22:00 入睡为 0，03:00 入睡为 100 */
+        function immortalScore(ts) {
+            var d = new Date(ts);
+            var m = d.getHours() * 60 + d.getMinutes();
+            if (m < 720) m += 1440;
+            return Math.max(0, Math.min(100, Math.round((m - 1320) / 300 * 100)));
+        }
+
+        /* 综合评级：区分上课睡眠与晚上睡眠 */
+        function gradeOf(c, cyc, bed, isClass, periods) {
+            var g;
+            if (isClass) {
+                g = Math.min(6, periods);
+            } else {
+                g = c.hours < 4 ? 1 : c.hours < 5 ? 2 : c.hours < 6 ? 3 :
+                    c.hours < 7 ? 4 : c.hours < 8.5 ? 5 : 6;
+                if (cyc.rem === 0 || cyc.rem >= 75) g++;
+                else if (cyc.rem <= 15) g--;
+                if (bed.txt === '早睡标兵') g++;
+                else if (bed.txt === '修仙党') g--;
+                if (c.tooLong) g = 1;
+            }
+            if (c.tooShort) g = 1;
+            return GRADE_LIST[Math.max(1, Math.min(6, g)) - 1];
+        }
+
         /* ---------------- 战报海报 ---------------- */
         function showReport(s) {
             var c = calcSession(s);
             var hours = c.hours;
-            var charge = Math.min(100, Math.round(hours / 8 * 100)); // 8 小时 = 满电，上限 100%
+            var totalMins = Math.round(c.ms / 60000);
+            var durH = Math.floor(totalMins / 60);
+            var durM = totalMins % 60;
+            var charge = Math.round(hours / 8 * 100); // 8 小时 = 满电，可超过 100%
+            var cyc = cycleInfo(c.ms);
+            var bed = bedRating(s.start);
+            var wk = wakeLabel(s.end);
+            var isClass = isClassSleep(s);
+            var periods = isClass ? classPeriods(c.ms) : 0;
+            var grade = gradeOf(c, cyc, bed, isClass, periods);
+            var adv = wakeAdvice(s, cyc);
+            var ls = locStatsOf(s);
+            var si = streakInfo();
+            var st = computeStats();
+            var semPct = semesterProgress();
+            if (semPct == null) {
+                semPct = Math.min(100, st.semMs / 3600000 / (+state.settings.target || 100) * 100);
+            }
+            var immortal = bed.night ? immortalScore(s.start) : null;
 
             var award, tagColor;
             if (c.tooLong) {
@@ -2875,20 +3175,84 @@
                 tagColor = '#ffd43b';
             } else {
                 award = '本次睡眠为身体充入 <b>' + charge + '%</b> 电量<br>荣获 <b>「' +
-                    (charge >= 100 ? '满电续航' : '续航补给') + '」</b> 称号';
+                    (charge >= 150 ? '电量溢出' : charge >= 100 ? '满电续航' : '续航补给') + '」</b> 称号';
                 tagColor = '#69db7c';
             }
+
+            var tlHtml = '<div class="pr-tl">' +
+                '<div class="pr-tl-item"><span>入睡</span><b>' + clockHM(s.start) + '</b>' +
+                '<i class="' + bed.cls + '-bg">' + bed.txt + '</i></div>' +
+                '<div class="pr-tl-arrow">→</div>' +
+                '<div class="pr-tl-item"><span>起床</span><b>' + clockHM(s.end) + '</b>' +
+                '<i class="' + wk.cls + '-bg">' + wk.txt + '</i></div>' +
+                '</div>';
+
+            var cycleHtml = '<div class="pr-block">' +
+                '<div class="pr-block-title">睡眠周期 · 90 分钟</div>' +
+                '<p>已睡 <b>' + cyc.cycles + '</b> 个周期' + (cyc.rem ? '（余 ' + cyc.rem + ' 分钟）' : '') + '</p>' +
+                '<p class="pr-state ' + cyc.cls + '">' + cyc.status + '</p>' +
+                (adv
+                    ? '<p class="pr-state good">若想睡满 ' + adv.cycles + ' 个周期，建议 <b>' + adv.at +
+                    '</b> 起床，你早了 ' + adv.diff + ' 分钟</p>' +
+                    '<div class="pr-chips"><em>推荐起床点</em>' +
+                    adv.pts.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>'
+                    : '') +
+                '</div>';
+
+            var classHtml = isClass
+                ? '<div class="pr-block">' +
+                '<div class="pr-block-title">智能上课睡眠</div>' +
+                '<p>你睡了 <b>' + periods + '</b> 节课</p>' +
+                '<p style="font-size:10.5px;color:rgba(255,255,255,.5)">按每节 ' +
+                (+state.settings.classMin || 40) + ' 分钟 · 课间 ' +
+                (state.settings.breakMin == null ? 5 : +state.settings.breakMin) + ' 分钟计算</p>' +
+                '</div>'
+                : '';
+
+            var statsHtml = '<div class="pr-block">' +
+                '<div class="pr-block-title">打卡 · 进度</div>' +
+                '<p>连续 <b>' + si.current + '</b> 天睡眠打卡</p>' +
+                '<p>本周累计 <b>' + (st.weekMs / 3600000).toFixed(1) + 'h</b> · 学期进度 <b>' +
+                Math.round(semPct) + '%</b></p>' +
+                '</div>';
+
+            var locHtml = s.locName
+                ? '<div class="pr-block">' +
+                '<div class="pr-block-title">位置统计</div>' +
+                '<p>你已在「' + esc(s.locType) + ' · ' + esc(s.locName) + '」睡过 <b>' + ls.count +
+                '</b> 次，累计 <b>' + ls.hours.toFixed(1) + 'h</b></p>' +
+                '</div>'
+                : '';
+
+            var immortalHtml = immortal == null ? '' :
+                '<div class="pr-block">' +
+                '<div class="pr-block-title">修仙指数</div>' +
+                '<p>修仙值 <b>' + immortal + '</b><span class="pr-immortal-sub">入睡越晚，修为越高</span></p>' +
+                '</div>';
+
+            var gradeHtml = '<div class="pr-grade">' +
+                '<div class="pr-grade-val">' + grade + '</div>' +
+                '<div class="pr-grade-side"><span>综 合 评 级</span><b>' +
+                (isClass ? '上课睡眠 · ' + periods + ' 节课' : '晚上睡眠') + '</b></div>' +
+                '</div>';
 
             openModal(
                 '<div class="poster">' +
                 '<div class="poster-title">睡 眠 战 报</div>' +
-                '<div class="poster-num">' + hours.toFixed(2) + '<small>h</small></div>' +
+                '<div class="poster-num">' + durH + '<small>h</small> ' + durM + '<small>m</small></div>' +
                 '<div class="poster-date">' + fmtDateTime(s.start) + ' → ' + fmtDateTime(s.end) + '</div>' +
                 '<div class="poster-loc">' +
                 (s.locType ? (LOC_TYPES[s.locType] || '📍') + ' ' + esc(s.locType) + ' · ' + esc(s.locName) : '📍 未记录位置') +
                 '</div>' +
                 '<div class="poster-line"></div>' +
                 '<div class="poster-award">' + award + '</div>' +
+                gradeHtml +
+                tlHtml +
+                cycleHtml +
+                classHtml +
+                statsHtml +
+                locHtml +
+                immortalHtml +
                 '<div class="poster-foot" style="color:' + tagColor + '">' +
                 (c.tooLong ? '😵 昏迷 · 不计入学期成绩' : c.tooShort ? '⚡ 小憩 · 不计入学期成绩' : '✅ 正常打卡 · 已计入学期成绩') +
                 '</div>' +
@@ -3715,6 +4079,10 @@
                 '<input type="number" id="setMax" value="' + st.maxSleep + '" min="1">' +
                 '<label>单次最低睡眠时长（分钟）</label>' +
                 '<input type="number" id="setMin" value="' + st.minSleep + '" min="0">' +
+                '<label>单节课时长（分钟）</label>' +
+                '<input type="number" id="setClassMin" value="' + (st.classMin || 40) + '" min="1">' +
+                '<label>课间时长（分钟）</label>' +
+                '<input type="number" id="setBreakMin" value="' + (st.breakMin == null ? 5 : st.breakMin) + '" min="0">' +
                 '<label>学期开始日期</label>' +
                 '<input type="date" id="setStart" value="' + (st.semesterStart || '') + '">' +
                 '<label>学期结束日期</label>' +
@@ -3840,10 +4208,14 @@
             var t = +document.getElementById('setTarget').value;
             var mx = +document.getElementById('setMax').value;
             var mn = +document.getElementById('setMin').value;
+            var cm = +document.getElementById('setClassMin').value;
+            var bm = +document.getElementById('setBreakMin').value;
 
             if (t > 0) state.settings.target = t;
             if (mx > 0) state.settings.maxSleep = mx;
             if (mn >= 0) state.settings.minSleep = mn;
+            if (cm > 0) state.settings.classMin = cm;
+            if (bm >= 0) state.settings.breakMin = bm;
             state.settings.semesterStart = document.getElementById('setStart').value || '';
             state.settings.semesterEnd = document.getElementById('setEnd').value || '';
 
@@ -3988,7 +4360,7 @@
             state.presetIdx = d.presetIdx || 0;
             state.showAllRecords = false;
             state.settings = Object.assign(
-                { target: 100, maxSleep: 12, minSleep: 15, semesterStart: '', semesterEnd: '' },
+                { target: 100, maxSleep: 12, minSleep: 15, classMin: 40, breakMin: 5, semesterStart: '', semesterEnd: '' },
                 d.settings || {}
             );
 
@@ -4007,7 +4379,7 @@
 
             state = {
                 user: null,
-                settings: { target: 100, maxSleep: 12, minSleep: 5, semesterStart: '', semesterEnd: '' },
+                settings: { target: 100, maxSleep: 12, minSleep: 5, classMin: 40, breakMin: 5, semesterStart: '', semesterEnd: '' },
                 sessions: [],
                 active: null,
                 locations: [],
