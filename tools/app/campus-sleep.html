@@ -13,6 +13,17 @@
         fx.setThemeColor('#80c1ff');
     </script>
     <link rel="icon" href="/tools/app/src/campus-sleep.svg">
+
+    <!-- ============ PWA ============ -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#6C5CE7">
+    <meta name="description" content="用校园跑的方式，认真睡觉。娱乐向睡眠打卡页面，数据保存在本地浏览器。">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="校园睡">
+    <link rel="apple-touch-icon" href="./icons/icon-180.png">
+
     <style>
         * {
             box-sizing: border-box;
@@ -3900,10 +3911,15 @@
         function gradeOf(c, cyc, bed, isClass, periods) {
             var g;
             if (isClass) {
-                g = Math.min(6, periods);
+                // 课时数可能带小数（如 1.7 节课），先取整再映射档位，否则查表得到 undefined
+                g = Math.min(6, Math.floor(periods));
             } else {
-                g = c.hours < 4 ? 1 : c.hours < 5 ? 2 : c.hours < 6 ? 3 :
-                    c.hours < 7 ? 4 : c.hours < 8.5 ? 5 : 6;
+                g = c.hours < 5 ? 1
+                    : c.hours < 7 ? 2
+                        : c.hours < 8 ? 3
+                            : c.hours < 9 ? 4
+                                : c.hours < 10 ? 5
+                                    : 6;
                 if (cyc.rem === 0 || cyc.rem >= 75) g++;
                 else if (cyc.rem <= 15) g--;
                 if (bed.txt === '早睡标兵') g++;
@@ -5611,6 +5627,15 @@
         })();
 
         window.addEventListener('beforeunload', save);
+
+        /* ==================================================================
+        PWA：注册 Service Worker（可安装 / 离线可用）
+        ================================================================== */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw.js').catch(function () { });
+            });
+        }
     </script>
 </body>
 
