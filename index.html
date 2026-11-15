@@ -3399,6 +3399,17 @@
       filter: invert(1) hue-rotate(180deg) brightness(1.2);
     }
 
+    /* 深色模式：头像圆环改成深色描边 + 暗投影 */
+:root[data-theme="dark"] .sidebar-avatar {
+  border-color: var(--color-bg-soft);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45);
+}
+
+/* 深色模式：压暗头像图片本身 */
+:root[data-theme="dark"] .sidebar-avatar img {
+  filter: brightness(.78) saturate(.88);
+}
+
     /* 顶栏资源数值（AP / 金币 / 青曜石） */
     :root[data-theme="dark"] .resource {
       color: var(--color-text-primary);
@@ -3616,7 +3627,7 @@
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.1-2.1 2.4-2.2z" />
           </svg>
-          我的工具
+          实用工具
         </a>
 
         <a class="topbar-menu__item" href="/links.html">
