@@ -2914,10 +2914,6 @@
             transition: opacity .2s ease;
         }
 
-        .font-modal__preview-text.is-loading {
-            opacity: .5;
-        }
-
         .font-modal__body {
             flex: 1 1 auto;
             min-height: 0;
@@ -3772,7 +3768,7 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
                 <section class="font-group">
                     <h3 class="font-group__title">自定义字体 <span class="font-group__count">11 款</span></h3>
                     <p class="font-group__desc">
-                        来自站点 <code>/src/ttf</code> 目录，已转为 woff2 本地加载。悬停或聚焦某一项可即时预览该字体。
+                        来自站点 <code>/src/ttf</code> 目录，已转为 woff2 本地加载。点击任意一项即可应用到整页。
                     </p>
 
                     <div class="font-list">
@@ -4612,7 +4608,6 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
 
             var previewText = document.getElementById('font-preview-text');
             var previewName = document.getElementById('font-preview-name');
-            var fontList = modal.querySelector('.font-list');
             var items = Array.prototype.slice.call(modal.querySelectorAll('.font-item'));
             var sysList = document.getElementById('font-sys-list');
             var sysInput = document.getElementById('font-sys-input');
@@ -4628,7 +4623,6 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
             var root = document.documentElement;
 
             var lastFocus = null;
-            var previewTimer = null;
             var systemFamilies = [];
             var currentPref = null;
 
@@ -4670,11 +4664,6 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
                 return '"' + String(name).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
             }
 
-            function firstFamily(stack) {
-                var m = /'([^']+)'/.exec(stack || '');
-                return m ? m[1] : '';
-            }
-
             function markActive(key, systemName) {
                 items.forEach(function (item) {
                     item.classList.toggle('is-active', !!key && item.getAttribute('data-font-key') === key);
@@ -4691,39 +4680,9 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
                 openBtn.setAttribute('aria-label', label);
             }
 
-            function setPreview(stack, name, shouldLoad) {
+            function setPreview(stack, name) {
                 previewName.textContent = name || '默认字体';
                 previewText.style.fontFamily = stack || '';
-                previewText.classList.remove('is-loading');
-
-                if (!shouldLoad || !document.fonts || !document.fonts.load) return;
-
-                var family = firstFamily(stack);
-                if (!family) return;
-
-                previewText.classList.add('is-loading');
-                document.fonts.load('20px "' + family + '"', previewText.textContent)
-                    .then(done).catch(done);
-
-                function done() {
-                    previewText.classList.remove('is-loading');
-                }
-            }
-
-            function schedulePreview(stack, name) {
-                clearTimeout(previewTimer);
-                previewTimer = setTimeout(function () {
-                    setPreview(stack, name, true);
-                }, 160);
-            }
-
-            function restorePreview() {
-                clearTimeout(previewTimer);
-                if (currentPref && currentPref.stack) {
-                    setPreview(currentPref.stack, currentPref.name || '当前字体', false);
-                } else {
-                    setPreview('', '默认字体', false);
-                }
             }
 
             function selectCustom(item) {
@@ -4737,7 +4696,7 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
 
                 markActive(key, null);
                 setButtonLabel(name);
-                setPreview(stack, name, false);
+                setPreview(stack, name);
                 showToast('已切换为「' + name + '」');
             }
 
@@ -4751,7 +4710,7 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
                 markActive(null, name);
                 sysInput.value = name;
                 setButtonLabel(name + '（系统）');
-                setPreview(stack, name + '（系统）', false);
+                setPreview(stack, name + '（系统）');
                 showToast('已切换系统字体「' + name + '」');
             }
 
@@ -4763,9 +4722,9 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
 
                 if (currentPref && currentPref.stack) {
                     setPreview(currentPref.stack,
-                        currentPref.kind === 'system' ? currentPref.name + '（系统）' : currentPref.name, false);
+                        currentPref.kind === 'system' ? currentPref.name + '（系统）' : currentPref.name);
                 } else {
-                    setPreview('', '默认字体', false);
+                    setPreview('', '默认字体');
                 }
 
                 var closeBtn = modal.querySelector('.font-modal__close');
@@ -4855,30 +4814,18 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
             items.forEach(function (item) {
                 var pick = item.querySelector('[data-pick]');
                 var lic = item.querySelector('[data-lic]');
-                var stack = item.getAttribute('data-font-stack');
-                var name = item.getAttribute('data-font-name');
 
                 if (pick) {
                     pick.addEventListener('click', function () {
                         selectCustom(item);
                     });
-                    pick.addEventListener('focus', function () {
-                        schedulePreview(stack, name);
-                    });
                 }
-                item.addEventListener('mouseenter', function () {
-                    schedulePreview(stack, name);
-                });
                 if (lic) {
                     lic.addEventListener('click', function () {
                         openLicense(lic.getAttribute('data-lic'));
                     });
                 }
             });
-
-            if (fontList) {
-                fontList.addEventListener('mouseleave', restorePreview);
-            }
 
             scanBtn.addEventListener('click', function () {
                 if (typeof window.queryLocalFonts !== 'function') {
@@ -4953,7 +4900,7 @@ localStorage.setItem(<span class="tok-str">'theme'</span>, <span class="tok-str"
                 markActive(null, null);
                 setButtonLabel('');
                 sysInput.value = '';
-                setPreview('', '默认字体', false);
+                setPreview('', '默认字体');
                 showToast('已恢复默认字体');
             });
 

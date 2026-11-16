@@ -21,6 +21,20 @@
         })();
     </script>
 
+    <!-- 字体初始化：在样式解析前应用上次选择的字体，避免刷新时字体闪变 -->
+    <script id="font-init">
+        (function () {
+            try {
+                var raw = localStorage.getItem('blog-font');
+                if (!raw) return;
+                var pref = JSON.parse(raw);
+                if (pref && typeof pref.stack === 'string' && pref.stack) {
+                    document.documentElement.style.setProperty('--font-sans', pref.stack);
+                }
+            } catch (e) { }
+        })();
+    </script>
+
     <title>从本地到云：一晚折腾 AstrBot 接入 QQ 机器人 · 七七的折腾笔记</title>
     <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
@@ -66,8 +80,9 @@
             --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
             --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
 
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            --font-fallback: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
                 "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-sans: var(--font-fallback);
             --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
             --topbar-h: 56px;
@@ -2553,6 +2568,731 @@
             filter: invert(1) hue-rotate(180deg) brightness(1.2);
         }
 
+        /* ============ 自定义字体（woff2） ============ */
+        /* 字体文件与许可证位于 /src/ttf/fonts，均为 SIL OFL 1.1 授权 */
+
+        @font-face {
+            font-family: "Blog-QiuYe";
+            src: url("/src/ttf/fonts/qiuye/QiuYeYuanTi-16.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Thin.woff2") format("woff2");
+            font-weight: 100;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Light.woff2") format("woff2");
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Medium.woff2") format("woff2");
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-SemiBold.woff2") format("woff2");
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Bold.woff2") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Heavy.woff2") format("woff2");
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenJinP0";
+            src: url("/src/ttf/fonts/wenjin/ttf/WenJinMinchoP0-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenJinP2";
+            src: url("/src/ttf/fonts/wenjin/ttf/WenJinMinchoP2-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenJinP3";
+            src: url("/src/ttf/fonts/wenjin/ttf/WenJinMinchoP3-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-Cheese";
+            src: url("/src/ttf/fonts/cheese/CheeseFoamOolongSong-Bold.woff2") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-CheeseLite";
+            src: url("/src/ttf/fonts/cheese/CheeseFoamOolongSongLite-Bold.woff2") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-Smiley";
+            src: url("/src/ttf/fonts/smiley/SmileySans-Oblique.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-ExtraLight.woff2") format("woff2");
+            font-weight: 250;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Light.woff2") format("woff2");
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Normal.woff2") format("woff2");
+            font-weight: 350;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Medium.woff2") format("woff2");
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Bold.woff2") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-SourceHan";
+            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Heavy.woff2") format("woff2");
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-CEF";
+            src: url("/src/ttf/fonts/cef/CEFFontsCJK-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-CEFMono";
+            src: url("/src/ttf/fonts/cef/CEFFontsCJKMono-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-XieYi";
+            src: url("/src/ttf/fonts/xieyi/YShiWritten-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-XieYiSC";
+            src: url("/src/ttf/fonts/xieyi/YShiWrittenSC-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ============ 字体设置弹窗 ============ */
+        .font-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .font-modal.is-open {
+            display: flex;
+        }
+
+        .font-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(14, 22, 36, .5);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity .25s ease;
+        }
+
+        .font-modal.is-open .font-modal__backdrop {
+            opacity: 1;
+        }
+
+        .font-modal__dialog {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            width: min(920px, 100%);
+            max-height: 100%;
+            background: var(--color-bg-white);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 24px 70px rgba(16, 24, 40, .3);
+            overflow: hidden;
+            transform: translateY(16px) scale(.985);
+            opacity: 0;
+            transition: transform .3s cubic-bezier(.22, .61, .36, 1), opacity .25s ease;
+        }
+
+        .font-modal.is-open .font-modal__dialog {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .font-modal__head {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .font-modal__title {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .font-modal__sub {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .font-modal__close {
+            margin-left: auto;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: var(--color-text-secondary);
+            transition: background .18s ease, color .18s ease;
+        }
+
+        .font-modal__close:hover {
+            background: rgba(33, 165, 227, .1);
+            color: var(--color-primary);
+        }
+
+        .font-modal__preview {
+            margin: 14px 22px 0;
+            padding: 12px 16px 14px;
+            border-radius: var(--radius-md);
+            border: 1px dashed rgba(33, 165, 227, .28);
+            background: linear-gradient(90deg, rgba(33, 165, 227, .09) 0%, rgba(33, 165, 227, .02) 100%);
+        }
+
+        .font-modal__preview-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            color: var(--color-primary);
+        }
+
+        .font-modal__preview-label b {
+            font-weight: 800;
+            letter-spacing: 0;
+            color: var(--color-text-primary);
+        }
+
+        .font-modal__preview-text {
+            margin-top: 7px;
+            font-size: 21px;
+            line-height: 1.55;
+            color: var(--color-text-primary);
+            overflow-wrap: anywhere;
+            transition: opacity .2s ease;
+        }
+
+        .font-modal__body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 16px 22px 20px;
+        }
+
+        .font-group+.font-group {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .font-group__title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .02em;
+            color: var(--color-text-primary);
+        }
+
+        .font-group__title::before {
+            content: "";
+            width: 4px;
+            height: 14px;
+            border-radius: 2px;
+            flex: 0 0 auto;
+            background: linear-gradient(180deg, var(--color-primary), var(--color-blue-light));
+        }
+
+        .font-group__count {
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-primary);
+            background: rgba(33, 165, 227, .1);
+        }
+
+        .font-group__desc {
+            margin-top: 6px;
+            font-size: 11.5px;
+            line-height: 1.7;
+            color: var(--color-text-secondary);
+        }
+
+        .font-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .font-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 10px 9px 13px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-bg-light);
+            transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+        }
+
+        .font-item:hover {
+            border-color: var(--color-blue-light);
+            background: var(--color-bg-white);
+            box-shadow: var(--shadow-card);
+        }
+
+        .font-item.is-active {
+            border-color: var(--color-primary);
+            background: rgba(33, 165, 227, .08);
+            box-shadow: 0 0 0 2px rgba(33, 165, 227, .14);
+        }
+
+        .font-item__pick {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .font-item__name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .font-item__meta {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+        }
+
+        .font-item__lic {
+            flex: 0 0 auto;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            color: var(--color-primary);
+            background: rgba(33, 165, 227, .1);
+            transition: background .18s ease;
+        }
+
+        .font-item__lic:hover {
+            background: rgba(33, 165, 227, .22);
+        }
+
+        .font-item__check {
+            display: none;
+            flex: 0 0 auto;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: #fff;
+            font-size: 10px;
+            line-height: 1;
+            place-items: center;
+        }
+
+        .font-item.is-active .font-item__check {
+            display: grid;
+        }
+
+        .font-group__note {
+            margin-top: 10px;
+            font-size: 11.5px;
+            line-height: 1.75;
+            color: var(--color-text-secondary);
+        }
+
+        .font-group__note strong {
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .font-sys__bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .font-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            padding: 0 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border-strong);
+            background: var(--color-bg-white);
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--color-text-body);
+            transition: border-color .18s ease, color .18s ease, background .18s ease;
+        }
+
+        .font-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .font-btn:disabled {
+            opacity: .55;
+            cursor: default;
+        }
+
+        .font-btn--primary {
+            border-color: var(--color-primary);
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .font-btn--primary:hover {
+            border-color: var(--color-primary-hover);
+            background: var(--color-primary-hover);
+            color: #fff;
+        }
+
+        .font-sys__input {
+            flex: 1 1 200px;
+            min-width: 0;
+            height: 34px;
+            padding: 0 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border-strong);
+            background: var(--color-bg-white);
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--color-text-primary);
+            outline: none;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .font-sys__input::placeholder {
+            color: var(--color-text-disabled);
+        }
+
+        .font-sys__input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 165, 227, .14);
+        }
+
+        .font-sys__hint {
+            margin-top: 8px;
+            font-size: 11.5px;
+            line-height: 1.7;
+            color: var(--color-text-secondary);
+        }
+
+        .font-sys__list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+            margin-top: 10px;
+            max-height: 208px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .font-sys__item {
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-light);
+            font-size: 12.5px;
+            text-align: left;
+            color: var(--color-text-body);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: border-color .18s ease, color .18s ease, background .18s ease;
+        }
+
+        .font-sys__item:hover {
+            border-color: var(--color-blue-light);
+            background: var(--color-bg-white);
+            color: var(--color-primary);
+        }
+
+        .font-sys__item.is-active {
+            border-color: var(--color-primary);
+            background: rgba(33, 165, 227, .08);
+            color: var(--color-primary);
+        }
+
+        .font-modal__foot {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 12px 22px;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-bg-soft);
+        }
+
+        .font-modal__tip {
+            font-size: 11.5px;
+            color: var(--color-text-secondary);
+        }
+
+        .font-modal__actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 许可证查看层 */
+        .font-lic-view {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: none;
+            flex-direction: column;
+            background: var(--color-bg-white);
+        }
+
+        .font-lic-view.is-open {
+            display: flex;
+        }
+
+        .font-lic-view__head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .font-lic-view__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .font-lic-view__title {
+            min-width: 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .font-lic-view__open {
+            margin-left: auto;
+            flex: 0 0 auto;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-primary);
+            border-bottom: 1px dashed currentColor;
+        }
+
+        .font-lic-view__body {
+            flex: 1 1 auto;
+            min-height: 0;
+            margin: 0;
+            padding: 16px 20px 22px;
+            overflow: auto;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--color-text-body);
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        /* 顶栏字体按钮：启用非默认字体时显示小圆点 */
+        #btn-font {
+            position: relative;
+        }
+
+        #btn-font.is-active::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-primary);
+        }
+
+        @media (max-width: 640px) {
+            .font-modal {
+                padding: 12px;
+            }
+
+            .font-modal__head {
+                padding: 14px 16px 12px;
+            }
+
+            .font-modal__preview {
+                margin: 12px 16px 0;
+            }
+
+            .font-modal__preview-text {
+                font-size: 17px;
+            }
+
+            .font-modal__body {
+                padding: 14px 16px 18px;
+            }
+
+            .font-modal__foot {
+                padding: 10px 16px;
+            }
+
+            .font-list,
+            .font-sys__list {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .font-sys__input {
+                flex: 1 1 100%;
+            }
+
+            .font-modal__actions {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .font-modal__actions .font-btn {
+                flex: 1;
+            }
+        }
+
     </style>
 </head>
 
@@ -2567,6 +3307,15 @@
         <div class="topbar__title">从本地到云：一晚折腾 AstrBot 接入 QQ 机器人</div>
 
         <div class="topbar__spacer"></div>
+
+        <button class="icon-btn" type="button" id="btn-font" aria-label="字体设置" title="字体设置">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M4 7V4h16v3" />
+                <path d="M9 20h6" />
+                <path d="M12 4v16" />
+            </svg>
+        </button>
 
         <button class="icon-btn" type="button" id="btn-theme" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
             <!-- 太阳：浅色模式下显示 -->
@@ -3632,6 +4381,232 @@ sequenceDiagram
         </svg>
     </button>
 
+<div class="font-modal" id="font-modal" aria-hidden="true">
+        <div class="font-modal__backdrop" data-font-close></div>
+
+        <div class="font-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="font-modal-title">
+            <div class="font-modal__head">
+                <div>
+                    <h2 class="font-modal__title" id="font-modal-title">字体设置</h2>
+                    <p class="font-modal__sub">选择后自动保存，下次打开本页时自动应用</p>
+                </div>
+                <button class="font-modal__close" type="button" data-font-close aria-label="关闭字体设置">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="font-modal__preview">
+                <div class="font-modal__preview-label">预览 <b id="font-preview-name">默认字体</b></div>
+                <div class="font-modal__preview-text" id="font-preview-text">永字八法，天地玄黄。汉字排版预览 AaBbCc 0123456789</div>
+            </div>
+
+            <div class="font-modal__body">
+                <section class="font-group">
+                    <h3 class="font-group__title">自定义字体 <span class="font-group__count">11 款</span></h3>
+                    <p class="font-group__desc">
+                        来自站点 <code>/src/ttf</code> 目录，已转为 woff2 本地加载。点击任意一项即可应用到整页。
+                    </p>
+
+                    <div class="font-list">
+                        <div class="font-item" data-font-key="qiuye" data-font-name="秋叶圆体"
+                            data-font-stack="'Blog-QiuYe', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">秋叶圆体</span>
+                                <span class="font-item__meta">圆体 · 单字重</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="qiuye"
+                                aria-label="查看秋叶圆体的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="wenyuan" data-font-name="文渊圆体"
+                            data-font-stack="'Blog-WenYuan', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">文渊圆体</span>
+                                <span class="font-item__meta">圆体 · 7 个字重</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="wenyuan"
+                                aria-label="查看文渊圆体的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="wenjin" data-font-name="文津宋体"
+                            data-font-stack="'Blog-WenJinP0', 'Blog-WenJinP2', 'Blog-WenJinP3', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">文津宋体</span>
+                                <span class="font-item__meta">宋体 · 3 个字符平面</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="wenjin"
+                                aria-label="查看文津宋体的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="cheese" data-font-name="芝士奶盖乌龙宋"
+                            data-font-stack="'Blog-Cheese', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">芝士奶盖乌龙宋</span>
+                                <span class="font-item__meta">宋体 · 粗体</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="cheese"
+                                aria-label="查看芝士奶盖乌龙宋的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="cheese-lite" data-font-name="芝士奶盖乌龙宋 轻便版"
+                            data-font-stack="'Blog-CheeseLite', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">芝士奶盖乌龙宋 轻便版</span>
+                                <span class="font-item__meta">宋体 · 粗体 · 精简字符集</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="cheese"
+                                aria-label="查看芝士奶盖乌龙宋轻便版的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="smiley" data-font-name="得意黑"
+                            data-font-stack="'Blog-Smiley', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">得意黑</span>
+                                <span class="font-item__meta">黑体 · 斜体</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="smiley"
+                                aria-label="查看得意黑的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="sourcehan" data-font-name="思源黑体 SC"
+                            data-font-stack="'Blog-SourceHan', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">思源黑体 SC</span>
+                                <span class="font-item__meta">黑体 · 7 个字重</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="sourcehan"
+                                aria-label="查看思源黑体的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="cef" data-font-name="快去写作业"
+                            data-font-stack="'Blog-CEF', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">快去写作业</span>
+                                <span class="font-item__meta">手写 · 单字重</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="cef"
+                                aria-label="查看快去写作业的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="cef-mono" data-font-name="快去写代码"
+                            data-font-stack="'Blog-CEFMono', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">快去写代码</span>
+                                <span class="font-item__meta">手写 · 等宽</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="cef"
+                                aria-label="查看快去写代码的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="xieyi" data-font-name="写意体"
+                            data-font-stack="'Blog-XieYi', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">写意体</span>
+                                <span class="font-item__meta">手写 · 单字重</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="xieyi"
+                                aria-label="查看写意体的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="font-item" data-font-key="xieyi-sc" data-font-name="写意体 SC"
+                            data-font-stack="'Blog-XieYiSC', var(--font-fallback)">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">写意体 SC</span>
+                                <span class="font-item__meta">手写 · 简体</span>
+                            </button>
+                            <button class="font-item__lic" type="button" data-lic="xieyi"
+                                aria-label="查看写意体 SC 的字体许可">OFL 1.1</button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+                    </div>
+
+                    <p class="font-group__note">
+                        <strong>许可提示：</strong>以上内置字体均以 SIL Open Font License 1.1（OFL）授权，版权归各字体作者所有。
+                        可免费用于个人与商业项目，再分发时请保留许可证与版权声明；点击每项右侧的「OFL 1.1」可查看随字体附带的许可证原文。
+                    </p>
+                </section>
+
+                <section class="font-group">
+                    <h3 class="font-group__title">系统字体</h3>
+                    <p class="font-group__desc">
+                        通过浏览器原生接口读取本机字体，或手动输入已安装的字体名称。系统字体由本机提供，不占用站点流量。
+                    </p>
+
+                    <div class="font-sys__bar">
+                        <button class="font-btn font-btn--primary" type="button" id="font-sys-scan">调用系统字体列表</button>
+                        <input class="font-sys__input" id="font-sys-input" type="text" list="font-sys-datalist"
+                            placeholder="输入字体名称，如 微软雅黑" autocomplete="off" aria-label="系统字体名称">
+                        <button class="font-btn" type="button" id="font-sys-apply">应用</button>
+                    </div>
+                    <datalist id="font-sys-datalist">
+                        <option value="微软雅黑"></option>
+                        <option value="微软雅黑 Light"></option>
+                        <option value="宋体"></option>
+                        <option value="新宋体"></option>
+                        <option value="黑体"></option>
+                        <option value="楷体"></option>
+                        <option value="仿宋"></option>
+                        <option value="等线"></option>
+                        <option value="等线 Light"></option>
+                        <option value="华文中宋"></option>
+                        <option value="华文楷体"></option>
+                        <option value="思源黑体"></option>
+                        <option value="Segoe UI"></option>
+                        <option value="Arial"></option>
+                        <option value="Georgia"></option>
+                        <option value="Times New Roman"></option>
+                        <option value="Verdana"></option>
+                        <option value="Consolas"></option>
+                        <option value="Cascadia Mono"></option>
+                    </datalist>
+                    <p class="font-sys__hint" id="font-sys-hint">
+                        提示：读取本机字体列表需要 Chrome / Edge，且页面运行在 https 或 localhost 下，首次调用会请求授权；
+                        其他环境请直接输入字体名后点击「应用」。
+                    </p>
+                    <div class="font-sys__list" id="font-sys-list"></div>
+                </section>
+            </div>
+
+            <div class="font-modal__foot">
+                <span class="font-modal__tip">字体偏好保存在本机浏览器中</span>
+                <div class="font-modal__actions">
+                    <button class="font-btn" type="button" id="font-reset">恢复默认</button>
+                    <button class="font-btn font-btn--primary" type="button" data-font-close>完成</button>
+                </div>
+            </div>
+
+            <!-- 许可证查看层 -->
+            <div class="font-lic-view" id="font-lic-view" aria-hidden="true">
+                <div class="font-lic-view__head">
+                    <button class="font-lic-view__back" type="button" id="font-lic-back">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                        返回
+                    </button>
+                    <span class="font-lic-view__title" id="font-lic-title">字体许可证</span>
+                    <a class="font-lic-view__open" id="font-lic-open" href="#" target="_blank"
+                        rel="noopener noreferrer">新标签页打开</a>
+                </div>
+                <pre class="font-lic-view__body" id="font-lic-body"></pre>
+            </div>
+        </div>
+    </div>
+
 <script type="module">
 import { BAClickFX } from '/libs/ba-click-fx.js';
         const fx = new BAClickFX();
@@ -4277,6 +5252,332 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
                     if (saved) return;
                     apply(e.matches ? 'dark' : 'light', false);
                 });
+            }
+        })();
+</script>
+
+<script>
+(function () {
+            'use strict';
+
+            var STORAGE_KEY = 'blog-font';
+            var modal = document.getElementById('font-modal');
+            var openBtn = document.getElementById('btn-font');
+            if (!modal || !openBtn) return;
+
+            var previewText = document.getElementById('font-preview-text');
+            var previewName = document.getElementById('font-preview-name');
+            var items = Array.prototype.slice.call(modal.querySelectorAll('.font-item'));
+            var sysList = document.getElementById('font-sys-list');
+            var sysInput = document.getElementById('font-sys-input');
+            var sysHint = document.getElementById('font-sys-hint');
+            var scanBtn = document.getElementById('font-sys-scan');
+            var applyBtn = document.getElementById('font-sys-apply');
+            var resetBtn = document.getElementById('font-reset');
+            var licView = document.getElementById('font-lic-view');
+            var licTitle = document.getElementById('font-lic-title');
+            var licBody = document.getElementById('font-lic-body');
+            var licOpen = document.getElementById('font-lic-open');
+            var licBack = document.getElementById('font-lic-back');
+            var root = document.documentElement;
+
+            var lastFocus = null;
+            var systemFamilies = [];
+            var currentPref = null;
+
+            /* 与压缩包内附带的许可证文件一一对应 */
+            var LICENSES = {
+                qiuye: { name: '秋叶圆体', url: '/src/ttf/fonts/qiuye/OFL.txt' },
+                wenyuan: { name: '文渊圆体', url: '/src/ttf/fonts/wenyuan/LICENSE.md' },
+                wenjin: { name: '文津宋体', url: '/src/ttf/fonts/wenjin/LICENSE-zh.md' },
+                cheese: { name: '芝士奶盖乌龙宋', url: '/src/ttf/fonts/cheese/OFL.txt' },
+                smiley: { name: '得意黑', url: '/src/ttf/fonts/smiley/LICENSE.txt' },
+                sourcehan: { name: '思源黑体', url: '/src/ttf/fonts/sourcehan/LICENSE.txt' },
+                cef: { name: '快去写作业', url: '/src/ttf/fonts/cef/LICENSE.txt' },
+                xieyi: { name: '写意体', url: '/src/ttf/fonts/xieyi/OFL.txt' }
+            };
+
+            function readPref() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function savePref(pref) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(pref));
+                } catch (e) { }
+            }
+
+            function applyStack(stack) {
+                if (stack) {
+                    root.style.setProperty('--font-sans', stack);
+                } else {
+                    root.style.removeProperty('--font-sans');
+                }
+            }
+
+            function cssQuote(name) {
+                return '"' + String(name).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+            }
+
+            function markActive(key, systemName) {
+                items.forEach(function (item) {
+                    item.classList.toggle('is-active', !!key && item.getAttribute('data-font-key') === key);
+                });
+                Array.prototype.forEach.call(sysList.querySelectorAll('.font-sys__item'), function (btn) {
+                    btn.classList.toggle('is-active', !!systemName && btn.getAttribute('data-family') === systemName);
+                });
+                openBtn.classList.toggle('is-active', !!(key || systemName));
+            }
+
+            function setButtonLabel(name) {
+                var label = name ? '字体设置（当前：' + name + '）' : '字体设置';
+                openBtn.setAttribute('title', label);
+                openBtn.setAttribute('aria-label', label);
+            }
+
+            function setPreview(stack, name) {
+                previewName.textContent = name || '默认字体';
+                previewText.style.fontFamily = stack || '';
+            }
+
+            function selectCustom(item) {
+                var key = item.getAttribute('data-font-key');
+                var name = item.getAttribute('data-font-name');
+                var stack = item.getAttribute('data-font-stack');
+
+                applyStack(stack);
+                currentPref = { kind: 'custom', key: key, name: name, stack: stack };
+                savePref(currentPref);
+
+                markActive(key, null);
+                setButtonLabel(name);
+                setPreview(stack, name);
+                showToast('已切换为「' + name + '」');
+            }
+
+            function selectSystem(name) {
+                var stack = cssQuote(name) + ', var(--font-fallback)';
+
+                applyStack(stack);
+                currentPref = { kind: 'system', name: name, stack: stack };
+                savePref(currentPref);
+
+                markActive(null, name);
+                sysInput.value = name;
+                setButtonLabel(name + '（系统）');
+                setPreview(stack, name + '（系统）');
+                showToast('已切换系统字体「' + name + '」');
+            }
+
+            function openModal() {
+                lastFocus = document.activeElement;
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+
+                if (currentPref && currentPref.stack) {
+                    setPreview(currentPref.stack,
+                        currentPref.kind === 'system' ? currentPref.name + '（系统）' : currentPref.name);
+                } else {
+                    setPreview('', '默认字体');
+                }
+
+                var closeBtn = modal.querySelector('.font-modal__close');
+                if (closeBtn) closeBtn.focus();
+            }
+
+            function closeModal() {
+                hideLicense();
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                if (lastFocus && lastFocus.focus) lastFocus.focus();
+            }
+
+            function renderSystemList(list) {
+                sysList.innerHTML = '';
+                list.forEach(function (name) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'font-sys__item';
+                    btn.setAttribute('data-family', name);
+                    btn.textContent = name;
+                    btn.style.fontFamily = cssQuote(name) + ', var(--font-fallback)';
+                    btn.addEventListener('click', function () {
+                        selectSystem(name);
+                    });
+                    sysList.appendChild(btn);
+                });
+                if (currentPref && currentPref.kind === 'system') {
+                    markActive(null, currentPref.name);
+                }
+            }
+
+            function applyInput() {
+                var name = sysInput.value.trim();
+                if (!name) {
+                    showToast('请先输入字体名称');
+                    sysInput.focus();
+                    return;
+                }
+                selectSystem(name);
+            }
+
+            function openLicense(key) {
+                var info = LICENSES[key];
+                if (!info) return;
+
+                licTitle.textContent = info.name + ' · 字体许可证';
+                licOpen.href = info.url;
+                licBody.textContent = '正在加载许可证…';
+                licView.classList.add('is-open');
+                licView.setAttribute('aria-hidden', 'false');
+
+                fetch(info.url).then(function (res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.text();
+                }).then(function (text) {
+                    licBody.textContent = text;
+                }).catch(function () {
+                    licBody.textContent =
+                        '页面内无法加载许可证文件（可能以 file:// 方式打开，或服务器未提供该文件）。\n' +
+                        '请点击右上角「新标签页打开」查看：\n' + info.url;
+                });
+            }
+
+            function hideLicense() {
+                licView.classList.remove('is-open');
+                licView.setAttribute('aria-hidden', 'true');
+            }
+
+            /* ---------- 事件绑定 ---------- */
+            openBtn.addEventListener('click', openModal);
+
+            Array.prototype.forEach.call(modal.querySelectorAll('[data-font-close]'), function (el) {
+                el.addEventListener('click', closeModal);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape' || !modal.classList.contains('is-open')) return;
+                if (licView.classList.contains('is-open')) {
+                    hideLicense();
+                } else {
+                    closeModal();
+                }
+            });
+
+            items.forEach(function (item) {
+                var pick = item.querySelector('[data-pick]');
+                var lic = item.querySelector('[data-lic]');
+
+                if (pick) {
+                    pick.addEventListener('click', function () {
+                        selectCustom(item);
+                    });
+                }
+                if (lic) {
+                    lic.addEventListener('click', function () {
+                        openLicense(lic.getAttribute('data-lic'));
+                    });
+                }
+            });
+
+            scanBtn.addEventListener('click', function () {
+                if (typeof window.queryLocalFonts !== 'function') {
+                    sysHint.textContent = '当前浏览器不支持读取系统字体列表（需要 Chrome / Edge，并通过 https 或 localhost 访问）。' +
+                        '请在上方输入字体名称后点击「应用」。';
+                    sysInput.focus();
+                    return;
+                }
+
+                scanBtn.disabled = true;
+                scanBtn.textContent = '正在读取…';
+                sysHint.textContent = '正在请求本机字体访问权限…';
+
+                window.queryLocalFonts().then(function (fonts) {
+                    var seen = Object.create(null);
+                    var list = [];
+
+                    fonts.forEach(function (font) {
+                        var family = font && font.family;
+                        if (!family || seen[family]) return;
+                        seen[family] = true;
+                        list.push(family);
+                    });
+
+                    list.sort(function (a, b) {
+                        return a.localeCompare(b, 'zh-Hans-CN');
+                    });
+
+                    systemFamilies = list;
+                    renderSystemList(list);
+                    sysHint.textContent = '已读取 ' + list.length +
+                        ' 个系统字体族，点击任意一项即可应用；也可在上方输入名称筛选。';
+                }).catch(function (err) {
+                    var errName = err && err.name;
+                    if (errName === 'NotAllowedError' || errName === 'SecurityError') {
+                        sysHint.textContent = '未获得本机字体读取权限（或页面不在安全上下文中）。' +
+                            '请在上方输入字体名称后点击「应用」。';
+                    } else {
+                        sysHint.textContent = '读取系统字体列表失败：' + ((err && err.message) || err);
+                    }
+                }).then(function () {
+                    scanBtn.disabled = false;
+                    scanBtn.textContent = '调用系统字体列表';
+                });
+            });
+
+            sysInput.addEventListener('input', function () {
+                if (!systemFamilies.length) return;
+                var q = sysInput.value.trim().toLowerCase();
+                Array.prototype.forEach.call(sysList.querySelectorAll('.font-sys__item'), function (btn) {
+                    var name = (btn.getAttribute('data-family') || '').toLowerCase();
+                    btn.hidden = !!q && name.indexOf(q) === -1;
+                });
+            });
+
+            sysInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyInput();
+                }
+            });
+
+            applyBtn.addEventListener('click', applyInput);
+
+            resetBtn.addEventListener('click', function () {
+                currentPref = null;
+                applyStack('');
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                } catch (e) { }
+
+                markActive(null, null);
+                setButtonLabel('');
+                sysInput.value = '';
+                setPreview('', '默认字体');
+                showToast('已恢复默认字体');
+            });
+
+            licBack.addEventListener('click', hideLicense);
+
+            /* ---------- 初始化 UI 状态（字体本身已由 head 内的脚本应用） ---------- */
+            currentPref = readPref();
+            if (currentPref && currentPref.kind === 'custom' && currentPref.key) {
+                markActive(currentPref.key, null);
+                setButtonLabel(currentPref.name);
+            } else if (currentPref && currentPref.kind === 'system' && currentPref.name) {
+                markActive(null, currentPref.name);
+                sysInput.value = currentPref.name;
+                setButtonLabel(currentPref.name + '（系统）');
+            } else {
+                currentPref = null;
+                markActive(null, null);
+                setButtonLabel('');
             }
         })();
 </script>
