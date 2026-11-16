@@ -223,13 +223,22 @@
         }
 
         .topbar__title {
-            font-size: clamp(10px, 3vw, 16px);
+            font-size: clamp(10px, 1.5vw, 16px);
             font-weight: 700;
             color: #1a1a1a;
             letter-spacing: .04em;
-            white-space: nowrap;
+            /* 去掉 nowrap 和 ellipsis */
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.25;
+            min-width: 0;
+            /* flex 子项允许被压缩，避免不换行 */
+            /* 多行省略需要 line-clamp */
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .topbar__spacer {
@@ -3249,6 +3258,32 @@
         }
 
         @media (max-width: 640px) {
+
+            /* 1. 缩小预览区的外边距和内边距 */
+            .font-modal__preview {
+                margin: 8px 16px 0;
+                padding: 8px 12px 10px;
+            }
+
+            /* 2. 缩小字号和行高 */
+            .font-modal__preview-text {
+                font-size: 14px;
+                line-height: 1.5;
+                margin-top: 4px;
+
+                /* 3. 核心：限制最多显示 3 行，超出部分省略 */
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+                overflow: hidden;
+            }
+
+            /* 4. 缩小预览标签的字号，节省空间 */
+            .font-modal__preview-label {
+                font-size: 10px;
+            }
+
             .font-modal {
                 padding: 12px;
             }
@@ -3291,6 +3326,16 @@
             .font-modal__actions .font-btn {
                 flex: 1 1 auto;
                 white-space: nowrap;
+            }
+        }
+
+                /* 针对极小屏幕（如 iPhone 4 等 320px 屏幕）进一步压缩 */
+        @media (max-width: 360px) {
+            .font-modal__preview-text {
+                font-size: 8px;
+                -webkit-line-clamp: 2;
+                /* 极窄屏只显示 2 行 */
+                line-clamp: 2;
             }
         }
 
@@ -3695,7 +3740,8 @@
 
             <div class="font-modal__preview">
                 <div class="font-modal__preview-label">预览 <b id="font-preview-name">默认字体</b></div>
-                <div class="font-modal__preview-text" id="font-preview-text">永字八法，天地玄黄。汉字排版预览 AaBbCc 0123456789</div>
+                <div class="font-modal__preview-text" id="font-preview-text">七七的折腾笔记 · 一顿操作猛如虎，撞得头破血流才跑通。AaBbCc
+                    0123456789。!@#$%^&*()_+-={[}]|;:'",.&lt;&gt;/?</div>
             </div>
 
             <div class="font-modal__body">
@@ -3712,8 +3758,8 @@
                                 <span class="font-item__name">七七像素圆体</span>
                                 <span class="font-item__meta">圆体-像素 · 单字重</span>
                             </button>
-                            <button class="font-item__lic" type="button" data-lic="qiuye"
-                                aria-label="查看七七像素圆体的字体许可">OFL 1.1</button>
+                            <button class="font-item__lic" type="button" data-lic="qiuye" aria-label="查看七七像素圆体的字体许可">OFL
+                                1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
@@ -3789,8 +3835,8 @@
                                 <span class="font-item__name">七七随性手写</span>
                                 <span class="font-item__meta">手写 · 单字重</span>
                             </button>
-                            <button class="font-item__lic" type="button" data-lic="cef"
-                                aria-label="查看七七随性手写的字体许可">OFL 1.1</button>
+                            <button class="font-item__lic" type="button" data-lic="cef" aria-label="查看七七随性手写的字体许可">OFL
+                                1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
@@ -3811,8 +3857,8 @@
                                 <span class="font-item__name">七七艺术手写</span>
                                 <span class="font-item__meta">手写 · 单字重</span>
                             </button>
-                            <button class="font-item__lic" type="button" data-lic="xieyi"
-                                aria-label="查看七七艺术手写的字体许可">OFL 1.1</button>
+                            <button class="font-item__lic" type="button" data-lic="xieyi" aria-label="查看七七艺术手写的字体许可">OFL
+                                1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
