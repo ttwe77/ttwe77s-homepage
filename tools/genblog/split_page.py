@@ -208,6 +208,7 @@ TARGETS = [
     ("toc",           "toc.html",            "outer", dict(tag="aside", cls="toc")),
     ("toc_toggle",    "toc_toggle.html",     "outer", dict(tag="button", eid="toc-toggle")),
     ("to_top",        "to_top.html",         "outer", dict(tag="button", eid="to-top")),
+    ("font_modal",    "font_modal.html",     "outer", dict(tag="div", eid="font-modal")),
     ("footer",        "footer.html",         "outer", dict(tag="footer", cls="footer")),
 ]
 
@@ -268,10 +269,10 @@ def main(argv=None) -> int:
         rows.append((key, el["tag"], f"{l0}-{l1}", len(text), filename))
 
     # ---------- 脚本 ----------
-    # 主题初始化脚本必须留在 <head> 里提前执行，不重复收进 scripts.html
+    # 主题 / 字体初始化脚本必须留在 <head> 里提前执行，不重复收进 scripts.html
     scripts = [
         s for s in find_all(elements, tag="script")
-        if s["attrs"].get("id") != "theme-init"
+        if s["attrs"].get("id") not in ("theme-init", "font-init")
     ]
     if scripts:
         chunks = []

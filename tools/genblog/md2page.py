@@ -797,6 +797,20 @@ THEME_INIT_SCRIPT = """<script id="theme-init">
     })();
 </script>"""
 
+# 字体初始化脚本：同样需要提前执行，避免刷新时字体闪变。
+FONT_INIT_SCRIPT = """<script id="font-init">
+    (function () {
+        try {
+            var raw = localStorage.getItem('blog-font');
+            if (!raw) return;
+            var pref = JSON.parse(raw);
+            if (pref && typeof pref.stack === 'string' && pref.stack) {
+                document.documentElement.style.setProperty('--font-sans', pref.stack);
+            }
+        } catch (e) { }
+    })();
+</script>"""
+
 # 只有页面里真的出现图表时才注入这段脚本
 MERMAID_SCRIPT = """<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
@@ -1282,10 +1296,12 @@ def fill_head(head: str, css: str, meta: dict) -> str:
         head = head.replace("</head>", f"    <style>\n{css}\n    </style>\n</head>")
 
     # 去掉 <head> 里的 script（script 统一放到 body 底部），
-    # 但保留主题初始化脚本，它必须在样式解析前执行
+    # 但保留主题与字体初始化脚本，它们必须在样式解析前执行
     def _drop_head_script(m: re.Match) -> str:
         block = m.group(0)
         if 'id="theme-init"' in block or "id='theme-init'" in block:
+            return block
+        if 'id="font-init"' in block or "id='font-init'" in block:
             return block
         return "\n"
 
@@ -1294,6 +1310,10 @@ def fill_head(head: str, css: str, meta: dict) -> str:
     # 兜底：模板里没有主题初始化脚本时补上
     if "theme-init" not in head:
         head = head.replace("</head>", THEME_INIT_SCRIPT + "\n</head>")
+
+    # 兜底：模板里没有字体初始化脚本时补上
+    if "font-init" not in head:
+        head = head.replace("</head>", FONT_INIT_SCRIPT + "\n</head>")
 
     # 标题
     head = re.sub(
@@ -1498,6 +1518,11 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
     footer = read(parts_dir / "footer.html").strip()
     scripts_raw = read(parts_dir / "scripts.html")
 
+    # 字体设置弹窗（可选部件，旧模板没有时自动跳过）
+    font_modal_path = parts_dir / "font_modal.html"
+    font_modal = read(font_modal_path).strip() if font_modal_path.is_file() else ""
+    font_modal_block = f"{font_modal}\n\n" if font_modal else ""
+
     head = fill_head(head_tpl, css, meta)
     article_head = fill_article_head(article_head_tpl, meta)
     toc = replace_between(
@@ -1543,6 +1568,7 @@ def build_page(meta: dict, content: str, headings, parts_dir: Path) -> str:
         "</div>\n\n"
         f"{toc_toggle}\n\n"
         f"{to_top}\n\n"
+        f"{font_modal_block}"
         f"{scripts}\n\n"
         "</body>\n\n"
         "</html>\n"
