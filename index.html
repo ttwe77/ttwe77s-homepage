@@ -21,6 +21,18 @@
     })();
   </script>
 
+  <!-- 字体初始化：在样式解析前应用上次选择的字体，避免刷新时字体闪变 -->
+  <script id="font-init">
+    (function () {
+      try {
+        // 默认使用七七柔和圆体；用户手动切到系统字体时记为 system
+        if (localStorage.getItem('home-font') === 'system') {
+          document.documentElement.style.setProperty('--font-sans', 'var(--font-fallback)');
+        }
+      } catch (e) { }
+    })();
+  </script>
+
   <title>七七的折腾笔记 | 技术·游戏·日常</title>
   <link rel="icon" href="/src/favicon.svg">
   <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
@@ -68,6 +80,59 @@
     });
   </script>
   <style>
+    /* ============ 自定义字体（woff2） ============ */
+    /* 字体文件与许可证位于 /src/ttf/fonts，均为 SIL OFL 1.1 授权 */
+
+    /* 七七柔和圆体主字体：全站用字子集（自动重建） */
+    @font-face {
+      font-family: "Blog-WenYuan";
+      src: url("/blog/fonts/77StandardRound-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan";
+      src: url("/blog/fonts/77StandardRound-SemiBold.woff2") format("woff2");
+      font-weight: 500 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan";
+      src: url("/blog/fonts/77StandardRound-Bold.woff2") format("woff2");
+      font-weight: 700 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* 兜底字体：通用规范汉字表 8105 字，仅主字体缺字时才会下载 */
+    @font-face {
+      font-family: "Blog-WenYuan-Fallback";
+      src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan-Fallback";
+      src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-SemiBold.woff2") format("woff2");
+      font-weight: 500 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan-Fallback";
+      src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Bold.woff2") format("woff2");
+      font-weight: 700 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
     /* ============ 设计令牌 ============ */
     :root {
       --color-primary: #21a5e3;
@@ -96,7 +161,8 @@
       --shadow-card: 0 2px 8px rgba(0, 0, 0, .06);
       --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, .1);
       --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      --font-fallback: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      --font-sans: "Blog-WenYuan", "Blog-WenYuan-Fallback", var(--font-fallback);
       --topbar-h: 56px;
       --page-ease: cubic-bezier(.65, .05, .36, 1);
       --page-duration: 780ms;
@@ -3611,6 +3677,17 @@
           <span class="topbar-menu__label">精简顶栏</span>
         </button>
 
+        <button class="topbar-menu__item" id="btn-font-toggle" type="button" aria-pressed="true"
+          aria-label="切换字体（当前：七七柔和圆体）" title="切换字体（当前：七七柔和圆体）">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7V4h16v3" />
+            <path d="M9 20h6" />
+            <path d="M12 4v16" />
+          </svg>
+          切换字体
+        </button>
+
         <span class="topbar-menu__sep" aria-hidden="true"></span>
 
         <a class="topbar-menu__item" href="/status/" target="_blank" rel="noopener noreferrer">
@@ -3713,7 +3790,7 @@
               </svg>
             </button>
             <a class="btn btn--primary" href="/ttwe77.html">
-              关于我
+              关于站长
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14" />
@@ -5454,6 +5531,55 @@
           var dot = document.querySelector('.pager-nav__dot[data-page="0"]');
           if (dot) dot.click();                 // 复用 goTo(0) 的翻页 + 滚动重置
         });
+      });
+    })();
+  </script>
+  <script>
+    /* ============================================================
+       切换字体：七七柔和圆体 ⇄ 系统字体
+       ============================================================ */
+    (function () {
+      var KEY = 'home-font';
+      var ROUND = '"Blog-WenYuan", "Blog-WenYuan-Fallback", var(--font-fallback)';
+      var SYSTEM = 'var(--font-fallback)';
+      var btn = document.getElementById('btn-font-toggle');
+      if (!btn) return;
+
+      var root = document.documentElement;
+
+      function isSystem() {
+        try {
+          return localStorage.getItem(KEY) === 'system';
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function updateUI(system) {
+        var name = system ? '系统字体' : '七七柔和圆体';
+        var label = '切换字体（当前：' + name + '）';
+        btn.setAttribute('aria-pressed', system ? 'false' : 'true');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+      }
+
+      function apply(system) {
+        root.style.setProperty('--font-sans', system ? SYSTEM : ROUND);
+        try {
+          localStorage.setItem(KEY, system ? 'system' : 'round');
+        } catch (e) { }
+        updateUI(system);
+      }
+
+      updateUI(isSystem());
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var toSystem = !isSystem();
+        apply(toSystem);
+        if (window.showToast) {
+          window.showToast(toSystem ? '已切换为系统字体' : '已切换为「七七柔和圆体」');
+        }
       });
     })();
   </script>

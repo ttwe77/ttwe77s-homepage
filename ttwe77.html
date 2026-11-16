@@ -23,6 +23,17 @@
       }
     })();
   </script>
+  <!-- 字体初始化：在样式解析前应用上次选择的字体，避免刷新时字体闪变 -->
+  <script id="font-init">
+    (function () {
+      try {
+        // 默认使用七七柔和圆体；用户手动切到系统字体时记为 system
+        if (localStorage.getItem('home-font') === 'system') {
+          document.documentElement.style.setProperty('--font-sans', 'var(--font-fallback)');
+        }
+      } catch (e) { }
+    })();
+  </script>
   <meta name="description" content="技术宅一枚，沉迷计算机与网络，爱折腾软硬件，尤其是 Windows。日常打二游，偶尔写点代码。欢迎同好交流。" />
 
   <!-- ==================== Open Graph / 社交分享 ==================== -->
@@ -56,6 +67,59 @@
     fx.setThemeColor('#80c1ff');
   </script>
   <style>
+    /* ==================== 自定义字体（woff2） ==================== */
+    /* 字体文件与许可证位于 /src/ttf/fonts，均为 SIL OFL 1.1 授权 */
+
+    /* 七七柔和圆体主字体：全站用字子集（自动重建） */
+    @font-face {
+      font-family: "Blog-WenYuan";
+      src: url("/blog/fonts/77StandardRound-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan";
+      src: url("/blog/fonts/77StandardRound-SemiBold.woff2") format("woff2");
+      font-weight: 500 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan";
+      src: url("/blog/fonts/77StandardRound-Bold.woff2") format("woff2");
+      font-weight: 700 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* 兜底字体：通用规范汉字表 8105 字，仅主字体缺字时才会下载 */
+    @font-face {
+      font-family: "Blog-WenYuan-Fallback";
+      src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan-Fallback";
+      src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-SemiBold.woff2") format("woff2");
+      font-weight: 500 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Blog-WenYuan-Fallback";
+      src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Bold.woff2") format("woff2");
+      font-weight: 700 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
     /* ==================== 设计变量 ==================== */
     :root {
       /* 主色 */
@@ -95,8 +159,9 @@
       --shadow-blue: 0 6px 20px rgba(18, 138, 250, .25);
 
       /* 字体 */
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI",
+      --font-fallback: -apple-system, BlinkMacSystemFont, "Segoe UI",
         "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      --font-sans: "Blog-WenYuan", "Blog-WenYuan-Fallback", var(--font-fallback);
 
       /* 布局 */
       --topbar-h: 56px;
@@ -1415,6 +1480,33 @@
   </style>
   <style>
     /* ==================== 第 2 页 · 个人资料 ==================== */
+    /* 屏幕较高时适度增高并居中，避免拉伸过度导致立绘下方与右栏出现大片空白 */
+    .page--profile .page__inner {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .page--profile>.page__inner>.profile {
+      flex: 1 1 auto;
+      max-height: 660px;
+    }
+
+    /* 右栏自我介紹果卡随卡片增高，正文在卡片内垂直居中 */
+    .page--profile .profile__intro {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page--profile .profile__intro-body {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     .profile {
       display: grid;
       grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
@@ -3481,6 +3573,50 @@
     :root[data-theme="dark"] .hover-hint__tooltip.is-below::after {
       border-bottom-color: var(--color-bg-white);
     }
+
+    /* ==================== 主题切换动画 ==================== */
+    ::view-transition-old(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+
+    ::view-transition-new(root) {
+      animation: theme-blur-dissolve .55s cubic-bezier(.65, .05, .36, 1) both;
+      background-color: var(--color-bg-light, #fff);
+    }
+
+    @keyframes theme-blur-dissolve {
+      from {
+        opacity: 0;
+        filter: blur(20px);
+        transform: scale(1.015);
+      }
+
+      to {
+        opacity: 1;
+        filter: blur(0);
+        transform: scale(1);
+      }
+    }
+
+    /* 兜底遮罩：不支持 View Transition 时使用 */
+    .theme-dissolve {
+      position: fixed;
+      inset: 0;
+      z-index: 999998;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .45s cubic-bezier(.65, .05, .36, 1);
+    }
+
+    /* 减少动态效果时禁用 */
+    @media (prefers-reduced-motion: reduce) {
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 
@@ -3500,6 +3636,17 @@
     <div class="topbar__title">关于 ttwe77</div>
 
     <div class="topbar__spacer"></div>
+
+    <!-- 切换字体 -->
+    <button class="icon-btn" id="btn-font-toggle" type="button" aria-label="切换字体（当前：七七柔和圆体）" title="切换字体（当前：七七柔和圆体）"
+      aria-pressed="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M4 7V4h16v3" />
+        <path d="M9 20h6" />
+        <path d="M12 4v16" />
+      </svg>
+    </button>
 
     <!-- 主题切换 -->
     <button class="icon-btn" id="btn-theme" type="button" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
@@ -3563,7 +3710,7 @@
       </section>
 
       <!-- ==================== 第 2 页 · 个人简介 ==================== -->
-      <section class="page" aria-label="个人资料">
+      <section class="page page--profile" aria-label="个人资料">
         <div class="page__inner">
           <h2 class="section-title reveal">个人资料<span class="section-title__sub">PROFILE</span></h2>
 
@@ -5090,60 +5237,143 @@
     })();
   </script>
 
-  <!-- ==================== 主题切换 ==================== -->
+  <!-- ==================== 切换字体 ==================== -->
   <script>
+    /* ============================================================
+       切换字体：七七柔和圆体 ⇄ 系统字体
+       ============================================================ */
     (function () {
       'use strict';
 
+      var KEY = 'home-font';
+      var ROUND = '"Blog-WenYuan", "Blog-WenYuan-Fallback", var(--font-fallback)';
+      var SYSTEM = 'var(--font-fallback)';
+      var btn = document.getElementById('btn-font-toggle');
       var root = document.documentElement;
-      var btn = document.getElementById('btn-theme');
-      var meta = document.querySelector('meta[name="theme-color"]');
-      var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-      function isDark() {
-        return root.getAttribute('data-theme') === 'dark';
-      }
-
-      function sync() {
-        var dark = isDark();
-        if (btn) {
-          var label = dark ? '切换到浅色模式' : '切换到深色模式';
-          btn.setAttribute('aria-label', label);
-          btn.setAttribute('title', label);
-          btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-        }
-        if (meta) {
-          meta.setAttribute('content', dark ? '#12161F' : '#21a5e3');
+      function isSystem() {
+        try {
+          return localStorage.getItem(KEY) === 'system';
+        } catch (e) {
+          return false;
         }
       }
 
-      function apply(theme, persist) {
-        root.setAttribute('data-theme', theme);
-        if (persist) {
-          try { localStorage.setItem('theme', theme); } catch (e) { }
-        }
-        sync();
+      function updateUI(system) {
+        if (!btn) return;
+        var name = system ? '系统字体' : '七七柔和圆体';
+        var label = '切换字体（当前：' + name + '）';
+        btn.setAttribute('aria-pressed', system ? 'false' : 'true');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
       }
 
-      sync();
+      function apply(system) {
+        root.style.setProperty('--font-sans', system ? SYSTEM : ROUND);
+        try {
+          localStorage.setItem(KEY, system ? 'system' : 'round');
+        } catch (e) { }
+        updateUI(system);
+      }
+
+      updateUI(isSystem());
 
       if (btn) {
         btn.addEventListener('click', function () {
-          apply(isDark() ? 'light' : 'dark', true);
-        });
-      }
-
-      /* 用户没手动选过时，跟随系统偏好变化 */
-      if (mq && mq.addEventListener) {
-        mq.addEventListener('change', function (e) {
-          var saved = null;
-          try { saved = localStorage.getItem('theme'); } catch (err) { }
-          if (saved) return;
-          apply(e.matches ? 'dark' : 'light', false);
+          var toSystem = !isSystem();
+          apply(toSystem);
+          showToast(toSystem ? '已切换为系统字体' : '已切换为「七七柔和圆体」');
         });
       }
     })();
   </script>
+
+  <!-- ==================== 主题切换 ==================== -->
+  <script>
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var btn = document.getElementById('btn-theme');
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function isDark() {
+    return root.getAttribute('data-theme') === 'dark';
+  }
+
+  function sync() {
+    var dark = isDark();
+    if (btn) {
+      var label = dark ? '切换到浅色模式' : '切换到深色模式';
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+      btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    }
+    if (meta) {
+      meta.setAttribute('content', dark ? '#12161F' : '#21a5e3');
+    }
+  }
+
+  function apply(theme, persist) {
+    root.setAttribute('data-theme', theme);
+    if (persist) {
+      try { localStorage.setItem('theme', theme); } catch (e) { }
+    }
+    sync();
+  }
+
+  sync();
+
+  function prefersReducedMotion() {
+    return window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var theme = isDark() ? 'light' : 'dark';
+
+      if (prefersReducedMotion()) {
+        apply(theme, true);
+        return;
+      }
+
+      if (typeof document.startViewTransition === 'function') {
+        document.startViewTransition(function () {
+          apply(theme, true);
+        });
+      } else {
+        var overlay = document.createElement('div');
+        overlay.className = 'theme-dissolve';
+        overlay.style.background = getComputedStyle(document.body).backgroundColor;
+        document.body.appendChild(overlay);
+
+        void overlay.offsetWidth;
+
+        apply(theme, true);
+
+        requestAnimationFrame(function () {
+          overlay.style.opacity = '0';
+        });
+
+        setTimeout(function () {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 550);
+      }
+    });
+  }
+
+  if (mq && mq.addEventListener) {
+    mq.addEventListener('change', function (e) {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (err) { }
+      if (saved) return;
+      apply(e.matches ? 'dark' : 'light', false);
+    });
+  }
+})();
+</script>
 </body>
 
 </html>
