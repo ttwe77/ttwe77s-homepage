@@ -25,8 +25,13 @@
     <script id="font-init">
         (function () {
             try {
+                var DEFAULT_STACK = "'Blog-WenYuan', 'Blog-WenYuan-Fallback', var(--font-fallback)";
                 var raw = localStorage.getItem('blog-font');
-                if (!raw) return;
+                // 用户没设置过：默认使用七七柔和圆体
+                if (!raw) {
+                    document.documentElement.style.setProperty('--font-sans', DEFAULT_STACK);
+                    return;
+                }
                 var pref = JSON.parse(raw);
                 if (pref && typeof pref.stack === 'string' && pref.stack) {
                     document.documentElement.style.setProperty('--font-sans', pref.stack);
@@ -2573,7 +2578,16 @@
 
         @font-face {
             font-family: "Blog-QiuYe";
-            src: url("/src/ttf/fonts/qiuye/QiuYeYuanTi-16.woff2") format("woff2");
+            src: url("/src/ttf/fonts/pixel-round/77PixelRound-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* 七七柔和圆体主字体：全站用字子集（自动重建） */
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("/blog/fonts/77StandardRound-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2581,63 +2595,48 @@
 
         @font-face {
             font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Thin.woff2") format("woff2");
-            font-weight: 100;
+            src: url("/blog/fonts/77StandardRound-SemiBold.woff2") format("woff2");
+            font-weight: 500 600;
             font-style: normal;
             font-display: swap;
         }
 
         @font-face {
             font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Light.woff2") format("woff2");
-            font-weight: 300;
+            src: url("/blog/fonts/77StandardRound-Bold.woff2") format("woff2");
+            font-weight: 700 900;
             font-style: normal;
             font-display: swap;
         }
 
+        /* 兜底字体：通用规范汉字表 8105 字，仅主字体缺字时才会下载 */
         @font-face {
-            font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Regular.woff2") format("woff2");
+            font-family: "Blog-WenYuan-Fallback";
+            src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
         }
 
         @font-face {
-            font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Medium.woff2") format("woff2");
-            font-weight: 500;
+            font-family: "Blog-WenYuan-Fallback";
+            src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-SemiBold.woff2") format("woff2");
+            font-weight: 500 600;
             font-style: normal;
             font-display: swap;
         }
 
         @font-face {
-            font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-SemiBold.woff2") format("woff2");
-            font-weight: 600;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Bold.woff2") format("woff2");
-            font-weight: 700;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: "Blog-WenYuan";
-            src: url("/src/ttf/fonts/wenyuan/WenYuanRoundedSC-Heavy.woff2") format("woff2");
-            font-weight: 900;
+            font-family: "Blog-WenYuan-Fallback";
+            src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Bold.woff2") format("woff2");
+            font-weight: 700 900;
             font-style: normal;
             font-display: swap;
         }
 
         @font-face {
             font-family: "Blog-WenJinP0";
-            src: url("/src/ttf/fonts/wenjin/ttf/WenJinMinchoP0-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/reading-serif/77ReadingSerifP0-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2645,7 +2644,7 @@
 
         @font-face {
             font-family: "Blog-WenJinP2";
-            src: url("/src/ttf/fonts/wenjin/ttf/WenJinMinchoP2-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/reading-serif/77ReadingSerifP2-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2653,7 +2652,7 @@
 
         @font-face {
             font-family: "Blog-WenJinP3";
-            src: url("/src/ttf/fonts/wenjin/ttf/WenJinMinchoP3-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/reading-serif/77ReadingSerifP3-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2661,7 +2660,7 @@
 
         @font-face {
             font-family: "Blog-Cheese";
-            src: url("/src/ttf/fonts/cheese/CheeseFoamOolongSong-Bold.woff2") format("woff2");
+            src: url("/src/ttf/fonts/milktea-serif/77MilkteaSerif-Bold.woff2") format("woff2");
             font-weight: 700;
             font-style: normal;
             font-display: swap;
@@ -2669,7 +2668,7 @@
 
         @font-face {
             font-family: "Blog-CheeseLite";
-            src: url("/src/ttf/fonts/cheese/CheeseFoamOolongSongLite-Bold.woff2") format("woff2");
+            src: url("/src/ttf/fonts/milktea-serif/77MilkteaSerifLight-Bold.woff2") format("woff2");
             font-weight: 700;
             font-style: normal;
             font-display: swap;
@@ -2677,7 +2676,7 @@
 
         @font-face {
             font-family: "Blog-Smiley";
-            src: url("/src/ttf/fonts/smiley/SmileySans-Oblique.woff2") format("woff2");
+            src: url("/src/ttf/fonts/oblique-sans/77ObliqueSans-Oblique.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2685,7 +2684,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-ExtraLight.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-ExtraLight.woff2") format("woff2");
             font-weight: 250;
             font-style: normal;
             font-display: swap;
@@ -2693,7 +2692,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Light.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-Light.woff2") format("woff2");
             font-weight: 300;
             font-style: normal;
             font-display: swap;
@@ -2701,7 +2700,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Normal.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-Normal.woff2") format("woff2");
             font-weight: 350;
             font-style: normal;
             font-display: swap;
@@ -2709,7 +2708,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2717,7 +2716,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Medium.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-Medium.woff2") format("woff2");
             font-weight: 500;
             font-style: normal;
             font-display: swap;
@@ -2725,7 +2724,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Bold.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-Bold.woff2") format("woff2");
             font-weight: 700;
             font-style: normal;
             font-display: swap;
@@ -2733,7 +2732,7 @@
 
         @font-face {
             font-family: "Blog-SourceHan";
-            src: url("/src/ttf/fonts/sourcehan/OTF/SimplifiedChinese/SourceHanSansSC-Heavy.woff2") format("woff2");
+            src: url("/src/ttf/fonts/modern-sans/OTF/SimplifiedChinese/77ModernSans-Heavy.woff2") format("woff2");
             font-weight: 900;
             font-style: normal;
             font-display: swap;
@@ -2741,7 +2740,7 @@
 
         @font-face {
             font-family: "Blog-CEF";
-            src: url("/src/ttf/fonts/cef/CEFFontsCJK-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/homework-hand/77HomeworkHand-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2749,7 +2748,7 @@
 
         @font-face {
             font-family: "Blog-CEFMono";
-            src: url("/src/ttf/fonts/cef/CEFFontsCJKMono-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/code-mono/77CodeMono-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2757,7 +2756,7 @@
 
         @font-face {
             font-family: "Blog-XieYi";
-            src: url("/src/ttf/fonts/xieyi/YShiWritten-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/artistic-hand/77ArtisticHand-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -2765,7 +2764,7 @@
 
         @font-face {
             font-family: "Blog-XieYiSC";
-            src: url("/src/ttf/fonts/xieyi/YShiWrittenSC-Regular.woff2") format("woff2");
+            src: url("/src/ttf/fonts/artistic-hand/77ArtisticHandSC-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -3286,10 +3285,12 @@
             .font-modal__actions {
                 margin-left: 0;
                 width: 100%;
+                flex-wrap: wrap;
             }
 
             .font-modal__actions .font-btn {
-                flex: 1;
+                flex: 1 1 auto;
+                white-space: nowrap;
             }
         }
 
@@ -3633,124 +3634,124 @@
                     </p>
 
                     <div class="font-list">
-                        <div class="font-item" data-font-key="qiuye" data-font-name="秋叶圆体"
+                        <div class="font-item" data-font-key="qiuye" data-font-name="七七像素圆体"
                             data-font-stack="'Blog-QiuYe', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">秋叶圆体</span>
-                                <span class="font-item__meta">圆体 · 单字重</span>
+                                <span class="font-item__name">七七像素圆体</span>
+                                <span class="font-item__meta">圆体-像素 · 单字重</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="qiuye"
-                                aria-label="查看秋叶圆体的字体许可">OFL 1.1</button>
+                                aria-label="查看七七像素圆体的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="wenyuan" data-font-name="文渊圆体"
-                            data-font-stack="'Blog-WenYuan', var(--font-fallback)">
+                        <div class="font-item" data-font-key="wenyuan" data-font-name="七七柔和圆体"
+                            data-font-stack="'Blog-WenYuan', 'Blog-WenYuan-Fallback', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">文渊圆体</span>
-                                <span class="font-item__meta">圆体 · 7 个字重</span>
+                                <span class="font-item__name">七七柔和圆体</span>
+                                <span class="font-item__meta">圆体 · 3 个字重</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="wenyuan"
-                                aria-label="查看文渊圆体的字体许可">OFL 1.1</button>
+                                aria-label="查看七七柔和圆体的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="wenjin" data-font-name="文津宋体"
+                        <div class="font-item" data-font-key="wenjin" data-font-name="七七优雅宋体"
                             data-font-stack="'Blog-WenJinP0', 'Blog-WenJinP2', 'Blog-WenJinP3', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">文津宋体</span>
+                                <span class="font-item__name">七七优雅宋体</span>
                                 <span class="font-item__meta">宋体 · 3 个字符平面</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="wenjin"
-                                aria-label="查看文津宋体的字体许可">OFL 1.1</button>
+                                aria-label="查看七七优雅宋体的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="cheese" data-font-name="芝士奶盖乌龙宋"
+                        <div class="font-item" data-font-key="cheese" data-font-name="七七奶盖宋体"
                             data-font-stack="'Blog-Cheese', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">芝士奶盖乌龙宋</span>
+                                <span class="font-item__name">七七奶盖宋体</span>
                                 <span class="font-item__meta">宋体 · 粗体</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="cheese"
-                                aria-label="查看芝士奶盖乌龙宋的字体许可">OFL 1.1</button>
+                                aria-label="查看七七奶盖宋体的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="cheese-lite" data-font-name="芝士奶盖乌龙宋 轻便版"
+                        <div class="font-item" data-font-key="cheese-lite" data-font-name="七七奶盖宋体 轻便版"
                             data-font-stack="'Blog-CheeseLite', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">芝士奶盖乌龙宋 轻便版</span>
+                                <span class="font-item__name">七七奶盖宋体 轻便版</span>
                                 <span class="font-item__meta">宋体 · 粗体 · 精简字符集</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="cheese"
-                                aria-label="查看芝士奶盖乌龙宋轻便版的字体许可">OFL 1.1</button>
+                                aria-label="查看七七奶盖宋体轻便版的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="smiley" data-font-name="得意黑"
+                        <div class="font-item" data-font-key="smiley" data-font-name="七七倾斜黑体"
                             data-font-stack="'Blog-Smiley', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">得意黑</span>
+                                <span class="font-item__name">七七倾斜黑体</span>
                                 <span class="font-item__meta">黑体 · 斜体</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="smiley"
-                                aria-label="查看得意黑的字体许可">OFL 1.1</button>
+                                aria-label="查看七七倾斜黑体的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="sourcehan" data-font-name="思源黑体 SC"
+                        <div class="font-item" data-font-key="sourcehan" data-font-name="七七现代黑体"
                             data-font-stack="'Blog-SourceHan', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">思源黑体 SC</span>
+                                <span class="font-item__name">七七现代黑体</span>
                                 <span class="font-item__meta">黑体 · 7 个字重</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="sourcehan"
-                                aria-label="查看思源黑体的字体许可">OFL 1.1</button>
+                                aria-label="查看七七现代黑体的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="cef" data-font-name="快去写作业"
+                        <div class="font-item" data-font-key="cef" data-font-name="七七随性手写"
                             data-font-stack="'Blog-CEF', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">快去写作业</span>
+                                <span class="font-item__name">七七随性手写</span>
                                 <span class="font-item__meta">手写 · 单字重</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="cef"
-                                aria-label="查看快去写作业的字体许可">OFL 1.1</button>
+                                aria-label="查看七七随性手写的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="cef-mono" data-font-name="快去写代码"
+                        <div class="font-item" data-font-key="cef-mono" data-font-name="七七随性手写 代码版"
                             data-font-stack="'Blog-CEFMono', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">快去写代码</span>
+                                <span class="font-item__name">七七随性手写 代码版</span>
                                 <span class="font-item__meta">手写 · 等宽</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="cef"
-                                aria-label="查看快去写代码的字体许可">OFL 1.1</button>
+                                aria-label="查看七七随性手写 代码版的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="xieyi" data-font-name="写意体"
+                        <div class="font-item" data-font-key="xieyi" data-font-name="七七艺术手写"
                             data-font-stack="'Blog-XieYi', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">写意体</span>
+                                <span class="font-item__name">七七艺术手写</span>
                                 <span class="font-item__meta">手写 · 单字重</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="xieyi"
-                                aria-label="查看写意体的字体许可">OFL 1.1</button>
+                                aria-label="查看七七艺术手写的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
 
-                        <div class="font-item" data-font-key="xieyi-sc" data-font-name="写意体 SC"
+                        <div class="font-item" data-font-key="xieyi-sc" data-font-name="七七艺术手写 SC"
                             data-font-stack="'Blog-XieYiSC', var(--font-fallback)">
                             <button class="font-item__pick" type="button" data-pick>
-                                <span class="font-item__name">写意体 SC</span>
+                                <span class="font-item__name">七七艺术手写 SC</span>
                                 <span class="font-item__meta">手写 · 简体</span>
                             </button>
                             <button class="font-item__lic" type="button" data-lic="xieyi"
-                                aria-label="查看写意体 SC 的字体许可">OFL 1.1</button>
+                                aria-label="查看七七艺术手写 SC 的字体许可">OFL 1.1</button>
                             <span class="font-item__check" aria-hidden="true">✓</span>
                         </div>
                     </div>
@@ -3766,6 +3767,17 @@
                     <p class="font-group__desc">
                         通过浏览器原生接口读取本机字体，或手动输入已安装的字体名称。系统字体由本机提供，不占用站点流量。
                     </p>
+
+                    <div class="font-list">
+                        <div class="font-item" data-font-key="system-default" data-font-name="系统默认字体"
+                            data-font-stack="">
+                            <button class="font-item__pick" type="button" data-pick>
+                                <span class="font-item__name">系统默认字体</span>
+                                <span class="font-item__meta">换回系统 / 浏览器默认字体</span>
+                            </button>
+                            <span class="font-item__check" aria-hidden="true">✓</span>
+                        </div>
+                    </div>
 
                     <div class="font-sys__bar">
                         <button class="font-btn font-btn--primary" type="button" id="font-sys-scan">调用系统字体列表</button>
@@ -3785,7 +3797,7 @@
                         <option value="等线 Light"></option>
                         <option value="华文中宋"></option>
                         <option value="华文楷体"></option>
-                        <option value="思源黑体"></option>
+                        <option value="七七现代黑体"></option>
                         <option value="Segoe UI"></option>
                         <option value="Arial"></option>
                         <option value="Georgia"></option>
@@ -3805,6 +3817,7 @@
             <div class="font-modal__foot">
                 <span class="font-modal__tip">字体偏好保存在本机浏览器中</span>
                 <div class="font-modal__actions">
+                    <button class="font-btn" type="button" id="font-system-default">换回系统默认字体</button>
                     <button class="font-btn" type="button" id="font-reset">恢复默认</button>
                     <button class="font-btn font-btn--primary" type="button" data-font-close>完成</button>
                 </div>
@@ -4483,6 +4496,13 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
             'use strict';
 
             var STORAGE_KEY = 'blog-font';
+            /* 用户没选过字体时的默认值：七七柔和圆体 */
+            var DEFAULT_PREF = {
+                kind: 'custom',
+                key: 'wenyuan',
+                name: '七七柔和圆体',
+                stack: "'Blog-WenYuan', 'Blog-WenYuan-Fallback', var(--font-fallback)"
+            };
             var modal = document.getElementById('font-modal');
             var openBtn = document.getElementById('btn-font');
             if (!modal || !openBtn) return;
@@ -4509,14 +4529,14 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
 
             /* 与压缩包内附带的许可证文件一一对应 */
             var LICENSES = {
-                qiuye: { name: '秋叶圆体', url: '/src/ttf/fonts/qiuye/OFL.txt' },
-                wenyuan: { name: '文渊圆体', url: '/src/ttf/fonts/wenyuan/LICENSE.md' },
-                wenjin: { name: '文津宋体', url: '/src/ttf/fonts/wenjin/LICENSE-zh.md' },
-                cheese: { name: '芝士奶盖乌龙宋', url: '/src/ttf/fonts/cheese/OFL.txt' },
-                smiley: { name: '得意黑', url: '/src/ttf/fonts/smiley/LICENSE.txt' },
-                sourcehan: { name: '思源黑体', url: '/src/ttf/fonts/sourcehan/LICENSE.txt' },
-                cef: { name: '快去写作业', url: '/src/ttf/fonts/cef/LICENSE.txt' },
-                xieyi: { name: '写意体', url: '/src/ttf/fonts/xieyi/OFL.txt' }
+                qiuye: { name: '七七像素圆体', url: '/src/ttf/fonts/pixel-round/OFL.txt' },
+                wenyuan: { name: '七七柔和圆体', url: '/src/ttf/fonts/standard-round/LICENSE.md' },
+                wenjin: { name: '七七优雅宋体', url: '/src/ttf/fonts/reading-serif/LICENSE-zh.md' },
+                cheese: { name: '七七奶盖宋体', url: '/src/ttf/fonts/milktea-serif/OFL.txt' },
+                smiley: { name: '七七倾斜黑体', url: '/src/ttf/fonts/oblique-sans/LICENSE.txt' },
+                sourcehan: { name: '七七现代黑体', url: '/src/ttf/fonts/modern-sans/LICENSE.txt' },
+                cef: { name: '七七随性手写', url: '/src/ttf/fonts/homework-hand/LICENSE.txt' },
+                xieyi: { name: '七七艺术手写', url: '/src/ttf/fonts/artistic-hand/OFL.txt' }
             };
 
             function readPref() {
@@ -4578,7 +4598,7 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
                 markActive(key, null);
                 setButtonLabel(name);
                 setPreview(stack, name);
-                showToast('已切换为「' + name + '」');
+                showToast(stack ? '已切换为「' + name + '」' : '已换回系统默认字体');
             }
 
             function selectSystem(name) {
@@ -4604,6 +4624,8 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
                 if (currentPref && currentPref.stack) {
                     setPreview(currentPref.stack,
                         currentPref.kind === 'system' ? currentPref.name + '（系统）' : currentPref.name);
+                } else if (currentPref && currentPref.name) {
+                    setPreview('', currentPref.name);
                 } else {
                     setPreview('', '默认字体');
                 }
@@ -4771,18 +4793,28 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
 
             applyBtn.addEventListener('click', applyInput);
 
+            /* 换回系统默认字体：复用弹窗内已有的“系统默认字体”选项 */
+            var sysDefaultBtn = document.getElementById('font-system-default');
+            var sysDefaultItem = modal.querySelector('.font-item[data-font-key="system-default"]');
+
+            if (sysDefaultBtn && sysDefaultItem) {
+                sysDefaultBtn.addEventListener('click', function () {
+                    selectCustom(sysDefaultItem);
+                });
+            }
+
             resetBtn.addEventListener('click', function () {
-                currentPref = null;
-                applyStack('');
+                currentPref = DEFAULT_PREF;
+                applyStack(DEFAULT_PREF.stack);
                 try {
                     localStorage.removeItem(STORAGE_KEY);
                 } catch (e) { }
 
-                markActive(null, null);
-                setButtonLabel('');
+                markActive(DEFAULT_PREF.key, null);
+                setButtonLabel(DEFAULT_PREF.name);
                 sysInput.value = '';
-                setPreview('', '默认字体');
-                showToast('已恢复默认字体');
+                setPreview(DEFAULT_PREF.stack, DEFAULT_PREF.name);
+                showToast('已恢复默认字体「' + DEFAULT_PREF.name + '」');
             });
 
             licBack.addEventListener('click', hideLicense);
@@ -4797,9 +4829,10 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
                 sysInput.value = currentPref.name;
                 setButtonLabel(currentPref.name + '（系统）');
             } else {
-                currentPref = null;
-                markActive(null, null);
-                setButtonLabel('');
+                /* 未设置过：默认高亮七七柔和圆体 */
+                currentPref = DEFAULT_PREF;
+                markActive(DEFAULT_PREF.key, null);
+                setButtonLabel(DEFAULT_PREF.name);
             }
         })();
 </script>

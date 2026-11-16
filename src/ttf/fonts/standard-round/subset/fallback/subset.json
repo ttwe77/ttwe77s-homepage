@@ -1,0 +1,15 @@
+{
+  "charset_sha1": "173058c3286a6f69876497fa4ac8c4552cf339bf",
+  "chars": 8202,
+  "files": {
+    "Regular": "77StandardRound-Regular.woff2",
+    "SemiBold": "77StandardRound-SemiBold.woff2",
+    "Bold": "77StandardRound-Bold.woff2"
+  },
+  "weights": {
+    "Regular": "400",
+    "SemiBold": "500 600",
+    "Bold": "700 900"
+  },
+  "generated": "2026-11-16 23:38:40"
+}

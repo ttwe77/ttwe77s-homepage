@@ -4,31 +4,21 @@
 genrss.py —— 依据 blog/index.ini + MD front-matter 生成 RSS 2.0 订阅文件
 
 用法:
-    python genrss.py                          # 交互式输入项目目录
-    python genrss.py ttwe77s-homepage         # 项目根目录（自动找 blog/index.ini）
-    python genrss.py /path/to/project         # 绝对路径
-    python genrss.py ttwe77s-homepage -o ../rss.xml
+    python genrss.py                    # 自动推断项目根，生成预览后交互确认是否覆盖 rss.xml
+    python genrss.py -o ./tmp.xml       # 自定义预览产物路径（确认后同样移动覆盖）
 
-输出:
-    rss.xml —— 默认生成在【脚本所在目录】，可用 -o 覆盖
+产物:
+    1. 先写 tools/rss/rss.xml（脚本同目录），供人工核对
+    2. 终端输入 y 后，将其移动并覆盖 <project>/rss.xml
+       输入其它任意内容 / Ctrl-C / EOF → 取消，保留预览产物
 
-强制规则（缺一律报错退出）:
-    · 每篇文章必须在 <project>/tools/genblog/docs/ 下有同名 .md
-    · MD 的 YAML front-matter 必须含 date 与 updated
-    · MD 的 date 只有年月日 → 补成当天 11:45:14 +08:00
-    · item <pubDate>   ← MD date
-    · item <atom:updated> ← MD updated（RFC 3339 / isoformat）
-    · channel <pubDate>   ← 所有 item pubDate 的最大值
-    · channel <lastBuildDate> ← 所有 item atom:updated 的最大值
-
-MD front-matter 读取字段:
-    title / description / date / category / tags / author / updated
-    （readtime 已废弃，不再输出 <reading:minutes>）
-
-频道级元数据 → 本文件顶部常量。
+路径推断:
+    脚本位于 <project>/tools/rss/genrss.py，向上两级即项目根，
+    与 tools/genblog/subset_fonts.py 的 parents[2] 逻辑一致，与 CWD 无关。
 """
 
 import os
+import shutil
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -70,6 +60,7 @@ DOCS_SUBDIR = 'tools/genblog/docs'
 #  其它常量
 # ════════════════════════════════════════════════════════════
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 INDEX_NAME = 'index.ini'
 MAX_ITEMS  = 0            # 0 表示不限制条数
 DEFAULT_TIME_OF_DAY = (11, 45, 14)   # 纯日期补全的时分秒
@@ -410,53 +401,12 @@ def build_xml(items):
     lines += ['  </channel>', '</rss>', '']
     return '\n'.join(lines)
 
-
-# ════════════════════════════════════════════════════════════
-#  路径解析
-# ════════════════════════════════════════════════════════════
-def _find_docs(project_dir):
-    cand = os.path.join(project_dir, *DOCS_SUBDIR.split('/'))
-    return cand
-
-
-def resolve_paths(user_input):
-    """返回 (project_dir, blog_dir, docs_dir)；失败 None, None, None"""
-    p = os.path.expanduser(str(user_input).strip().strip('"').strip("'"))
-    if not p:
-        return None, None, None
-
-    if os.path.isfile(p) and p.lower().endswith(INDEX_NAME):
-        blog_dir = os.path.dirname(os.path.abspath(p))
-        project_dir = os.path.dirname(blog_dir)
-        return project_dir, blog_dir, _find_docs(project_dir)
-
-    p = os.path.abspath(p)
-    if not os.path.isdir(p):
-        alt = os.path.join(SCRIPT_DIR, p)
-        if os.path.isdir(alt):
-            p = alt
-        else:
-            return None, None, None
-
-    # A：项目根目录
-    if os.path.isfile(os.path.join(p, BLOG_SUBDIR, INDEX_NAME)):
-        return p, os.path.join(p, BLOG_SUBDIR), _find_docs(p)
-
-    # B：直接给 blog 目录
-    if os.path.isfile(os.path.join(p, INDEX_NAME)):
-        project_dir = os.path.dirname(p)
-        return project_dir, p, _find_docs(project_dir)
-
-    return None, None, None
-
-
 # ════════════════════════════════════════════════════════════
 #  主流程
 # ════════════════════════════════════════════════════════════
 def main():
     argv = sys.argv[1:]
-    user_input = None
-    out_path = os.path.join(SCRIPT_DIR, 'rss.xml')
+    out_path = os.path.join(SCRIPT_DIR, 'rss.xml')   # 预览产物默认在 tools/rss/
 
     i = 0
     while i < len(argv):
@@ -468,24 +418,17 @@ def main():
             out_path = os.path.abspath(os.path.expanduser(argv[i + 1]))
             i += 2
             continue
-        if user_input is None:
-            user_input = a
+        print(f'[提示] 已忽略参数: {a}（项目路径由脚本位置自动推断）',
+              file=sys.stderr)
         i += 1
 
-    if not user_input:
-        try:
-            user_input = input('请输入项目目录（包含 blog/index.ini）: ')
-        except (EOFError, KeyboardInterrupt):
-            print('\n已取消。')
-            return 1
-
-    project_dir, blog_dir, docs_dir = resolve_paths(user_input)
-    if not blog_dir:
-        fail(f'找不到项目目录或 blog/index.ini: {user_input}')
+    # 路径全部由 ROOT 派生，与 CWD 无关（同 subset_fonts.py 的 parents[2]）
+    project_dir = ROOT
+    blog_dir    = os.path.join(project_dir, BLOG_SUBDIR)
+    docs_dir    = os.path.join(project_dir, DOCS_SUBDIR)
 
     if not os.path.isfile(os.path.join(blog_dir, INDEX_NAME)):
         fail(f'缺少 {INDEX_NAME}: {os.path.join(blog_dir, INDEX_NAME)}')
-
     if not os.path.isdir(docs_dir):
         fail(f'docs 目录不存在: {docs_dir}')
 
@@ -494,15 +437,13 @@ def main():
     print(f'[*] docs 目录: {docs_dir}')
 
     items = collect_items(blog_dir, docs_dir)
-
-    # 按 pubDate 倒序
     items.sort(key=lambda it: it['_pub_dt'], reverse=True)
-
     if MAX_ITEMS and len(items) > MAX_ITEMS:
         items = items[:MAX_ITEMS]
 
     xml = build_xml(items)
 
+    # 第一步：先写预览产物，供人工核对
     try:
         with open(out_path, 'w', encoding='utf-8', newline='\n') as f:
             f.write(xml)
@@ -510,7 +451,33 @@ def main():
         fail(f'写入失败: {e}')
 
     print(f'[√] 已生成 {len(items)} 条文章')
-    print(f'[√] 输出文件: {out_path}')
+    print(f'[√] 预览产物: {out_path}')
+
+    # 第二步：交互确认后再移动覆盖项目根 rss.xml
+    target = os.path.join(project_dir, FEED_PATH)
+    if os.path.abspath(out_path) == os.path.abspath(target):
+        print(f'[提示] 预览产物即目标文件，无需移动。')
+        return 0
+
+    try:
+        ans = input(f'\n确认无误，用预览产物覆盖 {target} 吗？[y/N] ').strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print('\n未确认，已保留预览产物。')
+        return 0
+
+    if ans not in ('y', 'yes'):
+        print(f'已取消发布，预览产物保留在: {out_path}')
+        return 0
+
+    try:
+        os.replace(out_path, target)          # 同盘原子覆盖移动
+    except OSError:
+        try:
+            shutil.move(out_path, target)     # 跨盘回退
+        except OSError as e:
+            fail(f'移动到 {target} 失败: {e}')
+
+    print(f'[√] 已发布（覆盖）: {target}')
     return 0
 
 

@@ -1,0 +1,7 @@
+Contact: mailto:ttwe77@yeah.net
+Contact: mailto:ttwe77@outlook.com
+Expires: 2029-12-31T23:59:59.000Z
+Encryption: https://www.ttwe77.cn/src/ttwe77_public.asc
+Acknowledgments: https://www.ttwe77.cn/links.html
+Preferred-Languages: zh, en
+Canonical: https://www.ttwe77.cn/.well-known/security.txt
