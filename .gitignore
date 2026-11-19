@@ -9,3 +9,10 @@ status/data/device-01.json
 tools/genblog/parts/*
 tools/rss/rss.xml
 tools/genblog/__pycache__/*
+tools/app/ds-chat/*
+tools/app/ds-chat-project/*
+src/ttf/**/backup/
+.workbuddy/
+src/ttf/fonts/subset_all_state.json
+tools/app/ds-chat-project.7z
+_font-weights-backup-20261119.7z
