@@ -40,15 +40,15 @@
         })();
     </script>
 
-    <title>Markdown 全样式示例文档 · 七七的折腾笔记</title>
+    <title>云上搭 L2TP/IPsec 实录 · 七七的折腾笔记</title>
     <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
-    <meta name="description" content="这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。">
+    <meta name="description" content="在云服务器上用 SoftEther 搭 L2TP/IPsec 的全过程：strongSwan 翻车、源码编译、vpncmd 配置、Windows 事件、PPP 认证失败，以及连上就断网。">
 
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="七七的折腾笔记">
-    <meta property="og:title" content="Markdown 全样式示例文档">
-    <meta property="og:description" content="这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。">
+    <meta property="og:title" content="云上搭 L2TP/IPsec 实录">
+    <meta property="og:description" content="在云服务器上用 SoftEther 搭 L2TP/IPsec 的全过程：strongSwan 翻车、源码编译、vpncmd 配置、Windows 事件、PPP 认证失败，以及连上就断网。">
     <meta property="og:locale" content="zh_CN">
 <style>
 /* ============ 设计令牌 ============ */
@@ -3315,7 +3315,7 @@
             <source srcset="/src/bloglogo.avif" type="image/avif">
             <img src="/src/bloglogo.avif" alt="Blog logo">
         </picture>
-        <div class="topbar__title">Markdown 全样式示例文档</div>
+        <div class="topbar__title">云上搭 L2TP/IPsec 实录</div>
 
         <div class="topbar__spacer"></div>
 
@@ -3373,380 +3373,43 @@
             <article>
 
             <header class="article-head">
-                                    <h1 class="article-head__title">Markdown 全样式示例文档</h1>
+                                    <h1 class="article-head__title">云上搭 L2TP/IPsec 实录</h1>
 
                                     <p class="article-head__desc">
-                                        这是一个 Markdown 全样式示例文档，展示了 Markdown 语法的所有功能。
+                                        在云服务器上用 SoftEther 搭 L2TP/IPsec 的全过程：strongSwan 翻车、源码编译、vpncmd 配置、Windows 事件、PPP 认证失败，以及连上就断网。
                                     </p>
 
                                     <div class="article-head__meta">
-                    <span>2026-10-05</span>
-                    <span>前端</span>
-                    <span>约 4 分钟</span>
+                    <span>2026-11-19 21:50:44</span>
+                    <span>运维</span>
+                    <span>约 6 分钟</span>
                     <span>ttwe77</span>
                 </div>
 
                                     <div class="article-head__tags">
-                    <span class="chip">MarkDown</span>
-                    <span class="chip">示例</span>
-                    <span class="chip">语法</span>
+                    <span class="chip">SoftEther</span>
+                    <span class="chip">L2TP</span>
+                    <span class="chip">阿里云</span>
+                    <span class="chip">Windows</span>
                 </div>
                                 </header>
 
             <div class="card article-body" id="article-body">
 
-            <p>&lt;!-- 这是一段 Markdown 注释，不会显示 --&gt;</p>
-
-            <h1 id="markdown-全样式示例文档">Markdown 全样式示例文档</h1>
-
-            <div class="callout callout--caution">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> CAUTION</div>
-                <div class="callout__body">
-            <p>这篇文章的目的是<strong>作为一份 Markdown 全样式示例文档</strong>，用来演示 我做的Python渲染器 所支持的语法和各种功能。</p>
-                </div>
-            </div>
-
-            <p>Markdown原文我放在<a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/docs/MDTest.md" target="_blank" rel="noopener noreferrer">Gitee</a>和<a href="https://github.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/docs/MDTest.md" target="_blank" rel="noopener noreferrer">Github</a>上了，渲染脚本在<a href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/md2page.py" target="_blank" rel="noopener noreferrer">Gitee</a>和<a href="https://github.com/ttwe77/ttwe77s-homepage/blob/main/tools/genblog/md2page.py" target="_blank" rel="noopener noreferrer">Github</a>，需要的自取。</p>
-
-            <p>若你在这个页面发现渲染问题，请前往<a href="https://gitee.com/ttwe77/ttwe77s-homepage/issues" target="_blank" rel="noopener noreferrer">Issues</a>页面提交反馈。</p>
-
-            <blockquote>
-            <p>说明：Markdown 有多种方言，本文覆盖 CommonMark、GFM 以及常见扩展。不同渲染器支持程度不同。</p>
-            </blockquote>
-
-            <h2 id="目录">目录</h2>
-
-            <ul>
-            <li><a href="#1-标题">1. 标题</a></li>
-            <li><a href="#2-段落与换行">2. 段落与换行</a></li>
-            <li><a href="#3-强调与文本样式">3. 强调与文本样式</a></li>
-            <li><a href="#4-引用">4. 引用</a></li>
-            <li><a href="#5-列表">5. 列表</a></li>
-            <li><a href="#6-代码">6. 代码</a></li>
-            <li><a href="#7-链接">7. 链接</a></li>
-            <li><a href="#8-图片">8. 图片</a></li>
-            <li><a href="#9-表格">9. 表格</a></li>
-            <li><a href="#10-分隔线">10. 分隔线</a></li>
-            <li><a href="#11-html">11. HTML</a></li>
-            <li><a href="#12-转义字符">12. 转义字符</a></li>
-            <li><a href="#13-脚注">13. 脚注</a></li>
-            <li><a href="#14-数学公式">14. 数学公式</a></li>
-            <li><a href="#15-图表-mermaid">15. 图表 Mermaid</a></li>
-            <li><a href="#16-徽章与表情">16. 徽章与表情</a></li>
-            <li><a href="#17-提示与折叠">17. 提示与折叠</a></li>
-            <li><a href="#18-媒体与嵌入">18. 媒体与嵌入</a></li>
-            <li><a href="#19-其他扩展">19. 其他扩展</a></li>
-            </ul>
-
-            <p>部分渲染器支持自动目录：</p>
-
-            <p>[TOC]</p>
-
-            <hr>
-
-            <h2 id="1-标题">1. 标题</h2>
-
-            <h1 id="h1-一级标题">H1 一级标题</h1>
-
-            <h2 id="h2-二级标题">H2 二级标题</h2>
-
-            <h3 id="h3-三级标题">H3 三级标题</h3>
-
-            <h4 id="h4-四级标题">H4 四级标题</h4>
-
-            <h5 id="h5-五级标题">H5 五级标题</h5>
-
-            <h6 id="h6-六级标题">H6 六级标题</h6>
-
-            <h1 id="一级标题-setext">一级标题 Setext</h1>
-
-            <h2 id="二级标题-setext">二级标题 Setext</h2>
-
-            <h2 id="2-段落与换行">2. 段落与换行</h2>
-
-            <p>这是第一个段落。Markdown 中用一个空行分隔段落。</p>
-
-            <p>这是第二个段落。这一行与上一行属于同一段落，通常渲染为同一段。</p>
-
-            <p>这一行末尾有两个空格，<br>
-            所以这里会强制换行。</p>
-
-            <p>这一行末尾使用反斜杠，\<br>
-            也会强制换行。</p>
-
-            <p>也可以使用 HTML：第一行<br>第二行。</p>
-
-            <h2 id="3-强调与文本样式">3. 强调与文本样式</h2>
-
-            <p><em>斜体</em> 或 <em>斜体</em><br>
-            <strong>粗体</strong> 或 <strong>粗体</strong><br>
-            <strong><em>粗斜体</em></strong> 或 <strong><em>粗斜体</em></strong><br>
-            <del>删除线</del><br>
-            <u>下划线</u><br>
-            <ins>插入下划线</ins><br>
-            <del>删除线 HTML</del><br>
-            <mark>高亮</mark><br>
-            <mark>高亮（部分扩展）</mark><br>
-            H<sub>2</sub>O 下标（部分扩展）<br>
-            X<sup>2</sup> 上标（部分扩展）<br>
-            <sub>下标</sub> 和 <sup>上标</sup><br>
-            <small>小号文字</small><br>
-            <abbr title="HyperText Markup Language">HTML</abbr><br>
-            <cite>引用作品名</cite><br>
-            <kbd>Ctrl</kbd> + <kbd>C</kbd><br>
-            😄 🚀 👍 （emoji 扩展）<br>
-            &copy; &amp; &lt; &gt; &nbsp;</p>
-
-            <h3 id="专有样式">专有样式</h3>
-
-            <p><span class="hover-hint">提示文本<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span></p>
-
-            <p><strong><span class="hover-hint">粗体提示文本<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span></strong></p>
-
-            <p><a href="https://example.com" target="_blank" rel="noopener noreferrer"><span class="hover-hint">带链接的提示文本<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span></a></p>
-
-            <p><span class="hover-hint"><a href="https://example.com" target="_blank" rel="noopener noreferrer">包裹在提示文本中的链接</a><span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span></p>
-
-            <p><a href="https://example.com" target="_blank" rel="noopener noreferrer">普通链接</a></p>
-
-            <h4 id="悬停提示hover-hint测试文档">悬停提示（Hover Hint）测试文档</h4>
-
-            <p>以下内容用于测试 <code>&lt;span class="hover-hint"&gt;</code> 在各类 Markdown 场景下的渲染表现，包括行内、列表、表格、引用、标题、链接等。</p>
-
-            <hr>
-
-            <h5 id="1-行内基础用法">1. 行内基础用法</h5>
-
-            <p>这是一段普通文本，中间夹着一个 <span class="hover-hint">悬停查看提示<span class="hover-hint__tooltip"><span class="hint-title">基础提示</span>这是一个最基础的悬停提示，鼠标移上去就会显示。</span></span>，后面继续普通文本。</p>
-
-            <p>再来一个<span class="hover-hint">没有标题的提示<span class="hover-hint__tooltip">这个提示没有 <code>hint-title</code>，只显示正文内容。</span></span>作为对比。</p>
-
-            <p>也可以连续出现多个：<span class="hover-hint">第一处<span class="hover-hint__tooltip"><span class="hint-title">提示 A</span>内容 A</span></span>、<span class="hover-hint">第二处<span class="hover-hint__tooltip"><span class="hint-title">提示 B</span>内容 B</span></span>、<span class="hover-hint">第三处<span class="hover-hint__tooltip">内容 C（无标题）</span></span>。</p>
-
-            <hr>
-
-            <h5 id="2-多行与长文本提示">2. 多行与长文本提示</h5>
-
-            <p><span class="hover-hint">多行提示示例<span class="hover-hint__tooltip"><span class="hint-title">多行内容</span>第一行内容。<br>第二行内容。<br>第三行内容，用于测试换行和最大宽度表现。</span></span></p>
-
-            <p><span class="hover-hint">长文本提示<span class="hover-hint__tooltip"><span class="hint-title">很长的提示标题可能会换行或截断</span>这是一段相对较长的提示内容，用来测试 tooltip 的最大宽度、自动换行、以及靠近视口边缘时的定位行为。建议在窄屏和宽屏下都测试一遍。</span></span></p>
-
-            <hr>
-
-            <h4 id="3-标题中的提示">3. 标题中的提示</h4>
-
-            <h5 id="31-普通标题-span-classhover-hint带提示span-classhover-hinttooltipspan-classhint-title标题提示span标题里也可以嵌入悬停提示spanspan">3.1 普通标题 <span class="hover-hint">（带提示）<span class="hover-hint__tooltip"><span class="hint-title">标题提示</span>标题里也可以嵌入悬停提示。</span></span></h5>
-
-            <h6 id="311-六级标题-span-classhover-hintspan-classhover-hinttooltip图标式提示常见于标题右侧spanspan">3.1.1 六级标题 <span class="hover-hint">ⓘ<span class="hover-hint__tooltip">图标式提示，常见于标题右侧。</span></span></h6>
-
-            <hr>
-
-            <h4 id="4-列表中的提示">4. 列表中的提示</h4>
-
-            <ul>
-            <li>无序列表项一：<span class="hover-hint">说明<span class="hover-hint__tooltip"><span class="hint-title">列表提示</span>列表项中的提示应正常弹出。</span></span></li>
-            <li>无序列表项二：普通文本</li>
-            <li>无序列表项三：<span class="hover-hint">嵌套列表测试<span class="hover-hint__tooltip">包含子列表的父项提示。</span></span>
-            <ul>
-            <li>子项 A：<span class="hover-hint">子提示 A<span class="hover-hint__tooltip"><span class="hint-title">子级</span>嵌套层级的提示。</span></span></li>
-            <li>子项 B：普通文本</li>
-            </ul></li>
-            </ul>
-
-            <ol>
-            <li>有序列表第一项 <span class="hover-hint">①<span class="hover-hint__tooltip">数字编号项中的提示。</span></span></li>
-            <li>有序列表第二项</li>
-            <li>有序列表第三项 <span class="hover-hint">③<span class="hover-hint__tooltip"><span class="hint-title">第三项</span>有序列表中的提示内容。</span></span></li>
-            </ol>
-
-            <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="任务列表：&lt;span class=&quot;hover-hint&quot;&gt;未完成&lt;span class=&quot;hover-hinttooltip&quot;&gt;任务列表中的提示。&lt;/span&gt;&lt;/span&gt;"> 任务列表：<span class="hover-hint">未完成<span class="hover-hint__tooltip">任务列表中的提示。</span></span></li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="任务列表：&lt;span class=&quot;hover-hint&quot;&gt;已完成&lt;span class=&quot;hover-hinttooltip&quot;&gt;&lt;span class=&quot;hint-title&quot;&gt;状态&lt;/span&gt;已完成项也可以有提示。&lt;/span&gt;&lt;/span&gt;"> 任务列表：<span class="hover-hint">已完成<span class="hover-hint__tooltip"><span class="hint-title">状态</span>已完成项也可以有提示。</span></span></li>
-            </ul>
-
-            <hr>
-
-            <h4 id="5-引用块中的提示">5. 引用块中的提示</h4>
-
-            <blockquote>
-            <p>这是一段引用文字，其中包含 <span class="hover-hint">引用内提示<span class="hover-hint__tooltip"><span class="hint-title">引用提示</span>引用块里的 tooltip 定位可能需要特别测试。</span></span>。</p>
-
-            <blockquote>
-            <p>嵌套引用：<span class="hover-hint">嵌套引用提示<span class="hover-hint__tooltip">嵌套引用中的提示。</span></span></p>
-            </blockquote>
-            </blockquote>
-
-            <hr>
-
-            <h4 id="6-表格中的提示">6. 表格中的提示</h4>
-
-            <div class="table-wrap"><table><thead><tr><th>名称</th><th>说明</th><th>状态</th></tr></thead><tbody><tr><td>项目 A</td><td><span class="hover-hint">查看详情<span class="hover-hint__tooltip"><span class="hint-title">项目 A</span>这是项目 A 的详细信息，可能比较长需要换行。</span></span></td><td>正常</td></tr><tr><td>项目 B</td><td>普通文本</td><td><span class="hover-hint">异常<span class="hover-hint__tooltip"><span class="hint-title">警告</span>状态为异常，请检查。</span></span></td></tr><tr><td>项目 C</td><td><span class="hover-hint">ⓘ<span class="hover-hint__tooltip">表格单元格中的图标提示。</span></span></td><td>待定</td></tr></tbody></table></div>
-
-            <hr>
-
-            <h4 id="7-链接中的提示">7. 链接中的提示</h4>
-
-            <ul>
-            <li>外链 + 提示：<a href="https://example.com" target="_blank" rel="noopener noreferrer"><span class="hover-hint">访问示例站点<span class="hover-hint__tooltip"><span class="hint-title">外部链接</span>点击将跳转到 example.com。</span></span></a></li>
-            <li>纯提示链接文字：<a href="https://example.com" target="_blank" rel="noopener noreferrer"><span class="hover-hint">悬停我<span class="hover-hint__tooltip"><span class="hint-title">链接提示</span>这是一个带悬停提示的链接文本。</span></span></a></li>
-            </ul>
-
-            <hr>
-
-            <h4 id="8-与其他行内样式组合">8. 与其他行内样式组合</h4>
-
-            <p><span class="hover-hint"><strong>加粗的提示文字</strong><span class="hover-hint__tooltip"><span class="hint-title">粗体</span>显示文字使用了粗体。</span></span></p>
-
-            <p><span class="hover-hint"><em>斜体的提示文字</em><span class="hover-hint__tooltip"><span class="hint-title">斜体</span>显示文字使用了斜体。</span></span></p>
-
-            <p><span class="hover-hint"><code>代码样式的提示</code><span class="hover-hint__tooltip"><span class="hint-title">代码</span>显示文字使用了行内代码样式。</span></span></p>
-
-            <p><span class="hover-hint"><mark>高亮的提示</mark><span class="hover-hint__tooltip"><span class="hint-title">高亮</span>显示文字带高亮背景。</span></span></p>
-
-            <p><span class="hover-hint"><u>下划线提示</u><span class="hover-hint__tooltip"><span class="hint-title">下划线</span>显示文字带下划线。</span></span></p>
-
-            <p><span class="hover-hint">😀 表情提示 🚀<span class="hover-hint__tooltip"><span class="hint-title">Emoji</span>显示文字中包含 emoji。</span></span></p>
-
-            <hr>
-
-            <h4 id="9-边界与极端情况">9. 边界与极端情况</h4>
-
-            <ul>
-            <li>超短提示：<span class="hover-hint">?<span class="hover-hint__tooltip">?</span></span></li>
-            <li>空标题：<span class="hover-hint">空标题<span class="hover-hint__tooltip"><span class="hint-title"></span>标题为空时是否还显示标题行？</span></span></li>
-            <li>仅标题：<span class="hover-hint">仅标题<span class="hover-hint__tooltip"><span class="hint-title">只有标题</span></span></span></li>
-            <li>无任何内容：<span class="hover-hint">空提示<span class="hover-hint__tooltip"></span></span></li>
-            <li>特殊字符：<span class="hover-hint">符号<span class="hover-hint__tooltip"><span class="hint-title">&lt;标题 &amp; 符号&gt;</span>内容包含 &lt; &gt; &amp; " ' 等字符。</span></span></li>
-            <li>超长单词：<span class="hover-hint">长单词<span class="hover-hint__tooltip"><span class="hint-title">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span>bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb</span></span></li>
-            </ul>
-
-            <hr>
-
-            <h4 id="10-一段综合段落">10. 一段综合段落</h4>
-
-            <p>在真实文档中，提示常常出现在说明性文字里，例如：<span class="hover-hint">配置项 <code>timeout</code><span class="hover-hint__tooltip"><span class="hint-title">timeout</span>类型：number，单位：毫秒，默认值：3000。</span></span> 控制请求超时时间；<span class="hover-hint">配置项 <code>retry</code><span class="hint-title">retry</span><span class="hover-hint__tooltip">类型：number，默认值：3，表示失败重试次数。</span></span> 控制重试次数。更多细节请参考 <span class="hover-hint">官方文档<span class="hover-hint__tooltip"><span class="hint-title">文档链接</span>文档地址：https://example.com/docs</span></span>。</p>
-
-            <hr>
-
-            <p>以上覆盖了常见 Markdown 结构中的悬停提示用法，可用于回归测试 tooltip 的渲染、定位、换行、边界与样式组合表现。</p>
-
-            <h2 id="4-引用">4. 引用</h2>
-
-            <blockquote>
-            <p>一级引用</p>
-
-            <p>引用中可以包含 <strong>粗体</strong>、<em>斜体</em>、<code>代码</code>。</p>
-
-            <blockquote>
-            <p>二级嵌套引用</p>
-
-            <blockquote>
-            <p>三级嵌套引用</p>
-            </blockquote>
-            </blockquote>
-            </blockquote>
-
-            <div class="callout callout--note">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> NOTE</div>
-                <div class="callout__body">
-            <p>GFM 提示：普通信息。</p>
-                </div>
-            </div>
-
-            <div class="callout callout--tip">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg> TIP</div>
-                <div class="callout__body">
-            <p>提示信息。</p>
-                </div>
-            </div>
-
-            <div class="callout callout--important">
-                <div class="callout__title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="#8250df" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg> IMPORTANT</div>
-                <div class="callout__body">
-            <p>重要信息。</p>
-                </div>
-            </div>
+            <h1 id="云上搭-l2tpipsec-实录">云上搭 L2TP/IPsec 实录</h1>
 
             <div class="callout callout--warning">
                 <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> WARNING</div>
                 <div class="callout__body">
-            <p>警告信息。</p>
+            <p>提示：SoftEther 仅用于<strong>自己拥有、有权管理的服务器 / 内网组网</strong>。</p>
                 </div>
             </div>
 
-            <div class="callout callout--caution">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> CAUTION</div>
-                <div class="callout__body">
-            <p>注意信息。</p>
-                </div>
-            </div>
+            <h2 id="开头">开头</h2>
 
-            <h2 id="5-列表">5. 列表</h2>
+            <p>事情的起因很简单：<strong><em>无聊，无聊，还是**的无聊</em></strong>。想着闲着也是闲着，我的<span class="hover-hint">Tailscale<span class="hover-hint__tooltip"><span class="hint-title">Tailscale</span>一款基于 WireGuard 协议的虚拟组网工具，不需要公网 IP，靠 P2P 打洞或 DERP 中继把设备连成一个加密的“Tailnet”。作者原本就用 Tailscale 跑业务，但觉得 <span class="hover-hint">ACL<span class="hover-hint__tooltip"><span class="hint-title">ACL（Access Control List，访问控制列表）</span>Tailscale 里的 ACL 用来精细控制哪些设备/用户能访问哪些资源。作者说“ACL 懒得维护”，指的是 Tailscale 的这套权限规则需要持续花精力管理。</span></span> 维护麻烦，又想找另一种方式组网，所以决定在阿里云 ECS 上再搭一套 L2TP/IPsec。</span></span>主要是用来跑业务，ACL懒得维护。但我又想<strong>和别人组网打游戏</strong>，那咋办呢？那就用下Tailscale的<strong>同款虚拟局域网的技术</strong>，在自己的阿里云 ECS 上搞个 <span class="hover-hint">L2TP/IPsec<span class="hover-hint__tooltip"><span class="hint-title">L2TP/IPsec</span>L2TP/IPsec 是一种将两种协议组合使用的 VPN（虚拟专用网）技术。你可以把它理解成：L2TP 负责“挖隧道”，IPsec 负责“给隧道上锁”。单独使用 L2TP 时，数据本身并不加密，必须依赖 IPsec 来提供加密和身份验证，从而保证传输安全。</span></span> 协议的虚拟专用网，方便一起联机游戏（<em>国内的服务器速度肯定很快！[确信]</em>）。</p>
 
-            <h3 id="无序列表">无序列表</h3>
-
-            <ul>
-            <li>项目一</li>
-            <li>项目二
-            <ul>
-            <li>子项目 A</li>
-            <li>子项目 B
-            <ul>
-            <li>子项目</li>
-            </ul></li>
-            </ul></li>
-            <li>使用星号</li>
-            <li>使用加号</li>
-            </ul>
-
-            <h3 id="有序列表">有序列表</h3>
-
-            <ol>
-            <li>第一项</li>
-            <li>第二项
-            <ol>
-            <li>子项 2.1</li>
-            <li>子项 2.2</li>
-            </ol></li>
-            <li>第三项</li>
-            </ol>
-
-            <p>从指定数字开始：</p>
-
-            <ol start="3">
-            <li>第三项</li>
-            <li>第四项</li>
-            </ol>
-
-            <p>从指定数字开始：</p>
-
-            <ol start="3">
-            <li>第三项</li>
-            <li>第四项</li>
-            </ol>
-
-            <h3 id="任务列表">任务列表</h3>
-
-            <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="已完成任务"> 已完成任务</li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="未完成任务"> 未完成任务</li>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled aria-label="带 格式 的任务"> 带 <strong>格式</strong> 的任务
-            <ul>
-            <li class="task-list-item"><input class="task-checkbox" type="checkbox" disabled checked aria-label="子任务"> 子任务</li>
-            </ul></li>
-            </ul>
-
-            <h3 id="定义列表部分扩展">定义列表（部分扩展）</h3>
-
-            <p>术语 1 : 定义 1</p>
-
-            <p>术语 2 : 定义 2 : 另一个定义</p>
-
-            <h2 id="6-代码">6. 代码</h2>
-
-            <p>行内代码：<code>printf("Hello")</code>、<code>&lt;div&gt;</code>、<code>npm install</code>。</p>
-
-            <p>缩进代码块：</p>
+            <p>服务器长这样：</p>
 
             <div class="code-block">
                 <div class="code-block__bar">
@@ -3760,9 +3423,10 @@
                         复制
                     </button>
                 </div>
-                <pre><code>function hello() {
-  console.log(&quot;Hello&quot;);
-}
+                <pre><code>NAME=&quot;Alibaba Cloud Linux&quot;
+VERSION=&quot;3 (OpenAnolis Edition)&quot;
+PLATFORM_ID=&quot;platform:al8&quot;
+PRETTY_NAME=&quot;Alibaba Cloud Linux 3****** (OpenAnolis Edition)&quot;
 </code></pre>
                 <button class="code-block__expand" type="button" data-expand aria-expanded="false">
                     <span class="code-block__expand-text">展开全部</span>
@@ -3772,12 +3436,16 @@
                 </button>
             </div>
 
-            <p>围栏代码块：</p>
+            <p>跟 RHEL 8 / CentOS 8 基本一个生态。AI的第一反应是让我装 <span class="hover-hint">strongSwan<span class="hover-hint__tooltip"><span class="hint-title">strongSwan</span>Linux 上老牌的 IPsec VPN 实现，基于 IKE 协议做密钥协商和隧道建立。文章第一回合就是在它上面翻的车。</span></span>，Linux 上搞 IPsec 的老牌选手嘛。</p>
+
+            <h2 id="第一回合strongswan-的半小时惨案">第一回合：strongSwan 的半小时惨案</h2>
+
+            <p>装起来确实很顺利：</p>
 
             <div class="code-block">
                 <div class="code-block__bar">
                     <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">javascript</span>
+                    <span class="code-block__lang">bash</span>
                     <button class="code-block__copy" type="button" data-copy>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="11" height="11" rx="2" />
@@ -3786,77 +3454,7 @@
                         复制
                     </button>
                 </div>
-                <pre><code><span class="kd">function</span><span class="w"> </span><span class="nx">hello</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Hello, </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">!`</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre>
-                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
-                    <span class="code-block__expand-text">展开全部</span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M6 9l6 6 6-6" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">python</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code><span class="k">def</span><span class="w"> </span><span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
-</code></pre>
-                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
-                    <span class="code-block__expand-text">展开全部</span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M6 9l6 6 6-6" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="code-block">
-                <div class="code-block__bar">
-                    <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">diff</span>
-                    <button class="code-block__copy" type="button" data-copy>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="11" height="11" rx="2" />
-                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                        </svg>
-                        复制
-                    </button>
-                </div>
-                <pre><code><span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
-<span class="gi">+ 新增行</span>
-<span class="gd">- 删除行</span>
-<span class="gs">! 注意行</span>
+                <pre><code>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>strongswan<span class="w"> </span>strongswan-sqlite
 </code></pre>
                 <button class="code-block__expand" type="button" data-expand aria-expanded="false">
                     <span class="code-block__expand-text">展开全部</span>
@@ -3878,8 +3476,7 @@
                         复制
                     </button>
                 </div>
-                <pre><code>纯文本代码块。
-这里不能直接包含三个反引号，否则会提前结束代码块。
+                <pre><code>Linux strongSwan U6.0.6/K5.10.134-19.8.al8.x86_64
 </code></pre>
                 <button class="code-block__expand" type="button" data-expand aria-expanded="false">
                     <span class="code-block__expand-text">展开全部</span>
@@ -3889,12 +3486,12 @@
                 </button>
             </div>
 
-            <p>很长的代码</p>
+            <p>顺手把转发写了：</p>
 
             <div class="code-block">
                 <div class="code-block__bar">
                     <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">python</span>
+                    <span class="code-block__lang">bash</span>
                     <button class="code-block__copy" type="button" data-copy>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="11" height="11" rx="2" />
@@ -3903,372 +3500,15 @@
                         复制
                     </button>
                 </div>
-                <pre><code><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">minify_html.py —— 压缩 HTML，并同时压缩内联的 &lt;style&gt; / &lt;script&gt;</span>
-
-<span class="sd">依赖：</span>
-<span class="sd">    pip install htmlmin2 rcssmin rjsmin</span>
-
-<span class="sd">用法：</span>
-<span class="sd">    python minify_html.py index.html             # 就地覆盖（会先询问确认）</span>
-<span class="sd">    python minify_html.py index.html -y          # 就地覆盖，不再询问</span>
-<span class="sd">    python minify_html.py index.html -o out.html # 输出到指定文件</span>
-<span class="sd">    python minify_html.py index.html -o -        # 输出到 stdout</span>
-<span class="sd">    cat index.html | python minify_html.py       # 从 stdin 读，写到 stdout</span>
-<span class="sd">    python minify_html.py ./public -y            # 递归压缩目录下所有 HTML（就地覆盖）</span>
-<span class="sd">    python minify_html.py index.html --no-inline # 只压缩 HTML 结构</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">htmlmin</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">rcssmin</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">rjsmin</span>
-<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;缺少依赖：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">请先安装：pip install htmlmin2 rcssmin rjsmin&quot;</span><span class="p">)</span>
-
-
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-<span class="c1"># 内联标签处理</span>
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-
-<span class="n">_STYLE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(&lt;style\b[^&gt;]*&gt;)(.*?)(&lt;/style\s*&gt;)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
-<span class="n">_SCRIPT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="sa">r</span><span class="s2">&quot;(&lt;script\b(?P&lt;attrs&gt;[^&gt;]*)&gt;)(?P&lt;body&gt;.*?)(&lt;/script\s*&gt;)&quot;</span><span class="p">,</span>
-    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">_TYPE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;\btype\s*=\s*(?:&quot;([^&quot;]*)&quot;|&#39;([^&#39;]*)&#39;|([^\s&gt;]+))&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-
-<span class="c1">#: 这些 type 的 &lt;script&gt; 内容才是 JS，可以交给 rjsmin</span>
-<span class="n">_JS_TYPES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;module&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;text/javascript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;application/javascript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;text/ecmascript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;application/ecmascript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;text/jscript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;text/livescript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;text/x-javascript&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;application/x-javascript&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_is_js_script</span><span class="p">(</span><span class="n">attrs</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;判断 &lt;script ...&gt; 的内容是不是 JavaScript（JSON-LD / importmap 等要跳过）。&quot;&quot;&quot;</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">_TYPE_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># 没写 type，默认就是 JS</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_JS_TYPES</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_minify_style_tags</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;压缩所有 &lt;style&gt; 标签里的 CSS。&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_replace</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">opening</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">closing</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">opening</span> <span class="o">+</span> <span class="n">closing</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">opening</span> <span class="o">+</span> <span class="n">rcssmin</span><span class="o">.</span><span class="n">cssmin</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">+</span> <span class="n">closing</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] CSS 压缩失败，已跳过：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">_STYLE_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_replace</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_minify_script_tags</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;压缩所有内联 &lt;script&gt; 里的 JS（带 src 或非 JS 类型的会跳过）。&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_replace</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">opening</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;attrs&quot;</span><span class="p">)</span>
-        <span class="n">body</span><span class="p">,</span> <span class="n">closing</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">),</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_is_js_script</span><span class="p">(</span><span class="n">attrs</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">opening</span> <span class="o">+</span> <span class="n">rjsmin</span><span class="o">.</span><span class="n">jsmin</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">+</span> <span class="n">closing</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] JS 压缩失败，已跳过：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">_SCRIPT_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_replace</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
-
-
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-<span class="c1"># 主压缩函数</span>
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_filter_supported_kwargs</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;把 kwargs 里当前版本 htmlmin.minify 不认识的键剔除掉。</span>
-
-<span class="sd">    htmlmin 与 htmlmin2 的参数集不一样（例如 htmlmin2 去掉了 minify_css /</span>
-<span class="sd">    minify_js），直接传过去会抛 TypeError。这里用签名自省做一层过滤，</span>
-<span class="sd">    既兼容旧版也兼容新版。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">kwargs</span>
-
-    <span class="n">params</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="c1"># 如果函数带 **kwargs，就全部保留</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
-        <span class="k">return</span> <span class="n">kwargs</span>
-
-    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params</span><span class="p">}</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">minify_html_string</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;压缩 HTML 字符串。</span>
-
-<span class="sd">    :param inline: 是否压缩内联的 &lt;style&gt; / &lt;script&gt;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">inline</span><span class="p">:</span>
-        <span class="n">html</span> <span class="o">=</span> <span class="n">_minify_style_tags</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
-        <span class="n">html</span> <span class="o">=</span> <span class="n">_minify_script_tags</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
-
-    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;remove_comments&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                 <span class="c1"># 去掉 HTML 注释</span>
-        <span class="s2">&quot;remove_empty_space&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>              <span class="c1"># 去掉标签间多余空白</span>
-        <span class="s2">&quot;remove_all_empty_space&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;reduce_boolean_attributes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>       <span class="c1"># checked=&quot;checked&quot; -&gt; checked</span>
-        <span class="s2">&quot;remove_optional_attribute_quotes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;keep_pre&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>                        <span class="c1"># 保留 &lt;pre&gt; 内格式</span>
-        <span class="s2">&quot;pre_tags&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;pre&quot;</span><span class="p">,</span> <span class="s2">&quot;textarea&quot;</span><span class="p">),</span>
-        <span class="c1"># 下面两项只有旧版 htmlmin 支持；htmlmin2 已移除。</span>
-        <span class="c1"># 内联内容在上面已经手动压过，这里关掉即可。不支持的版本会自动忽略。</span>
-        <span class="s2">&quot;minify_css&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;minify_js&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="n">supported</span> <span class="o">=</span> <span class="n">_filter_supported_kwargs</span><span class="p">(</span><span class="n">htmlmin</span><span class="o">.</span><span class="n">minify</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">dropped</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">supported</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">dropped</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;[info] 当前 htmlmin 版本不支持参数：</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dropped</span><span class="p">)</span><span class="si">}</span><span class="s2">，已自动忽略&quot;</span><span class="p">,</span>
-            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">htmlmin</span><span class="o">.</span><span class="n">minify</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="o">**</span><span class="n">supported</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] HTML 压缩失败，返回内联压缩后的结果：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">html</span>
-
-
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-<span class="c1"># 文件 / 目录辅助</span>
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-
-<span class="n">_HTML_EXTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.htm&quot;</span><span class="p">,</span> <span class="s2">&quot;.xhtml&quot;</span><span class="p">}</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_confirm</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assume_yes</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;询问用户是否继续。assume_yes 为 True 时直接放行。</span>
-
-<span class="sd">    提示写到 stderr，避免污染 stdout（例如 `&gt; out.html` 重定向时）。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">assume_yes</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2"> [y/N] &quot;</span><span class="p">)</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">answer</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">answer</span><span class="p">:</span>  <span class="c1"># EOF（例如 stdin 被重定向且没有输入）</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_print_stats</span><span class="p">(</span><span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">before</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">after</span> <span class="o">/</span> <span class="n">before</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">before</span> <span class="k">else</span> <span class="mf">0.0</span>
-    <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: &quot;</span> <span class="k">if</span> <span class="n">label</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">before</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">after</span><span class="si">}</span><span class="s2"> bytes  (-</span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_collect_html_files</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;递归收集目录下所有 HTML 文件（跳过以 . 开头的隐藏目录）。&quot;&quot;&quot;</span>
-    <span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
-        <span class="n">dirnames</span><span class="p">[:]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirnames</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_HTML_EXTS</span><span class="p">:</span>
-                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">found</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_process_directory</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inline</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">assume_yes</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;递归压缩目录下的所有 HTML（就地覆盖）。&quot;&quot;&quot;</span>
-    <span class="n">files</span> <span class="o">=</span> <span class="n">_collect_html_files</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[info] </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> 下没有找到 HTML 文件&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_confirm</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;将就地压缩 </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> 下的 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个 HTML 文件（会覆盖原文件），是否继续？&quot;</span><span class="p">,</span>
-        <span class="n">assume_yes</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;已取消，未修改任何文件。&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">1</span>
-
-    <span class="n">total_before</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">total_after</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">ok</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">failed</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] 读取失败，已跳过 </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="n">failed</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">continue</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">minify_html_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">)</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[warn] 写入失败，已跳过 </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="n">failed</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">continue</span>
-
-        <span class="n">before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-        <span class="n">after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-        <span class="n">total_before</span> <span class="o">+=</span> <span class="n">before</span>
-        <span class="n">total_after</span> <span class="o">+=</span> <span class="n">after</span>
-        <span class="n">ok</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="n">_print_stats</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">total_after</span> <span class="o">/</span> <span class="n">total_before</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">if</span> <span class="n">total_before</span> <span class="k">else</span> <span class="mf">0.0</span>
-        <span class="n">tail</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;，</span><span class="si">{</span><span class="n">failed</span><span class="si">}</span><span class="s2"> 个失败&quot;</span> <span class="k">if</span> <span class="n">failed</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;完成：</span><span class="si">{</span><span class="n">ok</span><span class="si">}</span><span class="s2"> 个文件，</span><span class="si">{</span><span class="n">total_before</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">total_after</span><span class="si">}</span><span class="s2"> bytes  (-</span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)</span><span class="si">{</span><span class="n">tail</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">failed</span> <span class="k">else</span> <span class="mi">0</span>
-
-
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-<span class="c1"># 命令行</span>
-<span class="c1"># --------------------------------------------------------------------------- #</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;压缩 HTML，并同时压缩其中的内联 CSS / JavaScript。&quot;</span><span class="p">,</span>
-        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;输入 HTML 文件或目录（省略或用 - 表示从 stdin 读取）&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;输出文件；省略时覆盖原文件，用 - 表示写到 stdout（目录输入时不可用）&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;--yes&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;覆盖原文件时不再询问确认&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--no-inline&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;不压缩内联的 &lt;style&gt;/&lt;script&gt;&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;不打印统计信息&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
-
-    <span class="n">inline</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_inline</span>
-
-    <span class="c1"># ---------- 1) 从 stdin 读取，写到 stdout ----------</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">input</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">):</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">minify_html_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
-            <span class="n">_print_stats</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
-        <span class="k">return</span> <span class="mi">0</span>
-
-    <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error] 找不到路径：</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">2</span>
-
-    <span class="c1"># ---------- 2) 目录：递归就地压缩 ----------</span>
-    <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;[error] 输入是目录时不能使用 -o/--output；目录模式会就地覆盖原文件。&quot;</span><span class="p">,</span>
-                <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="mi">2</span>
-        <span class="k">return</span> <span class="n">_process_directory</span><span class="p">(</span>
-            <span class="n">target</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">,</span> <span class="n">assume_yes</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">yes</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span>
-        <span class="p">)</span>
-
-    <span class="c1"># ---------- 3) 单个文件 ----------</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># 未指定输出 -&gt; 就地覆盖，需要确认</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_confirm</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;是否覆盖原文件 </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">？&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">yes</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;已取消，未修改任何文件。&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="n">out_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">target</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># 写 stdout</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error] 读取失败 </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">2</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="n">minify_html_string</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="n">inline</span><span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">out_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">out_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error] 写入失败 </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">：</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">2</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
-        <span class="n">_print_stats</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="mi">0</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+                <pre><code>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/sysctl.d/99-strongswan.conf<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s">net.ipv4.ip_forward = 1</span>
+<span class="s">net.ipv4.conf.all.accept_redirects = 0</span>
+<span class="s">net.ipv4.conf.all.send_redirects = 0</span>
+<span class="s">net.ipv4.conf.default.accept_redirects = 0</span>
+<span class="s">net.ipv4.conf.default.send_redirects = 0</span>
+<span class="s">EOF</span>
+
+sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </span>/etc/sysctl.d/99-strongswan.conf
 </code></pre>
                 <button class="code-block__expand" type="button" data-expand aria-expanded="false">
                     <span class="code-block__expand-text">展开全部</span>
@@ -4278,106 +3518,12 @@
                 </button>
             </div>
 
-            <h2 id="7-链接">7. 链接</h2>
-
-            <p>行内链接：<a href="https://openai.com" title="OpenAI 官网" target="_blank" rel="noopener noreferrer">OpenAI</a></p>
-
-            <p>行内链接：<a href="https://openai.com" target="_blank" rel="noopener noreferrer">OpenAI</a></p>
-
-            <p>自动链接：<a href="https://www.example.com" target="_blank" rel="noopener noreferrer">https://www.example.com</a></p>
-
-            <p>邮箱：<a href="mailto:test@example.com">test@example.com</a></p>
-
-            <p>锚点链接：<a href="#1-标题">回到标题</a></p>
-
-            <p>相对链接：<a href="./README.md">README</a></p>
-
-            <p>引用式链接定义：</p>
-
-            <p>[github]: https://github.com "GitHub"</p>
-
-            <h2 id="8-图片">8. 图片</h2>
-
-            <p><img src="https://ttwe77.cn/src/head.avif" alt="替代文本" title="图片标题" loading="lazy"></p>
-
-            <p>带链接的图片：</p>
-
-            <p><a class="img-link" href="https://example.com" target="_blank" rel="noopener noreferrer"><img src="https://ttwe77.cn/src/head.avif" alt="替代文本" loading="lazy"></a></p>
-
-            <p>引用式图片：</p>
-
-            <p>![Logo][logo]</p>
-
-            <p>[logo]: https://ttwe77.cn/src/head.avif "Logo"</p>
-
-            <h2 id="9-表格">9. 表格</h2>
-
-            <div class="table-wrap"><table><thead><tr><th style="text-align:left">左对齐</th><th style="text-align:center">居中对齐</th><th style="text-align:right">右对齐</th></tr></thead><tbody><tr><td style="text-align:left">单元格</td><td style="text-align:center">单元格</td><td style="text-align:right">单元格</td></tr><tr><td style="text-align:left">内容</td><td style="text-align:center"><strong>粗体</strong></td><td style="text-align:right"><code>代码</code></td></tr><tr><td style="text-align:left">长内容</td><td style="text-align:center"><a href="https://example.com" target="_blank" rel="noopener noreferrer">链接</a></td><td style="text-align:right">42</td></tr></tbody></table></div>
-
-            <p>转义管道：</p>
-
-            <div class="table-wrap"><table><thead><tr><th>名称</th><th>说明</th></tr></thead><tbody><tr><td>A | B</td><td>使用 <code>|</code> 转义</td></tr></tbody></table></div>
-
-            <h2 id="10-分隔线">10. 分隔线</h2>
-
-            <hr>
-
-            <hr>
-
-            <hr>
-
-            <h2 id="11-html">11. HTML</h2>
-
-            <div style="padding: 8px; border: 1px solid #ccc;">
-              这是一个 HTML 块。
-            </div>
-
-            <p align="center">居中段落</p>
-
-            <details>
-              <summary>点击展开</summary>
-              折叠内容。
-            </details>
-
-            <p><span class="hover-hint">显示的文字<span class="hover-hint__tooltip"><span class="hint-title">提示标题（可选）</span>这里写提示内容，可以换行，支持简单文本。</span></span></p>
-
-            <p>&lt;!-- HTML 注释不会显示 --&gt;</p>
-
-            <h2 id="12-转义字符">12. 转义字符</h2>
-
-            <p>*不是斜体*<br>
-            _不是斜体_<br>
-            # 不是标题<br>
-            [不是链接]<br>
-            `不是代码`<br>
-            &gt; 不是引用<br>
-            + 不是列表<br>
-            - 不是列表<br>
-            . 不是有序列表<br>
-            ! 不是图片<br>
-            | 不是表格分隔符<br>
-            { } ( ) # + - . !</p>
-
-            <h2 id="13-脚注">13. 脚注</h2>
-
-            <p>这里有一个脚注<sup class="footnote-ref"><a href="#fn-1" id="fnref-1">1</a></sup>，这里还有另一个<sup class="footnote-ref"><a href="#fn-longnote" id="fnref-longnote">2</a></sup>。</p>
-
-            <h2 id="14-数学公式">14. 数学公式</h2>
-
-            <p>行内公式：<span class="math-inline">\(E = mc^2\)</span></p>
-
-            <p>块级公式：</p>
-
-            <div class="math-block">\[\frac{n!}{k!(n-k)!} = \binom{n}{k}\]</div>
-
-            <p>行内公式：<span class="math-inline">\(E = mc^2\)</span>，还有 <span class="math-inline">\(a^2 + b^2 = c^2\)</span>。</p>
-
-            <div class="math-block">\[\frac{n!}{k!(n-k)!} = \binom{n}{k}\]</div>
+            <p>然后就开始不对劲了。第一个坑是配置目录：<code>/etc/strongswan/swanctl/conf.d/</code> 和 <code>/etc/swanctl/conf.d/</code> 到底用哪个？</p>
 
             <div class="code-block">
                 <div class="code-block__bar">
                     <span class="code-block__dots"><i></i><i></i><i></i></span>
-                    <span class="code-block__lang">javascript</span>
+                    <span class="code-block__lang">text</span>
                     <button class="code-block__copy" type="button" data-copy>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="11" height="11" rx="2" />
@@ -4386,7 +3532,10 @@
                         复制
                     </button>
                 </div>
-                <pre><code><span class="kd">const</span><span class="w"> </span><span class="nx">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;$9.9&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// 代码块里的 $ 不会被当公式</span>
+                <pre><code>[ttwe77@ttwe77-server ~]$ cat /etc/strongswan/swanctl/conf.d/site-to-site.conf
+cat: No such file or directory
+[ttwe77@ttwe77-server conf.d]$ sudo nano /etc/strongswan/swanctl/conf.d/roadwarrior.conf
+[ttwe77@ttwe77-server conf.d]$ sudo nano /etc/swanctl/conf.d/roadwarrior.conf
 </code></pre>
                 <button class="code-block__expand" type="button" data-expand aria-expanded="false">
                     <span class="code-block__expand-text">展开全部</span>
@@ -4395,120 +3544,773 @@
                     </svg>
                 </button>
             </div>
+
+            <p>两个路径来回试，配置写完加载：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>swanctl<span class="w"> </span>--load-all
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>connecting to &#39;unix:///run/strongswan/charon.vici&#39; failed: No such file or directory
+error: connecting to &#39;default&#39; URI failed: No such file or directory
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>vici 接口连不上，说明 daemon 根本没按我预期起来。重启服务再来：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>strongswan
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>strongswan<span class="w"> </span>--no-pager<span class="w"> </span>-l
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>状态是 <code>active (running)</code>，<code>ExecStartPost=/usr/sbin/swanctl --load-all --noprompt</code> 也是 <code>SUCCESS</code>。看着一切正常嘛。</p>
+
+            <p>客户端也确实连上来了：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>parsed IKE_AUTH request 1 [ IDi N(INIT_CONTACT) IDr AUTH CPRQ(ADDR DNS) SA TSi TSr ... ]
+looking for peer configs matching 1**.***.***.***[4*.***.***.***]...4*.***.***.***[client.example.com]
+no matching peer config found
+generating IKE_AUTH response 1 [ N(AUTH_FAILED) ]
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>关键就是这一行：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>no matching peer config found
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>服务端收到请求了，但没有一个 peer 配置能匹配上这个身份。配置写进去了，但没被正确识别——典型的多路径配置错位加上身份字段不匹配。</p>
+
+            <p>试了几轮之后我算是看明白了，继续跟 <span class="hover-hint">swanctl<span class="hover-hint__tooltip"><span class="hint-title">swanctl</span>strongSwan 现代的命令行管理工具，用来加载配置、查看状态、发起连接。它和新的 swanctl.conf 配置体系配套使用。</span></span> 的加载规则和身份匹配纠缠下去不划算：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>dnf<span class="w"> </span>remove<span class="w"> </span>strongswan<span class="w"> </span>strongswan-sqlite
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>然后放弃，拥抱 <span class="hover-hint">SoftEther VPN<span class="hover-hint__tooltip"><span class="hint-title">SoftEther VPN</span>日本筑波大学的研究项目，一个开源、跨平台、多协议的 VPN 服务器，单一线程即可同时提供 L2TP/IPsec、OpenVPN、SSTP、L2TPv3 等多种 VPN 协议。名字来自 “Software Ethernet”，因为它用软件虚拟出以太网设备来建隧道。作者从 strongSwan 转投 SoftEther，核心原因就是 SoftEther 内置 L2TP/IPsec，不需要自己拼装 IKE peer / conn / secret 那一套。</span></span>。XDDDD</p>
+
+            <p>这个软件我之前在我的Windows系统上搭建过，但是没有公网IP不好搞穿透</p>
+
+            <blockquote>
+            <p><em>不是，你都组网了还要再套一层虚拟专用网？你跑在哪层啊？</em></p>
+
+            <p>AI：L2TP在数据链路层</p>
+
+            <p><em>Tailscale管网络层的，在它前面再套一个L2TP就有点魔幻了</em></p>
+
+            <p>内心OS：<em>你就直说这样行不行吧？</em></p>
+
+            <p><em>那也不是不行，就是有点繁琐，Wireguard我觉得已经够安全了</em></p>
+
+            <p><em>你就直说这样行不行吧？</em></p>
+            </blockquote>
+
+            <p>现在回头看，这个决定是对的。SoftEther 内置 L2TP/IPsec，不用理解那一套 <span class="hover-hint">peer / conn / secret<span class="hover-hint__tooltip"><span class="hint-title">peer / conn / secret</span>strongSwan 的配置概念：<br>conn（connection）：一条 IPsec 连接的完整定义，包含本端、对端、认证方式、加密算法等。<br>peer：对端的身份标识。IKE 协商时需要根据对端的身份去匹配一个 conn，匹配不上就会报 no matching peer config found，也就是文章卡住的地方。<br>secret：预共享密钥（PSK）或证书私钥等凭据。</span></span> 的体系，也不用nano配置文件。它的麻烦只在于"功能默认全关，要自己一个个打开"。</p>
+
+            <h2 id="第二回合编译-softether">第二回合：编译 SoftEther</h2>
+
+            <h3 id="装依赖">装依赖</h3>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>gcc<span class="w"> </span>make<span class="w"> </span>wget<span class="w"> </span>tar<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>openssl-devel<span class="w"> </span>readline-devel<span class="w"> </span>ncurses-devel<span class="w"> </span>zlib-devel
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <h3 id="下源码">下源码</h3>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>wget<span class="w"> </span>https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/releases/download/v4.44-9807-rtm-2025.04.16/softether-vpnserver-v4.44-9807-rtm-2025.04.16-linux-x64-64bit.tar.gz
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>诶GitHub依旧连不上，我手动去镜像站下了再上传</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>tar<span class="w"> </span>xzf<span class="w"> </span>softether-vpnserver-*.tar.gz
+<span class="nb">cd</span><span class="w"> </span>vpnserve
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <h3 id="编译">编译</h3>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>make
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <blockquote>
+            <p><em>Just make it.</em></p>
+            </blockquote>
+
+            <p>先弹一大段许可协议，输入 <code>1</code> 表示同意，后面直接回车。编译完它自己会跑一遍环境自检：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>Checking &#39;Kernel System&#39;...              Pass
+Checking &#39;Memory Operation System&#39;...    Pass
+Checking &#39;ANSI / Unicode string processing system&#39;... Pass
+Checking &#39;File system&#39;...                Pass
+Checking &#39;Thread processing system&#39;...   Pass
+Checking &#39;Network system&#39;...             Pass
+
+All checks passed.
+The preparation of SoftEther VPN Server is completed !
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>看到六个 Pass 的时候还挺爽的。<code>vpnserver</code> 和 <code>vpncmd</code> 都出来了，同时也提示我管理员密码还没设。</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>./vpnserver<span class="w"> </span>start
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>The SoftEther VPN Server service has been started.
+Let&#39;s get started by accessing to the following URL from your PC:
+https://127.0.0.1:5555/
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>这是Web UI？那我要访问一下看看，但是你为什么只监听了127.0.0.1。</p>
+
+            <h3 id="监听">监听</h3>
+
+            <p><code>vpncmd</code> 改不了监听 IP，只能改配置文件。先停服：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>.../SoftEtherVPN/vpnserver/vpnserver<span class="w"> </span>stop
+sudo<span class="w"> </span>nano<span class="w"> </span>.../SoftEtherVPN/vpnserver/vpn_server.config
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>在 <code>declare ServerConfiguration { ... }</code> 里面加一行：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>string ListenIP 0.0.0.0
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>确认写进去了：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;ListenIP&quot;</span><span class="w"> </span>.../SoftEtherVPN/vpnserver/vpn_server.config
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>72:             string ListenIP 0.0.0.0
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>结果重启后启动提示还是 <code>127.0.0.1</code>，我当场就懵了。后来用 <code>ss</code> 一看：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>ss<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">5555</span>
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>LISTEN 0 128    0.0.0.0:5555    0.0.0.0:*    users:((&quot;vpnserver&quot;,pid=1254048,fd=36))
+LISTEN 0 128       [::]:5555       [::]:*    users:((&quot;vpnserver&quot;,pid=1254048,fd=38))
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p><code>0.0.0.0</code>，明明已经绑到所有接口了。原来启动提示只是随便挑一个网卡地址来显示，纯属假象。</p>
+
+            <p>前面打印出来的这个内网 IP 居然是<strong>展示用</strong>的，不代表它只监听这个地址。依旧踩坑。</p>
+
+            <blockquote>
+            <p>顺便把 systemd 单元补了，不然后面老是 <code>Unit vpnserver.service not found</code>：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/systemd/system/vpnserver.service<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">[Unit]</span>
+<span class="s">Description=SoftEther VPN Server</span>
+<span class="s">After=network.target</span>
+
+<span class="s">[Service]</span>
+<span class="s">Type=forking</span>
+<span class="s">ExecStart=.../SoftEtherVPN/vpnserver/vpnserver start</span>
+<span class="s">ExecStop=.../SoftEtherVPN/vpnserver/vpnserver stop</span>
+<span class="s">Restart=on-failure</span>
+<span class="s">RestartSec=10</span>
+
+<span class="s">[Install]</span>
+<span class="s">WantedBy=multi-user.target</span>
+<span class="s">EOF</span>
+
+sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>vpnserver
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+            </blockquote>
+
+            <p>然后我在 Windows 上测管理端口：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>C:\Users\ttwe77&gt;curl http://1**.***.***.***:5555/
+curl: (52) Empty reply from server
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>端口在监听，但就是没响应。查了一下才知道——<strong>5555 是 HTTPS 专用端口，不吃明文 HTTP</strong>，收到 HTTP 直接就掐了。换协议：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">bash</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>curl<span class="w"> </span>-k<span class="w"> </span>-i<span class="w"> </span>https://1**.***.***.***:5555/
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>终于通了，然我我就用浏览器打开了这个页面。结果啥也没有</p>
+
+            <h2 id="配它">配它</h2>
+
+            <p>图形管理器在 Windows 上跑，直接经过Tailscale远程管理，超方便的。</p>
+
+            <p>这里的配置GUI已经说得很详细了，这里不再展开。</p>
+
+            <h2 id="连不上">连不上</h2>
+
+            <p>这一段是重头戏，错误一层套一层。</p>
+
+            <h3 id="事件-734隧道通了ip-没发下来">事件 734：隧道通了，IP 没发下来</h3>
+
+            <p>Windows 事件日志：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">xml</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code><span class="nt">&lt;Provider</span><span class="w"> </span><span class="na">Name=</span><span class="s">&quot;RasClient&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;EventID</span><span class="w"> </span><span class="na">Qualifiers=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>20227<span class="nt">&lt;/EventID&gt;</span>
+<span class="nt">&lt;Data&gt;</span>ttwe77.cn<span class="nt">&lt;/Data&gt;</span>
+<span class="nt">&lt;Data&gt;</span>734<span class="nt">&lt;/Data&gt;</span>
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>尝试连接-报错，系统设置里面没给具体报错原因，还得去事件查看器看报错。这个的意思是 <strong>IPsec 已经过了，但 <span class="hover-hint">PPP<span class="hover-hint__tooltip"><span class="hint-title">PPP（Point-to-Point Protocol，点对点协议）</span>L2TP 隧道里承载的协议，负责在客户端和服务端之间建立链路、分配 IP 地址、进行用户认证。文章里“PPP 认证失败”就是这一层出了问题。</span></span> 层分配 IP 失败</strong>。也就是虚拟 DHCP 没应答。</p>
+
+            <p>回头去看 <span class="hover-hint">SecureNAT<span class="hover-hint__tooltip"><span class="hint-title">SecureNAT</span>SoftEther 虚拟 Hub 内置的虚拟 NAT + 虚拟 DHCP 功能，用纯用户态模拟宽带路由器的 NAT 和 DHCP 行为。客户端连接后，SecureNAT 负责给它分配 IP（文章里是 172.0.0.100-200），并做 NAT 让它能访问外网。文章排查“事件 734 / IP 没发下来”时，先检查的就是 SecureNAT 的 DHCP 池。</span></span>——DHCP 池设置得挺正常，<code>172.0.0.100 - 200</code>，虚拟主机 IP 是 <code>172.0.0.1</code>，<span class="hover-hint">默认网关<span class="hover-hint__tooltip"><span class="hint-title">默认网关</span>Windows 连上 VPN 后默认会把 VPN 设为默认网关，所有流量都走 VPN。如果服务端 NAT 没配好，本来能上网的流量反而被送进黑洞，表现就是“连上就断网”。取消“在远程网络上使用默认网关”后，只有访问 VPN 内网的流量才走隧道，其他流量仍走本地网络，立刻恢复。</span></span>和 DNS 是空的。</p>
+
+            <blockquote>
+            <p><em>我寻思这也没问题啊</em></p>
+            </blockquote>
+
+            <h3 id="真正的凶手ppp-认证">真正的凶手：PPP 认证</h3>
+
+            <p>改完还是不行，于是把服务端日志翻出来看：</p>
+
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
+                </div>
+                <pre><code>IPsec IKE Session (IKE SA) 1: This IKE SA is established between the server and the client.
+IPsec ESP Session (IPsec SA) 1: This IPsec SA is established between the server and the client.
+IPsec Client 1: The L2TP Server Module is started.
+L2TP PPP Session [*.*.*.*:1701]: A new PPP session (Upper protocol: L2TP) is started.
+L2TP PPP Session: The client denied to accept both the &quot;PAP&quot; and MS-CHAP v2 Protocol.
+L2TP PPP Session: A PPP protocol error occurred, or the PPP session has been disconnected.
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            <p>翻译一下：隧道全通了，L2TP 也起来了，但客户端把 <span class="hover-hint">PAP<span class="hover-hint__tooltip"><span class="hint-title">PAP（Password Authentication Protocol）</span>PPP 的一种认证方式，用户名和密码以明文发送，极不安全。SoftEther 的 L2TP 默认可能启用 PAP 作为备选，但 Windows 客户端默认拒绝 PAP。</span></span> 和 <span class="hover-hint">MS-CHAP v2<span class="hover-hint__tooltip"><span class="hint-title">MS-CHAP v2（Microsoft Challenge Handshake Authentication Protocol version 2）</span>微软的 PPP 认证协议，支持双向认证（客户端和服务端互相验证），比 PAP 安全得多。文章解决“事件 734”的办法就是在 Windows VPN 属性里手动勾选 MS-CHAP v2，因为客户端默认可能没选它。</span></span> 全拒了，PPP 认证过不去。</p>
+
+            <p>解决在客户端：<code>Win + R</code> → <code>ncpa.cpl</code> → <span class="hover-hint">VPN<span class="hover-hint__tooltip"><span class="hint-title">VPN（Virtual Private Network，虚拟专用网）</span>在公共网络上建立加密隧道，让不同地点的设备像在同一个局域网里一样通信。文章的核心目的就是“和别人组网打游戏”，VPN 是手段。</span></span> 属性 → <strong>安全</strong>：</p>
 
             <ul>
-            <li><code>$E = mc^2$</code> → <code>&lt;span class="math-inline"&gt;(E = mc^2)&lt;/span&gt;</code></li>
-            <li>多行 <code>$$…$$</code> → <code>&lt;div class="math-block"&gt;[\frac{n!}{k!(n-k)!} = \binom{n}{k}]&lt;/div&gt;</code></li>
-            <li>代码块里的 <code>$</code> 被 <code>INLINE_CODE_RE</code> 先一步保护，不会误伤。</li>
+            <li>取消"自动使用我的 Windows 登录名和密码"</li>
+            <li>勾上 <strong>Microsoft CHAP 版本 2 (MS-CHAP v2)</strong></li>
             </ul>
 
-            <h3 id="两个注意点">两个注意点</h3>
+            <p>中间还收到一个 <strong>20223</strong>，看着挺吓人，其实是 <code>ROUTERLOG_DEVICE_CONNECTED</code>，正常连接成功日志，不用管。它反而印证了链路早就通了，卡的是认证。</p>
 
-            <ol>
-            <li><strong>美元号歧义</strong>：正文里写 <code>价格是 $5 到 $10</code> 时，会被误判成行内公式。真要写美元，用 <code>$</code> 转义（已有的 <code>BACKSLASH_ESCAPE_RE</code> 会处理）。</li>
-            <li><strong><code>$$</code> 必须独占一行开头</strong>：块级公式的触发条件是 <code>s.startswith("$$")</code>，别在段落中间直接塞 <code>$$…$$</code>。</li>
-            </ol>
+            <h2 id="连上就断网">连上就断网</h2>
 
-            <h2 id="15-图表-mermaid">15. 图表 Mermaid</h2>
+            <p>VPN 连上之后，本地直接断网。</p>
 
-            <div class="mermaid-wrap">
-            <pre class="mermaid">
-graph TD
-  A[开始] --&gt; B{判断}
-  B --&gt;|是| C[执行]
-  B --&gt;|否| D[结束]
-  C --&gt; D
-</pre>
-            </div>
+            <p>原因很直白：Windows 默认把 VPN 当默认网关，<strong>所有流量都往 VPN 里送</strong>；服务端 <span class="hover-hint">NAT<span class="hover-hint__tooltip"><span class="hint-title">NAT（Network Address Translation，网络地址转换）</span>把内网私有 IP 映射到公网 IP 的技术。文章里“服务端 NAT 没处理好，就是有去无回”，指的是 VPN 客户端把流量发给服务端后，服务端需要做 NAT 才能把回程流量正确送回客户端；NAT 配错就会出现“连上 VPN 就断网”。</span></span> 没处理好，就是有去无回。</p>
 
-            <div class="mermaid-wrap">
-            <pre class="mermaid">
-sequenceDiagram
-  participant 用户
-  participant 系统
-  用户-&gt;&gt;系统: 请求
-  系统--&gt;&gt;用户: 响应
-</pre>
-            </div>
+            <p>客户端改比较快：</p>
 
-            <h2 id="16-徽章与表情">16. 徽章与表情</h2>
-
-            <p><img src="https://img.shields.io/badge/Markdown-000000?style=flat&amp;logo=markdown" alt="Markdown" loading="lazy"> <img src="https://img.shields.io/badge/license-MIT-blue" alt="License" loading="lazy"></p>
-
-            <p>😄 ❤️ 🚀</p>
-
-            <h2 id="17-提示与折叠">17. 提示与折叠</h2>
-
-            <div class="callout callout--note">
-                <div class="callout__title"><svg class="callout__icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> NOTE</div>
-                <div class="callout__body">
-            <p>这是一个提示块。</p>
+            <div class="code-block">
+                <div class="code-block__bar">
+                    <span class="code-block__dots"><i></i><i></i><i></i></span>
+                    <span class="code-block__lang">text</span>
+                    <button class="code-block__copy" type="button" data-copy>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                        </svg>
+                        复制
+                    </button>
                 </div>
+                <pre><code>Win + R → ncpa.cpl
+→ 右键 VPN 连接 → 属性
+→ 网络 → Internet 协议版本 4 (TCP/IPv4) → 高级
+→ 取消勾选「在远程网络上使用默认网关」
+</code></pre>
+                <button class="code-block__expand" type="button" data-expand aria-expanded="false">
+                    <span class="code-block__expand-text">展开全部</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
             </div>
 
-            <details>
-              <summary>展开查看详情</summary>
+            <p>改完立刻恢复正常。</p>
 
-              这里可以放 **Markdown** 内容。
+            <h2 id="安全">安全</h2>
 
-              ```js
-              console.log("Hello");
-              ```
-            </details>
+            <p>我还是有点赛博洁癖的，所以在折腾的最后弄一下安全。</p>
 
-            <h2 id="18-媒体与嵌入">18. 媒体与嵌入</h2>
+            <h3 id="阿里云安全组">阿里云安全组</h3>
 
-            <iframe src="https://example.com" width="300" height="150" title="来自 example.com 的嵌入内容" loading="lazy"></iframe>
+            <p>对于公网的限制，我第一个就想到的就是阿里云的安全组。我最初是设置阻止所有TCP和UDP连接，优先级是100（最低优先级），然后再手动允许特定协议的特定端口。但是我实际测试发现我的设置居然一点用都没有。之后我把优先级改成2，居然也不行。唉哟我最终回退到手动拒绝的模式了。不过阿里云的安全组有一个很神奇的一点就是我手动拒绝了我的VPN的端口（入站），但是我居然还能连上是怎么回事？！</p>
 
-            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2755332551&auto=0&height=66" title="来自 music.163.com 的嵌入内容" loading="lazy"></iframe>
+            <p>之后手动禁止<span class="hover-hint">UDP 500和UDP 4500端口<span class="hover-hint__tooltip"><span class="hint-title">UDP 500 / UDP 4500</span>IPsec 的标准端口：500 用于 IKE 协商，4500 用于 NAT-T（NAT 穿越）。文章最后在阿里云安全组里“手动禁止 UDP 500 和 UDP 4500”，才真正切断了 L2TP/IPsec 连接，说明之前的安全组规则没有正确生效。</span></span>，成功地连不上了</p>
 
-            <h2 id="19-其他扩展">19. 其他扩展</h2>
+            <h3 id="密钥">密钥</h3>
 
-            <p>行内 HTML 与 Markdown 混合：<span style="color: red;">红色文字</span> 和 <strong>粗体</strong>。</p>
+            <p>这个协议的预共享密钥最多只能设置8位，而用户密码似乎没有这些限制。</p>
 
-            <p>键盘输入：<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Delete</kbd></p>
+            <p>于是我就用了64位账号密码。</p>
 
-            <p>上标/下标：H<sub>2</sub>O，E=mc<sup>2</sup></p>
+            <h2 id="测试">测试</h2>
 
-            <p>缩写：<abbr title="Application Programming Interface">API</abbr></p>
+            <p>在我手机上连接成功之后呢，我开始叫上别人来一起测试。我叫了2个人，把详细的操作图片依次发给了他们。然后我不理解的地方就来了。一个人成功连上，而且能ping通，另一个连不上，提示：</p>
 
-            <p>高亮：<mark>重要内容</mark></p>
+            <blockquote>
+            <p>不能建立到远程计算机的连接。你可能需要更改此连接的网络设置。</p>
+            </blockquote>
 
-            <p>进度条：</p>
+            <p>然后还是老方法，叫他去看Windows的事件查看器，结果这个操作居然没写进系统日志，真是奇了怪了。</p>
 
-            <p><progress value="70" max="100">70%</progress></p>
+            <p>然后我就将之前我让AI写的Python延迟测试和测速......嗯阿里云的pip镜像下载速度好慢</p>
 
-            <h2 id="20-引用式链接汇总">20. 引用式链接汇总</h2>
+            <p>最后看了一下测试结果，延迟在<code>69-73ms</code>内，很不错。</p>
 
-            <p>[OpenAI][openai]<br>
-            [GitHub][github]</p>
-
-            <p>[openai]: https://openai.com [github]: https://github.com</p>
-
-            <section class="footnotes">
             <hr>
-            <ol>
-            <li id="fn-1">
-            <p>这是脚注内容。你可以点击右边箭头返回。 <a class="footnote-backref" href="#fnref-1">↩</a></p>
-            </li>
-            <li id="fn-longnote">
-            <p>这是多行脚注。缩进可以继续脚注内容。</p>
 
-            <p>也可以包含代码和列表：</p>
+            <h2 id="后话">后话</h2>
 
-            <ul>
-            <li>项目一</li>
-            <li>项目二</li>
-            </ul> <a class="footnote-backref" href="#fnref-longnote">↩</a>
-            </li>
-            </ol>
-            </section>
+            <p>困了不写了，我想说GUI是对的。</p>
+
+            <p>下次试试用<span class="hover-hint">WireGuard<span class="hover-hint__tooltip"><span class="hint-title">WireGuard</span>新一代 VPN 协议，代码量极小（约 4000 行，OpenVPN 是 40 万行），性能高、配置简单，Linux 内核原生支持。文章结尾作者说“下次试试用 WireGuard 吧”，就是因为 WireGuard 比 L2TP/IPsec 更现代、更简洁。</span></span>吧，这个协议过时了。</p>
 
             <div class="article-foot">
                 <span class="article-foot__license">
                     本文采用 <a class="article-foot__link" href="https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a> 许可协议，转载请注明出处，禁止用于商业目的。
                 </span>
-                <span>最后更新于 2026-10-05 14:56:36</span>
+                <span>最后更新于 2026-11-19 21:50:44</span>
             </div>
 
             </div>
@@ -4537,55 +4339,24 @@ sequenceDiagram
                         <div class="card toc__card">
                             <div class="toc__head">目录</div>
                             <nav class="toc__list" id="toc-list">
-                                <a class="toc__link toc__link--h1" data-level="1" href="#markdown-全样式示例文档">Markdown 全样式示例文档</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#目录">目录</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#1-标题">1. 标题</a>
-                                <a class="toc__link toc__link--h1" data-level="1" href="#h1-一级标题">H1 一级标题</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#h2-二级标题">H2 二级标题</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#h3-三级标题">H3 三级标题</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#h4-四级标题">H4 四级标题</a>
-                                <a class="toc__link toc__link--h5 toc__link--sub" data-level="5" href="#h5-五级标题">H5 五级标题</a>
-                                <a class="toc__link toc__link--h6 toc__link--sub" data-level="6" href="#h6-六级标题">H6 六级标题</a>
-                                <a class="toc__link toc__link--h1" data-level="1" href="#一级标题-setext">一级标题 Setext</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#二级标题-setext">二级标题 Setext</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#2-段落与换行">2. 段落与换行</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#3-强调与文本样式">3. 强调与文本样式</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#专有样式">专有样式</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#悬停提示hover-hint测试文档">悬停提示（Hover Hint）测试文档</a>
-                                <a class="toc__link toc__link--h5 toc__link--sub" data-level="5" href="#1-行内基础用法">1. 行内基础用法</a>
-                                <a class="toc__link toc__link--h5 toc__link--sub" data-level="5" href="#2-多行与长文本提示">2. 多行与长文本提示</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#3-标题中的提示">3. 标题中的提示</a>
-                                <a class="toc__link toc__link--h5 toc__link--sub" data-level="5" href="#31-普通标题-span-classhover-hint带提示span-classhover-hinttooltipspan-classhint-title标题提示span标题里也可以嵌入悬停提示spanspan">3.1 普通标题 &lt;span class="hover-hint"&gt;（带提示）&lt;span class="hover-hint__tooltip"&gt;&lt;span class="hint-title"&gt;标题提示&lt;/span&gt;标题里也可以嵌入悬停提示。&lt;/span&gt;&lt;/span&gt;</a>
-                                <a class="toc__link toc__link--h6 toc__link--sub" data-level="6" href="#311-六级标题-span-classhover-hintspan-classhover-hinttooltip图标式提示常见于标题右侧spanspan">3.1.1 六级标题 &lt;span class="hover-hint"&gt;ⓘ&lt;span class="hover-hint__tooltip"&gt;图标式提示，常见于标题右侧。&lt;/span&gt;&lt;/span&gt;</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#4-列表中的提示">4. 列表中的提示</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#5-引用块中的提示">5. 引用块中的提示</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#6-表格中的提示">6. 表格中的提示</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#7-链接中的提示">7. 链接中的提示</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#8-与其他行内样式组合">8. 与其他行内样式组合</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#9-边界与极端情况">9. 边界与极端情况</a>
-                                <a class="toc__link toc__link--h4 toc__link--sub" data-level="4" href="#10-一段综合段落">10. 一段综合段落</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#4-引用">4. 引用</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#5-列表">5. 列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#无序列表">无序列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#有序列表">有序列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#任务列表">任务列表</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#定义列表部分扩展">定义列表（部分扩展）</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#6-代码">6. 代码</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#7-链接">7. 链接</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#8-图片">8. 图片</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#9-表格">9. 表格</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#10-分隔线">10. 分隔线</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#11-html">11. HTML</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#12-转义字符">12. 转义字符</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#13-脚注">13. 脚注</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#14-数学公式">14. 数学公式</a>
-                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#两个注意点">两个注意点</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#15-图表-mermaid">15. 图表 Mermaid</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#16-徽章与表情">16. 徽章与表情</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#17-提示与折叠">17. 提示与折叠</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#18-媒体与嵌入">18. 媒体与嵌入</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#19-其他扩展">19. 其他扩展</a>
-                                <a class="toc__link toc__link--h2" data-level="2" href="#20-引用式链接汇总">20. 引用式链接汇总</a>
+                                <a class="toc__link toc__link--h1" data-level="1" href="#云上搭-l2tpipsec-实录">云上搭 L2TP/IPsec 实录</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#开头">开头</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第一回合strongswan-的半小时惨案">第一回合：strongSwan 的半小时惨案</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#第二回合编译-softether">第二回合：编译 SoftEther</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#装依赖">装依赖</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#下源码">下源码</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#编译">编译</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#监听">监听</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#配它">配它</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#连不上">连不上</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#事件-734隧道通了ip-没发下来">事件 734：隧道通了，IP 没发下来</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#真正的凶手ppp-认证">真正的凶手：PPP 认证</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#连上就断网">连上就断网</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#安全">安全</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#阿里云安全组">阿里云安全组</a>
+                                <a class="toc__link toc__link--h3 toc__link--sub" data-level="3" href="#密钥">密钥</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#测试">测试</a>
+                                <a class="toc__link toc__link--h2" data-level="2" href="#后话">后话</a>
                             </nav>
                         </div>
                     </aside>
@@ -5840,119 +5611,6 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
             }
         })();
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script>
-(function () {
-    var nodes = Array.prototype.slice.call(document.querySelectorAll(".mermaid"));
-    if (!nodes.length || !window.mermaid) return;
-
-    /* 记住原始源码，切换主题后可以重新渲染 */
-    var sources = nodes.map(function (el) {
-        return { el: el, code: el.textContent };
-    });
-
-    var LIGHT = {
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
-        fontSize: "13px",
-        primaryColor: "#E8F4FD",
-        primaryTextColor: "#1F1F1F",
-        primaryBorderColor: "#21A5E3",
-        lineColor: "#9BB7CC",
-        secondaryColor: "#F2F6FF",
-        tertiaryColor: "#FAFAFA",
-        background: "#FFFFFF",
-        mainBkg: "#E8F4FD",
-        nodeBorder: "#21A5E3",
-        clusterBkg: "#F7FBFF",
-        clusterBorder: "#CFE6F7",
-        edgeLabelBackground: "#FFFFFF",
-        actorBkg: "#E8F4FD",
-        actorBorder: "#21A5E3",
-        actorTextColor: "#1F1F1F",
-        signalColor: "#404040",
-        signalTextColor: "#404040",
-        noteBkgColor: "#FFF8DD",
-        noteBorderColor: "#FFD84D"
-    };
-
-    var DARK = {
-        fontFamily: LIGHT.fontFamily,
-        fontSize: "13px",
-        primaryColor: "#233248",
-        primaryTextColor: "#EAF2FA",
-        primaryBorderColor: "#4FB8F0",
-        lineColor: "#6E86A3",
-        secondaryColor: "#1F2836",
-        tertiaryColor: "#1B2230",
-        background: "#1B2230",
-        mainBkg: "#233248",
-        nodeBorder: "#4FB8F0",
-        clusterBkg: "#1F2836",
-        clusterBorder: "#33445C",
-        edgeLabelBackground: "#1B2230",
-        actorBkg: "#233248",
-        actorBorder: "#4FB8F0",
-        actorTextColor: "#EAF2FA",
-        signalColor: "#C6D2E0",
-        signalTextColor: "#C6D2E0",
-        noteBkgColor: "#3A3520",
-        noteBorderColor: "#FFD84D"
-    };
-
-    function isDark() {
-        return document.documentElement.getAttribute("data-theme") === "dark";
-    }
-
-    function render() {
-        mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: "strict",
-            theme: "base",
-            themeVariables: isDark() ? DARK : LIGHT,
-            flowchart: { curve: "basis", htmlLabels: true, useMaxWidth: true },
-            sequence: { useMaxWidth: true, mirrorActors: false }
-        });
-
-        /* 还原成源码，允许重新渲染 */
-        sources.forEach(function (s) {
-            var wrap = s.el.closest ? s.el.closest(".mermaid-wrap") : null;
-            if (wrap) wrap.classList.remove("is-rendered");
-            s.el.removeAttribute("data-processed");
-            s.el.innerHTML = "";
-            s.el.textContent = s.code;
-        });
-
-        mermaid.run({ nodes: sources.map(function (s) { return s.el; }) })
-            .then(function () {
-                document.querySelectorAll(".mermaid-wrap").forEach(function (el) {
-                    el.classList.add("is-rendered");
-                });
-            })
-            .catch(function (err) {
-                console.error("[mermaid]", err);
-            });
-    }
-
-    render();
-    window.addEventListener("themechange", render);
-})();
-</script>
-
-<script>
-window.MathJax = {
-    tex: {
-        inlineMath: [['\\(', '\\)']],
-        displayMath: [['\\[', '\\]']]
-    },
-    svg: { fontCache: 'global' },
-    options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-};
-</script>
-<script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </body>
 
