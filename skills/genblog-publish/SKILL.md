@@ -19,6 +19,8 @@ Turn one Markdown article and one SVG card icon into a fully wired blog page in 
 - Never invent `date` or `updated`. Obtain them from the system clock with `date '+%Y-%m-%d %H:%M:%S'`; both must include time to the second. See `references/front-matter.md`.
 - Before building, insert hover hints into the Markdown yourself according to `references/hover-hint.md`. Use search tools for unfamiliar terms; never guess an explanation. Do not open `hover-hint.py` for this.
 - After every successful build, report which explanations you inserted (term / hint title / summary / whether verified by search), or state explicitly that no hints were needed. This explanation is mandatory. See `references/hover-hint.md`.
+- Before building, verify the chosen Python interpreter can import `pygments`. The builder spawns every sub-step with `sys.executable`, so the interpreter that launches the script is the interpreter used for the whole chain. A missing dependency here breaks the build at the render stage — this is an environment switch, not a command to retry. See `references/WORKFLOW.md` → 踩坑记录.
+- This skill exists in two locations. Prefer the in-project copy (`<current working directory>/skills/genblog-publish/`), whose default root resolves correctly. If you must use the user-directory copy (`~/.workbuddy/skills/genblog-publish/`), you MUST pass `--root "<current working directory>"` explicitly. See `references/WORKFLOW.md` → 踩坑记录.
 
 ## Required inputs
 
@@ -45,10 +47,16 @@ The full field table, format rules, and example live in `references/front-matter
 
 ### 1. Run the deterministic builder
 
-From the project root `E:/0Project/ttwe77s-homepage`, execute:
+From the project root `<current working directory>`, execute with the **system Python that has the build dependencies** (see 踩坑记录 in `references/WORKFLOW.md` — plain `python` resolves to WorkBuddy's bundled interpreter and will fail on `pygments`):
 
-```bash
-python skills/genblog-publish/scripts/publish_blog.py "<md-path>" "<svg-path-or-inline-svg>"
+```powershell
+$py = (cmd /c where python 2>$null | Select-Object -First 1); if (-not $py) { throw "python not found" }; & $py "skills/genblog-publish/scripts/publish_blog.py" "<md-path>" "<svg-path-or-inline-svg>"
+```
+
+If you instead invoke the user-directory copy of this skill, add `--root` (its `DEFAULT_ROOT` points at `~/.workbuddy`, not the project):
+
+```powershell
+$py = (cmd /c where python 2>$null | Select-Object -First 1); if (-not $py) { throw "python not found" }; & $py "skills/genblog-publish/scripts/publish_blog.py" "<md-path>" "<svg>" --root "<current working directory>"
 ```
 
 The script performs, in order:
@@ -60,10 +68,10 @@ The script performs, in order:
 5. Invoke `tools/genblog/subset_fonts.py` to refresh `blog/fonts/`.
 6. Invoke `tools/rss/genrss.py`, automatically confirming `y`, to refresh root `rss.xml`.
 
-Use `--dry-run` first when uncertain about inputs:
+Use `--dry-run` first when uncertain about inputs (same interpreter and `--root` rules apply):
 
-```bash
-python skills/genblog-publish/scripts/publish_blog.py "<md>" "<svg>" --dry-run
+```powershell
+$py = (cmd /c where python 2>$null | Select-Object -First 1); if (-not $py) { throw "python not found" }; & $py "skills/genblog-publish/scripts/publish_blog.py" "<md>" "<svg>" --dry-run
 ```
 
 Use `--skip-fonts` or `--skip-rss` only when the user explicitly asks to skip those stages.

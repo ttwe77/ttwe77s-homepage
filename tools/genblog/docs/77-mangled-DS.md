@@ -1,9 +1,22 @@
-# 64 小时，五十七轮对话，0 行代码
+---
+title: 64小时爆改DeepSeek开源前端
+description: 一次完整的 Vibe Coding 实操记录，64 小时内用 AI Agent 爆改 DeepSeek 官方 chat-demo，做成「77爆改DeepSeek」PWA。57 轮对话、0 行手写代码，从滑动条、PWA 到字体子集化和服务端白名单，全程只负责描述现象与验收。
+date: 2026-11-21 00:48:24
+category: 编程
+readtime: 35
+author: ttwe77
+tags: AI编程, vibe coding, DeepSeek, PWA, 前端, 折腾
+license: CC BY-NC 4.0
+license_url: https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans
+updated: 2026-11-21 00:48:24
+---
 
-> 一次完整的 vibe coding 实操记录
+# 64小时爆改DeepSeek开源前端
+
+> 一次完整的 <span class="hover-hint">vibe coding<span class="hover-hint__tooltip"><span class="hint-title">vibe coding（氛围编程）</span>2025 年由 Andrej Karpathy 提出的开发方式：人用自然语言说清想要什么，AI 负责读写代码、构建和调试，人只做判断与验收。</span></span> 实操记录
 > 对象：DeepSeek 官方开源 chat-demo v0.1.1（MIT）
 > 时间：11 月 18 日 07:56 — 11 月 21 日 00:02
-> 产物：一个叫「77爆改DeepSeek」的 PWA
+> 产物：一个叫「77爆改DeepSeek」的 <span class="hover-hint">PWA<span class="hover-hint__tooltip"><span class="hint-title">PWA（Progressive Web App，渐进式网页应用）</span>用普通网页技术做出、能像 App 一样安装到桌面的网站，有独立图标、可离线打开。<br>靠 manifest（应用清单）和 Service Worker 实现。</span></span>
 
 ---
 
@@ -82,9 +95,9 @@ Vibe Coding好说啊：
 
 我先了解一下整个仓库，之后方便操作。
 
-两分钟后它读了 31 个文件，回来一份逐目录说明。[chat-demo](https://github.com/deepseek-ai/chat-demo) 是个纯前端的静态聊天应用：没有自建后端，浏览器 `fetch` 直连 `api.deepseek.com`，走 Anthropic 兼容的 Messages / Files API；Key 和设置存 localStorage，会话和附件原件存 IndexedDB；构建产物是纯静态文件，甚至能双击 `index.html` 在 `file://` 下跑。
+两分钟后它读了 31 个文件，回来一份逐目录说明。[chat-demo](https://github.com/deepseek-ai/chat-demo) 是个纯前端的静态聊天应用：没有自建后端，浏览器 `fetch` 直连 `api.deepseek.com`，走 Anthropic 兼容的 Messages / Files API；Key 和设置存 localStorage，会话和附件原件存 <span class="hover-hint">IndexedDB<span class="hover-hint__tooltip"><span class="hint-title">IndexedDB</span>浏览器内置的异步数据库，适合在本地存大量结构化数据甚至文件、图片，容量远大于 localStorage。<br>本文用它存会话记录和附件原件。</span></span>；构建产物是纯静态文件，甚至能双击 `index.html` 在 `file://` 下跑。
 
-技术栈：React 18 + TypeScript strict + Zustand + Rspack/SWC，Markdown 走 mdast/micromark，Prism 高亮，KaTeX 公式，Mermaid 图。
+技术栈：React 18 + TypeScript strict + <span class="hover-hint">Zustand<span class="hover-hint__tooltip"><span class="hint-title">Zustand</span>轻量级 React 状态管理库，用很少的代码就能在组件之间共享数据，常作为 Redux 的简化替代。</span></span> + <span class="hover-hint">Rspack/SWC<span class="hover-hint__tooltip"><span class="hint-title">Rspack / SWC</span>Rspack 是用 Rust 写的打包构建工具，兼容 Webpack 生态、速度更快。<br>SWC 是同样用 Rust 写的 JavaScript/TypeScript 编译器，把新语法转成浏览器能跑的代码。</span></span>，Markdown 走 <span class="hover-hint">mdast/micromark<span class="hover-hint__tooltip"><span class="hint-title">mdast / micromark</span>unified 生态里解析 Markdown 的两个底层部件：micromark 负责把文本切成语法标记，mdast 是最终的 Markdown 语法树。</span></span>，<span class="hover-hint">Prism 高亮，KaTeX 公式，Mermaid 图<span class="hover-hint__tooltip"><span class="hint-title">Prism / KaTeX / Mermaid</span>三个前端渲染库：Prism 做代码语法高亮，KaTeX 排版数学公式，Mermaid 把文字描述画成流程图等图表。</span></span>。
 
 > *好了这技术栈一个都没见过，但是这不妨碍我用AI操作*
 
@@ -152,7 +165,7 @@ pnpm dev
 
 - 设备信息开关要清历史。 
 
-- Token 估算从字符法升级成真 tokenizer。
+- Token 估算从字符法升级成真 <span class="hover-hint">tokenizer<span class="hover-hint__tooltip"><span class="hint-title">tokenizer（分词器）</span>把文本切成大模型能理解的最小单位（token）的工具。<br>本文用它替代「按字符估算」，让 Token 计数更接近真实计费。</span></span>。
 
 - 加了耗时（`finishedAt - createdAt`，一位小数）和 Tokens/s。
 
@@ -302,7 +315,7 @@ ICP备案号，加带公安图标的公安备案号。分别跳工信部和公�
 
 **2m 5s 后它重写了。** 手指按下时锁定这个手指的后续事件并按手指横向坐标立即取位，手指移动时持续更新，手指抬起时结束并解除锁定，补上“手势被取消”和“锁定丢失”两种情况的复位。换算用滑块区域的边界位置减去 26px 拇指宽，夹紧到 0~1。数值变化回调只在手势未进行时生效，保留键盘操作，也不让原生跳值覆盖手指位置。
 
-同一天它还犯过一次同类的错，在 Service Worker 上（见 16:31）。两次都是同一个模式：**默认信任平台的抽象，直到抽象漏了。**
+同一天它还犯过一次同类的错，在 <span class="hover-hint">Service Worker<span class="hover-hint__tooltip"><span class="hint-title">Service Worker</span>运行在浏览器后台的脚本，独立于网页，能拦截网络请求、管理缓存，是 PWA 实现离线访问的核心。</span></span> 上（见 16:31）。两次都是同一个模式：**默认信任平台的抽象，直到抽象漏了。**
 
 ---
 
@@ -312,7 +325,7 @@ ICP备案号，加带公安图标的公安备案号。分别跳工信部和公�
 
 **3 分 40 秒，6 个文件，+154 −1。**
 
-它用 ImageMagick 这个图片处理工具，从 `ds*.webp` 一张图生成了五套图标：192、512、maskable-512、苹果触屏 180、favicon-32。maskable 那张把内容缩到 80%，用原图的米色 `#fcf9f1` 补满四周——不这么做的话，安卓手机把图标裁成圆形时，会把边缘的头像切掉。
+它用 ImageMagick 这个图片处理工具，从 `ds*.webp` 一张图生成了五套图标：192、512、maskable-512、苹果触屏 180、favicon-32。<span class="hover-hint">maskable<span class="hover-hint__tooltip"><span class="hint-title">maskable 图标</span>PWA 的一种图标类型，安卓会把图标裁成圆形等形状。<br>所以要把主体缩进安全区（约 80%），四周用背景色填满，避免被裁掉。</span></span> 那张把内容缩到 80%，用原图的米色 `#fcf9f1` 补满四周——不这么做的话，安卓手机把图标裁成圆形时，会把边缘的头像切掉。
 
 应用清单（manifest）里的启动地址和作用范围都写成相对路径，这样不管网站挂在 GitHub Pages 的子目录还是根目录都能正常打开。离线脚本 `sw.js` 定了三条策略：打开页面时先问网络、断网就回退到入口页；图片脚本这类静态资源先用缓存里的、后台悄悄更新；只管自己网站的读取请求，DeepSeek 的接口一概不拦。`pwa.ts` 只在正式版、并且网址是 http(s) 时才启动注册。
 
@@ -427,7 +440,7 @@ ICP备案号，加带公安图标的公安备案号。分别跳工信部和公�
 
 > `有些字用自定义字体没生效，比如"！"`
 
-它写了 `scripts/gen-font-coverage.py`，用 fontTools 读 16 个 woff2 字体里的字符表（cmap），按 256 个码点一块一块地分——块内有 8 个字以上就整块声明，否则逐字声明。为什么要这么分？因为「。」这种单字符块，会把整个 `U+3000-30FF` 标点区都圈进来。16 款字体的声明加起来约 29KB。
+它写了 `scripts/gen-font-coverage.py`，用 <span class="hover-hint">fontTools<span class="hover-hint__tooltip"><span class="hint-title">fontTools</span>处理字体文件的 Python 库，能读取字体内部的字符映射表（cmap），从而查出每个字体究竟收了哪些字。</span></span> 读 16 个 woff2 字体里的字符表（cmap），按 256 个码点一块一块地分——块内有 8 个字以上就整块声明，否则逐字声明。为什么要这么分？因为「。」这种单字符块，会把整个 `U+3000-30FF` 标点区都圈进来。16 款字体的声明加起来约 29KB。
 
 再用 `CSS.getPlatformFontsForNode` 逐字验证真正渲染出来的字体：圆体 + 「字」→ 七七柔和圆体 ✓；圆体 + 「！」→ Microsoft YaHei（子集里没有）；圆体 + 𠮷 / 😀 → SimSun-ExtB / Segoe UI Emoji。
 
