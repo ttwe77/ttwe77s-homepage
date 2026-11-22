@@ -2,6 +2,8 @@ nginx-1.30.5/*
 .trae/rules/git-commit-message.md
 客户端/client.ini
 客户端/main.exe
+客户端/PersonalStatusRecorder.exe
+客户端/appicon.res
 status/.api_token
 status/data/device-01.json.lock
 status/data/device-01.json

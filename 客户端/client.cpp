@@ -1,15 +1,16 @@
-// client.cpp — 个人状态 API 客户端（托盘版）
+// client.cpp — 个人状态记录器（托盘版）
 //
 // 编译（MinGW-w64）：
-//   g++ -std=c++17 -O2 -o client.exe client.cpp -lwinhttp -lshell32 -luser32 -lgdi32
+//   windres appicon.rc -O coff -o appicon.res
+//   g++ -std=c++17 -O2 -o PersonalStatusRecorder.exe client.cpp appicon.res -lwinhttp -lshell32 -luser32 -lgdi32
 //
 // 用法：
-//   client.exe                      # 按 client.ini 推送状态，并常驻托盘
-//   client.exe --status busy        # 临时覆盖状态并托盘常驻
-//   client.exe --get                # 查询当前状态（控制台）
-//   client.exe --health             # 健康检查（控制台）
-//   client.exe --once               # 只推送一次后退出
-//   client.exe -c D:\x\my.ini       # 指定配置文件
+//   PersonalStatusRecorder.exe                      # 按 client.ini 推送状态，并常驻托盘
+//   PersonalStatusRecorder.exe --status busy        # 临时覆盖状态并托盘常驻
+//   PersonalStatusRecorder.exe --get                # 查询当前状态（控制台）
+//   PersonalStatusRecorder.exe --health             # 健康检查（控制台）
+//   PersonalStatusRecorder.exe --once               # 只推送一次后退出
+//   PersonalStatusRecorder.exe -c D:\x\my.ini       # 指定配置文件
 //
 // 退出码：0 成功 / 1 请求或接口失败 / 2 参数错误
 
@@ -37,6 +38,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+// 内嵌图标资源 ID（与 appicon.rc 保持一致）；同时作为 exe 文件图标和托盘图标
+#define IDI_APP_ICON 1
 
 // ============================ 编码工具 ============================
 
@@ -387,7 +391,7 @@ static HttpResult http_request(const std::wstring& method,
     fullPath.append(extra, uc.dwExtraInfoLength);
     if (fullPath.empty()) fullPath = L"/";
 
-    WinHttpHandle hSession(WinHttpOpen(L"StatusClient/1.0",
+    WinHttpHandle hSession(WinHttpOpen(L"PersonalStatusRecorder/1.0",
                                        WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
                                        WINHTTP_NO_PROXY_NAME,
                                        WINHTTP_NO_PROXY_BYPASS, 0));
@@ -1170,7 +1174,7 @@ static int push_once(Config& cfg, bool quiet, bool verbose,
     std::vector<std::wstring> headers;
     headers.push_back(L"Content-Type: application/json; charset=utf-8");
     headers.push_back(L"Accept: application/json");
-    headers.push_back(L"User-Agent: status-client/1.0");
+    headers.push_back(L"User-Agent: PersonalStatusRecorder/1.0");
     if (!cfg.apiKey.empty())
         headers.push_back(L"X-API-Key: " + utf8_to_wide(cfg.apiKey));
 
@@ -1288,7 +1292,7 @@ static void push_with_power_rule(Config& cfg, const PowerRule& rule,
 
 // ============================ 托盘 ============================
 
-static const wchar_t* kTrayWndClass = L"StatusClientTrayWnd";
+static const wchar_t* kTrayWndClass = L"PersonalStatusRecorderTrayWnd";
 static const UINT WM_TRAY_NOTIFY  = WM_APP + 1;
 static const UINT WM_TRAY_WAKE    = WM_APP + 2;
 static const UINT_PTR TIMER_PUSH  = 1;
@@ -1312,7 +1316,7 @@ static bool g_pushing = false;
 static void update_tray_tip() {
     if (!g_cfg) return;
 
-    std::wstring tip = L"StatusClient - " + utf8_to_wide(g_cfg->status);
+    std::wstring tip = L"个人状态记录器 - " + utf8_to_wide(g_cfg->status);
     if (!g_cfg->statusText.empty())
         tip += L" (" + utf8_to_wide(g_cfg->statusText) + L")";
 
@@ -1490,7 +1494,7 @@ static LRESULT CALLBACK tray_wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
             if (rc == 2) {
                 MessageBoxW(hwnd, L"配置错误，程序将退出。",
-                            L"StatusClient", MB_OK | MB_ICONERROR);
+                            L"个人状态记录器", MB_OK | MB_ICONERROR);
                 DestroyWindow(hwnd);
             }
         }
@@ -1533,7 +1537,7 @@ static bool init_tray(HINSTANCE hInst, Config& cfg, bool quiet, bool verbose) {
     // 这样 WM_POWERBROADCAST 电源广播才能送达
     HWND hwnd = CreateWindowExW(
         WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-        kTrayWndClass, L"StatusClient",
+        kTrayWndClass, L"个人状态记录器",
         WS_POPUP,
         0, 0, 0, 0,
         nullptr, nullptr, hInst, nullptr);
@@ -1549,9 +1553,9 @@ static bool init_tray(HINSTANCE hInst, Config& cfg, bool quiet, bool verbose) {
     g_nid.uID = 1;
     g_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     g_nid.uCallbackMessage = WM_TRAY_NOTIFY;
-    g_nid.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_APPLICATION);
+    g_nid.hIcon = LoadIconW(hInst, (LPCWSTR)MAKEINTRESOURCE(IDI_APP_ICON));
 
-    lstrcpynW(g_nid.szTip, L"StatusClient", ARRAYSIZE(g_nid.szTip));
+    lstrcpynW(g_nid.szTip, L"个人状态记录器", ARRAYSIZE(g_nid.szTip));
 
     if (!Shell_NotifyIconW(NIM_ADD, &g_nid)) {
         DestroyWindow(hwnd);
@@ -1576,7 +1580,7 @@ static bool write_default_ini(const std::string& path, std::string& err) {
 
     f <<
         "; ============================================================\n"
-        "; status-client 配置文件\n"
+        "; 个人状态记录器 配置文件\n"
         "; 首次运行由程序自动生成，请按需修改后保存\n"
         "; 编码: UTF-8（带 BOM）\n"
         "; ============================================================\n"
@@ -1707,9 +1711,9 @@ static bool write_default_ini(const std::string& path, std::string& err) {
 
 static void print_usage() {
     std::cout <<
-        "个人状态 API 客户端（托盘版）\n"
+        "个人状态记录器（托盘版）\n"
         "\n"
-        "用法: client.exe [选项]\n"
+        "用法: PersonalStatusRecorder.exe [选项]\n"
         "\n"
         "  -c, --config <文件>   指定 INI 配置文件（默认 exe 同目录 client.ini）\n"
         "      --url <地址>      覆盖接口地址\n"
@@ -1841,7 +1845,7 @@ int main() {
                     L"填写后重新运行本程序。";
 
                 MessageBoxW(nullptr, msg.c_str(),
-                            L"StatusClient 配置提示",
+                            L"个人状态记录器 配置提示",
                             MB_OK | MB_ICONINFORMATION);
                 return 0;
             } else {
@@ -1849,7 +1853,7 @@ int main() {
                     L"无法创建配置文件：\n" + utf8_to_wide(werr);
 
                 MessageBoxW(nullptr, msg.c_str(),
-                            L"StatusClient 错误",
+                            L"个人状态记录器 错误",
                             MB_OK | MB_ICONERROR);
                 return 2;
             }
@@ -1962,7 +1966,7 @@ int main() {
                 L"  ✓ 正确：chrome = since=now\n";
 
             MessageBoxW(nullptr, msg.c_str(),
-                        L"StatusClient 配置提示",
+                        L"个人状态记录器 配置提示",
                         MB_OK | MB_ICONWARNING);
         }
     }
@@ -1982,7 +1986,7 @@ int main() {
             for (const auto& m : missing) msg += L"  • " + m + L"\n";
             msg += L"\n请编辑 client.ini 或使用命令行参数后重试。";
             MessageBoxW(nullptr, msg.c_str(),
-                        L"StatusClient 配置错误",
+                        L"个人状态记录器 配置错误",
                         MB_OK | MB_ICONERROR);
             return 2;
         }
@@ -1997,14 +2001,14 @@ int main() {
 
         // ---- 单实例锁（仅托盘常驻模式）----
         HANDLE hMutex = CreateMutexW(nullptr, TRUE,
-                                     L"Local\\StatusClient_Tray_SingleInstance");
+                                     L"Local\\PersonalStatusRecorder_Tray_SingleInstance");
         if (hMutex && GetLastError() == ERROR_ALREADY_EXISTS) {
             HWND existing = FindWindowW(kTrayWndClass, nullptr);
             if (existing) PostMessageW(existing, WM_TRAY_WAKE, 0, 0);
             if (!quiet) {
                 MessageBoxW(nullptr,
-                            L"StatusClient 已经在运行中。\n请查看系统托盘图标。",
-                            L"StatusClient",
+                            L"个人状态记录器 已经在运行中。\n请查看系统托盘图标。",
+                            L"个人状态记录器",
                             MB_OK | MB_ICONINFORMATION);
             }
             CloseHandle(hMutex);
@@ -2030,7 +2034,7 @@ int main() {
         HINSTANCE hInst = GetModuleHandleW(nullptr);
         if (!init_tray(hInst, cfg, quiet, verbose)) {
             MessageBoxW(nullptr, L"托盘初始化失败。",
-                        L"StatusClient", MB_OK | MB_ICONERROR);
+                        L"个人状态记录器", MB_OK | MB_ICONERROR);
             return 1;
         }
 
@@ -2038,7 +2042,7 @@ int main() {
         int rc = push_once(cfg, quiet, verbose);
         if (rc == 2) {
             MessageBoxW(nullptr, L"配置错误，程序退出。",
-                        L"StatusClient", MB_OK | MB_ICONERROR);
+                        L"个人状态记录器", MB_OK | MB_ICONERROR);
             Shell_NotifyIconW(NIM_DELETE, &g_nid);
             return 2;
         }
@@ -2067,7 +2071,7 @@ int main() {
         url = utf8_to_wide(cfg.url);
     }
     headers.push_back(L"Accept: application/json");
-    headers.push_back(L"User-Agent: status-client/1.0");
+    headers.push_back(L"User-Agent: PersonalStatusRecorder/1.0");
 
     if (verbose && !quiet) {
         std::cout << "[请求] GET " << wide_to_utf8(url) << "\n";
