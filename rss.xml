@@ -23,7 +23,7 @@
     <generator>genrss.py</generator>
     <atom:link href="https://www.ttwe77.cn/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
-      <title>64 小时，五十七轮对话，0 行代码</title>
+      <title>64小时爆改DeepSeek开源前端</title>
       <link>https://www.ttwe77.cn/blog/77-mangled-DS.html</link>
       <guid isPermaLink="true">https://www.ttwe77.cn/blog/77-mangled-DS.html</guid>
       <pubDate>Sat, 21 Nov 2026 00:48:24 +0800</pubDate>
@@ -35,7 +35,7 @@
       <category domain="urn:ttwe77:tag">PWA</category>
       <category domain="urn:ttwe77:tag">前端</category>
       <category domain="urn:ttwe77:tag">折腾</category>
-      <description>一次完整的 vibe coding 实操记录，64 小时内用 AI Agent 爆改 DeepSeek 官方 chat-demo，做成「77爆改DeepSeek」PWA。57 轮对话、0 行手写代码，从滑动条、PWA 到字体子集化和服务端白名单，全程只负责描述现象与验收。</description>
+      <description>一次完整的 Vibe Coding 实操记录，64 小时内用 AI Agent 爆改 DeepSeek 官方 chat-demo，做成「77爆改DeepSeek」PWA。57 轮对话、0 行手写代码，从滑动条、PWA 到字体子集化和服务端白名单，全程只负责描述现象与验收。</description>
       <dc:creator>ttwe77</dc:creator>
     </item>
     <item>
