@@ -557,6 +557,20 @@
       color: var(--color-text-secondary)
     }
 
+    /* 第二页可关闭控件（侧栏卡片 / 文章卡片 / 页脚）全被叉完：
+       标题和页码一起淡出收起，别对着空列表喊「最新文章」 */
+    #page-posts.is-cleared .section-title,
+    #page-posts.is-cleared .works-pager {
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      visibility: hidden;
+      transition:
+        opacity .3s ease,
+        transform .3s ease,
+        visibility 0s linear .3s;
+    }
+
     /* ============ 数据统计 ============ */
     .stats {
       display: grid;
@@ -6038,6 +6052,8 @@
           footer.style.overflow = '';
           footer.style.transition = '';
           if (window.showToast) window.showToast('页脚已隐藏，刷新页面可恢复');
+          /* 关掉页脚后，检查整页是不是已经被叉干净了 */
+          if (window.refreshPostsEmptyState) window.refreshPostsEmptyState();
         }
 
         footer.addEventListener('transitionend', function onEnd(e) {
@@ -6132,6 +6148,9 @@
 
             /* ★ 关键：每张卡片隐藏完成后检查一次 */
             checkSidebarEmpty();
+
+            /* 侧栏空了，再看看整页是不是也叉干净了 */
+            if (window.refreshPostsEmptyState) window.refreshPostsEmptyState();
           }
 
           card.addEventListener('transitionend', function onEnd(ev) {
@@ -6143,6 +6162,76 @@
           setTimeout(finish, 800);
         });
       });
+    })();
+  </script>
+
+  <script>
+    /* ============================================================
+       第二页「叉干净」检测
+       侧栏卡片 + 文章卡片 + 页脚 全部关掉之后，
+       标题（最新文章 · 第 x / y 页）和页码一起收起，并给个提示
+       ============================================================ */
+    (function () {
+      'use strict';
+
+      var host = document.getElementById('page-posts');
+      if (!host) return;
+
+      var works = document.getElementById('works');
+      var sidebar = host.querySelector('.posts-sidebar');
+      var footer = host.querySelector('.footer');
+
+      var TIP = '这一页被你叉得一个控件都不剩了，标题和页码也顺手收走～刷新页面可恢复';
+
+      var cleared = false;
+
+      /* 文章卡片：还有带 X 的卡片，就说明没叉完 */
+      function hasArticle() {
+        if (!works) return false;
+        if (works.getAttribute('aria-busy') === 'true') return true;  // 骨架屏加载中
+        if (works.querySelector('.works__state')) return true;        // 加载失败 / 本页暂无文章
+        return !!works.querySelector('.work__close');
+      }
+
+      /* 侧栏卡片：隐藏后是 display:none，但节点还留在 DOM 里 */
+      function hasSidebarCard() {
+        if (!sidebar) return false;
+        var cards = sidebar.querySelectorAll('.card');
+        for (var i = 0; i < cards.length; i++) {
+          if (cards[i].style.display !== 'none') return true;
+        }
+        return false;
+      }
+
+      function hasFooter() {
+        return !!footer && footer.style.display !== 'none';
+      }
+
+      function refresh() {
+        var empty = !hasArticle() && !hasSidebarCard() && !hasFooter();
+
+        host.classList.toggle('is-cleared', empty);
+
+        if (empty && !cleared) {
+          cleared = true;
+          if (window.showToast) window.showToast(TIP);
+        } else if (!empty) {
+          cleared = false;
+        }
+      }
+
+      window.refreshPostsEmptyState = refresh;
+
+      /* 文章卡片是直接删节点的，用 MutationObserver 兜住：
+         叉掉最后一张、或刷新后重新渲染出新卡片，都能立刻反映 */
+      if (works && window.MutationObserver) {
+        new MutationObserver(function () {
+          if (works.getAttribute('aria-busy') === 'true') return;  // 骨架屏阶段先别判
+          refresh();
+        }).observe(works, { childList: true });
+      }
+
+      refresh();
     })();
   </script>
 

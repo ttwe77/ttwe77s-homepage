@@ -1,20 +1,45 @@
-nginx-1.30.5/*
-.trae/rules/git-commit-message.md
+# ============================================
+# 敏感信息 & 运行时状态（切勿提交）
+# ============================================
+status/.api_token
+status/data/device-01.json
+status/data/device-01.json.lock
+
+# ============================================
+# 客户端二进制 & 本地产物
+# ============================================
 客户端/client.ini
+客户端/client.exe
 客户端/main.exe
 客户端/PersonalStatusRecorder.exe
 客户端/appicon.res
-status/.api_token
-status/data/device-01.json.lock
-status/data/device-01.json
-客户端/client.exe
+
+# ============================================
+# 工具生成的临时产物
+# ============================================
 tools/genblog/parts/*
-tools/rss/rss.xml
+tools/genblog/.tmp
 tools/genblog/__pycache__/*
+tools/rss/rss.xml
 tools/app/ds-chat/*
 tools/app/ds-chat-project/*
-src/ttf/**/backup/
-.workbuddy/
+.screenshots/
+
+# ============================================
+# 字体子集缓存 & 备份
+# ============================================
 src/ttf/fonts/subset_all_state.json
+src/ttf/**/backup/
+
+# ============================================
+# 归档压缩包
+# ============================================
 tools/app/ds-chat-project.7z
 _font-weights-backup-20261119.7z
+
+# ============================================
+# 本地环境 & 第三方目录
+# ============================================
+.workbuddy/
+.trae/rules/git-commit-message.md
+nginx-1.30.5/*

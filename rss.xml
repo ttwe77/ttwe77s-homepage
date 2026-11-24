@@ -18,10 +18,26 @@
       <title>七七的折腾笔记</title>
       <link>https://www.ttwe77.cn</link>
     </image>
-    <pubDate>Sat, 21 Nov 2026 00:48:24 +0800</pubDate>
-    <lastBuildDate>Sat, 21 Nov 2026 00:48:24 +0800</lastBuildDate>
+    <pubDate>Tue, 24 Nov 2026 21:24:00 +0800</pubDate>
+    <lastBuildDate>Tue, 24 Nov 2026 21:24:00 +0800</lastBuildDate>
     <generator>genrss.py</generator>
     <atom:link href="https://www.ttwe77.cn/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>本地 AI 知识库全流程实录：从 32 张招聘海报到一篇调研报告</title>
+      <link>https://www.ttwe77.cn/blog/AI-embedding-reranker.html</link>
+      <guid isPermaLink="true">https://www.ttwe77.cn/blog/AI-embedding-reranker.html</guid>
+      <pubDate>Tue, 24 Nov 2026 21:24:00 +0800</pubDate>
+      <atom:updated>2026-11-24T21:24:00+08:00</atom:updated>
+      <category domain="urn:ttwe77:category">编程</category>
+      <category domain="urn:ttwe77:tag">AI</category>
+      <category domain="urn:ttwe77:tag">本地部署</category>
+      <category domain="urn:ttwe77:tag">知识库</category>
+      <category domain="urn:ttwe77:tag">llama.cpp</category>
+      <category domain="urn:ttwe77:tag">向量检索</category>
+      <category domain="urn:ttwe77:tag">Python</category>
+      <description>把 32 张秋招海报喂给本地模型：PaddleOCR-VL 识图、Qwen3.5 清洗、bge-m3 向量化与重排序，再接问答与报告生成，附一份 AI 亲手踩过的坑。</description>
+      <dc:creator>ttwe77</dc:creator>
+    </item>
     <item>
       <title>64小时爆改DeepSeek开源前端</title>
       <link>https://www.ttwe77.cn/blog/77-mangled-DS.html</link>

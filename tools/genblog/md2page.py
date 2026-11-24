@@ -255,6 +255,41 @@ HTML_TAG_RE = re.compile(
 )
 HTML_ENTITY_RE = re.compile(r"&[a-zA-Z0-9#]+;")
 
+# HTML 块边界扫描用：把一行里的标签切成 (是否闭合, 标签名, 属性, 是否自闭合)。
+# 属性段允许出现引号包住的 ">"，否则 `<text data-x="a>b">` 会被切断。
+HTML_TAG_TOKEN_RE = re.compile(
+    r"<(/?)([a-zA-Z][a-zA-Z0-9:_-]*)"
+    r"((?:\"[^\"]*\"|'[^']*'|[^>\"'])*?)"
+    r"(/?)>",
+    re.S,
+)
+# 这些标签天生没有闭合标签，不能入栈
+VOID_TAGS = {
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+}
+
+def scan_html_tags(line: str, stack: list[str]) -> None:
+    """把一行里的标签压栈/出栈，stack 为空即表示块级 HTML 结束。
+
+    旧实现用「开标签数 - 闭标签数 - 自闭合数」，但开标签正则本来就不统计
+    自闭合标签，减一次等于倒扣一个深度——`<path/>` 这种一出现就会把外层
+    `<svg>` 提前判结束（正文里那张路线图就是这么被腰斩的）。
+    """
+    clean = re.sub(r"<!--.*?-->", "", line, flags=re.S)
+    for m in HTML_TAG_TOKEN_RE.finditer(clean):
+        closing, name, _attrs, self_closing = (
+            m.group(1), m.group(2).lower(), m.group(3), m.group(4)
+        )
+        if closing:
+            if name in stack:
+                while stack and stack.pop() != name:
+                    pass
+        elif self_closing or name in VOID_TAGS:
+            continue
+        else:
+            stack.append(name)
+
 # Emoji 扩展
 EMOJI_MAP = {
     "smile": "😄", "rocket": "🚀", "+1": "👍", 
@@ -1089,21 +1124,15 @@ def render_markdown(md: str, seen_slugs: dict | None = None, headings: list | No
         
         if HTML_BLOCK_START_RE.match(raw):
             buf = []
-            depth = 0
+            stack = []
             while i < n:
                 line = lines[i]
-                # 粗略计算标签嵌套深度，忽略注释中的标签
-                clean_line = re.sub(r'<!--.*?-->', '', line)
-                opens = len(re.findall(r'<[a-zA-Z][^>]*[^/]>', clean_line))
-                closes = len(re.findall(r'</[a-zA-Z][^>]*>', clean_line))
-                self_closes = len(re.findall(r'<[a-zA-Z][^>]*/>', clean_line))
-                opens -= self_closes
-                depth += opens - closes
+                scan_html_tags(line, stack)
 
                 buf.append(line)
                 i += 1
-                # 当深度归零且当前行有内容时，认为 HTML 块结束
-                if depth <= 0 and line.strip():
+                # 标签栈清空且当前行有内容时，认为 HTML 块结束
+                if not stack and line.strip():
                     break
             
             # 直接原样输出，不经过 Markdown 解析

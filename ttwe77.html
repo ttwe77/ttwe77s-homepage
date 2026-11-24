@@ -3510,6 +3510,39 @@
       background: var(--color-bg-white);
     }
 
+    /* Gitee / GitHub 按钮：深色下改成暗玻璃，别拿两块高亮灯箱照眼睛 */
+    :root[data-theme="dark"] .profile__link {
+      color: #D8F1FF;
+      background: linear-gradient(180deg, rgba(79, 184, 240, .26) 0%, rgba(79, 184, 240, .09) 100%);
+      border: 1px solid rgba(79, 184, 240, .36);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 14px rgba(0, 0, 0, .32);
+    }
+
+    :root[data-theme="dark"] .profile__link:hover {
+      color: #E4F6FF;
+      background: linear-gradient(180deg, rgba(79, 184, 240, .3) 0%, rgba(79, 184, 240, .14) 100%);
+      border-color: rgba(79, 184, 240, .52);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 6px 18px rgba(0, 0, 0, .36);
+    }
+
+    /* 主按钮（发送邮件）：保留"最亮的那一个"，但压到不扎眼的深蓝 */
+    :root[data-theme="dark"] .btn--primary {
+      color: #EAF8FF;
+      background: linear-gradient(180deg, #2A82B8 0%, #1E6B99 100%);
+      border: 1px solid rgba(122, 205, 255, .4);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 4px 16px rgba(0, 0, 0, .34);
+    }
+
+    :root[data-theme="dark"] .btn--primary:hover {
+      background: linear-gradient(180deg, #3491CB 0%, #2478A9 100%);
+      border-color: rgba(122, 205, 255, .58);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 6px 20px rgba(0, 0, 0, .38);
+    }
+
+    :root[data-theme="dark"] .btn--primary:active {
+      background: #1A5C85;
+    }
+
     /* 第 2 页 · 立绘卡 */
     :root[data-theme="dark"] .profile__visual {
       background: linear-gradient(158deg, #26364A 0%, #1E2A3C 52%, #1B2230 100%);
@@ -3551,6 +3584,24 @@
       background: var(--color-bg-white);
     }
 
+    /* 第 4 页 · 作品缩略图 */
+    :root[data-theme="dark"] .work__thumb {
+      color: #DCEBFA;
+    }
+
+    /* 压一层暗色蒙版：保留色相、削掉亮度，深色下不再像一排灯箱 */
+    :root[data-theme="dark"] .work__thumb::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: linear-gradient(160deg, rgba(18, 22, 31, .56) 0%, rgba(18, 22, 31, .74) 100%);
+    }
+
+    :root[data-theme="dark"] .work__thumb::after {
+      opacity: .16;
+    }
+
     /* 角色对话气泡 */
     :root[data-theme="dark"] .char-dialog {
       background: rgba(27, 34, 48, .96);
@@ -3558,6 +3609,17 @@
 
     :root[data-theme="dark"] .char-dialog::after {
       border-bottom-color: rgba(27, 34, 48, .96);
+    }
+
+    /* 轻提示：白底配浅色文字在深色下等于隐身，换成暗玻璃 */
+    :root[data-theme="dark"] .toast {
+      background: rgba(27, 34, 48, .94);
+      border-color: rgba(255, 255, 255, .12);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, .55);
+    }
+
+    :root[data-theme="dark"] .toast::before {
+      box-shadow: 0 0 0 3px rgba(79, 184, 240, .2);
     }
 
     /* 悬停提示 */

@@ -3304,6 +3304,273 @@
             }
         }
 
+        /* ============ SVG / Mermaid 单击全屏放大 ============ */
+        .mermaid-wrap {
+            position: relative;
+        }
+
+        .mermaid-wrap[data-zoomable] {
+            cursor: zoom-in;
+        }
+
+        /* 悬停时右上角浮出「放大」角标 */
+        .mermaid-wrap[data-zoomable]::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-md);
+            background: rgba(33, 165, 227, .12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2321a5e3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M21 3l-7 7M9 21H3v-6M3 21l7-7'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+            opacity: 0;
+            transition: opacity .18s ease;
+            pointer-events: none;
+        }
+
+        .mermaid-wrap[data-zoomable]:hover::after {
+            opacity: 1;
+        }
+
+        /* 正文里独立的 SVG 图表 */
+        .article-body svg[data-zoomable] {
+            cursor: zoom-in;
+            border-radius: var(--radius-md);
+            transition: box-shadow .2s ease;
+        }
+
+        .article-body svg[data-zoomable]:hover {
+            box-shadow: 0 0 0 2px rgba(33, 165, 227, .22), 0 6px 18px rgba(0, 0, 0, .08);
+        }
+
+        /* ---------- 放大层令牌 ---------- */
+        :root {
+            --zoom-scrim: rgba(14, 19, 27, .74);
+            --zoom-bar-bg: rgba(255, 255, 255, .94);
+            --zoom-bar-fg: #404040;
+            --zoom-bar-border: rgba(0, 0, 0, .08);
+            --zoom-btn-hover: rgba(33, 165, 227, .14);
+        }
+
+        :root[data-theme="dark"] {
+            --zoom-scrim: rgba(6, 9, 14, .86);
+            --zoom-bar-bg: rgba(27, 34, 48, .92);
+            --zoom-bar-fg: #C6D2E0;
+            --zoom-bar-border: rgba(255, 255, 255, .1);
+            --zoom-btn-hover: rgba(79, 184, 240, .18);
+        }
+
+        /* 放大时锁定背景滚动 */
+        html.svg-zoom-lock,
+        html.svg-zoom-lock body {
+            overflow: hidden;
+        }
+
+        .svg-zoom {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            font-family: var(--font-sans);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .22s ease, visibility .22s ease;
+        }
+
+        .svg-zoom.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .svg-zoom__scrim {
+            position: absolute;
+            inset: 0;
+            background: var(--zoom-scrim);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+        }
+
+        /* 可缩放 / 平移的视口，下方给工具栏留出空间 */
+        .svg-zoom__viewport {
+            position: absolute;
+            inset: 0 0 92px 0;
+            overflow: hidden;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .svg-zoom__viewport.is-dragging {
+            cursor: grabbing;
+        }
+
+        .svg-zoom__canvas {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            background: var(--color-bg-white);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, .38);
+            transform: translate(-50%, -50%);
+            transform-origin: 50% 50%;
+            /* 不要加 will-change: transform。
+               它会让 Chrome 把这一层锁在「打开时」的栅格比例（适配≈1x），
+               之后再 scale(2)~scale(8) 就是位图拉伸，中文糊成一团；
+               去掉后每次缩放结束都会按当前比例重新栅格，矢量文字始终清晰。 */
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .svg-zoom__canvas > svg {
+            flex: none;
+            display: block;
+        }
+
+        /* 深色下与正文保持一致的 SVG 反色；Mermaid 自带深色主题，排除 */
+        :root[data-theme="dark"] .svg-zoom__canvas:not(.is-mermaid)>svg {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        /* ---------- 工具栏 ---------- */
+        .svg-zoom__bar {
+            position: absolute;
+            left: 50%;
+            bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 5px;
+            border-radius: var(--radius-full);
+            background: var(--zoom-bar-bg);
+            border: 1px solid var(--zoom-bar-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            transform: translateX(-50%);
+        }
+
+        .svg-zoom__btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--zoom-bar-fg);
+            cursor: pointer;
+            transition: background .18s ease, color .18s ease, transform .12s ease;
+        }
+
+        .svg-zoom__btn:hover {
+            background: var(--zoom-btn-hover);
+            color: var(--color-primary);
+        }
+
+        .svg-zoom__btn:active {
+            transform: scale(.92);
+        }
+
+        .svg-zoom__btn:focus-visible,
+        .svg-zoom__close:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .svg-zoom__pct {
+            min-width: 48px;
+            text-align: center;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+            color: var(--zoom-bar-fg);
+            opacity: .8;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .svg-zoom__close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 50%;
+            background: rgba(20, 26, 36, .62);
+            color: #FFFFFF;
+            cursor: pointer;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            transition: background .18s ease, transform .18s ease;
+        }
+
+        .svg-zoom__close:hover {
+            background: rgba(33, 165, 227, .88);
+            transform: rotate(90deg);
+        }
+
+        .svg-zoom__hint {
+            position: absolute;
+            left: 50%;
+            bottom: 10px;
+            margin: 0;
+            font-size: 11px;
+            letter-spacing: .02em;
+            color: rgba(255, 255, 255, .52);
+            white-space: nowrap;
+            pointer-events: none;
+            transform: translateX(-50%);
+            transition: opacity .45s ease;
+        }
+
+        .svg-zoom__hint.is-dim {
+            opacity: 0;
+        }
+
+        @media (max-width: 640px) {
+            .svg-zoom__viewport {
+                inset: 0 0 84px 0;
+            }
+
+            .svg-zoom__canvas {
+                padding: 10px;
+                border-radius: var(--radius-md);
+            }
+
+            .svg-zoom__bar {
+                bottom: 24px;
+            }
+
+            .svg-zoom__close {
+                top: 12px;
+                right: 12px;
+                width: 38px;
+                height: 38px;
+            }
+
+            .svg-zoom__hint {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .svg-zoom,
+            .mermaid-wrap[data-zoomable]::after,
+            .svg-zoom__close,
+            .svg-zoom__hint {
+                transition: none;
+            }
+        }
+
     </style>
 </head>
 
@@ -4916,6 +5183,462 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
                 currentPref = DEFAULT_PREF;
                 markActive(DEFAULT_PREF.key, null);
                 setButtonLabel(DEFAULT_PREF.name);
+            }
+        })();
+</script>
+
+<script>
+/* ============================================================
+           SVG / Mermaid 单击全屏放大
+           ------------------------------------------------------------
+           · 图内单击 → 克隆一份 SVG 到全屏层，按视口适配居中
+           · 滚轮 / 双指缩放，按住拖动平移，双击在「适配」与 2 倍之间切换
+           · Esc、点空白处、右上角按钮均可关闭
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            var MIN_K = 0.4;        /* 缩放下限 */
+            var MAX_K = 8;          /* 缩放上限 */
+            var MARGIN = 24;        /* 画布与视口边缘的留白 */
+            var HINT_MS = 4200;     /* 操作提示停留时长 */
+            var MIN_W = 160;        /* 窄于 MIN_W、矮于 MIN_H 的 svg 当图标，不放大 */
+            var MIN_H = 64;
+
+            var ICON = {
+                minus: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
+                plus: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+                fit: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>',
+                close: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+            };
+
+            var ui = null;
+            var cur = { svg: null, w: 0, h: 0, k: 1, tx: 0, ty: 0, origin: null };
+            var hintTimer = null;
+            var cleanTimer = null;
+
+            /* ---------------- 构建放大层（首次打开时才创建） ---------------- */
+            function build() {
+                var root = document.createElement('div');
+                root.className = 'svg-zoom';
+                root.id = 'svg-zoom';
+                root.setAttribute('aria-hidden', 'true');
+                root.innerHTML = [
+                    '<div class="svg-zoom__scrim" data-zoom-close></div>',
+                    '<div class="svg-zoom__viewport">',
+                    '    <div class="svg-zoom__canvas"></div>',
+                    '</div>',
+                    '<div class="svg-zoom__bar" role="toolbar" aria-label="图表缩放">',
+                    '    <button class="svg-zoom__btn" type="button" data-zoom-out aria-label="缩小">' + ICON.minus + '</button>',
+                    '    <span class="svg-zoom__pct" data-zoom-pct>100%</span>',
+                    '    <button class="svg-zoom__btn" type="button" data-zoom-in aria-label="放大">' + ICON.plus + '</button>',
+                    '    <button class="svg-zoom__btn" type="button" data-zoom-fit aria-label="恢复适配大小">' + ICON.fit + '</button>',
+                    '</div>',
+                    '<p class="svg-zoom__hint" data-zoom-hint>滚轮缩放 · 拖动平移 · 双击复位 · Esc 关闭</p>',
+                    '<button class="svg-zoom__close" type="button" data-zoom-close aria-label="关闭放大视图">' + ICON.close + '</button>'
+                ].join('\n');
+                document.body.appendChild(root);
+
+                ui = {
+                    root: root,
+                    viewport: root.querySelector('.svg-zoom__viewport'),
+                    canvas: root.querySelector('.svg-zoom__canvas'),
+                    pct: root.querySelector('[data-zoom-pct]'),
+                    hint: root.querySelector('[data-zoom-hint]'),
+                    closeBtn: root.querySelector('.svg-zoom__close')
+                };
+                bind();
+            }
+
+            /* ---------------- 尺寸计算 ---------------- */
+            function aspectOf(svg) {
+                var vb = null;
+                try { vb = svg.viewBox && svg.viewBox.baseVal; } catch (e) { vb = null; }
+                if (vb && vb.width > 0 && vb.height > 0) {
+                    return { w: vb.width, h: vb.height };
+                }
+                var w = parseFloat(svg.getAttribute('width'));
+                var h = parseFloat(svg.getAttribute('height'));
+                if (w > 0 && h > 0) {
+                    return { w: w, h: h };
+                }
+                var r = svg.getBoundingClientRect();
+                if (r.width > 0 && r.height > 0) {
+                    return { w: r.width, h: r.height };
+                }
+                return { w: 16, h: 9 };
+            }
+
+            function layout() {
+                var box = ui.viewport.getBoundingClientRect();
+                var cs = window.getComputedStyle(ui.canvas);
+                var padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+                var padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+
+                var a = aspectOf(cur.svg);
+                var maxW = Math.max(80, box.width - MARGIN * 2 - padX);
+                var maxH = Math.max(60, box.height - MARGIN * 2 - padY);
+                var s = Math.min(maxW / a.w, maxH / a.h);
+
+                cur.w = Math.max(24, Math.round(a.w * s)) + padX;
+                cur.h = Math.max(24, Math.round(a.h * s)) + padY;
+
+                ui.canvas.style.width = cur.w + 'px';
+                ui.canvas.style.height = cur.h + 'px';
+                reset();
+            }
+
+            /* ---------------- 变换 ---------------- */
+            function apply() {
+                ui.canvas.style.transform =
+                    'translate(-50%, -50%) translate(' + cur.tx.toFixed(1) + 'px, ' +
+                    cur.ty.toFixed(1) + 'px) scale(' + cur.k.toFixed(4) + ')';
+                if (ui.pct) ui.pct.textContent = Math.round(cur.k * 100) + '%';
+            }
+
+            function clampPan() {
+                var mx = Math.max(0, (cur.w * cur.k - ui.viewport.clientWidth) / 2) + 40;
+                var my = Math.max(0, (cur.h * cur.k - ui.viewport.clientHeight) / 2) + 40;
+                cur.tx = Math.max(-mx, Math.min(mx, cur.tx));
+                cur.ty = Math.max(-my, Math.min(my, cur.ty));
+            }
+
+            function reset() {
+                cur.k = 1;
+                cur.tx = 0;
+                cur.ty = 0;
+                apply();
+            }
+
+            /* 以视口中心为原点，在 (cx, cy) 处缩放，保证该点不动 */
+            function zoomAt(factor, cx, cy) {
+                var k0 = cur.k;
+                var k1 = Math.min(MAX_K, Math.max(MIN_K, k0 * factor));
+                if (!isFinite(k1) || k1 === k0) return;
+                var r = k1 / k0;
+                cur.tx = cx - r * (cx - cur.tx);
+                cur.ty = cy - r * (cy - cur.ty);
+                cur.k = k1;
+                clampPan();
+                apply();
+            }
+
+            function toCenter(e) {
+                var box = ui.viewport.getBoundingClientRect();
+                return {
+                    cx: e.clientX - box.left - box.width / 2,
+                    cy: e.clientY - box.top - box.height / 2
+                };
+            }
+
+            /* ---------------- 打开 / 关闭 ---------------- */
+            function open(srcSvg, isMermaid) {
+                if (!ui) build();
+                clearTimeout(cleanTimer);
+
+                var clone = srcSvg.cloneNode(true);
+                /* Mermaid 会把 max-width 写死在 svg 上，这里放开，尺寸交给画布 */
+                clone.style.width = '100%';
+                clone.style.height = '100%';
+                clone.style.maxWidth = 'none';
+                clone.style.maxHeight = 'none';
+                clone.style.display = 'block';
+
+                ui.canvas.innerHTML = '';
+                ui.canvas.appendChild(clone);
+                ui.canvas.classList.toggle('is-mermaid', !!isMermaid);
+
+                cur.svg = clone;
+                cur.origin = document.activeElement;
+                layout();
+
+                ui.root.classList.add('is-open');
+                ui.root.setAttribute('aria-hidden', 'false');
+                document.documentElement.classList.add('svg-zoom-lock');
+
+                if (ui.hint) {
+                    ui.hint.classList.remove('is-dim');
+                    clearTimeout(hintTimer);
+                    hintTimer = setTimeout(function () {
+                        ui.hint.classList.add('is-dim');
+                    }, HINT_MS);
+                }
+                setTimeout(function () {
+                    try { ui.closeBtn.focus({ preventScroll: true }); } catch (e) { }
+                }, 60);
+            }
+
+            function close() {
+                if (!ui || !ui.root.classList.contains('is-open')) return;
+                ui.root.classList.remove('is-open');
+                ui.root.setAttribute('aria-hidden', 'true');
+                document.documentElement.classList.remove('svg-zoom-lock');
+
+                var back = cur.origin;
+                cur.svg = null;
+                clearTimeout(cleanTimer);
+                cleanTimer = setTimeout(function () {
+                    ui.canvas.innerHTML = '';
+                    if (back && typeof back.focus === 'function') {
+                        try { back.focus({ preventScroll: true }); } catch (e) { }
+                    }
+                }, 240);
+            }
+
+            /* ---------------- 交互 ---------------- */
+            function bind() {
+                var vp = ui.viewport;
+                var pts = {};
+                var pinch = null;
+                var drag = null;
+                var moved = false;
+
+                function count() {
+                    var n = 0;
+                    for (var k in pts) {
+                        if (Object.prototype.hasOwnProperty.call(pts, k)) n++;
+                    }
+                    return n;
+                }
+
+                /* 滚轮缩放 */
+                vp.addEventListener('wheel', function (e) {
+                    e.preventDefault();
+                    var d = e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? 100 : 1));
+                    var f = Math.min(2, Math.max(0.5, Math.exp(-d * 0.0018)));
+                    var p = toCenter(e);
+                    zoomAt(f, p.cx, p.cy);
+                }, { passive: false });
+
+                /* 拖动平移 / 双指缩放 */
+                vp.addEventListener('pointerdown', function (e) {
+                    if (e.pointerType === 'mouse' && e.button !== 0) return;
+                    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+                    moved = false;
+                    if (count() === 1) {
+                        drag = { x: e.clientX, y: e.clientY, tx: cur.tx, ty: cur.ty };
+                        vp.classList.add('is-dragging');
+                    } else {
+                        drag = null;
+                        pinch = null;
+                    }
+                    try { vp.setPointerCapture(e.pointerId); } catch (err) { }
+                });
+
+                vp.addEventListener('pointermove', function (e) {
+                    if (!pts[e.pointerId]) return;
+                    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+
+                    if (count() === 1 && drag) {
+                        var dx = e.clientX - drag.x;
+                        var dy = e.clientY - drag.y;
+                        if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+                        cur.tx = drag.tx + dx;
+                        cur.ty = drag.ty + dy;
+                        clampPan();
+                        apply();
+                        return;
+                    }
+
+                    if (count() === 2) {
+                        var ids = [];
+                        for (var k in pts) {
+                            if (Object.prototype.hasOwnProperty.call(pts, k)) ids.push(k);
+                        }
+                        var a = pts[ids[0]];
+                        var b = pts[ids[1]];
+                        var dist = Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+                        var mx = (a.x + b.x) / 2;
+                        var my = (a.y + b.y) / 2;
+                        if (pinch) {
+                            cur.tx += mx - pinch.mx;
+                            cur.ty += my - pinch.my;
+                            var p = toCenter({ clientX: mx, clientY: my });
+                            zoomAt(dist / (pinch.dist || dist), p.cx, p.cy);
+                        }
+                        pinch = { dist: dist, mx: mx, my: my };
+                        moved = true;
+                    }
+                });
+
+                function endPointer(e) {
+                    if (pts[e.pointerId]) delete pts[e.pointerId];
+                    try { vp.releasePointerCapture(e.pointerId); } catch (err) { }
+                    if (count() < 2) pinch = null;
+                    if (!count()) {
+                        drag = null;
+                        vp.classList.remove('is-dragging');
+                    }
+                }
+
+                vp.addEventListener('pointerup', endPointer);
+                vp.addEventListener('pointercancel', endPointer);
+
+                /* 双击：适配 ⇄ 2 倍 */
+                vp.addEventListener('dblclick', function (e) {
+                    e.preventDefault();
+                    var p = toCenter(e);
+                    if (cur.k > 1.05) {
+                        reset();
+                    } else {
+                        zoomAt(2 / cur.k, p.cx, p.cy);
+                    }
+                });
+
+                /* 工具栏 / 空白处点击 */
+                ui.root.addEventListener('click', function (e) {
+                    var t = e.target;
+                    if (!t || t.nodeType !== 1) return;
+
+                    var btn = t.closest('button');
+                    if (btn) {
+                        if (btn.hasAttribute('data-zoom-in')) {
+                            zoomAt(1.35, 0, 0);
+                        } else if (btn.hasAttribute('data-zoom-out')) {
+                            zoomAt(1 / 1.35, 0, 0);
+                        } else if (btn.hasAttribute('data-zoom-fit')) {
+                            reset();
+                        } else if (btn.hasAttribute('data-zoom-close')) {
+                            close();
+                        }
+                        return;
+                    }
+                    /* 刚拖过就别顺手把浮层关了 */
+                    if (moved) {
+                        moved = false;
+                        return;
+                    }
+                    if (t.hasAttribute('data-zoom-close') || t === vp) close();
+                });
+
+                /* 键盘：Esc 关闭，+ / - 缩放，0 复位 */
+                document.addEventListener('keydown', function (e) {
+                    if (!ui.root.classList.contains('is-open')) return;
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        close();
+                    } else if (e.key === '+' || e.key === '=') {
+                        e.preventDefault();
+                        zoomAt(1.35, 0, 0);
+                    } else if (e.key === '-' || e.key === '_') {
+                        e.preventDefault();
+                        zoomAt(1 / 1.35, 0, 0);
+                    } else if (e.key === '0') {
+                        e.preventDefault();
+                        reset();
+                    }
+                });
+
+                /* Tab 焦点不跑出放大层 */
+                ui.root.addEventListener('keydown', function (e) {
+                    if (e.key !== 'Tab') return;
+                    var items = ui.root.querySelectorAll('button');
+                    if (!items.length) return;
+                    var first = items[0];
+                    var last = items[items.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                });
+
+                /* 窗口尺寸变化时重新适配 */
+                var resizeTimer = null;
+                window.addEventListener('resize', function () {
+                    if (!ui.root.classList.contains('is-open')) return;
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function () {
+                        if (cur.svg) layout();
+                    }, 120);
+                });
+
+                /* 主题切换后 Mermaid 会按新主题重渲染，旧克隆的配色就过期了，直接收起 */
+                window.addEventListener('themechange', function () {
+                    if (!ui.root.classList.contains('is-open')) return;
+                    if (ui.canvas.classList.contains('is-mermaid')) close();
+                });
+            }
+
+            /* ---------------- 可放大的元素 ---------------- */
+            function isDiagram(svg) {
+                if (!svg || svg.namespaceURI !== 'http://www.w3.org/2000/svg') return false;
+                if (svg.getAttribute('aria-hidden') === 'true') return false;
+                if (svg.closest('.svg-zoom, .callout, .font-modal, .topbar, a, button, .toc')) return false;
+                var r = svg.getBoundingClientRect();
+                return r.width >= MIN_W && r.height >= MIN_H;
+            }
+
+            /* 只给可放大的元素打标记，用于 cursor / 角标等交互提示 */
+            function scan() {
+                var list = document.querySelectorAll('.article-body svg');
+                for (var i = 0; i < list.length; i++) {
+                    var svg = list[i];
+                    if (svg.closest('.mermaid-wrap')) continue;   /* 由容器统一接管 */
+                    if (isDiagram(svg)) {
+                        svg.setAttribute('data-zoomable', '');
+                    } else {
+                        svg.removeAttribute('data-zoomable');
+                    }
+                }
+                var wraps = document.querySelectorAll('.mermaid-wrap');
+                for (var j = 0; j < wraps.length; j++) {
+                    if (wraps[j].querySelector('svg')) {
+                        wraps[j].setAttribute('data-zoomable', '');
+                    } else {
+                        wraps[j].removeAttribute('data-zoomable');
+                    }
+                }
+            }
+
+            function onClick(e) {
+                if (e.defaultPrevented || (e.button !== undefined && e.button !== 0)) return;
+                var t = e.target;
+                if (!t || t.nodeType !== 1) return;
+                if (t.closest('.svg-zoom, a, button, input, textarea, select, label, .callout')) return;
+                /* 正在选字时不抢点击 */
+                var sel = window.getSelection && window.getSelection();
+                if (sel && !sel.isCollapsed && String(sel).length > 0) return;
+
+                var wrap = t.closest('.mermaid-wrap');
+                if (wrap) {
+                    var inner = wrap.querySelector('svg');
+                    if (inner) {
+                        e.preventDefault();
+                        open(inner, true);
+                    }
+                    return;
+                }
+
+                var svg = t.closest('svg');
+                if (svg && svg.closest('.article-body') && isDiagram(svg)) {
+                    e.preventDefault();
+                    open(svg, false);
+                }
+            }
+
+            function init() {
+                var body = document.getElementById('article-body');
+                if (!body) return;
+
+                scan();
+                document.addEventListener('click', onClick);
+
+                /* Mermaid 异步渲染会替换节点，这里跟着重扫一遍 */
+                if (!window.MutationObserver) return;
+                var timer = null;
+                new MutationObserver(function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(scan, 200);
+                }).observe(body, { childList: true, subtree: true });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
             }
         })();
 </script>
