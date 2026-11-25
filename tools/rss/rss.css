@@ -1,0 +1,335 @@
+/* ════════════════════════════════════════════════════════════
+   rss.css —— 给 rss.xml 在浏览器里打开时用的样式表
+   由 genrss.py 复制到 rss.xml 同目录，通过：
+       <?xml-stylesheet type="text/css" href="rss.css"?>
+   生效。只对浏览器「直接打开订阅文件」有意义，
+   各类 RSS 阅读器会忽略它（也照常按纯数据解析）。
+
+   注意：XML + CSS 只能按元素名 / 属性选择，没有 class，
+   所以下面的选择器全都依赖 RSS 2.0 的固定结构，改 genrss.py
+   的输出结构时要回来对一下。
+   ════════════════════════════════════════════════════════════ */
+
+@namespace dc url("http://purl.org/dc/elements/1.1/");
+@namespace atom url("http://www.w3.org/2005/Atom");
+
+/* ── 页面底色 ───────────────────────────────────────────── */
+rss {
+  display: block;
+  box-sizing: border-box;
+  min-height: 100vh;
+  margin: 0;
+  padding: 44px 20px 80px;
+  background:
+    radial-gradient(1200px 420px at 12% -8%, rgba(33, 165, 227, .10), transparent 62%),
+    radial-gradient(900px 380px at 96% 0%, rgba(171, 215, 255, .28), transparent 60%),
+    #f7f9fb;
+  color: #404040;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+rss * {
+  box-sizing: border-box;
+}
+
+channel {
+  display: block;
+  max-width: 780px;
+  margin: 0 auto;
+  counter-reset: post;
+}
+
+/* ── 频道头 ─────────────────────────────────────────────── */
+channel > title {
+  display: block;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -.2px;
+  color: #14202b;
+}
+
+channel > title::before {
+  content: "RSS";
+  display: inline-block;
+  margin-right: 10px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: #21a5e3;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  line-height: 1.65;
+  vertical-align: 5px;
+}
+
+channel > description {
+  display: block;
+  margin: 12px 0 0;
+  color: #737373;
+  font-size: 14.5px;
+}
+
+/* 频道级机器字段：不给人看 */
+channel > link,
+channel > language,
+channel > docs,
+channel > ttl,
+channel > generator,
+channel > managingEditor,
+channel > webMaster,
+channel > image,
+channel > atom|link,
+channel > pubDate {
+  /* pubDate 与 lastBuildDate 同值，只留后者，免得头部两个一样的日期打架 */
+  display: none;
+}
+
+/* 频道元信息做成小胶囊 */
+channel > lastBuildDate,
+channel > copyright,
+channel > category {
+  display: inline-block;
+  margin: 16px 8px 0 0;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: #eaf3fb;
+  color: #55707f;
+  font-size: 12.5px;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+channel > lastBuildDate::before {
+  content: "更新于 ";
+  color: #8aa3b4;
+}
+
+channel > category::before {
+  content: "分类 ";
+  color: #8aa3b4;
+}
+
+/* ── 文章卡片 ───────────────────────────────────────────── */
+item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 8px;
+  margin: 14px 0 0;
+  padding: 18px 20px 16px;
+  background: #ffffff;
+  border: 1px solid #e8eef4;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(16, 32, 48, .04), 0 6px 18px rgba(16, 32, 48, .05);
+  transition: box-shadow .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+item:first-of-type {
+  margin-top: 26px;
+}
+
+item:hover {
+  border-color: #abd7ff;
+  box-shadow: 0 2px 4px rgba(16, 32, 48, .05), 0 10px 26px rgba(16, 32, 48, .10);
+  transform: translateY(-1px);
+}
+
+item > title {
+  flex: 0 0 100%;
+  order: 1;
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.45;
+  color: #0e7ae0;
+  counter-increment: post;
+}
+
+item > title::before {
+  content: counter(post) ".";
+  margin-right: 8px;
+  color: #b9cbe0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 元信息一行：时间 / 分类 / 标签 / 作者 */
+item > pubDate {
+  order: 2;
+  color: #8a97a4;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+item > category {
+  order: 2;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+item > category[domain="urn:ttwe77:category"] {
+  background: #e2f2fd;
+  color: #0e7ae0;
+  font-weight: 600;
+}
+
+item > category[domain="urn:ttwe77:tag"] {
+  background: #f1f2f6;
+  color: #6b7280;
+}
+
+item > category[domain="urn:ttwe77:tag"]::before {
+  content: "#";
+  opacity: .55;
+}
+
+item > dc|creator {
+  order: 2;
+  color: #8a97a4;
+  font-size: 12.5px;
+}
+
+item > dc|creator::before {
+  content: "作者 ";
+  color: #b9cbe0;
+}
+
+/* 摘要 */
+item > description {
+  flex: 0 0 100%;
+  order: 3;
+  color: #4a5563;
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+item > description:empty {
+  display: none;
+}
+
+/* 原文链接：标题不能点（CSS 造不出 <a>），给整段可一键全选 */
+item > link {
+  flex: 0 0 100%;
+  order: 4;
+  margin-top: 2px;
+  color: #8a97a4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-all;
+  user-select: all;
+  cursor: text;
+}
+
+item > link::before {
+  content: "原文 ";
+  color: #b9cbe0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+}
+
+/* 机器字段：不显示 */
+item > guid,
+item > atom|updated {
+  display: none;
+}
+
+/* ── 页脚 ───────────────────────────────────────────────── */
+channel::after {
+  content: "订阅文件由 genrss.py 生成 · 浏览器外的阅读器可正常订阅";
+  display: block;
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px dashed #dbe4ee;
+  color: #a3adb8;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* ── 深色模式 ───────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  rss {
+    background:
+      radial-gradient(1200px 420px at 12% -8%, rgba(33, 165, 227, .16), transparent 62%),
+      radial-gradient(900px 380px at 96% 0%, rgba(68, 84, 248, .12), transparent 60%),
+      #0f151c;
+    color: #c6d2de;
+  }
+
+  channel > title {
+    color: #eaf2fa;
+  }
+
+  channel > description {
+    color: #93a3b4;
+  }
+
+  channel > lastBuildDate,
+  channel > copyright,
+  channel > category {
+    background: #18222d;
+    color: #9fb0c2;
+  }
+
+  channel > lastBuildDate::before,
+  channel > category::before {
+    color: #6d7f91;
+  }
+
+  item {
+    background: #151d26;
+    border-color: #232f3c;
+    box-shadow: none;
+  }
+
+  item:hover {
+    border-color: #2f6f9e;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  }
+
+  item > title {
+    color: #6cc0f5;
+  }
+
+  item > title::before {
+    color: #46586b;
+  }
+
+  item > description {
+    color: #b6c3d1;
+  }
+
+  item > category[domain="urn:ttwe77:category"] {
+    background: #122e42;
+    color: #7cc4ee;
+  }
+
+  item > category[domain="urn:ttwe77:tag"] {
+    background: #1c2733;
+    color: #8b9aab;
+  }
+
+  item > pubDate,
+  item > dc|creator,
+  item > link {
+    color: #7d8d9e;
+  }
+
+  item > dc|creator::before,
+  item > link::before {
+    color: #52636f;
+  }
+
+  channel::after {
+    border-color: #232f3c;
+    color: #63758a;
+  }
+}

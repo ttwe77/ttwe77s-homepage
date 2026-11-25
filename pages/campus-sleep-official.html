@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>校园睡 · 用校园跑的方式，认真睡觉</title>
+    <meta name="description" content="校园睡：一个把睡觉做成校园跑的娱乐向睡眠打卡产品。学期目标、综合评级、修仙值、睡眠战报，一个都不少。纯前端，数据只存在你的浏览器。">
+    <meta name="theme-color" content="#6C5CE7">
+    <link rel="icon" href="../tools/app/src/campus-sleep.svg">
+
+    <style>
+        /* ============ 字体 ============ */
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("../blog/fonts/77StandardRound-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("../blog/fonts/77StandardRound-SemiBold.woff2") format("woff2");
+            font-weight: 500 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan";
+            src: url("../blog/fonts/77StandardRound-Bold.woff2") format("woff2");
+            font-weight: 700 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --ink: #16151f;
+            --ink-2: #3a3850;
+            --muted: #6f6c86;
+            --bg: #f7f6fc;
+            --card: #ffffff;
+            --accent: #6C5CE7;
+            --accent-deep: #4b3fd0;
+            --accent-soft: #eceaff;
+            --lime: #cdf767;
+            --line: #e7e4f4;
+            --radius: 24px;
+            --font: "Blog-WenYuan", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            /* 顶部 sticky 导航 68px，锚点跳转留出余量，避免标题被遮住 */
+            scroll-padding-top: 92px;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font);
+            color: var(--ink);
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background:
+                radial-gradient(900px 520px at 8% -8%, #e8e3ff 0%, transparent 60%),
+                radial-gradient(760px 480px at 96% 4%, #e2f6ff 0%, transparent 58%),
+                radial-gradient(700px 500px at 50% 108%, #f0ffd9 0%, transparent 62%);
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: linear-gradient(#201c4010 1px, transparent 1px), linear-gradient(90deg, #201c4010 1px, transparent 1px);
+            background-size: 56px 56px;
+            mask-image: radial-gradient(circle at 50% 20%, #000 0%, transparent 78%);
+            -webkit-mask-image: radial-gradient(circle at 50% 20%, #000 0%, transparent 78%);
+            pointer-events: none;
+            opacity: .55;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img,
+        svg {
+            display: block;
+        }
+
+        .wrap {
+            width: min(1160px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        /* ============ 导航 ============ */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 60;
+            backdrop-filter: saturate(180%) blur(14px);
+            -webkit-backdrop-filter: saturate(180%) blur(14px);
+            background: #f7f6fccc;
+            border-bottom: 1px solid transparent;
+            transition: border-color .3s;
+        }
+
+        .nav.scrolled {
+            border-color: var(--line);
+        }
+
+        .nav-in {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 19px;
+            letter-spacing: -.02em;
+        }
+
+        .brand .mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            background: linear-gradient(145deg, #7c6cf0, #5b49d6);
+            box-shadow: 0 6px 16px #6c5ce74d, inset 0 1px 0 #ffffff59;
+        }
+
+        .brand small {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: .04em;
+            padding: 2px 7px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 26px;
+            font-size: 14.5px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+
+        .nav-links a {
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 100%;
+            bottom: 0;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: right .28s cubic-bezier(.22, .9, .3, 1);
+        }
+
+        .nav-links a:hover::after {
+            right: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 14px;
+            padding: 13px 22px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: transform .22s cubic-bezier(.22, .9, .3, 1), box-shadow .22s, background .22s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(160deg, #7d6cf5, #5b49d6);
+            color: #fff;
+            box-shadow: 0 10px 24px #6c5ce74d, inset 0 1px 0 #ffffff40;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 34px #6c5ce75c, inset 0 1px 0 #ffffff40;
+        }
+
+        .btn-ghost {
+            background: #fff;
+            border-color: var(--line);
+            color: var(--ink);
+            box-shadow: 0 4px 14px #1c1a3a0d;
+        }
+
+        .btn-ghost:hover {
+            transform: translateY(-2px);
+            border-color: #d3cdf5;
+        }
+
+        .btn-lg {
+            padding: 16px 28px;
+            font-size: 16.5px;
+            border-radius: 16px;
+        }
+
+        .nav .btn {
+            padding: 10px 18px;
+            font-size: 14px;
+            border-radius: 12px;
+        }
+
+        /* ============ Hero ============ */
+        .hero {
+            padding: 62px 0 40px;
+            position: relative;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.06fr .94fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            padding: 7px 13px;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid var(--line);
+            color: var(--ink-2);
+            box-shadow: 0 4px 14px #1c1a3a0a;
+        }
+
+        .dot-live {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #35c06b;
+            box-shadow: 0 0 0 3px #35c06b2e;
+            animation: pulse 2.4s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 3px #35c06b2e;
+            }
+
+            50% {
+                box-shadow: 0 0 0 7px #35c06b14;
+            }
+        }
+
+        h1 {
+            font-size: clamp(38px, 5.1vw, 66px);
+            line-height: 1.06;
+            letter-spacing: -.045em;
+            font-weight: 900;
+            margin: 22px 0 0;
+        }
+
+        h1 .hl {
+            position: relative;
+            display: inline-block;
+            color: var(--accent);
+        }
+
+        h1 .hl::after {
+            content: "";
+            position: absolute;
+            left: -2%;
+            right: -2%;
+            bottom: 6%;
+            height: 26%;
+            background: var(--lime);
+            z-index: -1;
+            border-radius: 3px;
+            transform: skewX(-8deg);
+            opacity: .85;
+        }
+
+        .hero-sub {
+            font-size: clamp(15.5px, 1.5vw, 17.5px);
+            line-height: 1.85;
+            color: var(--ink-2);
+            margin: 24px 0 0;
+            max-width: 34em;
+        }
+
+        .hero-sub b {
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .hero-note {
+            margin-top: 20px;
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.9;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px 14px;
+        }
+
+        .hero-note span {
+            white-space: nowrap;
+        }
+
+        /* ============ 手机 mock ============ */
+        .phone-stage {
+            position: relative;
+            display: grid;
+            place-items: center;
+            min-height: 560px;
+        }
+
+        .phone-shell {
+            position: relative;
+            width: 300px;
+        }
+
+        .phone {
+            width: 100%;
+            background: #fff;
+            border-radius: 40px;
+            padding: 11px;
+            box-shadow:
+                0 2px 0 #ffffff inset,
+                0 40px 80px -30px #241f5c4d,
+                0 0 0 1px #241f5c14;
+            transform: rotate(-3deg);
+            transition: transform .6s cubic-bezier(.22, .9, .3, 1);
+            will-change: transform;
+        }
+
+        .phone:hover {
+            transform: rotate(0deg) translateY(-6px);
+        }
+
+        .screen {
+            border-radius: 30px;
+            background: #f2f3f8;
+            overflow: hidden;
+            padding: 12px 12px 0;
+            font-size: 12px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #1c1c28;
+            padding: 0 4px 10px;
+            letter-spacing: .02em;
+        }
+
+        .app-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .app-hi {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .app-hi-sub {
+            font-size: 10px;
+            color: #8a8aa0;
+            margin-top: 3px;
+        }
+
+        .app-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: #e7e4ff;
+            font-size: 15px;
+        }
+
+        .hero-card {
+            border-radius: 18px;
+            padding: 14px 14px 12px;
+            background: linear-gradient(150deg, #7d6cf5, #5b49d6 70%);
+            color: #fff;
+            box-shadow: 0 12px 26px #5b49d640;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #ffffff1f;
+            right: -40px;
+            top: -50px;
+        }
+
+        .hc-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            position: relative;
+        }
+
+        .hc-num {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hc-goal {
+            font-size: 11px;
+            opacity: .8;
+        }
+
+        .hc-goal span {
+            display: block;
+            font-size: 9px;
+            opacity: .7;
+            margin-top: 1px;
+        }
+
+        .hc-bar {
+            height: 6px;
+            border-radius: 99px;
+            background: #ffffff38;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .hc-bar i {
+            display: block;
+            height: 100%;
+            width: 87%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #cdf767, #a8f0ff);
+            box-shadow: 0 0 10px #cdf7678c;
+            animation: grow 1.6s cubic-bezier(.22, .9, .3, 1) both;
+        }
+
+        @keyframes grow {
+            from {
+                width: 0;
+            }
+        }
+
+        .hc-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            position: relative;
+        }
+
+        .hc-meta div {
+            text-align: center;
+        }
+
+        .hc-meta b {
+            display: block;
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hc-meta span {
+            font-size: 9px;
+            opacity: .72;
+        }
+
+        .dial-wrap {
+            flex: 1;
+            display: grid;
+            place-items: center;
+            padding: 10px 0 6px;
+        }
+
+        .dial {
+            width: 134px;
+            height: 134px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            background:
+                radial-gradient(circle at 50% 42%, #ffffff, #eeeaff 70%);
+            box-shadow:
+                0 0 0 8px #ffffff,
+                0 0 0 9px #e2ddfb,
+                0 20px 36px -14px #5b49d64d;
+            position: relative;
+        }
+
+        .dial::before {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 2px dashed #c9c0f5;
+            animation: spin 22s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .dial-label {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .dial-sub {
+            font-size: 9.5px;
+            color: #8a8aa0;
+            margin-top: 4px;
+        }
+
+        .tabbar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid #e9e8f2;
+            margin: 8px -12px 0;
+            background: #fff;
+            padding: 7px 4px 10px;
+        }
+
+        .tabbar div {
+            text-align: center;
+            font-size: 9.5px;
+            color: #9a99ae;
+        }
+
+        .tabbar span {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 2px;
+            filter: grayscale(1) opacity(.55);
+        }
+
+        .tabbar div.on {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .tabbar div.on span {
+            filter: none;
+        }
+
+        /* 浮动贴纸 */
+        .sticker {
+            position: absolute;
+            background: #fff;
+            border-radius: 15px;
+            padding: 9px 12px;
+            box-shadow: 0 14px 30px -12px #241f5c40, 0 0 0 1px #241f5c0f;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: float 6s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        .sticker em {
+            font-style: normal;
+            font-weight: 500;
+            color: var(--muted);
+            font-size: 10px;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .sticker b {
+            font-size: 12px;
+        }
+
+        .st-1 {
+            top: 104px;
+            left: -124px;
+            width: 134px;
+            transform: rotate(-7deg);
+            animation-delay: -.4s;
+        }
+
+        .st-2 {
+            bottom: 122px;
+            right: -122px;
+            width: 136px;
+            transform: rotate(6deg);
+            animation-delay: -2.2s;
+        }
+
+        .st-3 {
+            bottom: 12px;
+            left: -96px;
+            width: 118px;
+            transform: rotate(-4deg);
+            animation-delay: -3.6s;
+            background: var(--lime);
+            color: #23280d;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                translate: 0 0;
+            }
+
+            50% {
+                translate: 0 -10px;
+            }
+        }
+
+        .grade-chip {
+            display: inline-grid;
+            place-items: center;
+            min-width: 34px;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: .02em;
+            background: linear-gradient(145deg, #7d6cf5, #5b49d6);
+        }
+
+        /* ============ 跑马灯 ============ */
+        .marquee {
+            margin: 26px 0 0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 15px 0;
+            overflow: hidden;
+            background: #ffffff7a;
+            display: flex;
+            gap: 46px;
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 46px;
+            flex-shrink: 0;
+            animation: slide 34s linear infinite;
+        }
+
+        .marquee:hover .marquee-track {
+            animation-play-state: paused;
+        }
+
+        @keyframes slide {
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        .mq-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--ink-2);
+            white-space: nowrap;
+        }
+
+        .mq-item i {
+            font-style: normal;
+            font-size: 15px;
+        }
+
+        /* ============ 通用区块 ============ */
+        section {
+            padding: 88px 0;
+            position: relative;
+        }
+
+        .sec-head {
+            max-width: 720px;
+            margin-bottom: 46px;
+        }
+
+        .sec-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .sec-tag::before {
+            content: "";
+            width: 22px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        h2 {
+            font-size: clamp(27px, 3.4vw, 42px);
+            line-height: 1.22;
+            letter-spacing: -.035em;
+            font-weight: 900;
+            margin: 0;
+        }
+
+        h2 .light {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .sec-lead {
+            margin: 18px 0 0;
+            font-size: 15.5px;
+            line-height: 1.9;
+            color: var(--muted);
+            max-width: 44em;
+        }
+
+        .sec-lead b {
+            color: var(--ink-2);
+        }
+
+        /* ============ 痛点三卡 ============ */
+        .cards-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .p-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 28px 26px 26px;
+            box-shadow: 0 10px 30px -22px #241f5c4d;
+            transition: transform .3s cubic-bezier(.22, .9, .3, 1), box-shadow .3s, border-color .3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .p-card:hover {
+            transform: translateY(-5px);
+            border-color: #d9d2fa;
+            box-shadow: 0 24px 44px -26px #241f5c52;
+        }
+
+        .p-card .num {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: #b3adcf;
+            letter-spacing: .1em;
+            margin-bottom: 18px;
+        }
+
+        .p-card .ic {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+            background: var(--accent-soft);
+            margin-bottom: 16px;
+        }
+
+        .p-card h3 {
+            font-size: 18.5px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin: 0 0 10px;
+        }
+
+        .p-card p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.85;
+            color: var(--muted);
+        }
+
+        /* ============ 三步 ============ */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .step {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 26px 24px;
+            position: relative;
+        }
+
+        .step .big-num {
+            font-size: 62px;
+            font-weight: 900;
+            line-height: .8;
+            letter-spacing: -.06em;
+            color: #efecfd;
+            -webkit-text-stroke: 1px #ddd6fb;
+            margin-bottom: 18px;
+        }
+
+        .step h3 {
+            font-size: 17px;
+            margin: 0 0 8px;
+            font-weight: 800;
+        }
+
+        .step p {
+            margin: 0;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: var(--muted);
+        }
+
+        .step .mini {
+            margin-top: 16px;
+            font-size: 11.5px;
+            font-family: var(--mono);
+            color: var(--accent);
+            background: var(--accent-soft);
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 7px;
+        }
+
+        .play-note {
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #fffbe8;
+            border: 1px dashed #ecd98a;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: #6b5a17;
+        }
+
+        /* ============ 评级 ============ */
+        .grade-grid {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 26px;
+            box-shadow: 0 12px 34px -26px #241f5c47;
+        }
+
+        .panel+.panel {
+            margin-top: 20px;
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .panel-head h3 {
+            font-size: 15px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -.01em;
+        }
+
+        .panel-head span {
+            font-size: 11.5px;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .grade-row {
+            display: grid;
+            grid-template-columns: 64px 1fr auto;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px dashed #eeecf8;
+        }
+
+        .grade-row:last-child {
+            border-bottom: 0;
+        }
+
+        .g-badge {
+            display: grid;
+            place-items: center;
+            height: 34px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 14px;
+            color: #fff;
+            letter-spacing: -.01em;
+        }
+
+        .g-c {
+            background: #a9a7bd;
+        }
+
+        .g-b {
+            background: #7c93b8;
+        }
+
+        .g-a {
+            background: #4fa97a;
+        }
+
+        .g-s {
+            background: #e2a12a;
+        }
+
+        .g-ss {
+            background: #f07a45;
+        }
+
+        .g-sss {
+            background: linear-gradient(135deg, #ff6b9d, #7d5cf5);
+            box-shadow: 0 4px 14px #7d5cf54d;
+        }
+
+        .g-txt {
+            font-size: 13.5px;
+            color: var(--ink-2);
+        }
+
+        .g-txt small {
+            display: block;
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .g-pct {
+            font-size: 11.5px;
+            font-family: var(--mono);
+            color: var(--muted);
+        }
+
+        .rules {
+            display: grid;
+            gap: 10px;
+        }
+
+        .rule {
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+            font-size: 13px;
+            line-height: 1.75;
+            color: var(--ink-2);
+            background: #faf9ff;
+            border: 1px solid #f0edfd;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .rule .k {
+            flex: 0 0 auto;
+            font-family: var(--mono);
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid var(--line);
+            color: var(--accent);
+            margin-top: 1px;
+        }
+
+        .rule.up .k {
+            color: #1f9d5c;
+            border-color: #c8eed8;
+            background: #f1fdf6;
+        }
+
+        .rule.down .k {
+            color: #d8552f;
+            border-color: #f6d7cb;
+            background: #fff7f3;
+        }
+
+        .rule b {
+            color: var(--ink);
+        }
+
+        /* 修仙值 sliders */
+        .immortal {
+            background:
+                radial-gradient(420px 200px at 100% 0%, #fff3f0 0%, transparent 60%),
+                #fff;
+        }
+
+        .imm-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .imm-head h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .imm-head p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .imm-value {
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: -.04em;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            color: #e0603a;
+        }
+
+        .imm-value small {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-left: 3px;
+        }
+
+        .imm-track {
+            margin: 18px 0 8px;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #cdf767, #f5d76e 45%, #f08a5d 72%, #d94f3d);
+            outline: none;
+            cursor: pointer;
+            display: block;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid var(--ink);
+            box-shadow: 0 4px 12px #241f5c40;
+            cursor: grab;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid var(--ink);
+            box-shadow: 0 4px 12px #241f5c40;
+            cursor: grab;
+        }
+
+        .imm-scale {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: #a5a2b8;
+            margin-top: 8px;
+        }
+
+        .imm-readout {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pill {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 11px;
+            border-radius: 999px;
+            background: #f5f4fb;
+            border: 1px solid var(--line);
+            color: var(--ink-2);
+        }
+
+        .pill.warn {
+            background: #fff3ef;
+            border-color: #f6d8cd;
+            color: #c94f2c;
+        }
+
+        .pill.good {
+            background: #f1fdf5;
+            border-color: #c9eed9;
+            color: #1f8f56;
+        }
+
+        /* ============ 榜单 ============ */
+        .board {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 16px 40px -30px #241f5c4d;
+        }
+
+        .board-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            background: #fbfaff;
+            overflow-x: auto;
+        }
+
+        .bt {
+            border: 0;
+            background: transparent;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            padding: 9px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: .2s;
+        }
+
+        .bt.on {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 0 2px 8px #241f5c14, 0 0 0 1px var(--line);
+        }
+
+        .board-body {
+            padding: 8px;
+        }
+
+        .brow {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 14px;
+            transition: background .2s;
+        }
+
+        .brow:hover {
+            background: #faf9ff;
+        }
+
+        .brow.me {
+            background: var(--accent-soft);
+        }
+
+        .rank {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: #b8b4cc;
+            text-align: center;
+        }
+
+        .brow:nth-child(1) .rank {
+            color: #e0a92a;
+        }
+
+        .brow:nth-child(2) .rank {
+            color: #9aa5b8;
+        }
+
+        .brow:nth-child(3) .rank {
+            color: #c9884f;
+        }
+
+        .who {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 0;
+        }
+
+        .who .av {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: #f4f2fe;
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+            flex: 0 0 auto;
+        }
+
+        .who small {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+            margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .val {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        .board-foot {
+            padding: 12px 20px;
+            border-top: 1px dashed var(--line);
+            font-size: 11.5px;
+            color: var(--muted);
+            font-family: var(--mono);
+            background: #fbfaff;
+        }
+
+        /* ============ 成就 ============ */
+        .ach-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .ach {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px 16px;
+            transition: transform .25s, box-shadow .25s, border-color .25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ach:hover {
+            transform: translateY(-4px);
+            border-color: #dcd5fb;
+            box-shadow: 0 18px 32px -22px #241f5c52;
+        }
+
+        .ach .em {
+            font-size: 22px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 6px #241f5c1a);
+        }
+
+        .ach b {
+            display: block;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: -.01em;
+        }
+
+        .ach span {
+            display: block;
+            font-size: 11.5px;
+            line-height: 1.65;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .ach.locked {
+            background: #fbfaff;
+            border-style: dashed;
+        }
+
+        .ach.locked .em {
+            filter: grayscale(1) opacity(.45);
+        }
+
+        .ach.locked b {
+            color: #a7a3bc;
+        }
+
+        /* ============ 隐私 ============ */
+        .privacy {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .code-card {
+            background: #1b1930;
+            border-radius: 20px;
+            padding: 22px;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            line-height: 2;
+            color: #cfc9ef;
+            box-shadow: 0 26px 50px -28px #241f5c8c, inset 0 1px 0 #ffffff14;
+            overflow-x: auto;
+        }
+
+        .code-card .bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .code-card .bar i {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #4b4670;
+        }
+
+        .code-card .bar i:nth-child(1) {
+            background: #ff6b6b;
+        }
+
+        .code-card .bar i:nth-child(2) {
+            background: #ffc94d;
+        }
+
+        .code-card .bar i:nth-child(3) {
+            background: #4dd07b;
+        }
+
+        .c-key {
+            color: #b6a6ff;
+        }
+
+        .c-str {
+            color: #b8ef8a;
+        }
+
+        .c-com {
+            color: #7d77a3;
+        }
+
+        .c-fn {
+            color: #8ad9ef;
+        }
+
+        .privacy-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .pv {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: var(--ink-2);
+        }
+
+        .pv .tick {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #eafbee;
+            color: #22945c;
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex: 0 0 auto;
+            margin-top: 2px;
+        }
+
+        .pv b {
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        /* ============ 评价 ============ */
+        .quotes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .quote {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .quote .stars {
+            color: #f0b429;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .quote p {
+            margin: 0;
+            font-size: 14.5px;
+            line-height: 1.9;
+            color: var(--ink-2);
+        }
+
+        .quote footer {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .quote .qav {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: #f4f2fe;
+            display: grid;
+            place-items: center;
+            font-size: 15px;
+        }
+
+        .quote footer b {
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 12.5px;
+        }
+
+        /* ============ FAQ ============ */
+        .faq {
+            max-width: 860px;
+        }
+
+        details {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+        details[open] {
+            border-color: #ddd7fa;
+            box-shadow: 0 14px 34px -26px #241f5c52;
+        }
+
+        summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 19px 22px;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            letter-spacing: -.01em;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary .pl {
+            flex: 0 0 auto;
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            display: grid;
+            place-items: center;
+            font-size: 15px;
+            font-weight: 700;
+            transition: transform .28s;
+        }
+
+        details[open] summary .pl {
+            transform: rotate(45deg);
+        }
+
+        details .ans {
+            padding: 0 22px 20px;
+            font-size: 13.8px;
+            line-height: 1.95;
+            color: var(--muted);
+        }
+
+        details .ans b {
+            color: var(--ink-2);
+        }
+
+        /* ============ CTA ============ */
+        .cta {
+            padding: 0 0 90px;
+        }
+
+        .cta-card {
+            background:
+                radial-gradient(600px 300px at 12% 0%, #ffffff 0%, transparent 55%),
+                radial-gradient(520px 320px at 88% 100%, #f4ffd6 0%, transparent 55%),
+                linear-gradient(150deg, #eeeaff, #e6e0ff 60%, #f2f0ff);
+            border: 1px solid #ddd6fb;
+            border-radius: 34px;
+            padding: 62px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 40px 80px -50px #4b3fd08c;
+        }
+
+        .cta-card::before,
+        .cta-card::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            border: 1px dashed #bdb2f2;
+            opacity: .6;
+        }
+
+        .cta-card::before {
+            width: 300px;
+            height: 300px;
+            left: -110px;
+            top: -110px;
+        }
+
+        .cta-card::after {
+            width: 220px;
+            height: 220px;
+            right: -70px;
+            bottom: -80px;
+        }
+
+        .cta-card h2 {
+            font-size: clamp(28px, 4vw, 46px);
+            max-width: 18em;
+            margin: 0 auto;
+        }
+
+        .cta-card p {
+            margin: 18px auto 0;
+            max-width: 40em;
+            color: var(--ink-2);
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .cta-actions {
+            margin-top: 32px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ Footer ============ */
+        footer.site {
+            border-top: 1px solid var(--line);
+            padding: 34px 0 46px;
+            background: #ffffff80;
+        }
+
+        .foot-in {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .foot-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 16px;
+        }
+
+        .foot-brand .mk {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: #eceaff;
+            font-size: 16px;
+        }
+
+        .foot-note {
+            font-size: 12.5px;
+            line-height: 2;
+            color: var(--muted);
+            max-width: 46em;
+            margin-top: 12px;
+        }
+
+        .foot-links {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--ink-2);
+            flex-wrap: wrap;
+        }
+
+        .foot-links a:hover {
+            color: var(--accent);
+        }
+
+        /* 作者 / 协议 / 主站 */
+        .about-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 26px;
+            padding-top: 24px;
+            border-top: 1px dashed var(--line);
+        }
+
+        .about-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink-2);
+            transition: transform .22s cubic-bezier(.22, .9, .3, 1), border-color .22s, color .22s, box-shadow .22s;
+        }
+
+        .about-item:hover {
+            transform: translateY(-2px);
+            border-color: #d3cdf5;
+            color: var(--accent);
+            box-shadow: 0 10px 22px -14px #241f5c59;
+        }
+
+        .ai-icon {
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .ai-arrow {
+            font-size: 11px;
+            color: #b8b4cc;
+            transition: transform .22s, color .22s;
+        }
+
+        .about-item:hover .ai-arrow {
+            transform: translate(2px, -2px);
+            color: var(--accent);
+        }
+
+        /* 备案信息 */
+        .beian-foot {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 6px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .beian-foot a {
+            color: var(--muted);
+            transition: color .2s;
+        }
+
+        .beian-foot a:hover {
+            color: var(--accent);
+        }
+
+        .beian-sep {
+            color: #d2cee6;
+            padding: 0 2px;
+        }
+
+        .beian-police {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .beian-police img {
+            width: 15px;
+            height: 15px;
+            opacity: .85;
+        }
+
+        /* ============ 入场动画（仅在 JS 可用时隐藏初始态） ============ */
+        html.anim .rv {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .7s cubic-bezier(.22, .9, .3, 1), transform .7s cubic-bezier(.22, .9, .3, 1);
+        }
+
+        html.anim .rv.in {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 1000px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .phone-stage {
+                min-height: 520px;
+                order: 2;
+            }
+
+            .hero {
+                padding-top: 40px;
+            }
+
+            .grade-grid,
+            .privacy {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-3,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .ach-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quotes {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .sticker {
+                display: none;
+            }
+
+            section {
+                padding: 62px 0;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .wrap {
+                width: calc(100% - 32px);
+            }
+
+            .cta-card {
+                padding: 42px 22px;
+                border-radius: 24px;
+            }
+
+            .phone-shell {
+                width: 286px;
+            }
+
+            .phone {
+                transform: rotate(0);
+            }
+
+            .screen {
+                height: 496px;
+            }
+
+            .st-1 {
+                left: -10px;
+            }
+
+            .st-2 {
+                right: -12px;
+            }
+
+            .grade-row {
+                grid-template-columns: 54px 1fr;
+            }
+
+            .g-pct {
+                display: none;
+            }
+
+            .ach-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            .brow {
+                grid-template-columns: 30px 1fr auto;
+                gap: 8px;
+                padding: 11px 10px;
+            }
+
+            .foot-in {
+                flex-direction: column;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: .001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .001ms !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script>document.documentElement.classList.add('anim');</script>
+
+    <!-- ==================== 导航 ==================== -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-in">
+            <a class="brand" href="#top">
+                <span class="mark">😴</span>
+                校园睡
+                <small>v0.1</small>
+            </a>
+            <nav class="nav-links">
+                <a href="#why">为什么</a>
+                <a href="#how">怎么睡</a>
+                <a href="#grade">评级</a>
+                <a href="#board">榜单</a>
+                <a href="#privacy">隐私</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+            <a class="btn btn-primary" href="../tools/app/campus-sleep.html">立刻开睡 →</a>
+        </div>
+    </header>
+
+    <main id="top">
+
+        <!-- ==================== Hero ==================== -->
+        <section class="hero">
+            <div class="wrap hero-grid">
+                <div>
+                    <div class="eyebrow"><span class="dot-live"></span> 纯前端 · 数据只在你自己的浏览器里</div>
+                    <h1>用校园跑的<br>方式，<span class="hl">认真睡觉</span>。</h1>
+                    <p class="hero-sub">
+                        跑步需要配速、轨迹、定位和一张被汗浸透的截图。睡觉只需要闭眼——但为了让这件事
+                        看起来同样<b>严肃、可量化、值得汇报</b>，我们给你配齐了学期目标、综合评级、
+                        修仙值和排行榜。数字不会让你睡得更好，但它们会让你睡得<b>更有成就感</b>。
+                    </p>
+                    <div class="hero-cta">
+                        <a class="btn btn-primary btn-lg" href="../tools/app/campus-sleep.html">无需下载，立即开睡 🌙</a>
+                        <a class="btn btn-ghost btn-lg" href="#grade" data-scroll-half>先看看</a>
+                    </div>
+                    <div class="hero-note">
+                        <span>✓ 无需下载</span>
+                        <span>✓ 无需注册</span>
+                        <span>✓ 无广告</span>
+                        <span>✓ 不上传任何数据</span>
+                        <span>✓ 也不负责叫醒你</span>
+                    </div>
+                </div>
+
+                <div class="phone-stage">
+                    <div class="phone-shell">
+                    <div class="phone">
+                        <div class="screen">
+                            <div class="status"><span>23:47</span><span>📶 🔋 87%</span></div>
+                            <div class="app-top">
+                                <div>
+                                    <div class="app-hi">Hi，匿名睡友</div>
+                                    <div class="app-hi-sub">躺平与养生学院 · 250250</div>
+                                </div>
+                                <div class="app-logo">😴</div>
+                            </div>
+                            <div class="hero-card">
+                                <div class="hc-row">
+                                    <div class="hc-num" data-count="87.35" data-dec="2">0.00</div>
+                                    <div class="hc-goal">/ 100 Hour<span>学期目标</span></div>
+                                </div>
+                                <div class="hc-bar"><i></i></div>
+                                <div class="hc-meta">
+                                    <div><b data-count="102.40" data-dec="2">0</b><span>累计睡眠(h)</span></div>
+                                    <div><b data-count="12.75" data-dec="2">0</b><span>本周睡眠(h)</span></div>
+                                    <div><b data-count="6" data-dec="0">0</b><span>连续天数</span></div>
+                                </div>
+                            </div>
+                            <div class="dial-wrap">
+                                <div class="dial">
+                                    <div>
+                                        <div class="dial-label">开睡</div>
+                                        <div class="dial-sub">轻触开始本次睡眠</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tabbar">
+                                <div class="on"><span>📊</span>进展</div>
+                                <div><span>😴</span>睡觉</div>
+                                <div><span>🏆</span>广场</div>
+                                <div><span>👤</span>我的</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sticker st-1">
+                        <span class="grade-chip">SSS</span>
+                        <div><b>单次睡了 10.4h</b><em>已超过 99% 的同学</em></div>
+                    </div>
+                    <div class="sticker st-2">
+                        <div style="font-size:18px">🦉</div>
+                        <div><b>修仙值 96</b><em>入睡 02:52，已近大成</em></div>
+                    </div>
+                    <div class="sticker st-3">
+                        <div style="font-size:16px">🔥</div>
+                        <div><b>连睡 6 天</b><em>再撑 1 天解锁成就</em></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 跑马灯 ==================== -->
+        <div class="marquee" aria-hidden="true">
+            <div class="marquee-track">
+                <span class="mq-item"><i>💬</i>只要不起床，失败就还在加载中。</span>
+                <span class="mq-item"><i>💬</i>23:00 熄灯，23:01 五个床帘里同时亮起五团光。</span>
+                <span class="mq-item"><i>💬</i>早睡计划第十版，已在路上。</span>
+                <span class="mq-item"><i>💬</i>两万毫安，宿舍和平的基石。</span>
+                <span class="mq-item"><i>💬</i>睡姿不重要，重要的是别睁眼。</span>
+                <span class="mq-item"><i>💬</i>我不是在偷懒，我是在补录昨天的睡眠。</span>
+            </div>
+            <div class="marquee-track">
+                <span class="mq-item"><i>💬</i>只要不起床，失败就还在加载中。</span>
+                <span class="mq-item"><i>💬</i>23:00 熄灯，23:01 五个床帘里同时亮起五团光。</span>
+                <span class="mq-item"><i>💬</i>早睡计划第十版，已在路上。</span>
+                <span class="mq-item"><i>💬</i>两万毫安，宿舍和平的基石。</span>
+                <span class="mq-item"><i>💬</i>睡姿不重要，重要的是别睁眼。</span>
+                <span class="mq-item"><i>💬</i>我不是在偷懒，我是在补录昨天的睡眠。</span>
+            </div>
+        </div>
+
+        <!-- ==================== 为什么 ==================== -->
+        <section id="why">
+            <div class="wrap">
+                <div class="sec-head rv">
+                    <div class="sec-tag">The Problem</div>
+                    <h2>为什么连睡觉，<br><span class="light">都要做成一个打卡 App？</span></h2>
+                    <p class="sec-lead">
+                        一个诚实的问题：既然躺着不动才是目的，那为什么要打开一个应用、选一个地点、按一下按钮，
+                        再等它给你打个分？答案同样诚实——因为你需要的从来不是睡觉，而是<b>证明你睡过</b>。
+                    </p>
+                </div>
+
+                <div class="cards-3">
+                    <article class="p-card rv">
+                        <div class="num">01 / METRIC</div>
+                        <div class="ic">📏</div>
+                        <h3>跑步有配速，睡觉只有「还行」</h3>
+                        <p>「昨晚睡得怎么样？」「还行。」这段对话的信息量为零。所以我们把睡眠切成 C 到 SSS 六个档，
+                            让你终于可以用一个字母，向世界交代你的夜晚。</p>
+                    </article>
+                    <article class="p-card rv">
+                        <div class="num">02 / RITUAL</div>
+                        <div class="ic">🔘</div>
+                        <h3>打卡让人安心，哪怕是躺着打的</h3>
+                        <p>按下去的那一刻，你会产生一种「今天我也有在认真生活」的错觉。这个错觉大概能维持到闹钟响，
+                            但它确实值那一次点击。</p>
+                    </article>
+                    <article class="p-card rv">
+                        <div class="num">03 / WITNESS</div>
+                        <div class="ic">🧾</div>
+                        <h3>你的作息需要一个证人</h3>
+                        <p>室友只会笑你，家人只会问你几点睡的然后叹气。所以让浏览器来记账吧——它不评价，
+                            它只是把 6 小时 12 分如实写进战报，然后给你一个 B。</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 怎么睡 ==================== -->
+        <section id="how" style="padding-top:0">
+            <div class="wrap">
+                <div class="sec-head rv">
+                    <div class="sec-tag">How it works</div>
+                    <h2>三步，比跑步少两步。</h2>
+                    <p class="sec-lead">跑步要热身、要配速、要拉伸、要上传。睡觉的流程已经精简到不能再精简了，
+                        再删就只剩「闭眼」两个字，那就不叫产品了。</p>
+                </div>
+
+                <div class="steps">
+                    <div class="step rv">
+                        <div class="big-num">1</div>
+                        <h3>选一个位置</h3>
+                        <p>宿舍、教学楼、食堂、图书馆、操场、其他。分类的意义不在于精准，而在于日后回顾时，
+                            你能看到自己人生中有多少小时是在图书馆的桌上度过的。</p>
+                        <div class="mini">🛏 宿舍 · 上铺</div>
+                    </div>
+                    <div class="step rv">
+                        <div class="big-num">2</div>
+                        <h3>按下「开睡」</h3>
+                        <p>轻触中间的圆盘，计时开始。之后你可以把页面关掉、锁屏、甚至把手机扔到床尾——
+                            下次打开它会自己接着算，比你的意志力可靠得多。</p>
+                        <div class="mini">😴 开始睡觉，晚安 🌙</div>
+                    </div>
+                    <div class="step rv">
+                        <div class="big-num">3</div>
+                        <h3>起床，领战报</h3>
+                        <p>醒来再按一次，系统当场生成战报：睡了多久、跨了几个 90 分钟周期、折算成几节课、
+                            综合评级几分。截图发群里，收获一句「你牛」。</p>
+                        <div class="mini">📸 战报已生成，可截图分享</div>
+                    </div>
+                </div>
+
+                <div class="play-note rv">
+                    <span style="font-size:17px;line-height:1.4">⚠️</span>
+                    <div><b>注意那条不太友好的规则：</b>单次睡眠超过 12 小时会被判为「昏迷」，直接按最低档 C 记录；
+                        不足 15 分钟则算「闪电小憩」，同样直接 C。睡得太多和睡得太少，在这里一样不体面。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 评级 ==================== -->
+        <section id="grade" style="padding-top:0">
+            <div class="wrap">
+                <div class="sec-head rv">
+                    <div class="sec-tag">Grading</div>
+                    <h2>你的夜晚，值得一个<span class="light">字母。</span></h2>
+                    <p class="sec-lead">
+                        基础评级只看时长，然后由入睡时刻做加减。听上去很科学，实际上也确实只是「看上去很科学」——
+                        这正是它好玩的地方。
+                    </p>
+                </div>
+
+                <div class="grade-grid">
+                    <div class="panel rv">
+                        <div class="panel-head">
+                            <h3>综合评级对照表</h3>
+                            <span>GRADE / HOURS</span>
+                        </div>
+                        <div class="grade-row">
+                            <div class="g-badge g-c">C</div>
+                            <div class="g-txt">不足 5 小时，或触发昏迷 / 闪电小憩<small>最低档，也最真实</small></div>
+                            <div class="g-pct">&lt; 5h</div>
+                        </div>
+                        <div class="grade-row">
+                            <div class="g-badge g-b">B</div>
+                            <div class="g-txt">5 – 7 小时<small>当代大学生的默认值</small></div>
+                            <div class="g-pct">5–7h</div>
+                        </div>
+                        <div class="grade-row">
+                            <div class="g-badge g-a">A</div>
+                            <div class="g-txt">7 – 8 小时<small>教科书上写的那个数</small></div>
+                            <div class="g-pct">7–8h</div>
+                        </div>
+                        <div class="grade-row">
+                            <div class="g-badge g-s">S</div>
+                            <div class="g-txt">8 – 9 小时<small>开始有点可疑了</small></div>
+                            <div class="g-pct">8–9h</div>
+                        </div>
+                        <div class="grade-row">
+                            <div class="g-badge g-ss">SS</div>
+                            <div class="g-txt">9 – 10 小时<small>你确定今天没课？</small></div>
+                            <div class="g-pct">9–10h</div>
+                        </div>
+                        <div class="grade-row">
+                            <div class="g-badge g-sss">SSS</div>
+                            <div class="g-txt">10 小时以上<small>这是睡眠，还是越冬</small></div>
+                            <div class="g-pct">≥ 10h</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="panel rv">
+                            <div class="panel-head">
+                                <h3>加减规则</h3>
+                                <span>MODIFIERS</span>
+                            </div>
+                            <div class="rules">
+                                <div class="rule up"><span class="k">+1</span>
+                                    <div>在 <b>20:00 – 23:00</b> 入睡，评「早睡标兵」，评级 +1 档。这是全场唯一被鼓励的行为。</div>
+                                </div>
+                                <div class="rule down"><span class="k">−1</span>
+                                    <div>在 <b>01:00 – 03:00</b> 入睡（熬夜边缘），或在 <b>03:00 之后</b>入睡（修仙党），评级 −1 档。</div>
+                                </div>
+                                <div class="rule down"><span class="k">C</span>
+                                    <div>单次超过 <b>12 小时</b>，判「昏迷」，直接最低档，并注明不计入学期成绩。</div>
+                                </div>
+                                <div class="rule"><span class="k">课</span>
+                                    <div>在 <b>8:00 – 20:00</b> 的睡眠按课时折算：默认 40 分钟一节，课间时间自动扣除。
+                                        睡了 3 节课，就是 3 档——所以「上课睡觉」这件事，在这里第一次有了量化标准。</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel immortal rv">
+                            <div class="imm-head">
+                                <div>
+                                    <h3>修仙值计算器</h3>
+                                    <p>入睡越晚，修为越高。22:00 为 0，03:00 为 100。</p>
+                                </div>
+                                <div class="imm-value"><span id="immVal">0</span><small>点</small></div>
+                            </div>
+                            <div class="imm-track">
+                                <input type="range" id="immRange" min="0" max="100" value="0" step="1"
+                                    aria-label="入睡时间">
+                            </div>
+                            <div class="imm-scale"><span>22:00</span><span>23:00</span><span>00:00</span><span>01:00</span><span>02:00</span><span>03:00</span></div>
+                            <div class="imm-readout">
+                                <span class="pill" id="immTime">入睡 22:00</span>
+                                <span class="pill good" id="immLabel">早睡标兵</span>
+                                <span class="pill" id="immMod">评级 +1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 榜单 ==================== -->
+        <section id="board" style="padding-top:0">
+            <div class="wrap">
+                <div class="sec-head rv">
+                    <div class="sec-tag">Leaderboard</div>
+                    <h2>广场上全是人，<span class="light">可惜都不是真人。</span></h2>
+                    <p class="sec-lead">
+                        榜单用的是本地模拟数据——没有服务器，没有对手，也没有人在凌晨三点偷偷超过你。
+                        你唯一需要战胜的，是昨天的自己。以及今天早上那个「稍后提醒」按钮。
+                    </p>
+                </div>
+
+                <div class="board rv">
+                    <div class="board-tabs" role="tablist">
+                        <button class="bt on" data-board="duration">睡眠时长榜</button>
+                        <button class="bt" data-board="early">最早入睡榜</button>
+                        <button class="bt" data-board="streak">连续天数榜</button>
+                    </div>
+                    <div class="board-body" id="boardBody"></div>
+                    <div class="board-foot">数据来源：本机随机生成 · 刷新页面，冠军就换人了</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 成就 ==================== -->
+        <section style="padding-top:0">
+            <div class="wrap">
+                <div class="sec-head rv">
+                    <div class="sec-tag">Achievements</div>
+                    <h2>十二枚徽章，<span class="light">总有一枚安慰你。</span></h2>
+                    <p class="sec-lead">有些成就靠坚持，有些靠失控。「睡神」需要一口气睡满 14 小时，「闪电小憩」只需要睡 14 分钟。
+                        两种极端都值得纪念，这就是我们的包容性。</p>
+                </div>
+                <div class="ach-grid">
+                    <div class="ach rv"><div class="em">🌙</div><b>初次入睡</b><span>完成第一次睡眠打卡</span></div>
+                    <div class="ach rv"><div class="em">🔥</div><b>连睡 3 天</b><span>连续打卡 3 天</span></div>
+                    <div class="ach rv"><div class="em">🏅</div><b>连睡 7 天</b><span>连续打卡 7 天</span></div>
+                    <div class="ach rv"><div class="em">☀️</div><b>早八幸存者</b><span>6:00–9:00 醒来且睡够 5 小时</span></div>
+                    <div class="ach rv"><div class="em">🦉</div><b>熬夜修仙党</b><span>在凌晨 0:00–4:00 入睡</span></div>
+                    <div class="ach rv"><div class="em">😴</div><b>睡神</b><span>单次睡眠满 14 小时</span></div>
+                    <div class="ach rv"><div class="em">🔋</div><b>充电小能手</b><span>累计睡眠满 10 小时</span></div>
+                    <div class="ach rv"><div class="em">🏠</div><b>宿舍钉子户</b><span>累计睡眠满 50 小时</span></div>
+                    <div class="ach rv"><div class="em">⚡</div><b>闪电小憩</b><span>单次睡眠不足 15 分钟</span></div>
+                    <div class="ach rv"><div class="em">📅</div><b>打卡狂魔</b><span>累计打卡 20 次</span></div>
+                    <div class="ach rv"><div class="em">⏰</div><b>作息标兵</b><span>连续 3 天在 23:00 前入睡</span></div>
+                    <div class="ach locked rv"><div class="em">🎓</div><b>学期达标</b><span>学期计入时长达到目标（目前：还差得多）</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 隐私 ==================== -->
+        <section id="privacy" style="padding-top:0">
+            <div class="wrap privacy">
+                <div class="rv">
+                    <div class="sec-tag">Privacy</div>
+                    <h2>我们连你的数据<br>都不想要。</h2>
+                    <p class="sec-lead">没有账号、没有注册、没有云同步。你的每一次打卡都写在这个浏览器的一个
+                        localStorage 键里，服务器这个词在我们的架构图里根本不存在。</p>
+                    <div class="privacy-list">
+                        <div class="pv"><span class="tick">✓</span><div><b>不联网也能用。</b>加载完之后断网，功能一个不少。</div></div>
+                        <div class="pv"><span class="tick">✓</span><div><b>定位只用来猜位置类型。</b>甚至可以完全不定位，手动选一个就行。</div></div>
+                        <div class="pv"><span class="tick">✓</span><div><b>换设备等于从零开始。</b>这不是缺陷，这是我们能给出的最真诚的隐私承诺。</div></div>
+                        <div class="pv"><span class="tick">!</span><div><b>清缓存 = 清空你的大学生涯。</b>唯一需要备份的东西，偏偏最容易忘。</div></div>
+                    </div>
+                </div>
+                <div class="code-card rv">
+                    <div class="bar"><i></i><i></i><i></i></div>
+                    <div><span class="c-com">// 你的整个作息，就存这儿</span></div>
+                    <div><span class="c-key">localStorage</span>.<span class="c-fn">getItem</span>(<span class="c-str">'campus_sleep_v1'</span>)</div>
+                    <div>&nbsp;</div>
+                    <div><span class="c-com">// 找遍全网也找不到的接口</span></div>
+                    <div><span class="c-key">POST</span> /api/sleep/upload <span class="c-com">→ 404</span></div>
+                    <div><span class="c-key">GET</span> /api/me/friends <span class="c-com">→ 404</span></div>
+                    <div><span class="c-key">GET</span> /api/ads <span class="c-com">→ 404</span></div>
+                    <div>&nbsp;</div>
+                    <div><span class="c-com">// 意思是：真没有，不是不给你看</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 评价 ==================== -->
+        <section style="padding-top:0">
+            <div class="wrap">
+                <div class="sec-head rv">
+                    <div class="sec-tag">Testimonials</div>
+                    <h2>来自睡友的<span class="light">真实反馈。</span></h2>
+                    <p class="sec-lead">名字都是乱起的，评价都是真心的。毕竟一个不联网的睡眠 App，也没什么动机骗你。</p>
+                </div>
+                <div class="quotes">
+                    <div class="quote rv">
+                        <div class="stars">★★★★★</div>
+                        <p>「自从用了校园睡，我的作息终于有了 KPI。以前熬夜只觉得愧疚，现在能看见修仙值一点点涨，
+                            忽然有种在修炼的错觉。」</p>
+                        <footer><span class="qav">🦉</span><div><b>熬夜修仙党</b> · 凌晨 3 点的常驻居民</div></footer>
+                    </div>
+                    <div class="quote rv">
+                        <div class="stars">★★★★★</div>
+                        <p>「战报说我睡了 3.4 节课。我盯着那个小数看了很久——原来我这么爱学习，
+                            只是方式比较安静。」</p>
+                        <footer><span class="qav">🐨</span><div><b>午睡特长生</b> · 教学楼走廊常客</div></footer>
+                    </div>
+                    <div class="quote rv">
+                        <div class="stars">★★★★☆</div>
+                        <p>「唯一的缺点是它真的不能帮我起床。它只会非常客观地记录我又失败了，
+                            然后给我一个 C。这种诚实让人有点招架不住。」</p>
+                        <footer><span class="qav">🐔</span><div><b>最后一秒起床王</b> · 7:59:55 出门</div></footer>
+                    </div>
+                    <div class="quote rv">
+                        <div class="stars">★★★★★</div>
+                        <p>「连睡 7 天那天我截图发了朋友圈，没人点赞。但我不在乎，因为系统给了我一个徽章，
+                            徽章不会已读不回。」</p>
+                        <footer><span class="qav">🦫</span><div><b>宿舍长驻居民</b> · 累计 214 小时</div></footer>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== FAQ ==================== -->
+        <section id="faq" style="padding-top:0">
+            <div class="wrap faq">
+                <div class="sec-head rv">
+                    <div class="sec-tag">FAQ</div>
+                    <h2>你大概想问的，<span class="light">我们已经想好了答案。</span></h2>
+                </div>
+
+                <details open>
+                    <summary>睡觉还要开定位？那我岂不是必须待在宿舍？<span class="pl">+</span></summary>
+                    <div class="ans">不用。定位只是帮你<b>猜</b>一个最近的位置，猜错了你可以直接手动改。
+                        就算完全不授权定位，选一个「宿舍」也能正常打卡——我们不会因为你站在操场就拒绝你睡觉。</div>
+                </details>
+                <details>
+                    <summary>数据会同步到云端吗？换手机还在吗？<span class="pl">+</span></summary>
+                    <div class="ans">不会，也不在。所有记录都存在当前浏览器的 localStorage 里。
+                        换设备、换浏览器、清缓存，都等于重新开始。想留个底，可以在「我的」里复制一份 JSON，或者干脆截图。</div>
+                </details>
+                <details>
+                    <summary>它能叫我起床吗？能管我别熬夜吗？<span class="pl">+</span></summary>
+                    <div class="ans">不能，两件都不能。这是一个<b>记录工具</b>，不是闹钟，也不是你妈。
+                        它只负责在你起床之后，礼貌地告诉你昨晚发生了什么，以及你本可以做得更好。</div>
+                </details>
+                <details>
+                    <summary>「昏迷」和「闪电小憩」是什么鬼？<span class="pl">+</span></summary>
+                    <div class="ans">单次睡眠超过 12 小时判为「昏迷」，直接给最低档，不计入学期成绩；
+                        不足 15 分钟判为「闪电小憩」，同样给最低档。一个是睡过头，一个是根本没睡，
+                        我们决定用同一种方式表达惋惜。</div>
+                </details>
+                <details>
+                    <summary>这是健康建议吗？<span class="pl">+</span></summary>
+                    <div class="ans">不是，明确不是。这里的评级、修仙值、睡眠周期全部是娱乐性的量化游戏，
+                        没有任何医学依据，也不构成任何建议。睡满 14 小时不会让你更健康，只会让你拿到「睡神」徽章，
+                        以及室友的一句「你是不是病了」。</div>
+                </details>
+                <details>
+                    <summary>为什么会有这种东西？<span class="pl">+</span></summary>
+                    <div class="ans">因为校园跑已经证明了：只要给一件事加上进度条、评级和排行榜，
+                        就会有人认真对待它。我们只是把这件事从操场搬回了床上。</div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ==================== CTA ==================== -->
+        <section class="cta">
+            <div class="wrap">
+                <div class="cta-card rv">
+                    <div class="eyebrow" style="margin-bottom:20px">今晚就开始</div>
+                    <h2>现在，去做一件<br>你今天唯一能完成的事。</h2>
+                    <p>不需要装备、不需要出门、不需要任何天赋。选定位置，按下开睡，然后把手机放下。
+                        剩下的交给计时器，以及你明天早上不太情愿的那一次点击。</p>
+                    <div class="cta-actions">
+                        <a class="btn btn-primary btn-lg" href="../tools/app/campus-sleep.html">开始今晚的睡眠 →</a>
+                        <a class="btn btn-ghost btn-lg" href="#grade">再看看评级规则</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== Footer ==================== -->
+    <footer class="site">
+        <div class="wrap">
+            <div class="foot-in">
+                <div>
+                    <div class="foot-brand"><span class="mk">😴</span>校园睡</div>
+                    <div class="foot-note">
+                        娱乐产品，不构成健康建议。与任何学校、教务系统、宿舍管理部门及宿管阿姨均无关联。<br>
+                        所有数据保存在你的浏览器本地，我们看不到，也不想看。
+                    </div>
+                </div>
+                <div class="foot-links">
+                    <a href="../tools/app/campus-sleep.html">打开应用</a>
+                    <a href="#how">玩法说明</a>
+                    <a href="#faq">常见问题</a>
+                    <a href="../index.html">返回主页</a>
+                </div>
+            </div>
+
+            <div class="about-list">
+                <a class="about-item" href="https://www.ttwe77.cn/ttwe77.html"><span class="ai-icon">✍️</span><span class="ai-text">作者：ttwe77</span><span class="ai-arrow">↗</span></a>
+                <a class="about-item" href="https://gitee.com/ttwe77/ttwe77s-homepage/blob/main/LICENSE" target="_blank" rel="noopener noreferrer"><span class="ai-icon">📜</span><span class="ai-text">本页面使用 MIT 协议开源</span><span class="ai-arrow">↗</span></a>
+                <a class="about-item" href="https://www.ttwe77.cn" target="_blank" rel="noopener noreferrer"><span class="ai-icon">🏠</span><span class="ai-text">回到主站</span><span class="ai-arrow">↗</span></a>
+            </div>
+
+            <div class="beian-foot">
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026023217号-1</a>
+                <span class="beian-sep">/</span>
+                <a class="beian-police" href="https://beian.mps.gov.cn/#/query/webSearch?code=45020002000311" target="_blank" rel="noreferrer"><img src="/src/beian.png" alt="公安备案">桂公网安备45020002000311号</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* ==================== 导航滚动态 ==================== */
+        var nav = document.getElementById('nav');
+        function onScroll() {
+            nav.classList.toggle('scrolled', window.scrollY > 8);
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        /* ==================== 「先看看」：向下滚动半屏 ==================== */
+        var scrollHalfToken = 0;
+        document.querySelectorAll('[data-scroll-half]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                // 组合键 / 中键点击时保留浏览器默认行为（新标签打开）
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                e.preventDefault();
+                var dist = Math.round(window.innerHeight * 1);
+                var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                var startY = window.scrollY;
+                var maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+                var targetY = Math.min(maxY, startY + dist);
+                if (reduce) {
+                    window.scrollTo(0, targetY);
+                    return;
+                }
+                // 自定义缓动滚动，时长比浏览器原生 smooth 更长更慢
+                var duration = 1300;
+                var token = ++scrollHalfToken;
+                var t0 = performance.now();
+                var root = document.documentElement;
+                var prevBehavior = root.style.scrollBehavior;
+                root.style.scrollBehavior = 'auto';
+                function step(now) {
+                    if (token !== scrollHalfToken) { root.style.scrollBehavior = prevBehavior; return; }
+                    var p = Math.min(1, (now - t0) / duration);
+                    var eased = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+                    window.scrollTo(0, startY + (targetY - startY) * eased);
+                    if (p < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        root.style.scrollBehavior = prevBehavior;
+                    }
+                }
+                requestAnimationFrame(step);
+            });
+        });
+
+        /* ==================== 入场动画 ==================== */
+        var revealEls = document.querySelectorAll('.rv');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('in');
+                        io.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+            revealEls.forEach(function (el, i) {
+                el.style.transitionDelay = (Math.min(i % 6, 5) * 55) + 'ms';
+                io.observe(el);
+            });
+        } else {
+            revealEls.forEach(function (el) { el.classList.add('in'); });
+        }
+
+        /* ==================== 数字滚动 ==================== */
+        var counted = false;
+        function countUp() {
+            if (counted) return;
+            var nums = document.querySelectorAll('[data-count]');
+            if (!nums.length) return;
+            var box = nums[0].closest('.phone');
+            if (!box) return;
+            var r = box.getBoundingClientRect();
+            if (r.top > window.innerHeight - 60) return;
+            counted = true;
+            nums.forEach(function (el) {
+                var target = parseFloat(el.dataset.count);
+                var dec = parseInt(el.dataset.dec, 10) || 0;
+                var start = performance.now();
+                var dur = 1200;
+                function tick(now) {
+                    var p = Math.min(1, (now - start) / dur);
+                    var eased = 1 - Math.pow(1 - p, 3);
+                    el.textContent = (target * eased).toFixed(dec);
+                    if (p < 1) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+            });
+        }
+        window.addEventListener('scroll', countUp, { passive: true });
+        window.addEventListener('load', countUp);
+        countUp();
+
+        /* ==================== 修仙值计算器 ==================== */
+        var range = document.getElementById('immRange');
+        var valEl = document.getElementById('immVal');
+        var timeEl = document.getElementById('immTime');
+        var labelEl = document.getElementById('immLabel');
+        var modEl = document.getElementById('immMod');
+
+        function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+        function renderImmortal() {
+            var v = parseInt(range.value, 10);
+            // 22:00 起算，每 3 分钟 1 点，100 点 = 03:00
+            var total = 1320 + v * 3;
+            var h = Math.floor(total / 60) % 24;
+            var m = total % 60;
+
+            valEl.textContent = v;
+            timeEl.textContent = '入睡 ' + pad2(h) + ':' + pad2(m);
+
+            var label, cls, mod, modCls;
+            if (total < 1380) { label = '早睡标兵'; cls = 'good'; mod = '评级 +1'; modCls = 'good'; }
+            else if (total < 1500) { label = '正常作息'; cls = ''; mod = '评级不变'; modCls = ''; }
+            else if (total < 1620) { label = '熬夜边缘'; cls = 'warn'; mod = '评级 −1'; modCls = 'warn'; }
+            else { label = '修仙党'; cls = 'warn'; mod = '评级 −1，已入化境'; modCls = 'warn'; }
+
+            labelEl.textContent = label;
+            labelEl.className = 'pill ' + cls;
+            modEl.textContent = mod;
+            modEl.className = 'pill ' + modCls;
+        }
+        range.addEventListener('input', renderImmortal);
+        renderImmortal();
+
+        /* ==================== 榜单 ==================== */
+        var BOARDS = {
+            duration: {
+                rows: [
+                    { av: '🦥', name: '卷王克星', college: '躺平与养生学院', v: '10.82 h' },
+                    { av: '🦁', name: '枕头山大王', college: '午睡工程系', v: '10.41 h' },
+                    { av: '🐼', name: '床垫测试工程师', college: '赖床动力学系', v: '9.96 h' },
+                    { av: '😴', name: '睡神本神', college: '宇宙第一躺平学院', v: '9.75 h' },
+                    { av: '🐨', name: '闭眼即睡星人', college: '赫奇帕奇学院', v: '9.38 h' },
+                    { av: '🦫', name: '宿舍长驻居民', college: '碳水快乐学院', v: '8.90 h' },
+                    { av: '🌙', name: '你', college: '当前设备 · 本机', v: '8.24 h', me: true }
+                ]
+            },
+            early: {
+                rows: [
+                    { av: '🐰', name: '早睡计划第十版', college: '早八逃生学院', v: '21:47' },
+                    { av: '🦉', name: '上铺哲学家', college: '躺平与养生学院', v: '22:03' },
+                    { av: '🐧', name: '闹钟绝缘体', college: '旷野之息系', v: '22:15' },
+                    { av: '🦆', name: '靠窗铺VIP', college: '午睡工程系', v: '22:31' },
+                    { av: '🐇', name: '作息标兵', college: '赖床动力学系', v: '22:49' },
+                    { av: '🐿️', name: '被子换季总监', college: '碳水快乐学院', v: '23:02' },
+                    { av: '🌙', name: '你', college: '当前设备 · 本机', v: '23:58', me: true }
+                ]
+            },
+            streak: {
+                rows: [
+                    { av: '🐦', name: '连续早睡打卡员', college: '早八逃生学院', v: '37 天' },
+                    { av: '🔥', name: '打卡狂魔', college: '午睡工程系', v: '31 天' },
+                    { av: '🦫', name: '宿舍长驻居民', college: '躺平与养生学院', v: '24 天' },
+                    { av: '🐢', name: '早八空位统计员', college: '赖床动力学系', v: '19 天' },
+                    { av: '🐮', name: '早八闹钟受害者', college: '碳水快乐学院', v: '14 天' },
+                    { av: '🐔', name: '最后一秒起床王', college: '早八逃生学院', v: '9 天' },
+                    { av: '🌙', name: '你', college: '当前设备 · 本机', v: '6 天', me: true }
+                ]
+            }
+        };
+
+        var boardBody = document.getElementById('boardBody');
+
+        function renderBoard(key) {
+            var rows = BOARDS[key].rows;
+            var html = '';
+            rows.forEach(function (r, i) {
+                html += '<div class="brow' + (r.me ? ' me' : '') + '">' +
+                    '<div class="rank">' + (i + 1) + '</div>' +
+                    '<div class="who"><span class="av">' + r.av + '</span>' +
+                    '<div style="min-width:0"><div>' + r.name +
+                    (r.me ? ' <span style="font-size:10px;color:#6C5CE7;font-weight:700">（本机）</span>' : '') +
+                    '</div><small>' + r.college + '</small></div></div>' +
+                    '<div class="val">' + r.v + '</div>' +
+                    '</div>';
+            });
+            boardBody.innerHTML = html;
+        }
+
+        document.querySelectorAll('.bt').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.bt').forEach(function (x) { x.classList.remove('on'); });
+                btn.classList.add('on');
+                renderBoard(btn.dataset.board);
+            });
+        });
+        renderBoard('duration');
+    </script>
+</body>
+
+</html>

@@ -75,7 +75,8 @@ diff -u <备份>/topbar.html tools/genblog/parts/topbar.html   # 除 style.css /
 
 它会导出：`head` / `style` / `topbar` / `read_progress` / `article_head` / `article_body` /
 `toc` / `toc_toggle` / `to_top` / `font_modal` / `footer`，外加**全部 `<script>`
-（`id="theme-init"`、`id="font-init"` 除外 —— 它们必须留在 `<head>` 里提前执行，防止刷新闪白）**。
+（`id="theme-init"`、`id="font-init"`、`id="plain-init"` 除外 —— 它们必须留在 `<head>` 里提前执行，
+防止刷新闪白 / 闪花哨）**。
 
 其余 body 元素（新增的浮层、弹窗、提示条）**不会被导出**。两种正确做法：
 
@@ -166,6 +167,53 @@ void 标签（`<br>`）都不入栈。别改回「开标签数 − 闭标签数 
   里那段注释别删。
 - **主题切换**：若当前是 mermaid 放大层则自动收起（mermaid 会按新主题重渲染，旧克隆配色过期）。
 - **竞态**：`close()` 有 240ms 清理定时器，与再次 `open()` 用 `cleanTimer` 互斥，别删。
+
+## 已实现：顶栏折叠菜单
+
+字体 / 深色 / 简洁 / 分享 / 首页五个入口收进一个汉堡按键（全部在 `sample.html`）：
+
+- **DOM**：`<header class="topbar">` → `.topbar__actions` → `#btn-menu`（静态 SVG 三条杠，展开时整体旋转 180°）+ `#topbar-menu`（卡片）。
+  三条杠的间距必须是 4px：条高（2px）落在半设备像素上时，`175%×4=7`、`125%×4=5` 才能让三条同相位，
+  否则中间那条会比上下两条整整多/少一个设备像素 —— 表现就是「三条杠宽度不一」。
+  **别把 `.menu-bars` 改回三个 flex `<span>`**：盒模型的逐盒吸附会让这个问题在缩放时反复出现。
+  五个条目仍是原来的 `#btn-font` / `#btn-theme` / `#btn-share` / 首页 `<a>`，另加一个 `#btn-plain`；
+  **原有 ID 一个都没改**，所以字体弹窗、主题切换、复制链接那三段脚本不用动。
+- **为什么塞在 header 里**：`split_page.py` 只导出 `topbar` 这一个 header 零件，面板跟着它一起走。
+  挪到 header 外面就必须往 `TARGETS` 里加一行，否则整块面板在产物里凭空消失。
+- **交互**：点空白 / `Esc` 收起（`Esc` 会把焦点还给按钮）；字体、分享、首页点完自动收起；
+  深色与简洁两个开关**故意不收起**，方便连着切两次对比。上下方向键在条目间循环。
+- **状态回填**：展开时读一次 `localStorage['blog-font']` 显示当前字体名；深色开关听 `themechange`
+  事件（`apply()` 里派发的那个）；简洁开关读 `<html data-plain>`。
+- **`#btn-font.is-active::after`** 那颗小圆点在菜单里被 `content: none` 顶掉了，右侧字体名比圆点信息量大。
+- ≤480px 不再隐藏 `#btn-share`（它已经不在顶栏上了），只把面板收窄到 202px。
+
+## 已实现：简洁模式（一键清理）
+
+同样全在 `sample.html`，产物无需 `md2page.py` 配合：
+
+- **入口**：菜单里的 `#btn-plain`，开关样式复用 `.topbar-menu__switch`；标签「简洁模式」，
+  `title` / `aria-label` 写的「一键清理」。点一下把花哨样式换成黑白极简，再点一下恢复。
+- **状态**：`<html data-plain="on">` + `localStorage['blog-plain']`（`'1'` / `'0'`），全站文章共用。
+- **不闪**：`<script id="plain-init">` 放在 `<head>` 里、`<style>` 之前。这个 ID 在
+  `split_page.py` 和 `md2page.py` 的「head 脚本白名单」里都登记了，**新增同类脚本记得两处一起加**，
+  否则 `fill_head()` 会把它挪到 body 末尾，刷新时先闪一下彩色再变黑白。
+- **实现方式**：`sample.html` 末尾追加一整段 `:root[data-plain="on"]` 覆盖，只盖不删；
+  颜色令牌全部换成黑 / 白 / 灰，`--shadow-card` 等直接置 `none`，`--btn-skew` 归零。
+- **清理范围**：背景光晕与网格、标题渐变、斜切标签、渐变竖条 / 进度条 / 分隔线、引用大引号、
+  代码块红黄绿三点（语法高亮改用 `filter: grayscale(1)`，亮度不变所以可读性不掉）、
+  五色提示框、表格深色表头、毛玻璃、投影、发光、Toast 圆点光晕、全屏放大层的模糊与投影、
+  `BAClickFX` 点击粒子（调 `setPaused(true, { clear: true })`，别用 CSS 藏画布）、
+  `/src/cursors/*.cur` 自定义鼠标、字体弹窗的蓝色胶囊与预览渐变、Mermaid 的淡黄 tooltip。
+- **深色模式的两处暗坑**：深色主题把 `strong` 写死成 `#8FD8FF`，不补一条
+  `:root[data-plain="on"] .article-body strong { color: var(--color-text-primary) }`
+  的话，粗体、粗斜体、粗体提示文本会一起留在蓝色；`[!important]` 的图标是 GitHub 原图，
+  `fill="#8250df"` 写在 SVG 标签里，只能靠 CSS `fill: currentColor` 覆盖，并顺手
+  `filter: none` 挡掉深色模式对正文 SVG 的 `invert`。
+- **不清理**：字体（`--font-sans` 一律不动）、正文里的图片 / SVG / Mermaid（属于内容，不是装饰）、
+  圆角阶梯、布局与间距，以及作者在正文里手写的内联颜色（如 `style="color: red"`）。
+- **深色**：保留，走 `:root[data-theme="dark"][data-plain="on"]` 那组令牌，同样是纯色黑白灰。
+- **粒子**：`<head>` 的 module 脚本把实例挂到 `window.__baClickFx`，并在构造后检查一次
+  `data-plain`，保证「刷新时简洁模式已开」也不会先放一发粒子。
 
 ## 验证方式（无浏览器插件也能测）
 

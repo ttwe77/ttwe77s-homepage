@@ -269,10 +269,11 @@ def main(argv=None) -> int:
         rows.append((key, el["tag"], f"{l0}-{l1}", len(text), filename))
 
     # ---------- 脚本 ----------
-    # 主题 / 字体初始化脚本必须留在 <head> 里提前执行，不重复收进 scripts.html
+    # 主题 / 字体 / 简洁模式初始化脚本必须留在 <head> 里提前执行，
+    # 不重复收进 scripts.html（否则会在 body 末尾再跑一遍）
     scripts = [
         s for s in find_all(elements, tag="script")
-        if s["attrs"].get("id") not in ("theme-init", "font-init")
+        if s["attrs"].get("id") not in ("theme-init", "font-init", "plain-init")
     ]
     if scripts:
         chunks = []

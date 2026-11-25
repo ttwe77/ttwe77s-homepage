@@ -1325,12 +1325,14 @@ def fill_head(head: str, css: str, meta: dict) -> str:
         head = head.replace("</head>", f"    <style>\n{css}\n    </style>\n</head>")
 
     # 去掉 <head> 里的 script（script 统一放到 body 底部），
-    # 但保留主题与字体初始化脚本，它们必须在样式解析前执行
+    # 但保留主题 / 字体 / 简洁模式初始化脚本，它们必须在样式解析前执行
     def _drop_head_script(m: re.Match) -> str:
         block = m.group(0)
         if 'id="theme-init"' in block or "id='theme-init'" in block:
             return block
         if 'id="font-init"' in block or "id='font-init'" in block:
+            return block
+        if 'id="plain-init"' in block or "id='plain-init'" in block:
             return block
         return "\n"
 

@@ -40,6 +40,17 @@
         })();
     </script>
 
+    <!-- 简洁模式初始化：在样式解析前恢复上次选择，避免刷新时先闪一下花哨样式 -->
+    <script id="plain-init">
+        (function () {
+            try {
+                if (localStorage.getItem('blog-plain') === '1') {
+                    document.documentElement.setAttribute('data-plain', 'on');
+                }
+            } catch (e) { }
+        })();
+    </script>
+
     <title>虚拟定位折腾记：从 iOSRealRun 到 MuMu 模拟器的踩坑记录 · 七七的折腾笔记</title>
     <link rel="icon" href="/src/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/src/apple-touch-icon.png">
@@ -92,6 +103,7 @@
 
             --topbar-h: 56px;
             --btn-skew: -10deg;
+            --page-ease: cubic-bezier(.65, .05, .36, 1);
         }
 
         /* ============ 基础 ============ */
@@ -184,7 +196,10 @@
             background: rgba(255, 255, 255, .92);
             -webkit-backdrop-filter: blur(14px);
             backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(0, 0, 0, .05);
+            /* 这条线必须用 inset 阴影画，不能用 border-bottom：
+               border-box 下 1px 边框会把内容高压成 55px，36px 的按钮居中就落在 .5px 上，
+               汉堡三条杠在 100% 缩放下已经是一条实心 + 两条半透明。总高仍是 56px，视觉位置不变。 */
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .05);
         }
 
         .icon-btn {
@@ -261,6 +276,166 @@
 
         .topbar__crumb span {
             color: var(--color-text-disabled);
+        }
+
+        /* ============ 顶栏菜单（收起 字体 / 深色 / 分享 / 首页） ============ */
+        .topbar__actions {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 0 0 auto;
+        }
+
+        .topbar__menu-btn[aria-expanded="true"] {
+            background: rgba(63, 86, 140, .1);
+        }
+
+        /* 汉堡图标：静态 SVG，2px 杠 + 4px 间距 = 18×10。
+           间距必须能被常见缩放的设备像素整除（175%×4=7、125%×4=5），
+           否则中间那条会比上下两条整整多/少一个设备像素 —— 这就是「三条杠宽度不一」的真身。
+           用 SVG 而不是三个 flex 盒子：少一层盒模型吸附，且 rx 不会被 CSS 半径钳制规则改写
+           （原来 border-radius: 2px 在 2px 高盒子上被钳成 1px，条一变粗端头就跟着变长）。
+           展开态整体转 180°：三条杠上下对称，转完看着一样，靠转的过程表达状态。 */
+        .menu-bars {
+            display: block;
+            width: 18px;
+            height: 10px;
+            pointer-events: none;
+            transform-origin: 50% 50%;
+            transition: transform .25s var(--page-ease);
+        }
+
+        .topbar__menu-btn[aria-expanded="true"] .menu-bars {
+            transform: rotate(180deg);
+        }
+
+        .topbar-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            z-index: 210;
+            width: 218px;
+            max-width: calc(100vw - 24px);
+            padding: 6px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .96);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            backdrop-filter: blur(18px) saturate(1.4);
+            border: 1px solid rgba(18, 138, 250, .14);
+            box-shadow: 0 14px 34px rgba(15, 40, 80, .16), 0 2px 6px rgba(15, 40, 80, .07);
+            transform-origin: top right;
+            /* 收起态：visibility 负责移出 Tab 序列与无障碍树 */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px) scale(.97);
+            transition: opacity .18s ease,
+                transform .18s cubic-bezier(.22, .61, .36, 1),
+                visibility .18s;
+        }
+
+        .topbar-menu.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+        }
+
+        .topbar-menu__item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            padding: 9px 11px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 600;
+            line-height: 1.45;
+            letter-spacing: .01em;
+            color: var(--color-text-body);
+            text-align: left;
+            transition: background .16s ease, color .16s ease;
+        }
+
+        .topbar-menu__item:hover,
+        .topbar-menu__item:focus-visible {
+            background: rgba(18, 138, 250, .09);
+            color: var(--color-primary-active);
+            outline: none;
+        }
+
+        .topbar-menu__item svg {
+            flex: 0 0 auto;
+            width: 18px;
+            height: 18px;
+            color: #3f568c;
+            transition: color .16s ease;
+        }
+
+        .topbar-menu__item:hover svg,
+        .topbar-menu__item:focus-visible svg {
+            color: var(--color-primary);
+        }
+
+        .topbar-menu__label {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .topbar-menu__meta {
+            flex: 0 0 auto;
+            max-width: 84px;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--color-text-disabled);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .topbar-menu__divider {
+            height: 1px;
+            margin: 5px 9px;
+            background: rgba(18, 138, 250, .12);
+        }
+
+        /* 深色开关 */
+        .topbar-menu__switch {
+            position: relative;
+            flex: 0 0 auto;
+            width: 34px;
+            height: 20px;
+            border-radius: var(--radius-full);
+            background: rgba(63, 86, 140, .18);
+            transition: background .2s ease;
+        }
+
+        .topbar-menu__switch::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .22);
+            transition: transform .22s cubic-bezier(.34, .9, .36, 1);
+        }
+
+        .topbar-menu__switch.is-on {
+            background: var(--color-primary);
+        }
+
+        .topbar-menu__switch.is-on::after {
+            transform: translateX(14px);
+        }
+
+        /* 折叠进菜单后不再用右上角小圆点，右侧名称已说明当前字体 */
+        .topbar-menu__item#btn-font.is-active::after {
+            content: none;
         }
 
         /* 阅读进度条 */
@@ -1675,16 +1850,17 @@
             }
         }
 
-        /* ============ 超窄屏：隐藏分享按钮 + 缩小字体 ============ */
+        /* ============ 超窄屏：缩小字体 ============ */
         @media (max-width: 480px) {
             .topbar {
                 padding: 0 10px;
                 gap: 8px;
             }
 
-            /* 隐藏“复制本页链接”按钮 */
-            #btn-share {
-                display: none;
+            /* 分享已收进菜单，不再单独隐藏；菜单面板适当收窄 */
+            .topbar-menu {
+                width: 202px;
+                padding: 5px;
             }
 
             /* 头像与图标按钮同步缩小，避免顶栏被撑满 */
@@ -1704,6 +1880,13 @@
             .icon-btn svg {
                 width: 18px;
                 height: 18px;
+            }
+
+            /* 汉堡是 18×10 的 svg，不能跟着上面那条被撑成 18×18：
+               图形不会变形（preserveAspectRatio 默认 meet），但盒子高度一变就要重算亚像素相位 */
+            .icon-btn .menu-bars {
+                width: 18px;
+                height: 10px;
             }
         }
 
@@ -2389,7 +2572,7 @@
 
         :root[data-theme="dark"] .topbar {
             background: rgba(18, 22, 31, .92);
-            border-bottom-color: rgba(255, 255, 255, .07);
+            box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .07);
         }
 
         :root[data-theme="dark"] .icon-btn {
@@ -2402,6 +2585,56 @@
 
         :root[data-theme="dark"] .topbar__title {
             color: var(--color-text-primary);
+        }
+
+        /* 顶栏折叠菜单：深色 */
+        :root[data-theme="dark"] .topbar__menu-btn[aria-expanded="true"] {
+            background: rgba(175, 196, 221, .12);
+        }
+
+        :root[data-theme="dark"] .topbar-menu {
+            background: rgba(27, 34, 48, .96);
+            border-color: rgba(255, 255, 255, .1);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, .5), 0 2px 8px rgba(0, 0, 0, .35);
+        }
+
+        :root[data-theme="dark"] .topbar-menu__item {
+            color: #CBD9E8;
+        }
+
+        :root[data-theme="dark"] .topbar-menu__item svg {
+            color: #AFC4DD;
+        }
+
+        :root[data-theme="dark"] .topbar-menu__item:hover,
+        :root[data-theme="dark"] .topbar-menu__item:focus-visible {
+            background: rgba(79, 184, 240, .14);
+            color: #8FD8FF;
+        }
+
+        :root[data-theme="dark"] .topbar-menu__item:hover svg,
+        :root[data-theme="dark"] .topbar-menu__item:focus-visible svg {
+            color: #8FD8FF;
+        }
+
+        :root[data-theme="dark"] .topbar-menu__meta {
+            color: rgba(175, 196, 221, .62);
+        }
+
+        :root[data-theme="dark"] .topbar-menu__divider {
+            background: rgba(255, 255, 255, .09);
+        }
+
+        :root[data-theme="dark"] .topbar-menu__switch {
+            background: rgba(175, 196, 221, .22);
+        }
+
+        :root[data-theme="dark"] .topbar-menu__switch.is-on {
+            background: var(--color-primary);
+        }
+
+        :root[data-theme="dark"] .topbar-menu__switch::after {
+            background: #E8F1FA;
         }
 
         :root[data-theme="dark"] .article-head__title {
@@ -3571,6 +3804,579 @@
             }
         }
 
+        /* ============================================================
+           简洁模式：一键清理（黑白极简）
+           ------------------------------------------------------------
+           · 状态挂在 <html data-plain="on">，由菜单里的 #btn-plain 切换
+           · 这里只做覆盖、不删原样式，所以随时能切回花哨版
+           · 清理范围：光晕 / 网格 / 渐变 / 彩色 / 阴影 / 毛玻璃 / 粒子 / 自定义指针
+           · 字体不在范围内：--font-sans 一律不动
+           ============================================================ */
+
+        :root[data-plain="on"] {
+            --color-primary: #141414;
+            --color-primary-hover: #000000;
+            --color-primary-active: #000000;
+            --color-blue-light: #A3A3A3;
+            --color-periwinkle: #A3A3A3;
+            --color-orchid: #141414;
+
+            --color-bg-light: #FFFFFF;
+            --color-bg-white: #FFFFFF;
+            --color-bg-soft: #F6F6F6;
+            --color-border: #E4E4E4;
+            --color-border-strong: #CFCFCF;
+
+            --color-text-primary: #111111;
+            --color-text-body: #333333;
+            --color-text-secondary: #6B6B6B;
+            --color-text-disabled: #9E9E9E;
+
+            --color-danger: #444444;
+            --color-success: #444444;
+            --color-warning: #444444;
+
+            --shadow-card: none;
+            --shadow-card-hover: none;
+            --shadow-blue: none;
+            --btn-skew: 0deg;
+
+            --scrollbar-thumb: rgba(0, 0, 0, .20);
+            --scrollbar-thumb-hover: rgba(0, 0, 0, .34);
+            --scrollbar-thumb-active: rgba(0, 0, 0, .46);
+        }
+
+        /* 深色模式保留，但同样只剩黑 / 白 / 灰 */
+        :root[data-theme="dark"][data-plain="on"] {
+            --color-primary: #EDEDED;
+            --color-primary-hover: #FFFFFF;
+            --color-primary-active: #FFFFFF;
+            --color-blue-light: #6F6F6F;
+            --color-periwinkle: #6F6F6F;
+            --color-orchid: #EDEDED;
+
+            --color-bg-white: #171717;
+            --color-bg-light: #0F0F0F;
+            --color-bg-soft: #1F1F1F;
+            --color-border: #2E2E2E;
+            --color-border-strong: #444444;
+
+            --color-text-primary: #F2F2F2;
+            --color-text-body: #D4D4D4;
+            --color-text-secondary: #A0A0A0;
+            --color-text-disabled: #6E6E6E;
+
+            --scrollbar-thumb: rgba(255, 255, 255, .22);
+            --scrollbar-thumb-hover: rgba(255, 255, 255, .36);
+            --scrollbar-thumb-active: rgba(255, 255, 255, .48);
+        }
+
+        /* ---------- 背景氛围：光晕与网格直接关掉 ---------- */
+        :root[data-plain="on"] body::before,
+        :root[data-plain="on"] body::after {
+            display: none;
+        }
+
+        /* ---------- 顶栏与菜单：不透明、无毛玻璃、无投影 ---------- */
+        :root[data-plain="on"] .topbar {
+            background: var(--color-bg-white);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            box-shadow: inset 0 -1px 0 var(--color-border);
+        }
+
+        :root[data-plain="on"] .icon-btn,
+        :root[data-plain="on"] .topbar-menu__item svg {
+            color: var(--color-text-secondary);
+        }
+
+        :root[data-plain="on"] .icon-btn:hover {
+            background: var(--color-bg-soft);
+        }
+
+        :root[data-plain="on"] .topbar__title {
+            color: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .topbar__menu-btn[aria-expanded="true"] {
+            background: var(--color-bg-soft);
+        }
+
+        :root[data-plain="on"] .topbar-menu {
+            background: var(--color-bg-white);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            border-color: var(--color-border);
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .topbar-menu__item {
+            color: var(--color-text-body);
+        }
+
+        :root[data-plain="on"] .topbar-menu__item:hover,
+        :root[data-plain="on"] .topbar-menu__item:focus-visible {
+            background: var(--color-bg-soft);
+            color: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .topbar-menu__item:hover svg,
+        :root[data-plain="on"] .topbar-menu__item:focus-visible svg {
+            color: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .topbar-menu__divider {
+            background: var(--color-border);
+        }
+
+        :root[data-plain="on"] .topbar-menu__switch {
+            background: var(--color-border-strong);
+        }
+
+        :root[data-plain="on"] .topbar-menu__switch::after {
+            background: var(--color-bg-white);
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .topbar-menu__switch.is-on {
+            background: var(--color-text-primary);
+        }
+
+        /* ---------- 阅读进度：单色 ---------- */
+        :root[data-plain="on"] .read-progress__bar {
+            background: var(--color-text-primary);
+            box-shadow: none;
+        }
+
+        /* ---------- 文章头部 ---------- */
+        :root[data-plain="on"] .article-head__title {
+            background: none;
+            color: var(--color-text-primary);
+            -webkit-text-fill-color: currentColor;
+        }
+
+        :root[data-plain="on"] .chip {
+            color: var(--color-text-secondary);
+            background: var(--color-bg-soft);
+            border: 1px solid var(--color-border);
+            transform: none;
+        }
+
+        :root[data-plain="on"] .chip:hover {
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            transform: none;
+        }
+
+        /* ---------- 正文标题标记 / 列表 ---------- */
+        :root[data-plain="on"] .article-body h2::before {
+            background: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .article-body h3::before {
+            background: var(--color-text-primary);
+            transform: none;
+            border-radius: 0;
+        }
+
+        :root[data-plain="on"] .article-body h4::before,
+        :root[data-plain="on"] .article-body h5::before,
+        :root[data-plain="on"] .article-body h6::before {
+            background: var(--color-border-strong);
+        }
+
+        :root[data-plain="on"] .article-body ul>li::before {
+            background: var(--color-text-disabled);
+            transform: none;
+            border-radius: 0;
+        }
+
+        :root[data-plain="on"] .article-body ol>li::before {
+            color: var(--color-bg-white);
+            background: var(--color-text-primary);
+        }
+
+        /* ---------- 引用块：去掉渐变条与大引号 ---------- */
+        :root[data-plain="on"] .article-body blockquote {
+            background: var(--color-bg-soft);
+            border-radius: var(--radius-sm);
+        }
+
+        :root[data-plain="on"] .article-body blockquote::before {
+            background: var(--color-border-strong);
+        }
+
+        :root[data-plain="on"] .article-body blockquote::after {
+            display: none;
+        }
+
+        :root[data-plain="on"] .article-body blockquote blockquote {
+            background: transparent;
+            border-left: 2px solid var(--color-border-strong);
+        }
+
+        /* ---------- 链接 / 强调 / 行内代码 ---------- */
+        :root[data-plain="on"] .article-body a:not(.chip),
+        :root[data-plain="on"] .article-body a:not(.chip):hover {
+            color: var(--color-text-primary);
+            border-bottom-color: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .article-body a:not(.chip) .hover-hint,
+        :root[data-plain="on"] .article-body a:not(.chip) .hover-hint:hover,
+        :root[data-plain="on"] .article-body .hover-hint a:not(.chip),
+        :root[data-plain="on"] .article-body .hover-hint a:not(.chip):hover {
+            color: inherit;
+            border-bottom-color: currentColor;
+        }
+
+        /* 深色模式把 strong 写死成 #8FD8FF，粗斜体 / 粗体提示文本也跟着染蓝，这里压回正文色 */
+        :root[data-plain="on"] .article-body strong,
+        :root[data-plain="on"] .article-body b {
+            color: var(--color-text-primary);
+        }
+
+        /* 提示框图标统一走 currentColor，并关掉深色模式对正文 SVG 的反色 */
+        :root[data-plain="on"] .callout__title svg {
+            filter: none;
+        }
+
+        /* [!important] 用的是 GitHub 原图，fill="#8250df" 写在标签里，只能靠 CSS 覆盖 */
+        :root[data-plain="on"] .callout--important .callout__title svg {
+            fill: currentColor;
+        }
+
+        :root[data-plain="on"] .article-body :not(pre)>code {
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            border-color: var(--color-border);
+        }
+
+        :root[data-plain="on"] .article-body kbd {
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .article-body mark {
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            box-shadow: inset 0 -1px 0 var(--color-border-strong);
+        }
+
+        :root[data-plain="on"] .article-body u,
+        :root[data-plain="on"] .article-body ins {
+            text-decoration-color: var(--color-text-secondary);
+        }
+
+        :root[data-plain="on"] .article-body hr {
+            background: var(--color-border);
+        }
+
+        :root[data-plain="on"] .article-body progress,
+        :root[data-plain="on"] .article-body .task-checkbox {
+            accent-color: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .footnote-ref a {
+            color: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .footnotes {
+            color: var(--color-text-secondary);
+            border-top-color: var(--color-border);
+        }
+
+        /* ---------- 代码块：中性底色 + 灰度语法着色 ---------- */
+        :root[data-plain="on"] .code-block {
+            background: #161616;
+            border-color: #2A2A2A;
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .code-block__bar {
+            background: #1C1C1C;
+            border-bottom-color: #2A2A2A;
+        }
+
+        /* 红黄绿三点属于纯装饰，直接收掉 */
+        :root[data-plain="on"] .code-block__dots {
+            display: none;
+        }
+
+        :root[data-plain="on"] .code-block__lang {
+            color: #8A8A8A;
+        }
+
+        /* 只保留明暗对比；filter 保留亮度，所以可读性不掉 */
+        :root[data-plain="on"] .code-block pre {
+            filter: grayscale(1);
+            color: #E5E5E5;
+        }
+
+        :root[data-plain="on"] .code-block__copy {
+            color: #B0B0B0;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        :root[data-plain="on"] .code-block__copy:hover {
+            color: #FFFFFF;
+            background: #3A3A3A;
+        }
+
+        :root[data-plain="on"] .code-block__copy.is-done {
+            color: #D8D8D8;
+            background: #3A3A3A;
+        }
+
+        :root[data-plain="on"] .code-block__expand {
+            color: #B0B0B0;
+            background: rgba(22, 22, 22, .92);
+            border-color: #333333;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .code-block__expand:hover {
+            color: #FFFFFF;
+            background: #3A3A3A;
+        }
+
+        :root[data-plain="on"] .code-block.has-overflow::after {
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(22, 22, 22, .88) 55%,
+                    #161616 100%);
+        }
+
+        /* ---------- 提示框：五色统一成灰 ---------- */
+        :root[data-plain="on"] .callout {
+            --callout-color: var(--color-text-secondary);
+            --callout-bg: var(--color-bg-soft);
+            --callout-border: var(--color-border);
+        }
+
+        /* ---------- 表格 / 图片 ---------- */
+        :root[data-plain="on"] .table-wrap {
+            background: var(--color-bg-white);
+        }
+
+        :root[data-plain="on"] .article-body thead th {
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+        }
+
+        :root[data-plain="on"] .article-body tbody tr:nth-child(even) {
+            background: transparent;
+        }
+
+        :root[data-plain="on"] .article-body a.img-link:hover img {
+            transform: none;
+        }
+
+        /* ---------- 侧栏目录 / 页脚 ---------- */
+        :root[data-plain="on"] .toc__head::before,
+        :root[data-plain="on"] .hover-hint__tooltip .hint-title::before {
+            background: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .toc__list {
+            scrollbar-color: var(--color-border-strong) transparent;
+        }
+
+        :root[data-plain="on"] .toc__list::-webkit-scrollbar-thumb {
+            background-color: var(--color-border-strong);
+        }
+
+        :root[data-plain="on"] .footer__mark::before,
+        :root[data-plain="on"] .article-foot__license::before {
+            background: var(--color-text-disabled);
+            border-radius: 0;
+            transform: none;
+        }
+
+        /* ---------- 浮动按钮：单色反相，无光晕 ---------- */
+        :root[data-plain="on"] .to-top,
+        :root[data-plain="on"] .toc-toggle {
+            color: var(--color-bg-white);
+            background: var(--color-text-primary);
+            border: none;
+            box-shadow: none;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .to-top:hover,
+        :root[data-plain="on"] .toc-toggle:hover {
+            color: var(--color-bg-white);
+            background: var(--color-text-primary);
+            opacity: .85;
+        }
+
+        /* ---------- Toast / 悬停提示 ---------- */
+        :root[data-plain="on"] .toast {
+            background: var(--color-bg-white);
+            border-color: var(--color-border-strong);
+            box-shadow: none;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .toast::before {
+            background: var(--color-text-primary);
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .hover-hint__tooltip {
+            background: var(--color-bg-white);
+            border-color: var(--color-border-strong);
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .hover-hint__tooltip::after {
+            border-top-color: var(--color-bg-white);
+        }
+
+        :root[data-plain="on"] .hover-hint__tooltip.is-below::after {
+            border-top-color: transparent;
+            border-bottom-color: var(--color-bg-white);
+        }
+
+        /* ---------- 字体设置弹窗：蓝底 / 蓝渐变 / 蓝色胶囊一律转灰 ---------- */
+        :root[data-plain="on"] .topbar-menu__meta {
+            color: var(--color-text-disabled);
+        }
+
+        :root[data-plain="on"] .font-modal__backdrop {
+            background: rgba(0, 0, 0, .55);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .font-modal__dialog {
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .font-modal__close:hover {
+            color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+        }
+
+        :root[data-plain="on"] .font-modal__preview {
+            border-color: var(--color-border-strong);
+            background: var(--color-bg-soft);
+        }
+
+        :root[data-plain="on"] .font-modal__preview-label {
+            color: var(--color-text-secondary);
+        }
+
+        :root[data-plain="on"] .font-group__title::before {
+            background: var(--color-text-primary);
+        }
+
+        :root[data-plain="on"] .font-group__count,
+        :root[data-plain="on"] .font-item__lic {
+            color: var(--color-text-secondary);
+            background: var(--color-bg-soft);
+        }
+
+        :root[data-plain="on"] .font-item__lic:hover {
+            background: var(--color-border);
+        }
+
+        :root[data-plain="on"] .font-item.is-active {
+            border-color: var(--color-text-primary);
+            background: var(--color-bg-soft);
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .font-item__check {
+            color: var(--color-bg-white);
+            background: var(--color-text-primary);
+        }
+
+        /* Mermaid 自带的悬浮提示是淡黄底，也跟着换掉 */
+        :root[data-plain="on"] .mermaidTooltip {
+            background: #FFFFFF !important;
+            border-color: #CFCFCF !important;
+            color: #111111 !important;
+        }
+
+        :root[data-theme="dark"][data-plain="on"] .mermaidTooltip {
+            background: #1F1F1F !important;
+            border-color: #444444 !important;
+            color: #F2F2F2 !important;
+        }
+
+        /* ---------- 数学公式滚动条 ---------- */
+        :root[data-plain="on"] .math-block::-webkit-scrollbar-thumb {
+            background: var(--color-border-strong);
+        }
+
+        /* ---------- 全屏放大层：去毛玻璃 / 去投影 ---------- */
+        :root[data-plain="on"] .svg-zoom__scrim {
+            background: rgba(0, 0, 0, .9);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .svg-zoom__canvas {
+            box-shadow: none;
+        }
+
+        :root[data-plain="on"] .svg-zoom__bar {
+            background: #1A1A1A;
+            border-color: #333333;
+            box-shadow: none;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .svg-zoom__btn:hover {
+            color: #FFFFFF;
+            background: #333333;
+        }
+
+        :root[data-plain="on"] .svg-zoom__close {
+            background: rgba(20, 20, 20, .8);
+            border-color: #333333;
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+
+        :root[data-plain="on"] .svg-zoom__close:hover {
+            background: #333333;
+            transform: none;
+        }
+
+        /* ---------- 自定义鼠标指针：换回系统默认 ---------- */
+        @media (hover: hover) and (pointer: fine) {
+
+            :root[data-plain="on"],
+            :root[data-plain="on"] body,
+            :root[data-plain="on"] input,
+            :root[data-plain="on"] textarea,
+            :root[data-plain="on"] [contenteditable="true"] {
+                cursor: auto;
+            }
+
+            :root[data-plain="on"] a,
+            :root[data-plain="on"] button,
+            :root[data-plain="on"] .btn,
+            :root[data-plain="on"] .icon-btn,
+            :root[data-plain="on"] .chip,
+            :root[data-plain="on"] .toc__link,
+            :root[data-plain="on"] .post-nav__item,
+            :root[data-plain="on"] .code-block__copy,
+            :root[data-plain="on"] [role="button"] {
+                cursor: pointer;
+            }
+
+            :root[data-plain="on"] .hover-hint,
+            :root[data-plain="on"] .article-body abbr[title] {
+                cursor: help;
+            }
+        }
+
     </style>
 </head>
 
@@ -3586,47 +4392,87 @@
 
         <div class="topbar__spacer"></div>
 
-        <button class="icon-btn" type="button" id="btn-font" aria-label="字体设置" title="字体设置">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <path d="M4 7V4h16v3" />
-                <path d="M9 20h6" />
-                <path d="M12 4v16" />
-            </svg>
-        </button>
+        <!-- ---------- 折叠菜单：字体 / 深色 / 分享 / 首页 ---------- -->
+        <div class="topbar__actions">
+            <button class="icon-btn topbar__menu-btn" type="button" id="btn-menu" aria-label="打开菜单" title="菜单"
+                aria-haspopup="true" aria-expanded="false" aria-controls="topbar-menu">
+                <svg class="menu-bars" width="18" height="10" viewBox="0 0 18 10"
+                    aria-hidden="true" focusable="false" fill="currentColor">
+                    <rect x="0" y="0" width="18" height="2" rx="1"></rect>
+                    <rect x="0" y="4" width="18" height="2" rx="1"></rect>
+                    <rect x="0" y="8" width="18" height="2" rx="1"></rect>
+                </svg>
+            </button>
 
-        <button class="icon-btn" type="button" id="btn-theme" aria-label="切换到深色模式" title="切换到深色模式" aria-pressed="false">
-            <!-- 太阳：浅色模式下显示 -->
-            <svg class="icon-btn__sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <circle cx="12" cy="12" r="4.5" />
-                <path
-                    d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-            </svg>
-            <!-- 月亮：深色模式下显示 -->
-            <svg class="icon-btn__moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
-            </svg>
-        </button>
+            <div class="topbar-menu" id="topbar-menu">
+                <button class="topbar-menu__item" type="button" id="btn-font" aria-label="字体设置" title="字体设置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M4 7V4h16v3" />
+                        <path d="M9 20h6" />
+                        <path d="M12 4v16" />
+                    </svg>
+                    <span class="topbar-menu__label">字体设置</span>
+                    <span class="topbar-menu__meta" id="menu-font-meta">默认</span>
+                </button>
 
-        <button class="icon-btn" type="button" id="btn-share" aria-label="复制本页链接">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
-            </svg>
-        </button>
+                <button class="topbar-menu__item" type="button" id="btn-theme" aria-label="切换到深色模式"
+                    title="切换到深色模式" aria-pressed="false">
+                    <!-- 太阳：浅色模式下显示 -->
+                    <svg class="icon-btn__sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="4.5" />
+                        <path
+                            d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+                    </svg>
+                    <!-- 月亮：深色模式下显示 -->
+                    <svg class="icon-btn__moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true" focusable="false">
+                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+                    </svg>
+                    <span class="topbar-menu__label">深色模式</span>
+                    <span class="topbar-menu__switch" aria-hidden="true"></span>
+                </button>
 
-        <a class="icon-btn" href="/" aria-label="返回首页" title="返回首页">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <path d="M3 10.5L12 3l9 7.5"></path>
-                <path d="M5 9.5V21h14V9.5"></path>
-            </svg>
-        </a>
+                <button class="topbar-menu__item" type="button" id="btn-plain"
+                    aria-label="简洁模式（一键清理花哨样式）" title="一键清理花哨样式，切换黑白极简"
+                    aria-pressed="false">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="m7 21-4.3-4.3a2 2 0 0 1 0-2.8l9.6-9.6a2 2 0 0 1 2.8 0l5.6 5.6a2 2 0 0 1 0 2.8L13 21" />
+                        <path d="M22 21H7" />
+                        <path d="m5 11 9 9" />
+                    </svg>
+                    <span class="topbar-menu__label">简洁模式</span>
+                    <span class="topbar-menu__switch" aria-hidden="true"></span>
+                </button>
+
+                <button class="topbar-menu__item" type="button" id="btn-share" aria-label="复制本页链接"
+                    title="复制本页链接">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <circle cx="18" cy="5" r="3" />
+                        <circle cx="6" cy="12" r="3" />
+                        <circle cx="18" cy="19" r="3" />
+                        <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+                    </svg>
+                    <span class="topbar-menu__label">分享本页</span>
+                </button>
+
+                <div class="topbar-menu__divider" aria-hidden="true"></div>
+
+                <a class="topbar-menu__item" href="/" aria-label="返回首页" title="返回首页">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M3 10.5L12 3l9 7.5"></path>
+                        <path d="M5 9.5V21h14V9.5"></path>
+                    </svg>
+                    <span class="topbar-menu__label">返回首页</span>
+                </a>
+            </div>
+        </div>
     </header>
 
 <div class="read-progress" aria-hidden="true">
@@ -4132,6 +4978,12 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
         }
         applyFxTheme();
 
+        // 简洁模式需要能暂停粒子，挂到 window 上供切换脚本调用
+        window.__baClickFx = fx;
+        if (document.documentElement.getAttribute('data-plain') === 'on') {
+            fx.setPaused(true, { clear: true });
+        }
+
         // 跟随主题切换
         new MutationObserver(applyFxTheme).observe(document.documentElement, {
             attributes: true,
@@ -4325,6 +5177,186 @@ import { BAClickFX } from '/libs/ba-click-fx.js';
                 } else {
                     showToast(url);
                 }
+            });
+        })();
+</script>
+
+<script>
+/* ============================================================
+           顶栏折叠菜单
+           ------------------------------------------------------------
+           · 字体 / 深色 / 简洁 / 分享 / 首页 全部收进一个菜单按键
+           · 点空白、Esc、选中「字体设置」「分享本页」「返回首页」后自动收起
+           · 深色开关与简洁模式不收起面板，方便反复切换看效果
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            var btn = document.getElementById('btn-menu');
+            var panel = document.getElementById('topbar-menu');
+            if (!btn || !panel) return;
+
+            var themeRow = document.getElementById('btn-theme');
+            var themeSwitch = themeRow ? themeRow.querySelector('.topbar-menu__switch') : null;
+            var plainRow = document.getElementById('btn-plain');
+            var plainSwitch = plainRow ? plainRow.querySelector('.topbar-menu__switch') : null;
+            var fontMeta = document.getElementById('menu-font-meta');
+            var FONT_STORAGE_KEY = 'blog-font';
+            var DEFAULT_FONT_NAME = '七七柔和圆体';
+
+            function isOpen() {
+                return panel.classList.contains('is-open');
+            }
+
+            function open() {
+                panel.classList.add('is-open');
+                btn.setAttribute('aria-expanded', 'true');
+                btn.setAttribute('aria-label', '收起菜单');
+                sync();
+            }
+
+            function close(restoreFocus) {
+                if (!isOpen()) return;
+                panel.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.setAttribute('aria-label', '打开菜单');
+                if (restoreFocus) btn.focus();
+            }
+
+            function toggle() {
+                if (isOpen()) {
+                    close(false);
+                } else {
+                    open();
+                }
+            }
+
+            /* 深色 / 简洁开关 + 当前字体，都在每次展开时对齐一次 */
+            function sync() {
+                var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+                var plain = document.documentElement.getAttribute('data-plain') === 'on';
+                if (themeSwitch) themeSwitch.classList.toggle('is-on', dark);
+                if (plainSwitch) plainSwitch.classList.toggle('is-on', plain);
+                if (fontMeta) fontMeta.textContent = currentFontName();
+            }
+
+            function currentFontName() {
+                try {
+                    var pref = JSON.parse(localStorage.getItem(FONT_STORAGE_KEY) || 'null');
+                    if (pref && pref.name) {
+                        return pref.kind === 'system' ? pref.name + '（系统）' : pref.name;
+                    }
+                } catch (e) { }
+                return DEFAULT_FONT_NAME;
+            }
+
+            btn.addEventListener('click', function () {
+                toggle();
+            });
+
+            /* 点面板内部：先看是不是该收起的动作项 */
+            panel.addEventListener('click', function (e) {
+                var item = e.target.closest ? e.target.closest('.topbar-menu__item') : null;
+                if (!item) return;
+                if (item === themeRow || item === plainRow) return;   /* 两个开关：保持展开 */
+                close(false);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!isOpen()) return;
+                if (btn.contains(e.target) || panel.contains(e.target)) return;
+                close(false);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (!isOpen()) return;
+
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    close(true);
+                    return;
+                }
+
+                /* 上下键在菜单项之间循环 */
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    var items = Array.prototype.slice.call(panel.querySelectorAll('.topbar-menu__item'));
+                    if (!items.length) return;
+                    e.preventDefault();
+                    var idx = items.indexOf(document.activeElement);
+                    var next = e.key === 'ArrowDown'
+                        ? (idx < 0 ? 0 : (idx + 1) % items.length)
+                        : (idx <= 0 ? items.length - 1 : idx - 1);
+                    items[next].focus();
+                }
+            });
+
+            /* 主题变化（含跟随系统自动切换）时同步开关 */
+            window.addEventListener('themechange', sync);
+
+            /* 字体可能在弹窗里被改掉，展开时重新读一次即可 */
+            sync();
+        })();
+</script>
+
+<script>
+/* ============================================================
+           简洁模式（一键清理）
+           ------------------------------------------------------------
+           · 把 <html data-plain="on"> 打开，CSS 那边负责把花哨样式覆盖掉
+           · 状态写 localStorage['blog-plain']，全站文章共用、刷新保留
+           · 点击粒子交给 ba-click-fx 自己暂停，别用 CSS 硬藏画布
+           ============================================================ */
+        (function () {
+            'use strict';
+
+            var KEY = 'blog-plain';
+            var root = document.documentElement;
+            var btn = document.getElementById('btn-plain');
+            var sw = btn ? btn.querySelector('.topbar-menu__switch') : null;
+
+            function isOn() {
+                return root.getAttribute('data-plain') === 'on';
+            }
+
+            function paint(on) {
+                if (btn) {
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    btn.title = on ? '恢复花哨样式' : '一键清理花哨样式，切换黑白极简';
+                }
+                if (sw) sw.classList.toggle('is-on', on);
+            }
+
+            function applyFx(on) {
+                var fx = window.__baClickFx;
+                if (!fx || typeof fx.setPaused !== 'function') return;
+                try {
+                    if (on) fx.setPaused(true, { clear: true });
+                    else fx.setPaused(false);
+                } catch (e) { }
+            }
+
+            function set(on, persist) {
+                if (on) root.setAttribute('data-plain', 'on');
+                else root.removeAttribute('data-plain');
+                paint(on);
+                applyFx(on);
+                if (persist) {
+                    try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) { }
+                }
+            }
+
+            paint(isOn());
+
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    set(!isOn(), true);
+                });
+            }
+
+            /* 其它标签页改了状态，这边跟上 */
+            window.addEventListener('storage', function (e) {
+                if (e.key !== KEY) return;
+                set(e.newValue === '1', false);
             });
         })();
 </script>

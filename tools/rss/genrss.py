@@ -12,6 +12,12 @@ genrss.py —— 依据 blog/index.ini + MD front-matter 生成 RSS 2.0 订阅�
     2. 终端输入 y 后，将其移动并覆盖 <project>/rss.xml
        输入其它任意内容 / Ctrl-C / EOF → 取消，保留预览产物
 
+样式:
+    RSS 头部带 <?xml-stylesheet type="text/css" href="rss.css"?>，
+    样式真源是 tools/rss/rss.css，每次生成都会复制一份到
+    rss.xml 同目录（预览时是 tools/rss/，发布后是项目根）。
+    只影响浏览器直接打开 rss.xml 的观感，阅读器照常当数据解析。
+
 路径推断:
     脚本位于 <project>/tools/rss/genrss.py，向上两级即项目根，
     与 tools/genblog/subset_fonts.py 的 parents[2] 逻辑一致，与 CWD 无关。
@@ -42,9 +48,13 @@ CHANNEL_COPYRIGHT = '© 2026 ttwe77 · 内容采用 CC BY-NC 4.0 许可'
 MANAGING_EDITOR   = 'ttwe77@yeah.net (ttwe77)'   # 责编邮箱
 WEBMASTER         = 'ttwe77@ttwe77.cn (ttwe77)'   # 网站管理员邮箱
 TTL_MINUTES       = 180                              # 缓存分钟数
-IMAGE_URL         = 'https://www.ttwe77.cn/src/head.jpg'
+IMAGE_URL         = 'https://www.ttwe77.cn/src/rss-icon.png'
 IMAGE_TITLE       = SITE_NAME
 IMAGE_LINK        = SITE_URL
+# RSS 2.0 规范：宽上限 144，高上限 400，宽高比 ≤ 4:1。
+# 别改回 head.jpg —— 617×617 超尺寸，很多阅读器会直接丢掉整个 <image>。
+IMAGE_WIDTH       = 144
+IMAGE_HEIGHT      = 144
 DOCS_URL          = 'https://www.rssboard.org/rss-specification'
 CHANNEL_CATEGORY  = '技术'
 
@@ -64,6 +74,13 @@ ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 INDEX_NAME = 'index.ini'
 MAX_ITEMS  = 0            # 0 表示不限制条数
 DEFAULT_TIME_OF_DAY = (11, 45, 14)   # 纯日期补全的时分秒
+
+# ── 样式表 ────────────────────────────────────────────────
+# 真源放脚本同目录，生成时复制到 rss.xml 旁边，href 用相对路径，
+# 这样本地 file:// 预览和线上 /rss.xml 都能正确取到同一份文件。
+CSS_SRC  = os.path.join(SCRIPT_DIR, 'rss.css')
+CSS_NAME = 'rss.css'
+CSS_HREF = CSS_NAME
 
 HINT_OPEN  = '<span class="hover-hint">'
 TIP_OPEN   = '<span class="hover-hint__tooltip">'
@@ -350,6 +367,7 @@ def build_xml(items):
 
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
+        f'<?xml-stylesheet type="text/css" href="{CSS_HREF}"?>',
         '<rss version="2.0"',
         '     xmlns:atom="http://www.w3.org/2005/Atom"',
         '     xmlns:dc="http://purl.org/dc/elements/1.1/">',
@@ -368,6 +386,8 @@ def build_xml(items):
         f'      <url>{xesc(IMAGE_URL)}</url>',
         f'      <title>{xesc(IMAGE_TITLE)}</title>',
         f'      <link>{xesc(IMAGE_LINK)}</link>',
+        f'      <width>{int(IMAGE_WIDTH)}</width>',
+        f'      <height>{int(IMAGE_HEIGHT)}</height>',
         '    </image>',
         f'    <pubDate>{format_datetime(channel_pub)}</pubDate>',
         f'    <lastBuildDate>{format_datetime(channel_build)}</lastBuildDate>',
@@ -400,6 +420,30 @@ def build_xml(items):
 
     lines += ['  </channel>', '</rss>', '']
     return '\n'.join(lines)
+
+
+# ════════════════════════════════════════════════════════════
+#  样式表同步
+# ════════════════════════════════════════════════════════════
+def load_css():
+    if not os.path.isfile(CSS_SRC):
+        fail(f'缺少样式表: {CSS_SRC}')
+    try:
+        with open(CSS_SRC, encoding='utf-8') as f:
+            return f.read()
+    except OSError as e:
+        fail(f'读取样式表失败: {e}')
+
+
+def write_css(css, feed_path):
+    """把样式表写到 rss.xml 所在目录，保证 href="rss.css" 能解析到。"""
+    dest = os.path.join(os.path.dirname(os.path.abspath(feed_path)), CSS_NAME)
+    try:
+        with open(dest, 'w', encoding='utf-8', newline='\n') as f:
+            f.write(css)
+    except OSError as e:
+        fail(f'写入样式表 {dest} 失败: {e}')
+    return dest
 
 # ════════════════════════════════════════════════════════════
 #  主流程
@@ -442,6 +486,7 @@ def main():
         items = items[:MAX_ITEMS]
 
     xml = build_xml(items)
+    css = load_css()
 
     # 第一步：先写预览产物，供人工核对
     try:
@@ -450,8 +495,11 @@ def main():
     except OSError as e:
         fail(f'写入失败: {e}')
 
+    preview_css = write_css(css, out_path)
+
     print(f'[√] 已生成 {len(items)} 条文章')
     print(f'[√] 预览产物: {out_path}')
+    print(f'[√] 样式表: {preview_css}')
 
     # 第二步：交互确认后再移动覆盖项目根 rss.xml
     target = os.path.join(project_dir, FEED_PATH)
@@ -477,7 +525,11 @@ def main():
         except OSError as e:
             fail(f'移动到 {target} 失败: {e}')
 
+    # 样式表跟着 rss.xml 走到项目根，href="rss.css" 才解析得到
+    final_css = write_css(css, target)
+
     print(f'[√] 已发布（覆盖）: {target}')
+    print(f'[√] 已发布样式表: {final_css}')
     return 0
 
 
