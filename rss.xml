@@ -21,10 +21,25 @@
       <width>144</width>
       <height>144</height>
     </image>
-    <pubDate>Tue, 24 Nov 2026 21:24:00 +0800</pubDate>
-    <lastBuildDate>Tue, 24 Nov 2026 21:24:00 +0800</lastBuildDate>
+    <pubDate>Thu, 26 Nov 2026 21:29:59 +0800</pubDate>
+    <lastBuildDate>Thu, 26 Nov 2026 21:29:59 +0800</lastBuildDate>
     <generator>genrss.py</generator>
     <atom:link href="https://www.ttwe77.cn/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>那个不肯弹通知的 App，被我用 Python 盯上了</title>
+      <link>https://www.ttwe77.cn/blog/screen-watchdog.html</link>
+      <guid isPermaLink="true">https://www.ttwe77.cn/blog/screen-watchdog.html</guid>
+      <pubDate>Thu, 26 Nov 2026 21:29:59 +0800</pubDate>
+      <atom:updated>2026-11-26T21:29:59+08:00</atom:updated>
+      <category domain="urn:ttwe77:category">编程</category>
+      <category domain="urn:ttwe77:tag">Python</category>
+      <category domain="urn:ttwe77:tag">ADB</category>
+      <category domain="urn:ttwe77:tag">PyQt6</category>
+      <category domain="urn:ttwe77:tag">自动化</category>
+      <category domain="urn:ttwe77:tag">整活</category>
+      <description>有些 App 死活不发系统通知，于是我干脆自己写了个监控程序：Android 模拟器跑目标软件，Python 通过 ADB 定时截图、比对前后两帧，一有变化就置顶弹窗、发系统通知、循环播放警报音，顺手记下 AI 写代码踩过的坑。</description>
+      <dc:creator>ttwe77</dc:creator>
+    </item>
     <item>
       <title>本地 AI 知识库全流程实录：从 32 张招聘海报到一篇调研报告</title>
       <link>https://www.ttwe77.cn/blog/AI-embedding-reranker.html</link>
@@ -196,6 +211,23 @@
       <category domain="urn:ttwe77:tag">网易云音乐</category>
       <category domain="urn:ttwe77:tag">哔哩哔哩</category>
       <description>用 AI 锐评网易云音乐“我喜欢的音乐”和哔哩哔哩音乐收藏夹，从歌单反推音乐偏好、情绪层次与私人精神世界，并附趣味评分和画像。</description>
+      <dc:creator>ttwe77</dc:creator>
+    </item>
+    <item>
+      <title>虚拟定位折腾记：从 iOSRealRun 到 MuMu 模拟器的踩坑记录</title>
+      <link>https://www.ttwe77.cn/blog/VLocation.html</link>
+      <guid isPermaLink="true">https://www.ttwe77.cn/blog/VLocation.html</guid>
+      <pubDate>Tue, 13 Oct 2026 11:45:14 +0800</pubDate>
+      <atom:updated>2026-10-16T20:06:56+08:00</atom:updated>
+      <category domain="urn:ttwe77:category">折腾</category>
+      <category domain="urn:ttwe77:tag">虚拟定位</category>
+      <category domain="urn:ttwe77:tag">MuMu模拟器</category>
+      <category domain="urn:ttwe77:tag">KernelSU</category>
+      <category domain="urn:ttwe77:tag">LSPosed</category>
+      <category domain="urn:ttwe77:tag">LocationSpoofer</category>
+      <category domain="urn:ttwe77:tag">HMA-OSS</category>
+      <category domain="urn:ttwe77:tag">踩坑</category>
+      <description>记录我尝试 IOS 虚拟定位到 MuMu 安卓模拟器虚拟定位的全过程，涵盖 iOSRealRun-cli、KernelSU、LSPosed、LocationSpoofer、HMA-OSS 等工具和踩坑经验。</description>
       <dc:creator>ttwe77</dc:creator>
     </item>
     <item>

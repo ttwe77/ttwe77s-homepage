@@ -27,9 +27,9 @@ $py = (cmd /c where python 2>$null | Select-Object -First 1); if (-not $py) { th
 | 0 | `tools/genblog/split_page.py sample.html -o parts` | 从样例页拆出可复用模板到 `parts/`；仅当 `parts/head.html` 或 `parts/style.css` 缺失时自动补跑。`parts/` 被 git 忽略。 |
 | 1 | `tools/genblog/docs/<stem>.md` | 源文件。front matter 至少要有 `date` 与 `updated`，否则 RSS 生成会失败。`title/description/category/tags/author` 用于页面和清单。 |
 | 2 | `tools/genblog/md2page.py` | 解析 front matter，渲染 Markdown，套用 `parts/` 模板，输出 `blog/<stem>.html`。 |
-| 3 | `blog/pages/page1.ini` | 每行一篇文章：`文件 | 标题 | 日期 | 分类 | 标签 | 描述 | SVG`。脚本按文件名匹配，存在则替换整行，不存在则追加到末尾。`blog/index.ini` 只需 `#include pages/page1.ini`，通常不用改。 |
+| 3 | 最新页码 `blog/pages/pageN.ini` | 每行一篇文章：`文件 \| 标题 \| 日期 \| 分类 \| 标签 \| 描述 \| SVG`。目标文件由 `blog/index.ini` **最底部那条 `#include`** 决定（前端与 `genrss.py` 都按下往上读，最底下的分页最新）。脚本按文件名匹配，存在则替换整行，不存在则追加到文件**末尾**（页内越靠下越新）。`blog/index.ini` 本身不参与写入，脚本也绝不新建 `pageN.ini`。 |
 | 4 | `tools/genblog/subset_fonts.py` | 扫描 `blog/*.html` 的实际用字，重建 `blog/fonts/` 下的字体子集与 `charset-used.txt` / `subset.json`。新文章引入新汉字时必须跑。 |
-| 5 | `tools/rss/genrss.py` | 读 `blog/index.ini` -> `pages/page1.ini`，用 HTML 文件名回查 `tools/genblog/docs/<stem>.md`，MD front matter 覆盖 INI 字段，先写 `tools/rss/rss.xml` 预览，确认 `y` 后覆盖根目录 `rss.xml`。构建脚本已自动确认。 |
+| 5 | `tools/rss/genrss.py` | 读 `blog/index.ini` 及其全部 `#include` 分页文件，用 HTML 文件名回查 `tools/genblog/docs/<stem>.md`，MD front matter 覆盖 INI 字段，先写 `tools/rss/rss.xml` 预览，确认 `y` 后覆盖根目录 `rss.xml`。构建脚本已自动确认。 |
 
 ## 踩坑记录（2026-11-21 实测，务必先看）
 
@@ -55,16 +55,16 @@ $py = (cmd /c where python 2>$null | Select-Object -First 1); if (-not $py) { th
 
 **现象**：不传 `--root` 时脚本报缺少必需路径（`tools/genblog/docs` 之类）。
 
-**根因**：`publish_blog.py` 里 `DEFAULT_ROOT = Path(__file__).resolve().parents[3]`，项目根是从**脚本自身位置**往上推 3 级算出来的。这个 skill 有两份内容完全相同的副本：
+**根因**：`publish_blog.py` 里 `DEFAULT_ROOT = Path(__file__).resolve().parents[3]`，项目根是从**脚本自身位置**往上推 3 级算出来的。历史上这个 skill 有两份内容相同的副本：
 
 | 副本 | 脚本路径 | 默认 root（parents[3]） | 是否需要 `--root` |
 | --- | --- | --- | --- |
-| 项目内（首选） | `<current working directory>/skills/genblog-publish/scripts/` | `<current working directory>` ✅ | 不需要 |
-| 用户目录 | `C:/Users/ttwe77/.workbuddy/skills/genblog-publish/scripts/` | `C:/Users/ttwe77/.workbuddy` ❌ | **必须**显式传 |
+| 项目内（**唯一真源**） | `<current working directory>/skills/genblog-publish/scripts/` | `<current working directory>` ✅ | 不需要 |
+| 用户目录（**可能不存在**） | `C:/Users/ttwe77/.workbuddy/skills/genblog-publish/scripts/` | `C:/Users/ttwe77/.workbuddy` ❌ | **必须**显式传 |
 
-WorkBuddy 通过 `@skill:genblog-publish` 加载的是**用户目录那份**，所以常常需要手动补 `--root "<current working directory>"`。
+> 2026-11-26 复核：用户目录副本已被移除，只剩项目内这份。它属于项目级 skill，直接可用。
 
-**正确做法**：优先用项目内那份脚本，从项目根执行，无需 `--root`。若用用户目录那份，务必显式加 `--root`。改 skill 文档/规则时**两份都要同步**，否则下次从另一份加载时改动丢失。
+**正确做法**：一律用项目内那份脚本，从项目根执行，不用传 `--root`。若哪天用户目录副本又出现了，用之前务必显式加 `--root`；改规则时若它存在就两份同步，**不存在就只改项目内这份，别擅自重建**。
 
 ### 坑 3：内联 SVG 要用单引号包裹，否则双引号被 shell 吃掉
 
@@ -114,18 +114,42 @@ missing = [u for u in urls if not Path(u.lstrip("/")).exists()]
 
 **做法**：构建前 `git rev-parse HEAD` 记下哈希，构建后再跑一次，两者一致才能明确向用户报告「HEAD 未变，无 commit、无 push」。
 
+### 坑 8：页码方向是「倒着」的，别看反
+
+**现象**：手动把新文章塞进 `page1.ini`，结果它出现在列表最底部；或者认定 `page1.ini` 就是最新页，于是新文章永远挤在第 1 页。
+
+**根因**：这套分页索引是**从下往上**读的，两处都一样：
+
+| 层级 | 读取顺序 | 结论 |
+| --- | --- | --- |
+| `blog/index.ini` | `parseIncludes()` 对 `#include` 列表 `reverse()` | **最底部**的 `#include` 是最新页 |
+| `blog/pages/pageN.ini` | `parseIni()` 对行数组 `reverse()` | **最底部**的行是最新文章 |
+
+所以「最新页码」不是编号最大的那个文件，而是 `index.ini` 最后一行 include 指向的那个文件——两者通常一致，但以 include 顺序为准（有人手动插页时可能不一致）。
+
+**正确做法**：不要自己数页码、不要自己挑文件。直接跑脚本，它会打印两行确认目标：
+
+```text
+[plan] Newest page ini: <项目根>/blog/pages/page2.ini
+[ini] blog/pages/page2.ini: added -> <stem>.html (最新页码)
+```
+
+目标文件已被 `index.ini` 引用但文件不存在时，脚本会建一个空文件再写入（否则前端 404）；`index.ini` 里一条 `#include` 都没有时，会退回写 `index.ini` 自身，与前端的兜底行为一致。
+
 ## 强制边界
 
 - 禁止执行 `git commit`、`git push`、`git add`、`git tag` 等任何写操作。
 - 只读 `git status` / `git log` 可以用于核对工作区状态，但不是必须。
-- 构建脚本只改动：`tools/genblog/docs/`（必要时复制 md）、`tools/genblog/parts/`（必要时补模板）、`blog/<stem>.html`、`blog/pages/page1.ini`、`blog/fonts/*`、`rss.xml`。
+- 构建脚本只改动：`tools/genblog/docs/`（必要时复制 md）、`tools/genblog/parts/`（必要时补模板）、`blog/<stem>.html`、**`blog/index.ini` 最底部 `#include` 指向的那一个分页文件**、`blog/fonts/*`、`rss.xml`。
+- 绝不新建 `pageN.ini`，绝不增删或重排 `blog/index.ini` 的 `#include` 行。页数由人决定；若最新页看起来已满、或用户要求开新页，先问，再动手。
 - AI 在步骤 -1 中可能改动 Markdown 源文件本身（插入或补齐 front matter）；这只发生在调用构建脚本之前，且必须保留正文原样。
-- 构建完成后向用户报告实际改动文件清单，并明确说明未提交、未推送。
+- 构建完成后向用户报告实际改动文件清单（含拿到条目的分页文件名），并明确说明未提交、未推送。
 
 ## 校验清单
 
 - Markdown 顶部有 `---` 包裹的 YAML 块，包含完整 10 个字段；`date` 与 `updated` 存在且为 `YYYY-MM-DD HH:MM:SS` 格式（精确到秒）。
 - `blog/<stem>.html` 存在，页面 `<title>` 含 front matter 的 `title`。
-- `blog/pages/page1.ini` 中存在且仅存在一条 `<stem>.html` 记录。
+- `blog/index.ini` **最底部 `#include`** 指向的分页文件中，存在且仅存在一条首列为 `<stem>.html` 的记录，且该行位于文件末尾；其余分页文件行数未变。
+- `blog/index.ini` 内容未变（无新增 `#include`，无重排）。
 - `rss.xml` 中存在 `https://www.ttwe77.cn/blog/<stem>.html`。
 - 工作区有改动，但 HEAD 未变化。

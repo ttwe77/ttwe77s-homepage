@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 """Build a ttwe77s-homepage blog post from one Markdown file and one SVG icon.
 
-Steps: Markdown -> blog/<stem>.html -> page1.ini -> font subsets -> rss.xml.
+Steps: Markdown -> blog/<stem>.html -> newest page ini -> font subsets -> rss.xml.
+
+The "newest page" is the file referenced by the LAST `#include` line of
+blog/index.ini. The frontend reads includes bottom-up (the lowest include is
+shown first), so the last include is the newest page and the bottom line of a
+page ini is its newest article. This script never invents a new pageN.ini.
 
 HARD RULE: this script never runs git commit, git push, git add, or any other
 git write command. All git invocations, if any, must be read-only and explicit.
@@ -89,7 +94,7 @@ def normalize_icon(raw: str) -> str:
     low = raw.lower()
     if not low.startswith("<svg") or "</svg>" not in low:
         raise ValueError("图标必须是 <svg>...</svg> 文本或包含 SVG 的文件路径")
-    # page1.ini uses "|" as the field separator.
+    # page ini uses "|" as the field separator.
     return raw.replace("|", "&#124;")
 
 
@@ -97,9 +102,54 @@ def ini_field(value) -> str:
     return re.sub(r"[\r\n]+", " ", str(value or "")).replace("|", "&#124;").strip()
 
 
+INCLUDE_RE = re.compile(r"^#\s*include\s+(.+?)\s*$", re.I)
+
+
+def parse_includes(text: str) -> list[str]:
+    """Collect `#include <path>` targets in file order (bottom-most runs last)."""
+    names: list[str] = []
+    for line in text.splitlines():
+        match = INCLUDE_RE.match(line.strip())
+        if not match:
+            continue
+        name = match.group(1).strip().strip("\"'")
+        if name:
+            names.append(name)
+    return names
+
+
+def resolve_newest_page(blog: Path) -> tuple[Path, bool]:
+    """Return (newest page ini path, whether it is index.ini itself).
+
+    `blog/index.ini` is the pagination order: the LAST `#include` is the newest
+    page (the frontend reverses the include list before rendering). When there
+    is no `#include` at all, index.ini itself is the only page — same fallback
+    the frontend uses.
+    """
+    index_ini = blog / "index.ini"
+    if not index_ini.is_file():
+        fail(f"缺少分页向导文件: {index_ini}")
+
+    includes = parse_includes(index_ini.read_text(encoding="utf-8-sig"))
+    if not includes:
+        print("[warn] blog/index.ini 里没有任何 #include，只能把文章写入 index.ini 自身。",
+              file=sys.stderr)
+        return index_ini, True
+
+    rel = includes[-1].replace("\\", "/").lstrip("/")
+    target = blog.joinpath(*[p for p in rel.split("/") if p])
+    return target, False
+
+
 def update_page_ini(path: Path, html_name: str, new_line: str) -> str:
+    if not path.exists():
+        # index.ini already includes it; an absent file would 404 on the site.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
+        print(f"[warn] {path} 不存在但已被 index.ini 引用，已创建空文件。", file=sys.stderr)
+
     raw = path.read_text(encoding="utf-8-sig")
-    had_newline = raw.endswith(("\n", "\r"))
+    had_newline = (not raw) or raw.endswith(("\n", "\r"))
     newline = "\r\n" if "\r\n" in raw else "\n"
     lines = raw.splitlines()
 
@@ -144,16 +194,19 @@ def main() -> int:
     parts = genblog / "parts"
     blog = root / "blog"
     blog_fonts = blog / "fonts"
-    page_ini = blog / "pages" / "page1.ini"
+    index_ini = blog / "index.ini"
     md2page = genblog / "md2page.py"
     split_page = genblog / "split_page.py"
     subset_fonts = genblog / "subset_fonts.py"
     genrss = root / "tools" / "rss" / "genrss.py"
     rss_path = root / "rss.xml"
 
-    for required in (docs, blog, page_ini, md2page, genrss):
+    for required in (docs, blog, index_ini, blog / "pages", md2page, genrss):
         if not required.exists():
             fail(f"缺少必需路径: {required}")
+
+    # 最新页码由 index.ini 最底部的 #include 决定，绝不自动新建 pageN.ini。
+    page_ini, is_index_self = resolve_newest_page(blog)
 
     # Resolve Markdown path: cwd-relative first, then project-root-relative.
     md_candidate = Path(args.md).expanduser()
@@ -219,6 +272,8 @@ def main() -> int:
         f"[plan] Markdown : {md_path}",
         f"[plan] RSS lookup: {doc_for_rss}",
         f"[plan] HTML out : {out_html}",
+        f"[plan] Newest page ini: {page_ini}"
+        + ("   (index.ini 无 #include，直接写自身)" if is_index_self else ""),
         f"[plan] INI line : {line[:400]}{'...' if len(line) > 400 else ''}",
     ]
     print("\n".join(plan))
@@ -251,7 +306,11 @@ def main() -> int:
         fail(f"md2page.py 未生成预期文件: {out_html}")
 
     action = update_page_ini(page_ini, html_name, line)
-    print(f"[ini] {page_ini.name}: {action} -> {html_name}")
+    try:
+        shown_ini = page_ini.relative_to(root).as_posix()
+    except ValueError:
+        shown_ini = str(page_ini)
+    print(f"[ini] {shown_ini}: {action} -> {html_name} (最新页码)")
 
     if not args.skip_fonts:
         if not blog_fonts.is_dir():

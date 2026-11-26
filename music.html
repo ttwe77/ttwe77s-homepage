@@ -726,6 +726,536 @@
       color: var(--color-primary)
     }
 
+    /* ============ 画中画迷你播放器 ============ */
+    /* 用 flex 而不是 grid + place-items:center：
+       grid 里百分比高度的参照是不确定的行高，会把 height:100% 退化成 auto，
+       列表一展开面板就按内容撑高，控制条和进度条被顶到窗口外面 */
+    .pip-body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pipui {
+      display: grid;
+      grid-template-columns: clamp(64px, 26%, 108px) minmax(0, 1fr);
+      grid-template-areas:
+        "art meta"
+        "art bar"
+        "controls controls";
+      grid-template-rows: auto auto auto;
+      align-content: center;
+      gap: 8px 14px;
+      height: 100%;
+      min-height: 0;
+      min-width: 0;
+      max-height: 100%;
+      overflow: hidden;
+      padding: clamp(12px, 4%, 22px);
+      border-radius: var(--radius-xl);
+      background: var(--color-bg-white);
+      border: 1px solid var(--color-border);
+      box-shadow: 0 14px 36px rgba(15, 32, 56, .18);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .pipui--window {
+      width: 100%;
+      height: 100%;
+      max-width: 440px;
+      max-height: 250px;
+      border: 0;
+      box-shadow: 0 18px 44px rgba(15, 32, 56, .16);
+    }
+
+    .pipui__art {
+      grid-area: art;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      align-self: center;
+      border-radius: var(--radius-md);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: rgba(255, 255, 255, .92);
+      background:
+        radial-gradient(circle at 30% 22%, rgba(255, 255, 255, .5), transparent 58%),
+        linear-gradient(142deg, #7FC4EA 0%, #21a5e3 48%, #4454F8 100%);
+      box-shadow: 0 8px 20px rgba(33, 165, 227, .24);
+    }
+
+    .pipui--float .pipui__art {
+      cursor: grab
+    }
+
+    .pipui.is-playing .pipui__art svg {
+      transform: scale(.82) translateY(-6px);
+      transition: transform .4s var(--page-ease)
+    }
+
+    .pipui__art svg {
+      transition: transform .4s var(--page-ease)
+    }
+
+    .pipui__eq {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 7px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 14px;
+      opacity: 0;
+      transition: opacity .3s ease
+    }
+
+    .pipui.is-playing .pipui__eq {
+      opacity: 1
+    }
+
+    .pipui__eq i {
+      width: 3px;
+      height: 5px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, .9);
+      animation: bar 1.1s ease-in-out infinite
+    }
+
+    .pipui__eq i:nth-child(2) {
+      animation-delay: .18s
+    }
+
+    .pipui__eq i:nth-child(3) {
+      animation-delay: .36s
+    }
+
+    .pipui__eq i:nth-child(4) {
+      animation-delay: .09s
+    }
+
+    :root[data-theme="dark"] .pipui__art {
+      background:
+        radial-gradient(circle at 30% 22%, rgba(122, 190, 235, .12), transparent 62%),
+        linear-gradient(142deg, #22506E 0%, #1D4762 46%, #2A326B 100%);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .42);
+      color: rgba(198, 224, 244, .72);
+    }
+
+    .pipui__meta {
+      grid-area: meta;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px
+    }
+
+    .pipui__title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .pipui__artist {
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .pipui__controls {
+      grid-area: controls;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      align-self: center;
+      min-width: 0
+    }
+
+    /* 音量滑块：挤在控制条尾部，窄窗口下自动收缩 */
+    .pipui__vol {
+      flex: 1 1 40px;
+      min-width: 32px;
+      max-width: 96px;
+      height: 4px;
+      margin: 0 1px
+    }
+
+    /* 静音图标切换（迷你播放器 + 主播放器共用） */
+    .pipui__btn .icon-vol-mute,
+    .volume__btn .icon-vol-mute {
+      display: none
+    }
+
+    .pipui__btn.is-muted .icon-vol,
+    .volume__btn.is-muted .icon-vol {
+      display: none
+    }
+
+    .pipui__btn.is-muted .icon-vol-mute,
+    .volume__btn.is-muted .icon-vol-mute {
+      display: block
+    }
+
+    .pipui__btn.is-active {
+      color: var(--color-primary);
+      background: rgba(33, 165, 227, .12)
+    }
+
+    /* 迷你播放器的播放模式键：三枚图标只露当前那一枚 */
+    .pipui__btn .mode-icon {
+      display: none
+    }
+
+    .pipui__mode[data-mode="list"] .mode-icon--list,
+    .pipui__mode[data-mode="single"] .mode-icon--single,
+    .pipui__mode[data-mode="random"] .mode-icon--random {
+      display: block
+    }
+
+    .pipui__btn {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--color-text-secondary);
+      transition: background .16s ease, color .16s ease, transform .12s ease
+    }
+
+    .pipui__btn:hover {
+      background: rgba(33, 165, 227, .1);
+      color: var(--color-primary)
+    }
+
+    .pipui__btn:active {
+      transform: scale(.9)
+    }
+
+    /* ---------- 点击动效：水波纹 + 回弹（静音键 / 迷你播放器列表键共用） ---------- */
+    .tap-fx {
+      position: relative;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    .tap-fx__ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0);
+      animation: tap-ripple .5s cubic-bezier(.22, .61, .36, 1) forwards
+    }
+
+    @keyframes tap-ripple {
+      0% {
+        transform: scale(.15);
+        opacity: .3
+      }
+
+      60% {
+        opacity: .16
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0
+      }
+    }
+
+    .tap-fx.is-tapped {
+      animation: tap-pop .36s cubic-bezier(.34, 1.56, .64, 1)
+    }
+
+    @keyframes tap-pop {
+      0% {
+        transform: scale(1)
+      }
+
+      30% {
+        transform: scale(.86)
+      }
+
+      62% {
+        transform: scale(1.07)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .pipui__btn--play {
+      width: 34px;
+      height: 34px;
+      margin: 0 2px;
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(33, 165, 227, .35)
+    }
+
+    .pipui__btn--play:hover {
+      background: var(--color-primary-hover);
+      color: #fff
+    }
+
+    /* 深色下别当小太阳，与主播放键保持同一档 */
+    :root[data-theme="dark"] .pipui__btn--play {
+      background: #2C7FB8;
+      color: #EAF2FA;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .42)
+    }
+
+    :root[data-theme="dark"] .pipui__btn--play:hover {
+      background: #3592CF
+    }
+
+    .pipui__btn--close {
+      margin-left: auto;
+      color: var(--color-text-disabled)
+    }
+
+    .pipui__btn .icon-pause {
+      display: none
+    }
+
+    .pipui.is-playing .pipui__btn--play .icon-play {
+      display: none
+    }
+
+    .pipui.is-playing .pipui__btn--play .icon-pause {
+      display: block
+    }
+
+    .pipui__bar {
+      grid-area: bar;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .pipui__time {
+      flex: 0 0 auto;
+      min-width: 30px;
+      font-size: 10.5px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-disabled);
+      text-align: center
+    }
+
+    .pipui__bar .range {
+      height: 4px
+    }
+
+    /* ---------- 迷你列表 ---------- */
+    .pipui__list {
+      grid-area: list;
+      display: none;
+      min-height: 0;
+      margin: 0;
+      padding: 0 2px 0 0;
+      list-style: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+    }
+
+    /* Firefox 用标准属性；Chromium 走下面的 ::-webkit-，两条别混用，
+       否则 Chrome 会用原生细滚动条（还带小箭头）盖掉自定义样式 */
+    @supports not selector(::-webkit-scrollbar) {
+      .pipui__list {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(33, 165, 227, .35) transparent
+      }
+    }
+
+    .pipui__list::-webkit-scrollbar {
+      width: 6px;
+      height: 0
+    }
+
+    /* Windows 上原生滚动条会留个箭头按钮，遮掉 */
+    .pipui__list::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0
+    }
+
+    .pipui__list::-webkit-scrollbar-corner {
+      background: transparent
+    }
+
+    .pipui__list::-webkit-scrollbar-thumb {
+      border-radius: 2px;
+      background: rgba(33, 165, 227, .35)
+    }
+
+    .pipui__list::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    /* 列表展开时：藏起封面与歌名，控制条置顶、列表铺满中间、进度条回到底部 */
+    .pipui.is-list .pipui__art,
+    .pipui.is-list .pipui__meta {
+      display: none
+    }
+
+    .pipui.is-list {
+      grid-template-areas:
+        "controls controls"
+        "list list"
+        "bar bar";
+      grid-template-rows: auto minmax(0, 1fr) auto
+    }
+
+    .pipui.is-list .pipui__list {
+      display: block
+    }
+
+    /* 展开列表时交给窗口高度自己决定，别再用固定值把面板顶出窗口 */
+    .pipui--window.is-list {
+      max-height: 100%
+    }
+
+    .pipui__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 5px 6px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      font-family: inherit;
+      font-size: 11.5px;
+      color: var(--color-text-secondary);
+      text-align: left;
+      cursor: pointer;
+      transition: background .14s ease, color .14s ease
+    }
+
+    .pipui__item:hover {
+      background: rgba(33, 165, 227, .08);
+      color: var(--color-text-primary)
+    }
+
+    .pipui__item.is-active {
+      color: var(--color-primary);
+      background: rgba(33, 165, 227, .1);
+      font-weight: 700
+    }
+
+    .pipui__item-idx {
+      flex: 0 0 18px;
+      font-size: 10px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      color: var(--color-text-disabled)
+    }
+
+    .pipui__item.is-active .pipui__item-idx {
+      color: var(--color-primary)
+    }
+
+    .pipui__item-name {
+      flex: 1 1 auto;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .pipui__item-eq {
+      flex: 0 0 auto;
+      display: none;
+      align-items: flex-end;
+      gap: 2px;
+      height: 11px
+    }
+
+    .pipui__item.is-active.is-playing .pipui__item-eq {
+      display: flex
+    }
+
+    .pipui__item-eq i {
+      width: 2.5px;
+      height: 4px;
+      border-radius: 2px;
+      background: currentColor;
+      animation: bar 1s ease-in-out infinite
+    }
+
+    .pipui__item-eq i:nth-child(2) {
+      animation-delay: .2s
+    }
+
+    .pipui__item-eq i:nth-child(3) {
+      animation-delay: .4s
+    }
+
+    /* 页内浮窗（浏览器不支持 Document PiP 时的兜底） */
+    .pip-float {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 900;
+      width: 300px;
+      height: 168px;
+      touch-action: none;
+      /* 展开列表时高度是变化的，别让浮窗“啪”一下长高 */
+      transition: height .32s var(--page-ease);
+      animation: pip-in .28s var(--page-ease) both
+    }
+
+    .pip-float[hidden] {
+      display: none
+    }
+
+    .pip-float.is-dragging {
+      cursor: grabbing
+    }
+
+    /* 页内浮窗展开列表时拉高一点，不然一屏只看得见一首 */
+    .pip-float:has(.pipui.is-list) {
+      height: min(340px, calc(100vh - 24px))
+    }
+
+    @keyframes pip-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.96)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* 画中画按钮激活态 */
+    .ctl--pip.is-active {
+      color: var(--color-primary);
+      background: rgba(33, 165, 227, .12)
+    }
+
     /* ============ 播放列表 ============ */
     .list-card {
       margin-top: 18px
@@ -1114,6 +1644,14 @@
         width: 34px;
         height: 34px
       }
+
+      .pip-float {
+        right: 12px;
+        bottom: 12px;
+        width: calc(100vw - 24px);
+        max-width: 320px;
+        height: 162px
+      }
     }
 
     @media (prefers-reduced-motion:reduce) {
@@ -1126,6 +1664,15 @@
 
       .cover {
         transition: none
+      }
+
+      /* 点击动效别让晕动症用户难受，直接关掉 */
+      .tap-fx.is-tapped {
+        animation: none
+      }
+
+      .tap-fx__ripple {
+        display: none
       }
 
       ::view-transition-old(root),
@@ -1232,7 +1779,7 @@
               <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
               <path d="M7 22l-4-4 4-4" />
               <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-              <path d="M11 12.5h1.6v4.5" />
+              <path d="M10.4 10.4L12 8.8v6.4" />
             </svg>
             <svg class="mode-icon mode-icon--random" width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1266,13 +1813,27 @@
             </svg>
           </button>
 
+          <button class="ctl ctl--pip" id="mp-pip" type="button" aria-label="画中画" aria-pressed="false"
+            title="画中画（迷你播放器）">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4.5" width="18" height="15" rx="2.6" />
+              <rect x="11.6" y="10.6" width="7.4" height="6" rx="1.6" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+
           <div class="volume">
             <button class="ctl volume__btn" id="mp-mute" type="button" aria-label="静音">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg class="icon-vol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 5L6 9H2v6h4l5 4V5z" />
                 <path d="M15.5 8.5a5 5 0 0 1 0 7" />
                 <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+              </svg>
+              <svg class="icon-vol-mute" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                <path d="M16 9.5l5 5M21 9.5l-5 5" />
               </svg>
             </button>
             <input class="range" id="mp-volume-range" type="range" min="0" max="100" step="1" value="70"
@@ -1368,6 +1929,7 @@
       var modeBtn = document.getElementById('mp-mode');
       var volumeRange = document.getElementById('mp-volume-range');
       var muteBtn = document.getElementById('mp-mute');
+      var pipBtn = document.getElementById('mp-pip');
 
       if (!audio || !titleEl || !listEl) return;
 
@@ -1410,7 +1972,188 @@
 
       function setRangeFill(el, percent) {
         if (!el) return;
-        el.style.setProperty('--p', Math.max(0, Math.min(100, percent)) + '%');
+        /* 收个尾数，不然 style 里会写出一串 23.799999999999997% 的鬼东西 */
+        var p = Math.round(Math.max(0, Math.min(100, percent)) * 1000) / 1000;
+        el.style.setProperty('--p', p + '%');
+      }
+
+      /* ---------- 点击动效：按下处冒一圈水波 + 按钮回弹一下 ---------- */
+      function addTapFx(btn) {
+        if (!btn || btn.__tapFx) return btn;
+        btn.__tapFx = true;
+        btn.classList.add('tap-fx');
+
+        function burst(clientX, clientY) {
+          var doc = btn.ownerDocument || document;
+          var rect = btn.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          var x = typeof clientX === 'number' ? clientX - rect.left : rect.width / 2;
+          var y = typeof clientY === 'number' ? clientY - rect.top : rect.height / 2;
+          /* 半径取点击点到四角的最远距离，波纹才能铺满整个圆钮 */
+          var radius = Math.max(
+            Math.hypot(x, y),
+            Math.hypot(rect.width - x, y),
+            Math.hypot(x, rect.height - y),
+            Math.hypot(rect.width - x, rect.height - y)
+          );
+
+          var dot = doc.createElement('span');
+          dot.className = 'tap-fx__ripple';
+          dot.style.width = dot.style.height = (radius * 2).toFixed(1) + 'px';
+          dot.style.left = (x - radius).toFixed(1) + 'px';
+          dot.style.top = (y - radius).toFixed(1) + 'px';
+          dot.addEventListener('animationend', function () {
+            if (dot.parentNode) dot.parentNode.removeChild(dot);
+          });
+          btn.appendChild(dot);
+
+          /* 连点时先清掉再重新加，动画才会重新播放 */
+          btn.classList.remove('is-tapped');
+          void btn.offsetWidth;
+          btn.classList.add('is-tapped');
+        }
+
+        btn.addEventListener('animationend', function (e) {
+          if (e.animationName === 'tap-pop') btn.classList.remove('is-tapped');
+        });
+
+        btn.addEventListener('pointerdown', function (e) {
+          burst(e.clientX, e.clientY);
+        });
+
+        /* 键盘 Enter / 空格触发没有 pointerdown，补一发居中的 */
+        btn.addEventListener('click', function (e) {
+          if (e.detail === 0) burst();
+        });
+
+        return btn;
+      }
+
+      /* ---------- 滑轨点哪儿都能平滑滑过去，而不是一蹦到位 ----------
+         原生 range 点轨道是「瞬移」的：拦掉 pointerdown 自己算目标值，
+         再用 rAF 逐帧写 value（顺带 dispatch input，复用原有处理逻辑）；
+         按在圆点上时放行，交回原生拖拽，键盘方向键也不受影响。 */
+      var RANGE_THUMB_W = 13;   /* 与 CSS 里 ::-webkit-slider-thumb 的宽度保持一致 */
+
+      function smoothRange(el, opts) {
+        if (!el || el.__smoothRange) return el;
+        el.__smoothRange = true;
+        var duration = (opts && opts.duration) || 260;
+
+        var glide = 0;
+        var dragging = false;
+        var pointerId = null;
+
+        function limits() {
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var step = parseFloat(el.step);
+          return {
+            min: isFinite(min) ? min : 0,
+            max: isFinite(max) && max > (isFinite(min) ? min : 0) ? max : 100,
+            step: isFinite(step) && step > 0 ? step : 1
+          };
+        }
+
+        function ratioOf() {
+          var l = limits();
+          return Math.max(0, Math.min(1, (parseFloat(el.value) - l.min) / (l.max - l.min)));
+        }
+
+        function ratioFromX(clientX) {
+          var rect = el.getBoundingClientRect();
+          var usable = Math.max(1, rect.width - RANGE_THUMB_W);
+          return Math.max(0, Math.min(1, (clientX - rect.left - RANGE_THUMB_W / 2) / usable));
+        }
+
+        function thumbCenterX() {
+          var rect = el.getBoundingClientRect();
+          var usable = Math.max(1, rect.width - RANGE_THUMB_W);
+          return rect.left + RANGE_THUMB_W / 2 + ratioOf() * usable;
+        }
+
+        /* 写值并派发 input，音量/进度各自的原有监听会照常接力 */
+        function write(ratio) {
+          var l = limits();
+          var v = l.min + ratio * (l.max - l.min);
+          v = Math.round(v / l.step) * l.step;
+          v = Math.max(l.min, Math.min(l.max, v));
+          if (Math.abs(parseFloat(el.value) - v) < 1e-6) return;
+          el.value = String(v);
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function commit() {
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        function stopGlide() {
+          if (glide) {
+            cancelAnimationFrame(glide);
+            glide = 0;
+          }
+        }
+
+        function glideTo(target) {
+          stopGlide();
+          var from = ratioOf();
+          if (Math.abs(target - from) < 0.002) { write(target); commit(); return; }
+          if (prefersReducedMotion()) { write(target); commit(); return; }
+
+          var t0 = 0;
+          function step(now) {
+            if (!t0) t0 = now;
+            var k = Math.min(1, (now - t0) / duration);
+            /* easeOutCubic：手一按就有反应，尾巴稳稳刹住 */
+            var e = 1 - Math.pow(1 - k, 3);
+            write(from + (target - from) * e);
+            if (k < 1) {
+              glide = requestAnimationFrame(step);
+            } else {
+              glide = 0;
+              commit();
+            }
+          }
+          glide = requestAnimationFrame(step);
+        }
+
+        el.addEventListener('pointerdown', function (e) {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          /* 按在圆点上：别插手，原生拖拽 + input 事件已经够用了 */
+          if (Math.abs(e.clientX - thumbCenterX()) <= RANGE_THUMB_W) return;
+
+          e.preventDefault();   /* 关键：拦掉原生的一步到位 */
+          stopGlide();
+          dragging = true;
+          pointerId = e.pointerId;
+          try { el.setPointerCapture(e.pointerId); } catch (err) { }
+          try { el.focus({ preventScroll: true }); } catch (err) { }
+          /* 先派发一次 input：进度条的 isSeeking 得立刻置位，
+             否则 timeupdate 会在缓动过程中把滑块拽回播放位置 */
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          glideTo(ratioFromX(e.clientX));
+        });
+
+        el.addEventListener('pointermove', function (e) {
+          if (!dragging || e.pointerId !== pointerId) return;
+          stopGlide();          /* 按住轨道拖动就跟手走，不再缓动 */
+          write(ratioFromX(e.clientX));
+        });
+
+        function endDrag(e) {
+          if (!dragging || (e && e.pointerId !== pointerId)) return;
+          dragging = false;
+          try { el.releasePointerCapture(pointerId); } catch (err) { }
+          pointerId = null;
+          /* 缓动还没跑完就松手？让它跑完自己 commit，别把中间值当成终点 */
+          if (glide) return;
+          commit();
+        }
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+
+        return el;
       }
 
       function setStatus(text) {
@@ -1437,6 +2180,7 @@
           playerEl.classList.toggle('is-paused', !on);
         }
         highlightCurrent();
+        syncPipPlaying(on);
         if (on) {
           setStatus('正在播放 · ' + MODE_LABELS[playMode]);
         } else if (started) {
@@ -1511,6 +2255,7 @@
           li.classList.toggle('is-playing', i === currentIndex && playing);
           li.setAttribute('aria-current', i === currentIndex ? 'true' : 'false');
         });
+        syncPipList();
       }
 
       function updateModeIcon() {
@@ -1519,6 +2264,16 @@
           modeBtn.setAttribute('aria-label', '播放模式：' + MODE_LABELS[playMode] + '（点击切换）');
         }
         if (badgeEl) badgeEl.textContent = MODE_LABELS[playMode];
+        syncPipMode();
+      }
+
+      /* 随机 → 列表循环 → 单曲循环，主播放器和画中画共用 */
+      function cyclePlayMode() {
+        var idx = MODES.indexOf(playMode);
+        playMode = MODES[(idx + 1) % MODES.length];
+        updateModeIcon();
+        writePref('music-mode', playMode);
+        if (!audio.paused) setStatus('正在播放 · ' + MODE_LABELS[playMode]);
       }
 
       /* ---------- 播放控制 ---------- */
@@ -1532,6 +2287,7 @@
         artistEl.textContent = song.artist;
         document.title = song.name + ' | 七七的音乐盒';
         updateMediaSession(song);
+        syncPipMeta();
         highlightCurrent();
         userInitiated = true;
         setLoading(true);
@@ -1620,11 +2376,16 @@
           setRangeFill(seekEl, 0);
           currentTimeEl.textContent = '00:00';
         }
+        syncPipProgress();
+        updatePositionState();
       }
 
       function updateDuration() {
         var duration = audio.duration;
         durationEl.textContent = (isFinite(duration) && duration > 0) ? formatTime(duration) : '00:00';
+        if (pipUI && pipUI.dur) {
+          pipUI.dur.textContent = durationEl.textContent;
+        }
       }
 
       function bindAudioEvents() {
@@ -1700,39 +2461,19 @@
           }
           isSeeking = false;
         });
+        /* 进度条也走平滑滑动，但比音量短一点：拖完还要等半天才跳会很拖沓 */
+        smoothRange(seekEl, { duration: 190 });
 
-        modeBtn.addEventListener('click', function () {
-          var idx = MODES.indexOf(playMode);
-          playMode = MODES[(idx + 1) % MODES.length];
-          updateModeIcon();
-          writePref('music-mode', playMode);
-          if (!audio.paused) setStatus('正在播放 · ' + MODE_LABELS[playMode]);
-        });
+        modeBtn.addEventListener('click', cyclePlayMode);
 
         volumeRange.addEventListener('input', function () {
-          volume = Number(volumeRange.value) / 100;
-          audio.volume = volume;
-          if (volume > 0) lastVolume = volume;
-          setRangeFill(volumeRange, volume * 100);
-          writePref('music-volume', String(volume));
+          applyVolume(Number(volumeRange.value) / 100);
         });
+        smoothRange(volumeRange);
 
         if (muteBtn) {
-          muteBtn.addEventListener('click', function () {
-            if (audio.volume > 0) {
-              lastVolume = audio.volume;
-              audio.volume = 0;
-              volumeRange.value = '0';
-              setRangeFill(volumeRange, 0);
-              muteBtn.setAttribute('aria-label', '取消静音');
-            } else {
-              audio.volume = lastVolume || DEFAULT_VOLUME;
-              volumeRange.value = String(Math.round(audio.volume * 100));
-              setRangeFill(volumeRange, audio.volume * 100);
-              muteBtn.setAttribute('aria-label', '静音');
-            }
-            writePref('music-volume', String(audio.volume));
-          });
+          addTapFx(muteBtn);
+          muteBtn.addEventListener('click', toggleMute);
         }
 
         /* 空格播放 / 暂停，左右键切歌 */
@@ -1750,6 +2491,568 @@
             prevSong();
           }
         });
+      }
+
+      /* ============================================================
+         画中画迷你播放器
+         - 支持 Document Picture-in-Picture（Chrome/Edge 116+）时，
+           开一个真正的置顶小窗，把播放器的样式整份搬进去
+         - 不支持时降级为页内可拖动的浮窗
+         ============================================================ */
+      var pipWin = null;      // Document PiP 窗口引用
+      var pipUI = null;       // 当前正在用的迷你播放器节点引用
+      var floatEl = null;     // 页内浮窗容器（保留 DOM 复用）
+      var floatUI = null;     // 页内浮窗的节点引用
+      var pipOpen = false;
+
+      var PIP_ICON = {
+        prev: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2.2v14H6zM19 5.6v12.8L9.6 12z"/></svg>',
+        next: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.8 5H18v14h-2.2zM5 5.6v12.8L14.4 12z"/></svg>',
+        play: '<svg class="icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>' +
+          '<svg class="icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3.4" height="14" rx="1.2"/><rect x="13.6" y="5" width="3.4" height="14" rx="1.2"/></svg>',
+        close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+        list: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+        /* 播放模式三枚图标：与主播放器同一套路径，只是缩到 15px */
+        modeList: '<svg class="mode-icon mode-icon--list" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>',
+        modeSingle: '<svg class="mode-icon mode-icon--single" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/><path d="M10.4 10.4L12 8.8v6.4"/></svg>',
+        modeRandom: '<svg class="mode-icon mode-icon--random" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>',
+        vol: '<svg class="icon-vol" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>' +
+          '<svg class="icon-vol-mute" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',
+        music: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'
+      };
+
+      function isDocPipSupported() {
+        return !!(window.documentPictureInPicture &&
+          typeof window.documentPictureInPicture.requestWindow === 'function');
+      }
+
+      /* ---------- 音量：主页与画中画共用一套读写 ---------- */
+      function syncMuteIcon(btn, muted) {
+        if (!btn) return;
+        btn.classList.toggle('is-muted', muted);
+        btn.setAttribute('aria-label', muted ? '取消静音' : '静音');
+      }
+
+      function applyVolume(v, persist) {
+        if (persist !== false) stopVolumeTween();
+        v = Math.max(0, Math.min(1, v));
+        volume = v;
+        audio.volume = v;
+        if (v > 0) lastVolume = v;
+
+        if (volumeRange) {
+          volumeRange.value = String(Math.round(v * 100));
+          setRangeFill(volumeRange, v * 100);
+        }
+        syncMuteIcon(muteBtn, v <= 0);
+
+        if (pipUI) {
+          if (pipUI.vol) {
+            pipUI.vol.value = String(Math.round(v * 100));
+            setRangeFill(pipUI.vol, v * 100);
+          }
+          syncMuteIcon(pipUI.muteBtn, v <= 0);
+        }
+
+        if (persist !== false) writePref('music-volume', String(v));
+      }
+
+      /* ---------- 音量渐变：点静音键时滑块平滑滑到 0 / 滑回来 ---------- */
+      var volTween = 0;
+      var volGuard = 0;
+
+      function stopVolumeTween() {
+        if (volTween) {
+          cancelAnimationFrame(volTween);
+          volTween = 0;
+        }
+        if (volGuard) {
+          clearTimeout(volGuard);
+          volGuard = 0;
+        }
+      }
+
+      function prefersReducedMotion() {
+        return !!(window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
+
+      function fadeVolumeTo(target, ms) {
+        target = Math.max(0, Math.min(1, target));
+        stopVolumeTween();
+
+        var from = audio.volume;
+        /* 渐隐到 0 的每一帧都会把 lastVolume 刷成中间值，先备份，收尾再还回去 */
+        var restore = lastVolume;
+        var duration = prefersReducedMotion() ? 0 : (ms || 320);
+
+        if (!duration || Math.abs(from - target) < 0.01) {
+          applyVolume(target);
+          if (target <= 0) lastVolume = restore || DEFAULT_VOLUME;
+          return;
+        }
+
+        var t0 = 0;
+        var done = false;
+
+        function finish() {
+          if (done) return;
+          done = true;
+          stopVolumeTween();
+          applyVolume(target);
+          /* 中途每一帧都在改 lastVolume，收尾把用户原来的音量还回去 */
+          if (target <= 0) lastVolume = restore || DEFAULT_VOLUME;
+        }
+
+        function step(now) {
+          if (!t0) t0 = now;
+          var k = Math.min(1, (now - t0) / duration);
+          /* easeInOutQuad：起手和收尾都软，中间快，比线性自然 */
+          var e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          applyVolume(from + (target - from) * e, false);
+          if (k < 1) {
+            volTween = requestAnimationFrame(step);
+          } else {
+            volTween = 0;
+            finish();
+          }
+        }
+
+        volTween = requestAnimationFrame(step);
+        /* 后台标签页 / 画中画里 rAF 可能被挂起，兜底把动画直接收尾，
+           不然音量会卡在中间某个诡异的数值上 */
+        volGuard = setTimeout(finish, duration + 140);
+      }
+
+      function toggleMute() {
+        fadeVolumeTo(audio.volume > 0 ? 0 : (lastVolume || DEFAULT_VOLUME));
+      }
+
+      /* 迷你播放器 DOM（Document PiP 与页内浮窗共用一套结构） */
+      function buildPipUI(doc, isWindow) {
+        var root = doc.createElement('div');
+        root.className = 'pipui' + (isWindow ? ' pipui--window' : ' pipui--float');
+        root.innerHTML =
+          '<div class="pipui__art" data-drag="1">' + PIP_ICON.music +
+          '<div class="pipui__eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
+          '</div>' +
+          '<div class="pipui__meta" data-drag="1">' +
+          '<div class="pipui__title"></div>' +
+          '<div class="pipui__artist"></div>' +
+          '</div>' +
+          '<div class="pipui__controls">' +
+          '<button class="pipui__btn pipui__mode" type="button" data-act="mode" data-mode="random" aria-label="播放模式：随机播放">' +
+          PIP_ICON.modeList + PIP_ICON.modeSingle + PIP_ICON.modeRandom + '</button>' +
+          '<button class="pipui__btn" type="button" data-act="prev" aria-label="上一首">' + PIP_ICON.prev + '</button>' +
+          '<button class="pipui__btn pipui__btn--play" type="button" data-act="toggle" aria-label="播放">' + PIP_ICON.play + '</button>' +
+          '<button class="pipui__btn" type="button" data-act="next" aria-label="下一首">' + PIP_ICON.next + '</button>' +
+          '<button class="pipui__btn" type="button" data-act="list" aria-label="播放列表" aria-pressed="false">' + PIP_ICON.list + '</button>' +
+          '<button class="pipui__btn" type="button" data-act="mute" aria-label="静音">' + PIP_ICON.vol + '</button>' +
+          '<input class="range pipui__vol" data-el="vol" type="range" min="0" max="100" step="1" value="' +
+          Math.round(volume * 100) + '" aria-label="音量">' +
+          (isWindow ? '' :
+            '<button class="pipui__btn pipui__btn--close" type="button" data-act="close" aria-label="关闭画中画">' + PIP_ICON.close + '</button>') +
+          '</div>' +
+          '<ol class="pipui__list" data-el="list" aria-label="播放列表"></ol>' +
+          '<div class="pipui__bar">' +
+          '<span class="pipui__time" data-el="cur">00:00</span>' +
+          '<input class="range" data-el="seek" type="range" min="0" max="1000" step="1" value="0" aria-label="播放进度">' +
+          '<span class="pipui__time" data-el="dur">00:00</span>' +
+          '</div>';
+
+        var refs = {
+          root: root,
+          title: root.querySelector('.pipui__title'),
+          artist: root.querySelector('.pipui__artist'),
+          seek: root.querySelector('[data-el="seek"]'),
+          cur: root.querySelector('[data-el="cur"]'),
+          dur: root.querySelector('[data-el="dur"]'),
+          playBtn: root.querySelector('[data-act="toggle"]'),
+          modeBtn: root.querySelector('[data-act="mode"]'),
+          listBtn: root.querySelector('[data-act="list"]'),
+          list: root.querySelector('[data-el="list"]'),
+          muteBtn: root.querySelector('[data-act="mute"]'),
+          vol: root.querySelector('[data-el="vol"]')
+        };
+
+        root.querySelector('[data-act="prev"]').addEventListener('click', prevSong);
+        root.querySelector('[data-act="toggle"]').addEventListener('click', togglePlay);
+        root.querySelector('[data-act="next"]').addEventListener('click', nextSong);
+
+        /* 播放模式：随机 → 列表循环 → 单曲循环，和主播放器共用一套状态 */
+        if (refs.modeBtn) {
+          refs.modeBtn.dataset.mode = playMode;
+          refs.modeBtn.addEventListener('click', cyclePlayMode);
+          addTapFx(refs.modeBtn);
+        }
+        var closeBtn = root.querySelector('[data-act="close"]');
+        if (closeBtn) closeBtn.addEventListener('click', closePip);
+
+        refs.listBtn.addEventListener('click', function () { togglePipList(refs); });
+        addTapFx(refs.listBtn);
+        refs.muteBtn.addEventListener('click', toggleMute);
+        addTapFx(refs.muteBtn);
+        refs.vol.addEventListener('input', function () {
+          applyVolume(Number(refs.vol.value) / 100);
+        });
+        smoothRange(refs.vol);
+
+        /* 迷你列表 */
+        PLAYLIST.forEach(function (song, index) {
+          var li = doc.createElement('li');
+          var btn = doc.createElement('button');
+          btn.type = 'button';
+          btn.className = 'pipui__item';
+          btn.dataset.index = String(index);
+          btn.title = song.name + ' · ' + song.artist;
+          btn.innerHTML =
+            '<span class="pipui__item-idx">' + String(index + 1).padStart(2, '0') + '</span>' +
+            '<span class="pipui__item-name"></span>' +
+            '<span class="pipui__item-eq" aria-hidden="true"><i></i><i></i><i></i></span>';
+          btn.querySelector('.pipui__item-name').textContent = song.name;
+          btn.addEventListener('click', function () { playSong(index); });
+          li.appendChild(btn);
+          refs.list.appendChild(li);
+        });
+
+        refs.seek.addEventListener('input', function () {
+          isSeeking = true;
+          var percent = Number(refs.seek.value) / 1000;
+          setRangeFill(refs.seek, percent * 100);
+          var d = audio.duration;
+          if (isFinite(d) && d > 0) refs.cur.textContent = formatTime(percent * d);
+        });
+
+        refs.seek.addEventListener('change', function () {
+          var percent = Number(refs.seek.value) / 1000;
+          var d = audio.duration;
+          if (isFinite(d) && d > 0) audio.currentTime = percent * d;
+          isSeeking = false;
+        });
+        smoothRange(refs.seek, { duration: 190 });
+
+        return refs;
+      }
+
+      function syncPipMeta() {
+        if (!pipUI) return;
+        var song = PLAYLIST[currentIndex] || { name: '未播放', artist: '—' };
+        pipUI.title.textContent = song.name;
+        pipUI.title.title = song.name;
+        pipUI.artist.textContent = song.artist;
+        pipUI.artist.title = song.artist;
+      }
+
+      function syncPipPlaying(on) {
+        if (!pipUI) return;
+        pipUI.root.classList.toggle('is-playing', on);
+        if (pipUI.playBtn) pipUI.playBtn.setAttribute('aria-label', on ? '暂停' : '播放');
+        syncPipList();
+      }
+
+      function syncPipVolume() {
+        if (!pipUI) return;
+        if (pipUI.vol) {
+          pipUI.vol.value = String(Math.round(audio.volume * 100));
+          setRangeFill(pipUI.vol, audio.volume * 100);
+        }
+        syncMuteIcon(pipUI.muteBtn, audio.volume <= 0);
+      }
+
+      function syncPipMode() {
+        if (!pipUI || !pipUI.modeBtn) return;
+        var label = '播放模式：' + MODE_LABELS[playMode];
+        pipUI.modeBtn.dataset.mode = playMode;
+        pipUI.modeBtn.setAttribute('aria-label', label + '（点击切换）');
+        pipUI.modeBtn.title = label;
+      }
+
+      function syncPipList() {
+        if (!pipUI || !pipUI.list) return;
+        var playing = !audio.paused;
+        var items = pipUI.list.querySelectorAll('.pipui__item');
+        Array.prototype.forEach.call(items, function (el, i) {
+          var active = i === currentIndex;
+          el.classList.toggle('is-active', active);
+          el.classList.toggle('is-playing', active && playing);
+          el.setAttribute('aria-current', active ? 'true' : 'false');
+        });
+      }
+
+      /* 画中画窗口本身很矮（190px），展开列表时顺手把它拉高；
+         浏览器不允许 resizeTo 就交给 CSS 自己压缩（列表内部滚动） */
+      var PIP_WIN_W = 340;
+      var PIP_WIN_H = 190;
+      var PIP_WIN_H_LIST = 400;
+
+      function resizePipWindow(open, refs) {
+        if (!pipWin || !refs || refs.root.ownerDocument === document) return;
+        if (typeof pipWin.resizeTo !== 'function') return;
+        try { pipWin.resizeTo(PIP_WIN_W, open ? PIP_WIN_H_LIST : PIP_WIN_H); } catch (e) { }
+      }
+
+      /* 展开 / 收起迷你列表 */
+      function togglePipList(refs) {
+        if (!refs) return;
+        var open = !refs.root.classList.contains('is-list');
+        var reduce = prefersReducedMotion();
+
+        refs.listBtn.classList.toggle('is-active', open);
+        refs.listBtn.setAttribute('aria-pressed', open ? 'true' : 'false');
+        refs.listBtn.setAttribute('aria-label', open ? '收起播放列表' : '播放列表');
+
+        if (open) {
+          resizePipWindow(true, refs);
+          refs.root.classList.add('is-list');
+          syncPipList();
+          var active = refs.list.querySelector('.pipui__item.is-active');
+          if (active && active.scrollIntoView) {
+            try { active.scrollIntoView({ block: 'nearest' }); } catch (e) { }
+          }
+          if (!reduce) animatePipListIn(refs);
+        } else if (reduce) {
+          refs.root.classList.remove('is-list');
+          resizePipWindow(false, refs);
+        } else {
+          /* 先让列表淡出，再真的收起来，不然一按就“消失”很生硬 */
+          animatePipListOut(refs, function () {
+            refs.root.classList.remove('is-list');
+            resizePipWindow(false, refs);
+          });
+        }
+      }
+
+      /* 展开：面板轻轻放大 + 列表整体上浮 + 列表项错峰滑入 */
+      function animatePipListIn(refs) {
+        var list = refs.list;
+        if (!list || typeof list.animate !== 'function') return;
+
+        list.animate(
+          [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+          { duration: 240, easing: 'cubic-bezier(.22,.61,.36,1)' }
+        );
+
+        var items = list.querySelectorAll('.pipui__item');
+        Array.prototype.forEach.call(items, function (el, i) {
+          if (i > 10) return;   /* 只错峰前 11 条，再多就排到明年了 */
+          el.animate(
+            [{ opacity: 0, transform: 'translateX(-8px)' }, { opacity: 1, transform: 'none' }],
+            {
+              duration: 240,
+              delay: 40 + i * 18,
+              easing: 'cubic-bezier(.22,.61,.36,1)',
+              fill: 'backwards'   /* 延迟期间用首帧，避免先闪一下再滑入 */
+            }
+          );
+        });
+
+        if (typeof refs.root.animate === 'function') {
+          refs.root.animate(
+            [{ transform: 'scale(.972)' }, { transform: 'scale(1)' }],
+            { duration: 280, easing: 'cubic-bezier(.22,.61,.36,1)' }
+          );
+        }
+      }
+
+      /* 收起：列表下沉淡出，结束后再摘掉 is-list */
+      function animatePipListOut(refs, done) {
+        var list = refs.list;
+        if (!list || typeof list.animate !== 'function') { done(); return; }
+
+        var anim = list.animate(
+          [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(8px)' }],
+          { duration: 150, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }
+        );
+
+        var finished = false;
+        function end() {
+          if (finished) return;
+          finished = true;
+          if (anim.cancel) anim.cancel();   /* 清掉 forwards，别让列表残影留在关闭态 */
+          done();
+        }
+        anim.onfinish = end;
+        /* 画中画窗口被切到后台时 onfinish 不一定来，兜个底 */
+        setTimeout(end, 260);
+      }
+
+      function syncPipProgress() {
+        if (!pipUI) return;
+        var d = audio.duration;
+        if (isFinite(d) && d > 0) {
+          var percent = audio.currentTime / d;
+          pipUI.seek.value = String(Math.round(percent * 1000));
+          setRangeFill(pipUI.seek, percent * 100);
+          pipUI.cur.textContent = formatTime(audio.currentTime);
+          pipUI.dur.textContent = formatTime(d);
+        } else {
+          pipUI.seek.value = '0';
+          setRangeFill(pipUI.seek, 0);
+          pipUI.cur.textContent = '00:00';
+          pipUI.dur.textContent = '00:00';
+        }
+      }
+
+      function syncPipButton() {
+        if (!pipBtn) return;
+        pipBtn.classList.toggle('is-active', pipOpen);
+        pipBtn.setAttribute('aria-pressed', pipOpen ? 'true' : 'false');
+        pipBtn.setAttribute('aria-label', pipOpen ? '关闭画中画' : '画中画');
+        pipBtn.setAttribute('title', pipOpen ? '关闭画中画' : '画中画（迷你播放器）');
+      }
+
+      function refreshPipUI() {
+        syncPipMeta();
+        syncPipPlaying(!audio.paused);
+        syncPipProgress();
+        syncPipVolume();
+        syncPipMode();
+        syncPipList();
+        syncPipButton();
+      }
+
+      function openPip() {
+        if (pipOpen) { closePip(); return; }
+        if (isDocPipSupported()) {
+          openDocPip();
+        } else {
+          openFloatPip();
+        }
+      }
+
+      function openDocPip() {
+        var req = window.documentPictureInPicture.requestWindow({ width: PIP_WIN_W, height: PIP_WIN_H });
+        if (!req || typeof req.then !== 'function') return;
+
+        req.then(function (win) {
+          /* 把页面样式整份搬进画中画窗口，省得再维护第二套 CSS */
+          var styles = document.querySelectorAll('style');
+          Array.prototype.forEach.call(styles, function (node) {
+            win.document.head.appendChild(node.cloneNode(true));
+          });
+
+          var pipRoot = win.document.documentElement;
+          pipRoot.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'light');
+          /* 字体等内联变量也一并带过去 */
+          pipRoot.style.cssText = document.documentElement.style.cssText;
+          win.document.body.className = 'pip-body';
+
+          pipWin = win;
+          pipUI = buildPipUI(win.document, true);
+          win.document.body.appendChild(pipUI.root);
+          pipOpen = true;
+          refreshPipUI();
+
+          win.addEventListener('pagehide', function () {
+            /* 用户点了画中画窗口自带的关闭按钮 */
+            if (pipWin === win) {
+              pipWin = null;
+              pipUI = null;
+              pipOpen = false;
+              syncPipButton();
+            }
+          });
+        }).catch(function (err) {
+          /* 用户手势丢失、权限被拒等，降级成页内浮窗 */
+          console.warn('画中画窗口打开失败，改用页内浮窗：', err);
+          openFloatPip();
+        });
+      }
+
+      function openFloatPip() {
+        if (!floatEl) {
+          floatEl = document.createElement('div');
+          floatEl.className = 'pip-float';
+          document.body.appendChild(floatEl);
+
+          floatUI = buildPipUI(document, false);
+          floatEl.appendChild(floatUI.root);
+          makeDraggable(floatEl);
+        }
+        floatEl.hidden = false;
+        pipUI = floatUI;
+        pipOpen = true;
+        refreshPipUI();
+      }
+
+      function closePip() {
+        pipOpen = false;
+        if (pipWin) {
+          try { pipWin.close(); } catch (e) { }
+          pipWin = null;
+          pipUI = null;
+        }
+        if (floatEl) {
+          floatEl.hidden = true;
+          pipUI = null;
+        }
+        syncPipButton();
+      }
+
+      /* 页内浮窗拖拽：按住空白处移动，越界时贴边停下 */
+      function makeDraggable(el) {
+        var dragging = false;
+        var startX = 0, startY = 0, origX = 0, origY = 0;
+
+        el.addEventListener('pointerdown', function (e) {
+          if (e.target.closest && e.target.closest('button, input')) return;
+          var rect = el.getBoundingClientRect();
+          el.style.left = rect.left + 'px';
+          el.style.top = rect.top + 'px';
+          el.style.right = 'auto';
+          el.style.bottom = 'auto';
+
+          dragging = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          origX = rect.left;
+          origY = rect.top;
+          el.classList.add('is-dragging');
+          try { el.setPointerCapture(e.pointerId); } catch (err) { }
+          e.preventDefault();
+        });
+
+        el.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          var maxX = Math.max(8, window.innerWidth - el.offsetWidth - 8);
+          var maxY = Math.max(8, window.innerHeight - el.offsetHeight - 8);
+          var nx = Math.min(Math.max(8, origX + (e.clientX - startX)), maxX);
+          var ny = Math.min(Math.max(8, origY + (e.clientY - startY)), maxY);
+          el.style.left = nx + 'px';
+          el.style.top = ny + 'px';
+        });
+
+        function endDrag(e) {
+          if (!dragging) return;
+          dragging = false;
+          el.classList.remove('is-dragging');
+          try { el.releasePointerCapture(e.pointerId); } catch (err) { }
+        }
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+      }
+
+      /* ---------- 系统媒体控制（锁屏 / 耳机按键）---------- */
+      function updatePositionState() {
+        if (!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+        var d = audio.duration;
+        if (!isFinite(d) || d <= 0) return;
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: d,
+            position: Math.min(audio.currentTime, d),
+            playbackRate: audio.playbackRate || 1
+          });
+        } catch (e) { }
+      }
+
+      function initMediaSession() {
+        if (!('mediaSession' in navigator)) return;
+        try {
+          navigator.mediaSession.setActionHandler('previoustrack', prevSong);
+          navigator.mediaSession.setActionHandler('nexttrack', nextSong);
+        } catch (e) { }
       }
 
       /* ---------- 主题切换：与首页同一套过渡 + 同一 localStorage 键 ---------- */
@@ -1774,6 +3077,10 @@
 
         function apply(theme, persist) {
           root.setAttribute('data-theme', theme);
+          /* 画中画窗口是独立文档，得手动同步主题 */
+          if (pipWin && pipWin.document) {
+            pipWin.document.documentElement.setAttribute('data-theme', theme);
+          }
           if (persist) {
             try { localStorage.setItem('theme', theme); } catch (e) { }
           }
@@ -1878,10 +3185,13 @@
         updateDuration();
         setRangeFill(seekEl, 0);
         setRangeFill(volumeRange, volume * 100);
+        syncMuteIcon(muteBtn, volume <= 0);
         bindAudioEvents();
         bindControls();
         initTheme();
         initFont();
+        initMediaSession();
+        if (pipBtn) pipBtn.addEventListener('click', openPip);
 
         if (!PLAYLIST.length) {
           setStatus('歌单是空的');

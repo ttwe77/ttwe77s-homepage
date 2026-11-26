@@ -1273,6 +1273,60 @@
       color: var(--color-text-secondary);
     }
 
+    /* ============ 文章列表切页动画 ============ */
+    /* 旧卡片：整体轻轻上浮淡出 */
+    @keyframes works-page-out {
+      to {
+        opacity: 0;
+        transform: translateY(-9px) scale(.992);
+      }
+    }
+
+    /* 新卡片：错峰淡入上浮 */
+    @keyframes works-page-in {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* backwards：动画结束后交还样式，卡片的 hover / 关闭动画不受影响 */
+    .works.is-page-in .work:not(.work--skeleton) {
+      animation: works-page-in .44s cubic-bezier(.22, .61, .36, 1) backwards;
+      animation-delay: calc(var(--wi, 0) * 30ms);
+    }
+
+    /* 页码当前页：按下后弹一下 */
+    @keyframes works-pager-num {
+      0% {
+        transform: scale(.86);
+      }
+
+      62% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .works-pager__btn.is-current {
+      animation: works-pager-num .34s cubic-bezier(.22, .61, .36, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .works.is-page-in .work:not(.work--skeleton),
+      .works-pager__btn.is-current {
+        animation: none;
+      }
+    }
+
     /* ============ 页脚 ============ */
     .footer {
       position: relative;
@@ -3984,6 +4038,7 @@
 
           return '' +
             '<article class="card work" data-href="' + esc(POST_BASE + item.file) + '"' +
+            ' style="--wi:' + Math.min(i, 6) + '"' +
             ' tabindex="0" role="link" aria-label="' + esc(title.text) + '">' +
 
             /* 右上角 X 按钮 */
@@ -4006,6 +4061,8 @@
             '</article>';
         }).join('');
 
+        /* 打开「错峰入场」开关：之后每次换页，新卡片都会重跑一遍动画 */
+        worksEl.classList.add('is-page-in');
         worksEl.setAttribute('aria-busy', 'false');
         worksEl.innerHTML = html;
       }
@@ -4116,13 +4173,16 @@
         updateStats();
       }
 
-      /* 核心：先画分页器，再决定是直接渲染还是去加载 */
-      function renderCurrentPage() {
+      /* 核心：先画分页器，再决定是直接渲染还是去加载
+         skipChrome=true 时不再重画分页器（切页时它已经先画过了） */
+      function renderCurrentPage(skipChrome) {
         var page = store.pages[store.index];
         if (!page) return;
 
-        renderPager();
-        updateSub();
+        if (!skipChrome) {
+          renderPager();
+          updateSub();
+        }
 
         if (page.loaded) { paintPage(page); return; }
 
@@ -4144,13 +4204,39 @@
           });
       }
 
+      /* 切换前让旧卡片集体退场，退完再渲染新一页 */
+      var listOutTimer = null;
+      var reduceMotion = window.matchMedia
+        ? window.matchMedia('(prefers-reduced-motion: reduce)')
+        : { matches: false };
+
+      function playListOut(render) {
+        clearTimeout(listOutTimer);
+
+        var cards = worksEl
+          ? worksEl.querySelectorAll('.work:not(.work--skeleton)')
+          : [];
+
+        if (!cards.length || reduceMotion.matches) { render(); return; }
+
+        for (var i = 0; i < cards.length; i++) {
+          cards[i].style.animation = 'works-page-out .15s ease forwards';
+        }
+
+        listOutTimer = setTimeout(render, 150);
+      }
+
       /* 切换文章分页（按需触发加载） */
       function goToPostPage(index) {
         if (index < 0 || index >= store.pages.length) return;
         if (index === store.index) return;
 
         store.index = index;
-        renderCurrentPage();
+
+        /* 页码状态立刻响应，列表内容等旧卡片退场后再换 */
+        renderPager();
+        updateSub();
+        playListOut(function () { renderCurrentPage(true); });
 
         /* 回到列表顶部，避免停留在半截位置 */
         var host = document.getElementById('page-posts');
@@ -4378,26 +4464,38 @@
         el.classList.add('is-settled');
       }
 
+      /* 把一个 .reveal 元素放出来（带上它自己的延迟） */
+      function revealEl(el) {
+        if (!el || el.classList.contains('is-visible')) return;
+        if (io) io.unobserve(el);
+
+        var delay = parseInt(el.dataset.delay || '0', 10);
+        if (delay) el.style.transitionDelay = delay + 'ms';
+        el.classList.add('is-visible');
+
+        /* 过渡跑完（含 delay）后清理合成层 */
+        var timer = setTimeout(function () { settleReveal(el); }, delay + 900);
+        el.addEventListener('transitionend', function onEnd(ev) {
+          if (ev.target !== el || ev.propertyName !== 'transform') return;
+          el.removeEventListener('transitionend', onEnd);
+          clearTimeout(timer);
+          settleReveal(el);
+        });
+      }
+
+      /* 整页切换时，把目标页里还没露面的元素补放出来：
+         页面藏在 transform 轨道里，IntersectionObserver 有时来不及触发 */
+      function revealIn(pageEl) {
+        if (!pageEl) return;
+        pageEl.querySelectorAll('.reveal').forEach(revealEl);
+      }
+
       var io = null;
       if ('IntersectionObserver' in window) {
         io = new IntersectionObserver(function (entries) {
           entries.forEach(function (entry) {
             if (!entry.isIntersecting) return;
-            var el = entry.target;
-            io.unobserve(el);
-
-            var delay = parseInt(el.dataset.delay || '0', 10);
-            if (delay) el.style.transitionDelay = delay + 'ms';
-            el.classList.add('is-visible');
-
-            /* 过渡跑完（含 delay）后清理合成层 */
-            var timer = setTimeout(function () { settleReveal(el); }, delay + 900);
-            el.addEventListener('transitionend', function onEnd(ev) {
-              if (ev.target !== el || ev.propertyName !== 'transform') return;
-              el.removeEventListener('transitionend', onEnd);
-              clearTimeout(timer);
-              settleReveal(el);
-            });
+            revealEl(entry.target);
           });
         }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
 

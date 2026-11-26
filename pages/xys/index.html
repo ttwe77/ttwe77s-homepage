@@ -7,13 +7,13 @@
     <title>校园睡 · 用校园跑的方式，认真睡觉</title>
     <meta name="description" content="校园睡：一个把睡觉做成校园跑的娱乐向睡眠打卡产品。学期目标、综合评级、修仙值、睡眠战报，一个都不少。纯前端，数据只存在你的浏览器。">
     <meta name="theme-color" content="#6C5CE7">
-    <link rel="icon" href="../tools/app/src/campus-sleep.svg">
+    <link rel="icon" href="/tools/app/src/campus-sleep.svg">
 
     <style>
         /* ============ 字体 ============ */
         @font-face {
             font-family: "Blog-WenYuan";
-            src: url("../blog/fonts/77StandardRound-Regular.woff2") format("woff2");
+            src: url("/blog/fonts/77StandardRound-Regular.woff2") format("woff2");
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -21,7 +21,7 @@
 
         @font-face {
             font-family: "Blog-WenYuan";
-            src: url("../blog/fonts/77StandardRound-SemiBold.woff2") format("woff2");
+            src: url("/blog/fonts/77StandardRound-SemiBold.woff2") format("woff2");
             font-weight: 500 600;
             font-style: normal;
             font-display: swap;
@@ -29,7 +29,32 @@
 
         @font-face {
             font-family: "Blog-WenYuan";
-            src: url("../blog/fonts/77StandardRound-Bold.woff2") format("woff2");
+            src: url("/blog/fonts/77StandardRound-Bold.woff2") format("woff2");
+            font-weight: 700 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* 兜底字体：主字体缺字时才下载 */
+        @font-face {
+            font-family: "Blog-WenYuan-Fallback";
+            src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan-Fallback";
+            src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-SemiBold.woff2") format("woff2");
+            font-weight: 500 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Blog-WenYuan-Fallback";
+            src: url("/src/ttf/fonts/standard-round/subset/fallback/77StandardRound-Bold.woff2") format("woff2");
             font-weight: 700 900;
             font-style: normal;
             font-display: swap;
@@ -47,7 +72,7 @@
             --lime: #cdf767;
             --line: #e7e4f4;
             --radius: 24px;
-            --font: "Blog-WenYuan", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            --font: "Blog-WenYuan", "Blog-WenYuan-Fallback", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         }
 
@@ -150,12 +175,10 @@
         .brand .mark {
             width: 34px;
             height: 34px;
-            border-radius: 11px;
-            display: grid;
-            place-items: center;
-            font-size: 18px;
-            background: linear-gradient(145deg, #7c6cf0, #5b49d6);
-            box-shadow: 0 6px 16px #6c5ce74d, inset 0 1px 0 #ffffff59;
+            border-radius: 10px;
+            display: block;
+            object-fit: contain;
+            box-shadow: 0 6px 16px #6c5ce74d;
         }
 
         .brand small {
@@ -360,15 +383,17 @@
             white-space: nowrap;
         }
 
-        /* ============ 手机 mock ============ */
+        /* ============ 手机 mock（1:1 还原 tools/app/campus-sleep.html 的「进展」页） ============ */
         .phone-stage {
             position: relative;
             display: grid;
             place-items: center;
-            min-height: 560px;
+            min-height: 600px;
         }
 
         .phone-shell {
+            /* 480 设计宽 → 280 屏幕宽，等比缩放，所有尺寸沿用 App 原值 */
+            --zoom: .58333;
             position: relative;
             width: 300px;
         }
@@ -376,8 +401,8 @@
         .phone {
             width: 100%;
             background: #fff;
-            border-radius: 40px;
-            padding: 11px;
+            border-radius: 44px;
+            padding: 10px;
             box-shadow:
                 0 2px 0 #ffffff inset,
                 0 40px 80px -30px #241f5c4d,
@@ -392,119 +417,147 @@
         }
 
         .screen {
-            border-radius: 30px;
+            position: relative;
+            height: 571px;
+            border-radius: 34px;
             background: #f2f3f8;
             overflow: hidden;
-            padding: 12px 12px 0;
-            font-size: 12px;
-            height: 500px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
+            color: #1c1c28;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* —— 状态栏：设备外壳，不算 App UI —— */
         .status {
+            position: relative;
+            z-index: 3;
+            height: 32px;
+            padding: 0 20px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            font-size: 10.5px;
+            font-size: 11.5px;
             font-weight: 700;
-            color: #1c1c28;
-            padding: 0 4px 10px;
             letter-spacing: .02em;
         }
 
-        .app-top {
+        .status .sb-icons {
             display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status svg {
+            display: block;
+        }
+
+        /* —— 480 设计稿整体等比缩放 —— */
+        .screen-zoom {
+            position: absolute;
+            top: 32px;
+            left: 0;
+            width: 480px;
+            transform: scale(var(--zoom));
+            transform-origin: top left;
+        }
+
+        .appui .page-inner {
+            padding: 14px 16px 96px;
+        }
+
+        /* 顶部栏 */
+        .appui .topbar {
+            display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
+            padding: 6px 2px 14px;
         }
 
-        .app-hi {
-            font-size: 16px;
+        .appui .hi {
+            font-size: 20px;
             font-weight: 800;
-            letter-spacing: -.02em;
+            letter-spacing: .5px;
         }
 
-        .app-hi-sub {
-            font-size: 10px;
+        .appui .hi-sub {
+            font-size: 12px;
             color: #8a8aa0;
-            margin-top: 3px;
+            margin-top: 4px;
         }
 
-        .app-logo {
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            background: #e7e4ff;
-            font-size: 15px;
+        .appui .logo-mini {
+            font-size: 28px;
+            line-height: 1;
         }
 
-        .hero-card {
-            border-radius: 18px;
-            padding: 14px 14px 12px;
-            background: linear-gradient(150deg, #7d6cf5, #5b49d6 70%);
+        /* 学期进度卡 */
+        .appui .hero-card {
+            background: linear-gradient(150deg, #6C5CE7, #8B7BF0 60%, #9F8CF5);
+            border-radius: 22px;
+            padding: 22px 20px 18px;
             color: #fff;
-            box-shadow: 0 12px 26px #5b49d640;
+            box-shadow: 0 14px 32px rgba(108, 92, 231, .32);
             position: relative;
             overflow: hidden;
         }
 
-        .hero-card::after {
+        .appui .hero-card::after {
             content: "";
             position: absolute;
-            width: 120px;
-            height: 120px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            background: #ffffff1f;
-            right: -40px;
-            top: -50px;
+            background: rgba(255, 255, 255, .09);
+            right: -70px;
+            top: -80px;
         }
 
-        .hc-row {
+        .appui .hero-row {
             display: flex;
             align-items: baseline;
-            gap: 6px;
+            gap: 10px;
             position: relative;
+            z-index: 1;
         }
 
-        .hc-num {
-            font-size: 27px;
+        .appui .hero-num {
+            font-size: 56px;
             font-weight: 800;
-            letter-spacing: -.03em;
+            line-height: 1;
+            letter-spacing: -2.5px;
             font-variant-numeric: tabular-nums;
         }
 
-        .hc-goal {
-            font-size: 11px;
-            opacity: .8;
+        .appui .hero-goal {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .75);
+            line-height: 1.3;
         }
 
-        .hc-goal span {
+        .appui .hero-goal span {
             display: block;
-            font-size: 9px;
-            opacity: .7;
-            margin-top: 1px;
+            font-size: 11px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, .55);
+            margin-top: 2px;
+            letter-spacing: 1px;
         }
 
-        .hc-bar {
+        .appui .hero-bar {
             height: 6px;
-            border-radius: 99px;
-            background: #ffffff38;
-            margin: 10px 0;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, .22);
+            margin: 16px 0 14px;
             overflow: hidden;
         }
 
-        .hc-bar i {
+        .appui .hero-bar i {
             display: block;
             height: 100%;
-            width: 87%;
-            border-radius: 99px;
-            background: linear-gradient(90deg, #cdf767, #a8f0ff);
-            box-shadow: 0 0 10px #cdf7678c;
-            animation: grow 1.6s cubic-bezier(.22, .9, .3, 1) both;
+            border-radius: 6px;
+            background: #fff;
+            animation: grow 1.5s cubic-bezier(.22, .9, .3, 1) both;
         }
 
         @keyframes grow {
@@ -513,107 +566,272 @@
             }
         }
 
-        .hc-meta {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+        .appui .hero-meta {
+            display: flex;
+            justify-content: space-between;
             position: relative;
+            z-index: 1;
         }
 
-        .hc-meta div {
-            text-align: center;
+        .appui .hero-meta>div {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
 
-        .hc-meta b {
-            display: block;
-            font-size: 14px;
+        .appui .hero-meta b {
+            font-size: 17px;
+            font-weight: 800;
             font-variant-numeric: tabular-nums;
         }
 
-        .hc-meta span {
-            font-size: 9px;
-            opacity: .72;
+        .appui .hero-meta span {
+            font-size: 10.5px;
+            color: rgba(255, 255, 255, .62);
         }
 
-        .dial-wrap {
-            flex: 1;
-            display: grid;
-            place-items: center;
-            padding: 10px 0 6px;
+        /* 规划提示条 */
+        .appui .tip-banner {
+            margin-top: 14px;
+            border: 1.5px solid #b6e8d2;
+            background: #effcf6;
+            border-radius: 16px;
+            padding: 14px 16px;
         }
 
-        .dial {
-            width: 134px;
-            height: 134px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
+        .appui .tip-banner>div {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #0e7a56;
+            line-height: 1.5;
+        }
+
+        .appui .tip-banner i {
+            display: block;
+            margin-top: 10px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #22c98d, #12b886);
+            color: #fff;
+            font-size: 13.5px;
+            font-weight: 700;
+            font-style: normal;
+            padding: 11px;
             text-align: center;
-            background:
-                radial-gradient(circle at 50% 42%, #ffffff, #eeeaff 70%);
-            box-shadow:
-                0 0 0 8px #ffffff,
-                0 0 0 9px #e2ddfb,
-                0 20px 36px -14px #5b49d64d;
-            position: relative;
+            box-shadow: 0 6px 16px rgba(18, 184, 134, .28);
         }
 
-        .dial::before {
+        /* 通用卡片 */
+        .appui .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 6px 20px rgba(30, 30, 60, .05);
+            margin-top: 14px;
+        }
+
+        .appui .card-head {
+            font-size: 13px;
+            font-weight: 700;
+            color: #5a5a72;
+            margin-bottom: 12px;
+            letter-spacing: .5px;
+        }
+
+        .appui .best-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .appui .best-box {
+            flex: 1;
+            background: #f7f7fd;
+            border-radius: 14px;
+            padding: 14px 6px;
+            text-align: center;
+        }
+
+        .appui .bv {
+            font-size: 17px;
+            font-weight: 800;
+            color: #3b3b58;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .appui .bl {
+            font-size: 10.5px;
+            color: #9a9ab0;
+            margin-top: 6px;
+        }
+
+        /* 橙色通告条 */
+        .appui .notice-banner {
+            margin-top: 14px;
+            border-radius: 18px;
+            padding: 18px;
+            background: linear-gradient(115deg, #ff7a59, #ff9f43 55%, #ffd166);
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(255, 122, 89, .32);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .appui .notice-banner::after {
             content: "";
             position: absolute;
-            inset: -8px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            border: 2px dashed #c9c0f5;
-            animation: spin 22s linear infinite;
+            background: rgba(255, 255, 255, .16);
+            right: -50px;
+            bottom: -70px;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .appui .notice-main {
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 6px rgba(180, 60, 0, .2);
+            position: relative;
+            z-index: 1;
         }
 
-        .dial-label {
-            font-size: 18px;
+        .appui .notice-sub {
+            font-size: 12px;
+            margin-top: 7px;
+            opacity: .92;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 睡眠记录 */
+        .appui .rec-row {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 0;
+            border-bottom: 1px solid #f2f2f8;
+        }
+
+        .appui .rec-row:last-child {
+            border-bottom: none;
+        }
+
+        .appui .rec-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: #f4f2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex: none;
+        }
+
+        .appui .rec-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .appui .rec-date {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #3b3b58;
+        }
+
+        .appui .rec-loc {
+            font-size: 11px;
+            color: #9a9ab0;
+            margin-top: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .appui .rec-val {
+            font-size: 14px;
             font-weight: 800;
-            letter-spacing: -.02em;
+            color: #3b3b58;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            white-space: nowrap;
         }
 
-        .dial-sub {
+        .appui .rec-val.bad {
+            color: #f03e3e;
+        }
+
+        .appui .rec-tag {
             font-size: 9.5px;
-            color: #8a8aa0;
-            margin-top: 4px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .appui .rec-tag.bad {
+            background: #ffe3e3;
+            color: #f03e3e;
+        }
+
+        .appui .foot-note {
+            text-align: center;
+            font-size: 10.5px;
+            color: #b0b0c4;
+            padding: 22px 0 10px;
+            letter-spacing: .5px;
+        }
+
+        /* 底部导航：同样按设计稿缩放 */
+        .tabbar-wrap {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 480px;
+            transform: scale(var(--zoom));
+            transform-origin: bottom left;
+            z-index: 2;
         }
 
         .tabbar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            border-top: 1px solid #e9e8f2;
-            margin: 8px -12px 0;
-            background: #fff;
-            padding: 7px 4px 10px;
+            height: 64px;
+            background: rgba(255, 255, 255, .97);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid #ececf6;
+            display: flex;
         }
 
-        .tabbar div {
-            text-align: center;
-            font-size: 9.5px;
-            color: #9a99ae;
+        .tabbar .ti {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            color: #a8a8bc;
         }
 
-        .tabbar span {
-            display: block;
-            font-size: 15px;
-            margin-bottom: 2px;
-            filter: grayscale(1) opacity(.55);
+        .tabbar .ti span {
+            font-size: 20px;
+            line-height: 1;
+            filter: grayscale(.6);
         }
 
-        .tabbar div.on {
-            color: var(--accent);
+        .tabbar .ti b {
+            font-size: 10px;
             font-weight: 700;
+            letter-spacing: .5px;
         }
 
-        .tabbar div.on span {
+        .tabbar .ti.on {
+            color: #6C5CE7;
+        }
+
+        .tabbar .ti.on span {
             filter: none;
+            transform: translateY(-1px) scale(1.08);
         }
 
         /* 浮动贴纸 */
@@ -662,8 +880,8 @@
         }
 
         .st-3 {
-            bottom: 12px;
-            left: -96px;
+            bottom: 4px;
+            left: -108px;
             width: 118px;
             transform: rotate(-4deg);
             animation-delay: -3.6s;
@@ -1682,11 +1900,9 @@
         .foot-brand .mk {
             width: 30px;
             height: 30px;
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            background: #eceaff;
-            font-size: 16px;
+            border-radius: 9px;
+            display: block;
+            object-fit: contain;
         }
 
         .foot-note {
@@ -1814,7 +2030,7 @@
             }
 
             .phone-stage {
-                min-height: 520px;
+                min-height: 600px;
                 order: 2;
             }
 
@@ -1864,6 +2080,8 @@
             }
 
             .phone-shell {
+                /* 286 - 20 内边距 = 266 屏宽，缩放比同步跟进 */
+                --zoom: .55417;
                 width: 286px;
             }
 
@@ -1872,7 +2090,7 @@
             }
 
             .screen {
-                height: 496px;
+                height: 520px;
             }
 
             .st-1 {
@@ -1932,7 +2150,7 @@
     <header class="nav" id="nav">
         <div class="wrap nav-in">
             <a class="brand" href="#top">
-                <span class="mark">😴</span>
+                <img class="mark" src="/tools/app/src/campus-sleep.svg" alt="校园睡 Logo" width="34" height="34">
                 校园睡
                 <small>v0.1</small>
             </a>
@@ -1944,7 +2162,7 @@
                 <a href="#privacy">隐私</a>
                 <a href="#faq">FAQ</a>
             </nav>
-            <a class="btn btn-primary" href="../tools/app/campus-sleep.html">立刻开睡 →</a>
+            <a class="btn btn-primary" href="/tools/app/campus-sleep.html">立刻开睡 →</a>
         </div>
     </header>
 
@@ -1962,7 +2180,7 @@
                         修仙值和排行榜。数字不会让你睡得更好，但它们会让你睡得<b>更有成就感</b>。
                     </p>
                     <div class="hero-cta">
-                        <a class="btn btn-primary btn-lg" href="../tools/app/campus-sleep.html">无需下载，立即开睡 🌙</a>
+                        <a class="btn btn-primary btn-lg" href="/tools/app/campus-sleep.html">无需下载，立即开睡 🌙</a>
                         <a class="btn btn-ghost btn-lg" href="#grade" data-scroll-half>先看看</a>
                     </div>
                     <div class="hero-note">
@@ -1976,57 +2194,137 @@
 
                 <div class="phone-stage">
                     <div class="phone-shell">
-                    <div class="phone">
-                        <div class="screen">
-                            <div class="status"><span>23:47</span><span>📶 🔋 87%</span></div>
-                            <div class="app-top">
-                                <div>
-                                    <div class="app-hi">Hi，匿名睡友</div>
-                                    <div class="app-hi-sub">躺平与养生学院 · 250250</div>
+                        <div class="phone">
+                            <div class="screen">
+                                <div class="status">
+                                    <span>09:53</span>
+                                    <span class="sb-icons" aria-hidden="true">
+                                        <svg width="17" height="11" viewBox="0 0 17 11">
+                                            <rect x="0" y="7" width="3" height="4" rx="1" fill="#1c1c28" />
+                                            <rect x="4.6" y="5" width="3" height="6" rx="1" fill="#1c1c28" />
+                                            <rect x="9.2" y="2.6" width="3" height="8.4" rx="1" fill="#1c1c28" />
+                                            <rect x="13.8" y="0" width="3" height="11" rx="1" fill="#1c1c28" />
+                                        </svg>
+                                        <svg width="15" height="11" viewBox="0 0 15 11">
+                                            <path d="M7.5 10.3 5.5 8.2a2.8 2.8 0 0 1 4 0z" fill="#1c1c28" />
+                                            <path d="M3.7 6.2a5.7 5.7 0 0 1 7.6 0l-1.3 1.4a3.9 3.9 0 0 0-5 0z" fill="#1c1c28" />
+                                            <path d="M1.4 3.7a9.1 9.1 0 0 1 12.2 0l-1.3 1.4a7.3 7.3 0 0 0-9.6 0z" fill="#1c1c28" />
+                                        </svg>
+                                        <svg width="25" height="12" viewBox="0 0 25 12">
+                                            <rect x="0.5" y="0.5" width="21" height="11" rx="3.6" fill="none" stroke="#1c1c28" stroke-opacity=".35" />
+                                            <rect x="2.2" y="2.2" width="14.6" height="7.6" rx="2" fill="#1c1c28" />
+                                            <path d="M23 4.3v3.4a2 2 0 0 0 0-3.4z" fill="#1c1c28" fill-opacity=".45" />
+                                        </svg>
+                                    </span>
                                 </div>
-                                <div class="app-logo">😴</div>
-                            </div>
-                            <div class="hero-card">
-                                <div class="hc-row">
-                                    <div class="hc-num" data-count="87.35" data-dec="2">0.00</div>
-                                    <div class="hc-goal">/ 100 Hour<span>学期目标</span></div>
-                                </div>
-                                <div class="hc-bar"><i></i></div>
-                                <div class="hc-meta">
-                                    <div><b data-count="102.40" data-dec="2">0</b><span>累计睡眠(h)</span></div>
-                                    <div><b data-count="12.75" data-dec="2">0</b><span>本周睡眠(h)</span></div>
-                                    <div><b data-count="6" data-dec="0">0</b><span>连续天数</span></div>
-                                </div>
-                            </div>
-                            <div class="dial-wrap">
-                                <div class="dial">
-                                    <div>
-                                        <div class="dial-label">开睡</div>
-                                        <div class="dial-sub">轻触开始本次睡眠</div>
+
+                                <div class="screen-zoom">
+                                    <div class="appui">
+                                        <div class="page-inner">
+                                            <div class="topbar">
+                                                <div>
+                                                    <div class="hi">Hi，匿名睡友</div>
+                                                    <div class="hi-sub">赫奇帕奇学院 · 777777</div>
+                                                </div>
+                                                <div class="logo-mini">😴</div>
+                                            </div>
+
+                                            <div class="hero-card">
+                                                <div class="hero-row">
+                                                    <div class="hero-num" data-count="87.35" data-dec="2">87.35</div>
+                                                    <div class="hero-goal">/ 100 Hour<span>学期目标</span></div>
+                                                </div>
+                                                <div class="hero-bar"><i style="width:87.35%"></i></div>
+                                                <div class="hero-meta">
+                                                    <div><b data-count="102.40" data-dec="2">102.40</b><span>累计睡眠(h)</span></div>
+                                                    <div><b data-count="12.75" data-dec="2">12.75</b><span>本周睡眠(h)</span></div>
+                                                    <div><b data-count="6" data-dec="0">6</b><span>连续天数</span></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="tip-banner">
+                                                <div>✨ 想要合理规划自己的学期睡眠计划？</div>
+                                                <i>🎯 获取我的专属睡眠规划</i>
+                                            </div>
+
+                                            <div class="card">
+                                                <div class="card-head">最佳记录（本周）</div>
+                                                <div class="best-row">
+                                                    <div class="best-box"><div class="bv">10.40h</div><div class="bl">最长睡眠</div></div>
+                                                    <div class="best-box"><div class="bv">23:12</div><div class="bl">最早入睡</div></div>
+                                                    <div class="best-box"><div class="bv">09:36</div><div class="bl">最晚起床</div></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="notice-banner">
+                                                <div class="notice-main">躺平！免早八通道开放</div>
+                                                <div class="notice-sub">床铺面积争霸赛同步报名中 →</div>
+                                            </div>
+
+                                            <div class="card">
+                                                <div class="card-head">睡眠记录</div>
+                                                <div class="rec-row">
+                                                    <div class="rec-icon">🌙</div>
+                                                    <div class="rec-main">
+                                                        <div class="rec-date">11-25 23:12 → 11-26 09:36</div>
+                                                        <div class="rec-loc">🛏 宿舍 · 上铺</div>
+                                                    </div>
+                                                    <div class="rec-val">10h 24m</div>
+                                                </div>
+                                                <div class="rec-row">
+                                                    <div class="rec-icon">🌙</div>
+                                                    <div class="rec-main">
+                                                        <div class="rec-date">11-24 23:40 → 11-25 07:52</div>
+                                                        <div class="rec-loc">🛏 宿舍 · 上铺</div>
+                                                    </div>
+                                                    <div class="rec-val">8h 12m</div>
+                                                </div>
+                                                <div class="rec-row">
+                                                    <div class="rec-icon">🌙</div>
+                                                    <div class="rec-main">
+                                                        <div class="rec-date">11-23 01:52 → 11-23 11:06</div>
+                                                        <div class="rec-loc">📚 图书馆 · 三楼自习区</div>
+                                                    </div>
+                                                    <div class="rec-val">9h 14m</div>
+                                                </div>
+                                                <div class="rec-row">
+                                                    <div class="rec-icon">🌙</div>
+                                                    <div class="rec-main">
+                                                        <div class="rec-date">11-22 01:10 → 11-22 13:34</div>
+                                                        <div class="rec-loc">🛏 宿舍 · 下铺</div>
+                                                    </div>
+                                                    <div class="rec-val bad">12h 24m<span class="rec-tag bad">昏迷</span></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="foot-note">校园睡 · 娱乐产品，不构成健康建议</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="tabbar">
-                                <div class="on"><span>📊</span>进展</div>
-                                <div><span>😴</span>睡觉</div>
-                                <div><span>🏆</span>广场</div>
-                                <div><span>👤</span>我的</div>
+
+                                <div class="tabbar-wrap">
+                                    <nav class="tabbar">
+                                        <div class="ti on"><span>📊</span><b>进展</b></div>
+                                        <div class="ti"><span>😴</span><b>睡觉</b></div>
+                                        <div class="ti"><span>🏆</span><b>广场</b></div>
+                                        <div class="ti"><span>👤</span><b>我的</b></div>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="sticker st-1">
-                        <span class="grade-chip">SSS</span>
-                        <div><b>单次睡了 10.4h</b><em>已超过 99% 的同学</em></div>
-                    </div>
-                    <div class="sticker st-2">
-                        <div style="font-size:18px">🦉</div>
-                        <div><b>修仙值 96</b><em>入睡 02:52，已近大成</em></div>
-                    </div>
-                    <div class="sticker st-3">
-                        <div style="font-size:16px">🔥</div>
-                        <div><b>连睡 6 天</b><em>再撑 1 天解锁成就</em></div>
-                    </div>
+                        <div class="sticker st-1">
+                            <span class="grade-chip">SSS</span>
+                            <div><b>单次睡了 10.4h</b><em>已超过 99% 的同学</em></div>
+                        </div>
+                        <div class="sticker st-2">
+                            <div style="font-size:18px">🦉</div>
+                            <div><b>修仙值 96</b><em>入睡 02:52，已近大成</em></div>
+                        </div>
+                        <div class="sticker st-3">
+                            <div style="font-size:16px">🔥</div>
+                            <div><b>连睡 6 天</b><em>再撑 1 天解锁成就</em></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2398,7 +2696,7 @@
                     <p>不需要装备、不需要出门、不需要任何天赋。选定位置，按下开睡，然后把手机放下。
                         剩下的交给计时器，以及你明天早上不太情愿的那一次点击。</p>
                     <div class="cta-actions">
-                        <a class="btn btn-primary btn-lg" href="../tools/app/campus-sleep.html">开始今晚的睡眠 →</a>
+                        <a class="btn btn-primary btn-lg" href="/tools/app/campus-sleep.html">开始今晚的睡眠 →</a>
                         <a class="btn btn-ghost btn-lg" href="#grade">再看看评级规则</a>
                     </div>
                 </div>
@@ -2411,17 +2709,17 @@
         <div class="wrap">
             <div class="foot-in">
                 <div>
-                    <div class="foot-brand"><span class="mk">😴</span>校园睡</div>
+                    <div class="foot-brand"><img class="mk" src="/tools/app/src/campus-sleep.svg" alt="" width="30" height="30">校园睡</div>
                     <div class="foot-note">
                         娱乐产品，不构成健康建议。与任何学校、教务系统、宿舍管理部门及宿管阿姨均无关联。<br>
                         所有数据保存在你的浏览器本地，我们看不到，也不想看。
                     </div>
                 </div>
                 <div class="foot-links">
-                    <a href="../tools/app/campus-sleep.html">打开应用</a>
+                    <a href="/tools/app/campus-sleep.html">打开应用</a>
                     <a href="#how">玩法说明</a>
                     <a href="#faq">常见问题</a>
-                    <a href="../index.html">返回主页</a>
+                    <a href="/index.html">返回主页</a>
                 </div>
             </div>
 
@@ -2516,6 +2814,8 @@
             var r = box.getBoundingClientRect();
             if (r.top > window.innerHeight - 60) return;
             counted = true;
+            // 尊重「减少动态效果」：直接落到终值
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
             nums.forEach(function (el) {
                 var target = parseFloat(el.dataset.count);
                 var dec = parseInt(el.dataset.dec, 10) || 0;
